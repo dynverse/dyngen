@@ -2,7 +2,7 @@
   degree <- rep(0, amnt.nodes)
   forw.neighbours <- lapply(seq_len(amnt.nodes), function(i) numeric(0))
   back.neighbours <- lapply(seq_len(amnt.nodes), function(i) numeric(0))
-  list(degree = degree, neighbours = forw.neighbours, back.neighbours = back.neighbours)
+  list(amnt.nodes = amnt.nodes, degree = degree, neighbours = forw.neighbours, back.neighbours = back.neighbours)
 }
 
 .ba.add.edge <- function(net, i, j) {
@@ -93,10 +93,11 @@ generate.ba <- function(amnt.nodes, amnt.edges, offset.exponent = 1, trace=T) {
     }
   }
   
-  # transform network into a data frame
-  network <- bind_rows(lapply(seq_len(amnt.nodes), function(i) {
+  net
+}
+
+network.to.df <- function(net) {
+  bind_rows(lapply(seq_len(net$amnt.nodes), function(i) {
     data.frame(i = net$neighbours[[i]], j = rep(i, length(net$neighbours[[i]])))
   }))
-  
-  network
 }

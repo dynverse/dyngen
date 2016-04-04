@@ -17,6 +17,10 @@ target2tfs <- lapply(G, function(g) {
 })
 names(target2tfs) = G
 
+# source("ba_network.R")
+# ba.network <- generate.ba(amnt.nodes = 10, amnt.edges = 20)
+# ba.net.df <- network.to.df(ba.network) # indien nodig
+
 ## generating reaction formulas (the probability that a reaction occurs in [t, t dt])
 
 interactionid = 0
@@ -140,7 +144,7 @@ E = expression[samples, ]
 
 space = reduce.dimensionality(correlation.distance(E),ndim = 3)
 trajectory = infer.trajectory(space)
-draw.trajectory.plot(space, sampletimes, trajectory$final.path)
+draw.trajectory.plot(space, sampletimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu") + theme_dark()
 rownames(E) = c(1:nrow(E))
 draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(sampletimes, breaks=99, labels=F)))
 
