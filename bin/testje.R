@@ -1,7 +1,7 @@
 library(GillespieSSA)
 library(plyr)
 library(dplyr)
-library(ggplot)
+library(ggplot2)
 library(reshape2)
 library(stringr)
 library(pheatmap)
@@ -10,6 +10,9 @@ G = c(1:50)
 R = G[1:10]
 target2tfs <- lapply(G, function(g) sample(R, 1+rbinom(1, length(R)-1, 0.1)))
 names(target2tfs) = G
+
+# source("ba_network.R")
+# ba.network <- generate.ba(amnt.nodes = 10, amnt.edges = 20)
 
 interactionid = 0
 kterms = c()
