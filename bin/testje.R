@@ -11,6 +11,9 @@ tfs = G[1:10]
 target2tfs <- lapply(G, function(g) sample(tfs, 1+rbinom(1, length(tfs)-1, 0.1)))
 names(target2tfs) = G
 
+# source("ba_network.R")
+# ba.network <- generate.ba(amnt.nodes = 10, amnt.edges = 20)
+
 interactionid = 0
 kterms = c()
 production = mapply(function(g, tfs) {
