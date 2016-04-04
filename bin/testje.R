@@ -101,7 +101,7 @@ E = expression[samples, ]
 
 space = reduce.dimensionality(correlation.distance(E),ndim = 3)
 trajectory = infer.trajectory(space)
-draw.trajectory.plot(space, sampletimes, trajectory$final.path)
+draw.trajectory.plot(space, sampletimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu") + theme_dark()
 rownames(E) = c(1:nrow(E))
 draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(sampletimes, breaks=99, labels=F)))
 
