@@ -13,6 +13,7 @@ names(target2tfs) = G
 
 # source("ba_network.R")
 # ba.network <- generate.ba(amnt.nodes = 10, amnt.edges = 20)
+# ba.net.df <- network.to.df(ba.network) # indien nodig
 
 interactionid = 0
 kterms = c()
