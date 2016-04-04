@@ -7,8 +7,8 @@ library(stringr)
 library(pheatmap)
 
 G = c(1:50)
-R = G[1:10]
-target2tfs <- lapply(G, function(g) sample(R, 1+rbinom(1, length(R)-1, 0.1)))
+tfs = G[1:10]
+target2tfs <- lapply(G, function(g) sample(tfs, 1+rbinom(1, length(tfs)-1, 0.1)))
 names(target2tfs) = G
 
 # source("ba_network.R")
@@ -43,7 +43,7 @@ K = sapply(kterms, function(kterm) R[paste0("r",str_replace("k1g2", "k(\\d*)g\\d
 names(K) = kterms
 A0 = rep(0.1, length(G))
 names(A0) = paste0("a0g", G)
-A0[runif(length(G)) < 0.2] = 1
+A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.4))] = 1
 
 params = c(a0=0.1, a1=1, R, D, K, A0)
 nu <- cbind2(diag(nrow=length(G), ncol=length(G)), -diag(nrow=length(G), ncol=length(G)))
@@ -74,7 +74,7 @@ expression = output$expression
 times = output$times
 
 X0 = tail(output$expression, n=1)[1,]
-A0[runif(length(G)) < 0.2] = 1
+A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.4))] = 1
 params = c(a0=0.1, a1=1, R, D, K, A0)
 out <- ssa(X0,formulas,nu,params,tf=tf, method="OTL")
 output = process_ssa(out, last(times))
@@ -94,13 +94,15 @@ ggplot(datadf) + geom_line(aes(sample, count, group=gene, color=gene))
 
 library(SCORPIUS)
 
-samples = sample(c(1:nrow(expression)), 100)
+samples = sample(c(1:nrow(expression)), 500, replace = F)
 sampletimes = times[samples]
 
 E = expression[samples, ]
 
-space = reduce.dimensionality(correlation.distance(E),ndim = 2)
+space = reduce.dimensionality(correlation.distance(E),ndim = 3)
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, sampletimes, trajectory$final.path)
 rownames(E) = c(1:nrow(E))
-draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(sampletimes, breaks=3, labels=F)))
+draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(sampletimes, breaks=99, labels=F)))
+
+draw.trajectory.heatmap(E, sampletimes, as.factor(cut(sampletimes, breaks=99, labels=F)))
