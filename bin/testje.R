@@ -96,25 +96,29 @@ print(A0)
 
 runtimes = c()
 
-out <- ssa(X0,formulas,nu,params,tf=tf)
+tf = 5
+burntf = 4
+out <- ssa(X0,formulas,nu,params,tf=tf, method = "BTL")
 output = process_ssa(out)
 expression = output$expression
 times = output$times
+burnin = times > burntf
+expression = output$expression[burnin,]
+times = times[burnin]
 runtimes[length(runtimes)+1] = last(times)
-runs = rep(1, length(output$times))
+runs = rep(1, length(times))
 
 # other runs: perturb TF activity
 tf=1
 lapply(c(1:20), function(i) {
   X0 = tail(expression, n=1)[1,]
-  A0[] = 0.05
   
   A0[sample(tfs, 1)] <<- 1
   A0[sample(tfs, 1)] <<- 0.05
   #A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.5))] = 1
   print(A0)
   params = c(a1=1, R, D, K, A0)
-  out <- ssa(X0,formulas,nu,params,tf=tf)
+  out <- ssa(X0,formulas,nu,params,tf=tf, method="BTL")
   output = process_ssa(out, last(times))
   expression<<-rbind2(expression, output$expression)
   times <<- c(times, output$times)
@@ -142,9 +146,9 @@ sampletimes = times[samples]
 
 E = expression[samples, ]
 
-space = reduce.dimensionality(correlation.distance(E),ndim = 3)
+space = reduce.dimensionality(correlation.distance(E),ndim = 2)
 trajectory = infer.trajectory(space)
-draw.trajectory.plot(space, sampletimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu") + theme_dark()
+draw.trajectory.plot(space, sampletimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
 rownames(E) = c(1:nrow(E))
 draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(sampletimes, breaks=99, labels=F)))
 
