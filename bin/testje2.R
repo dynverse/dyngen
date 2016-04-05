@@ -8,8 +8,8 @@ library(pheatmap)
 library(parallel)
 library(PRISM)
 
-G = c(1:50)
-tfs = G[1:10]
+G = c(1:100)
+tfs = G[1:20]
 target2tfs <- lapply(G, function(g) {
   if(g%in%tfs) {
     return(double())
@@ -19,12 +19,12 @@ target2tfs <- lapply(G, function(g) {
 })
 names(target2tfs) = G
 
-source("bin/ba_network.R")
-G = c(1:50)
-ba.network <- generate.ba(amnt.nodes = length(G), amnt.edges = 100)
-ba.net.df <- network.to.df(ba.network) # indien nodig
-tfs = G[G %in% ba.net.df$i]
-target2tfs = setNames(ba.network$neighbours, G)
+#source("bin/ba_network.R")
+#G = c(1:50)
+#ba.network <- generate.ba(amnt.nodes = length(G), amnt.edges = 100)
+#ba.net.df <- network.to.df(ba.network) # indien nodig
+#tfs = G[G %in% ba.net.df$i]
+#target2tfs = setNames(ba.network$neighbours, G)
 
 ## generating reaction formulas (the probability that a reaction occurs in [t, t dt])
 kterms = c()
@@ -97,8 +97,8 @@ A0s = lapply(c(1:(nruns+1)), function(i) {
   if(i == 1) {
     return(A0)
   } else {
-    A0[sample(tfs, 1)] <<- 1
-    A0[sample(tfs, 1)] <<- 0.05
+    A0[sample(tfs, 2)] <<- 1
+    A0[sample(tfs, 2)] <<- 0.05
     return(A0)
   }
 })
@@ -129,16 +129,13 @@ simulate_cell = function(timeofsampling=NULL) {
     A0 = A0s[[i+1]]
     params = c(params, A0)
     
-    out <- ssa(X0,formulas,nu,params,tf=tf, method="D")
+    out <- fastgssa::ssa(X0,formulas,nu,params,tf=tf, method="D")
     output <- process_ssa(out, last(times))
     expression<-methods::rbind2(expression, output$expression)
     times <- c(times, output$times)
     
-    # R still evaluates the second part of an if(..&..) even if the first one is already false??
-    if(!is.null(timeofsampling)) {
-      if (last(times) > timeofsampling){
+    if(!is.null(timeofsampling) && last(times) > timeofsampling) {
         break
-      }
     }
   }
   
@@ -151,6 +148,9 @@ simulate_cell = function(timeofsampling=NULL) {
   }
 }
 celltimes = runif(200, 0, 20)
+
+library(profvis)
+profvis({simulate_cell(1)})
 
 #cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 cells = qsub.lapply(celltimes, simulate_cell)
@@ -170,7 +170,7 @@ ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 
 library(SCORPIUS)
-space = reduce.dimensionality(correlation.distance(E),ndim = 3)
+space = reduce.dimensionality(correlation.distance(E),ndim = 2)
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
 rownames(E) = c(1:nrow(E))
