@@ -26,3 +26,7 @@ Stress test your methods against:
 
 * Noise
 * Contamination
+
+## Notes
+
+* Do we need to handle transcriptional burts? (eg. see last paragraph of online methods in http://www.nature.com/nmeth/journal/v11/n6/full/nmeth.2930.html). This would dramatically increase the stochasticity of gene expression.

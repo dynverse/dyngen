@@ -14,14 +14,17 @@ target2tfs <- lapply(G, function(g) {
   if(g%in%tfs) {
     return(double())
   } else {
-    return(sample(tfs, 1+rbinom(1, length(tfs)-1, 0.1)))
+    return(sample(tfs, 1+rbinom(1, length(tfs)-1, 0.05)))
   }
 })
 names(target2tfs) = G
 
-# source("ba_network.R")
-# ba.network <- generate.ba(amnt.nodes = 10, amnt.edges = 20)
-# ba.net.df <- network.to.df(ba.network) # indien nodig
+source("bin/ba_network.R")
+G = c(1:50)
+ba.network <- generate.ba(amnt.nodes = length(G), amnt.edges = 100)
+ba.net.df <- network.to.df(ba.network) # indien nodig
+tfs = G[G %in% ba.net.df$i]
+target2tfs = setNames(ba.network$neighbours, G)
 
 ## generating reaction formulas (the probability that a reaction occurs in [t, t dt])
 kterms = c()
@@ -101,7 +104,7 @@ A0s = lapply(c(1:(nruns+1)), function(i) {
 })
 
 simulate_cell = function(timeofsampling=NULL) {
-  require(GillespieSSA)
+  require(fastgssa)
   
   totaltime = 0
   tf = 5
@@ -110,7 +113,7 @@ simulate_cell = function(timeofsampling=NULL) {
   A0 = A0s[[1]]
   params = c(params, A0)
   
-  out <- ssa(X0,formulas,nu,params,tf=tf, method = "BTL")
+  out <- ssa(X0,formulas,nu,params,tf=tf, method = "D")
   output = process_ssa(out)
   expression = output$expression
   times = output$times
@@ -126,9 +129,9 @@ simulate_cell = function(timeofsampling=NULL) {
     A0 = A0s[[i+1]]
     params = c(params, A0)
     
-    out <- ssa(X0,formulas,nu,params,tf=tf, method="BTL")
+    out <- ssa(X0,formulas,nu,params,tf=tf, method="D")
     output <- process_ssa(out, last(times))
-    expression<-rbind2(expression, output$expression)
+    expression<-methods::rbind2(expression, output$expression)
     times <- c(times, output$times)
     
     # R still evaluates the second part of an if(..&..) even if the first one is already false??
@@ -147,9 +150,14 @@ simulate_cell = function(timeofsampling=NULL) {
     return(expression[findInterval(timeofsampling, times),])
   }
 }
-celltimes = runif(50, 0, 20)
-cells = mclapply(celltimes, simulate_cell, mc.cores=1)
+celltimes = runif(200, 0, 20)
+
+#cells = mclapply(celltimes, simulate_cell, mc.cores=8)
+cells = qsub.lapply(celltimes, simulate_cell)
+
 E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
+E = E[,apply(E, 2, sd) > 0]
+
 pheatmap(t(E), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
 
 library(ggplot2)
@@ -166,7 +174,7 @@ space = reduce.dimensionality(correlation.distance(E),ndim = 3)
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
 rownames(E) = c(1:nrow(E))
-draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(celltimes, breaks=99, labels=F)))
+draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(celltimes, breaks=length(celltimes), labels=F)))
 
 draw.trajectory.heatmap(E, celltimes, as.factor(cut(celltimes, breaks=99, labels=F)), show.labels.row = T)
 
