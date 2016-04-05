@@ -8,13 +8,13 @@ library(pheatmap)
 library(parallel)
 library(PRISM)
 
-G = c(1:100)
-tfs = G[1:20]
+G = c(1:50)
+tfs = G[1:10]
 target2tfs <- lapply(G, function(g) {
   if(g%in%tfs) {
     return(double())
   } else {
-    return(sample(tfs, 1+rbinom(1, length(tfs)-1, 0.05)))
+    return(sample(tfs, 1+rbinom(1, length(tfs)-1, 0.02)))
   }
 })
 names(target2tfs) = G
@@ -89,11 +89,15 @@ process_ssa = function(out, starttime=0) {
 # we need to determine these perturbations beforehand as they will be the same for every cell
 # initial basal expression levels
 nruns = 20
+totaltime = 20
+burntime = 4
+
 A0[] = 0.05
-A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.5))] = 1
+A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.2))] = 1
 params = c(a1=1, R, D, K, A0)
 
-A0s = lapply(c(1:(nruns+1)), function(i) {
+# linear
+A0s = lapply(c(1:(nruns)), function(i) {
   if(i == 1) {
     return(A0)
   } else {
@@ -102,34 +106,56 @@ A0s = lapply(c(1:(nruns+1)), function(i) {
     return(A0)
   }
 })
+# cyclic
+A0[] = 0.05
+A0s = lapply(seq_len(nruns), function(i) A0) # how ugly!!
+for(i in c(1:3)) {
+  if(runif(1) > 0.5) {
+    perturbation = 1
+  } else {
+    perturbation = 1
+  }
+  
+  g = sample(tfs, 1)
+  print(g)
+  start = sample(c(1:nruns), 1)
+  length = sample(c(1:nruns), 1)
+  
+  for(i in seq(start, start+nruns)) {
+    if(i >= start && i <= start+length) {
+      A0s[[((i-1)%%(nruns))+1]][g] = perturbation
+    }
+  }
+}
+pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=F)
+
 
 simulate_cell = function(timeofsampling=NULL) {
   require(fastgssa)
   
-  totaltime = 0
-  tf = 5
-  burntf = 4
+  tf = totaltime/nruns
   
   A0 = A0s[[1]]
   params = c(params, A0)
   
-  out <- ssa(X0,formulas,nu,params,tf=tf, method = "D")
+  out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "D")
   output = process_ssa(out)
   expression = output$expression
   times = output$times
-  burnin = times > burntf
+  burnin = times > burntime
   expression = output$expression[burnin,]
-  times = times[burnin] - burntf
+  times = times[burnin] - burntime
   
   # other runs: perturb TF activity
-  tf=1
-  for(i in c(1:20)) {
+  for(i in seq_len(nruns-1)) {
     X0 = tail(expression, n=1)[1,]
     
     A0 = A0s[[i+1]]
     params = c(params, A0)
     
-    out <- fastgssa::ssa(X0,formulas,nu,params,tf=tf, method="D")
+    print(A0)
+    
+    out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf, method="D")
     output <- process_ssa(out, last(times))
     expression<-methods::rbind2(expression, output$expression)
     times <- c(times, output$times)
@@ -144,15 +170,16 @@ simulate_cell = function(timeofsampling=NULL) {
     rownames(expression) = c(1:nrow(expression))
     return(list(expression=expression, times=times))
   } else {
+    if(timeofsampling > last(times)) warning("samplingtime larger than simulated time")
     return(expression[findInterval(timeofsampling, times),])
   }
 }
-celltimes = runif(200, 0, 20)
+celltimes = runif(200, 0, totaltime)
 
-library(profvis)
-profvis({simulate_cell(1)})
+#library(profvis)
+#profvis({simulate_cell(1)})
 
-#cells = mclapply(celltimes, simulate_cell, mc.cores=8)
+cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 cells = qsub.lapply(celltimes, simulate_cell)
 
 E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
@@ -164,17 +191,15 @@ library(ggplot2)
 datadf = melt(E)
 colnames(datadf) = c("time", "gene", "count")
 
-datadf = datadf[datadf$gene %in% c("x1", "x2", "x3", "x4", "x5"),]
-
+datadf = datadf[datadf$gene %in% paste0("x", tfs),]
 ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 
 library(SCORPIUS)
-space = reduce.dimensionality(correlation.distance(E),ndim = 2)
+space = reduce.dimensionality(correlation.distance(E),ndim = 3)
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
 rownames(E) = c(1:nrow(E))
 draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(celltimes, breaks=length(celltimes), labels=F)))
 
-draw.trajectory.heatmap(E, celltimes, as.factor(cut(celltimes, breaks=99, labels=F)), show.labels.row = T)
-
+draw.trajectory.heatmap(E, celltimes, factor(cut(celltimes, breaks=length(celltimes), labels=F)), show.labels.row = T)
