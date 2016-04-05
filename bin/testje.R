@@ -65,8 +65,6 @@ names(X0) = paste0("x", G)
 
 ## simulation
 
-tf = 5
-
 # function to postprocess the ssa output
 process_ssa = function(out, starttime=0) {
   tf = out$args$tf
@@ -75,7 +73,7 @@ process_ssa = function(out, starttime=0) {
   lastrow = tail(data, n=1)
   lastrow$V1 = tf
   data[nrow(data)+1,] <- lastrow
-  data <- data[data$V1<tf,]
+  data <- data[data$V1<=tf,]
   times = data$V1 + starttime
   data = as.matrix(data[,-1])
   
@@ -96,6 +94,7 @@ print(A0)
 
 runtimes = c()
 
+totaltime = 0
 tf = 5
 burntf = 4
 out <- ssa(X0,formulas,nu,params,tf=tf, method = "BTL")
@@ -128,25 +127,34 @@ lapply(c(1:20), function(i) {
 })
 
 rownames(expression) = c(1:nrow(expression))
-pheatmap(t(expression), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(run=factor(runs), row.names = rownames(expression)))
+
+
+
+# use a binary search to find the expression at a particular time point
+get_expression = function(expression, times, timesoi) {
+  E = t(sapply(timesoi, function(t) expression[findInterval(t, times),,drop=F]))
+  rownames(E) = timesoi
+  colnames(E) = colnames(expression)
+  E
+}
+totaltime = last(times)
+
+# get a uniform time series
+sampletimes = seq(0, totaltime, 0.02)
+E = get_expression(expression, times, sampletimes)
+pheatmap(t(E), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation")
 
 library(ggplot2)
-datadf = melt(expression)
-colnames(datadf) = c("sample", "gene", "count")
+datadf = melt(E)
+colnames(datadf) = c("time", "gene", "count")
 
 datadf = datadf[datadf$gene %in% c("x1", "x2", "x3", "x4", "x5"),]
 
-ggplot(datadf) + geom_line(aes(sample, count, group=gene, color=gene))
+ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 
 library(SCORPIUS)
-
-samples = sample(c(1:nrow(expression)), 500, replace = F)
-sampletimes = times[samples]
-
-E = expression[samples, ]
-
-space = reduce.dimensionality(correlation.distance(E),ndim = 2)
+space = reduce.dimensionality(correlation.distance(E),ndim = 3)
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, sampletimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
 rownames(E) = c(1:nrow(E))
