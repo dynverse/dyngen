@@ -31,9 +31,9 @@ kterms = c()
 production = mapply(function(g, tfs) {
   if (length(tfs) > 0) {
     inputs = sapply(tfs, function(tf) paste0("(x", tf, "/k", tf, "g", g, ")"))
-    
+
     kterms <<- c(kterms, sapply(tfs, function(tf) paste0("k", tf, "g", g)))
-    
+
     up = paste0("(a0g", g, "+", paste("a1", inputs, sep="*", collapse="+"), ")")
     down = paste0("(1+", paste0(inputs, collapse="+"), ")")
   } else {
@@ -76,7 +76,7 @@ process_ssa <- function(out, starttime=0) {
   data <- data[data$t<=final.time,]
   times <- data$t + starttime
   data <- as.matrix(data[,-1])
-  
+
   return(list(times=times, expression=data))
 }
 
@@ -101,7 +101,7 @@ for(i in c(1:length(tfs))) {
   start = i
   length = sample(seq_len(length(A0s) - start), 1)
   print(start)
-  
+
   for(i in seq(start, start+length)) {
     if(i < start) {
       print(i)
@@ -119,11 +119,11 @@ for(i in c(1:100)) {
   } else {
     perturbation = 1
   }
-  
+
   g = sample(tfs, 1)
   start = sample(c(1:nruns), 1)
   length = sample(c(1:nruns), 1)
-  
+
   for(i in seq(start, start+nruns)) {
     if(i >= start && i <= start+length) {
       A0s[[((i-1)%%(nruns))+1]][g] = perturbation
@@ -135,12 +135,12 @@ pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=
 
 simulate_cell = function(timeofsampling=NULL) {
   requireNamespace("fastgssa")
-  
+
   tf = totaltime/nruns
-  
+
   A0 = A0s[[1]]
   params[names(A0)] <- A0
-  
+
   set.seed(1)
   out <- fastgssa::ssa(X0,formulas,nu, tf+burntime,params, method=fastgssa::ssa.direct(), recalculate.all = F)
   #out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "BTL")
@@ -150,26 +150,26 @@ simulate_cell = function(timeofsampling=NULL) {
   burnin = times > burntime
   #expression = output$expression[burnin,]
   times = times[burnin] - burntime
-  
+
   # other runs: perturb TF activity
   for(i in seq_len(nruns-1)) {
     X0 = tail(expression, n=1)[1,]
-    
+
     A0 = A0s[[i+1]]
     params[names(A0)] <- A0
-    
+
     set.seed(1)
     out <- fastgssa::ssa(X0,formulas,nu,tf,params, method=fastgssa::ssa.direct(), recalculate.all = F)
     #out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf, method="BTL")
     output <- process_ssa(out, last(times))
     expression<-methods::rbind2(expression, output$expression)
     times <- c(times, output$times)
-    
+
     if(!is.null(timeofsampling) && last(times) > timeofsampling) {
         break
     }
   }
-  
+
   # return either the full expression matrix, or the expression at timeofsampling
   if(is.null(timeofsampling)) {
     rownames(expression) = c(1:nrow(expression))
@@ -201,10 +201,10 @@ ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 library(SCORPIUS)
 space = reduce.dimensionality(correlation.distance(E),ndim = 2)
-# 
+#
 # space = tsne::tsne(as.dist(correlation.distance(E)))
 # colnames(space) = c("Comp1", "Comp2")
-# 
+#
 # space = diffusionMap::diffuse(as.dist(correlation.distance(E)))
 # space = space$X[,c(1:2)]
 # colnames(space) = c("Comp1", "Comp2")
