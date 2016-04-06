@@ -1,4 +1,4 @@
-library(GillespieSSA)
+library(fastgssa)
 library(plyr)
 library(dplyr)
 library(ggplot2)
@@ -51,9 +51,9 @@ formulas = c(production, decay)
 
 ## generating the (initial) parameters of the system
 
-R = rlnorm(length(G), log(10))/5
+R = rlnorm(length(G), log(10))
 names(R) = paste0("r", G)
-D = rep(1,length(G))/5
+D = rep(1,length(G))
 names(D) = paste0("d", G)
 K = sapply(kterms, function(kterm) R[paste0("r",str_replace(kterm, "k(\\d*)g\\d*", "\\1"))]/2)
 names(K) = kterms
@@ -67,18 +67,15 @@ names(X0) = paste0("x", G)
 ## simulation
 
 # function to postprocess the ssa output
-process_ssa = function(out, starttime=0) {
-  tf = out$args$tf
-  rownames(out$data) = NULL
-  data = as.data.frame(out$data)
-  lastrow = tail(data, n=1)
-  lastrow$V1 = tf
+process_ssa <- function(out, starttime=0) {
+  final.time <- out$args$final.time
+  data <- out$timeseries
+  lastrow <- tail(data, n=1)
+  lastrow$t <- final.time
   data[nrow(data)+1,] <- lastrow
-  data <- data[data$V1<=tf,]
-  times = data$V1 + starttime
-  data = as.matrix(data[,-1])
-  
-  rownames(data) = NULL
+  data <- data[data$t<=final.time,]
+  times <- data$t + starttime
+  data <- as.matrix(data[,-1])
   
   return(list(times=times, expression=data))
 }
@@ -145,26 +142,24 @@ simulate_cell = function(timeofsampling=NULL) {
   params[names(A0)] <- A0
   
   set.seed(1)
-  out <- fastgssa::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "D")
+  out <- fastgssa::ssa(X0,formulas,nu, tf+burntime,params, method=fastgssa::ssa.direct(), recalculate.all = F)
   #out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "BTL")
   output = process_ssa(out)
   expression = output$expression
   times = output$times
   burnin = times > burntime
-  expression = output$expression[burnin,]
+  #expression = output$expression[burnin,]
   times = times[burnin] - burntime
   
   # other runs: perturb TF activity
   for(i in seq_len(nruns-1)) {
     X0 = tail(expression, n=1)[1,]
     
-    print(X0)
-    
     A0 = A0s[[i+1]]
     params[names(A0)] <- A0
     
     set.seed(1)
-    out <- fastgssa::ssa(X0,formulas,nu,params,tf=tf, method="D")
+    out <- fastgssa::ssa(X0,formulas,nu,tf,params, method=fastgssa::ssa.direct(), recalculate.all = F)
     #out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf, method="BTL")
     output <- process_ssa(out, last(times))
     expression<-methods::rbind2(expression, output$expression)
@@ -184,12 +179,12 @@ simulate_cell = function(timeofsampling=NULL) {
     return(expression[max(1, findInterval(timeofsampling, times)),])
   }
 }
-celltimes = runif(500, 0, totaltime)
+celltimes = runif(200, 0, totaltime)
 
 #library(profvis)
 #profvis({simulate_cell(1)})
 
-#cells = mclapply(celltimes, simulate_cell, mc.cores=8)
+cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 cells = qsub.lapply(celltimes, simulate_cell)
 
 E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
@@ -204,15 +199,15 @@ colnames(datadf) = c("time", "gene", "count")
 datadf = datadf[datadf$gene %in% paste0("x", tfs),]
 ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
-
-space = SCORPIUS::reduce.dimensionality(SCORPIUS::correlation.distance(E),ndim = 2)
-
-space = tsne::tsne(as.dist(correlation.distance(E)))
-colnames(space) = c("Comp1", "Comp2")
-
-space = diffusionMap::diffuse(as.dist(correlation.distance(E)))
-space = space$X[,c(1:2)]
-colnames(space) = c("Comp1", "Comp2")
+library(SCORPIUS)
+space = reduce.dimensionality(correlation.distance(E),ndim = 2)
+# 
+# space = tsne::tsne(as.dist(correlation.distance(E)))
+# colnames(space) = c("Comp1", "Comp2")
+# 
+# space = diffusionMap::diffuse(as.dist(correlation.distance(E)))
+# space = space$X[,c(1:2)]
+# colnames(space) = c("Comp1", "Comp2")
 
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
@@ -241,3 +236,9 @@ colnames(joined)[1:2] = c("time", "gene")
 ggplot(joined) + geom_point(aes(perturb, simul)) + facet_wrap(~gene, scales = c("free_y"))
 
 pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=F)
+
+# check a random tf and his targets, for example to check the time lag
+tf = tfs[[1]]
+targets = G[sapply(target2tfs, function(tfs) (tf %in% tfs) && length(tfs)==1 )]
+length(targets)
+pheatmap(t(E[order(celltimes),c(tf,targets)]), scale="row", cluster_rows=F, cluster_cols = F)
