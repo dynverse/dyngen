@@ -19,12 +19,12 @@ target2tfs <- lapply(G, function(g) {
 })
 names(target2tfs) = G
 
-#source("bin/ba_network.R")
-#G = c(1:50)
-#ba.network <- generate.ba(amnt.nodes = length(G), amnt.edges = 100)
-#ba.net.df <- network.to.df(ba.network) # indien nodig
-#tfs = G[G %in% ba.net.df$i]
-#target2tfs = setNames(ba.network$neighbours, G)
+source("bin/ba_network.R")
+G = c(1:50)
+ba.network <- generate.ba(amnt.nodes = length(G), amnt.edges = 100)
+ba.net.df <- network.to.df(ba.network) # indien nodig
+tfs = G[G %in% ba.net.df$i]
+target2tfs = setNames(ba.network$neighbours, G)
 
 ## generating reaction formulas (the probability that a reaction occurs in [t, t dt])
 kterms = c()
@@ -239,6 +239,6 @@ pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=
 
 # check a random tf and his targets, for example to check the time lag
 tf = tfs[[1]]
-targets = G[sapply(target2tfs, function(tfs) (tf %in% tfs) && length(tfs)==1 )]
+targets = G[sapply(target2tfs, function(tfs) (tf %in% tfs) && length(tfs)==1)]
 length(targets)
 pheatmap(t(E[order(celltimes),c(tf,targets)]), scale="row", cluster_rows=F, cluster_cols = F)
