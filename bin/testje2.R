@@ -142,9 +142,11 @@ simulate_cell = function(timeofsampling=NULL) {
   tf = totaltime/nruns
   
   A0 = A0s[[1]]
-  params = c(params, A0)
+  params[names(A0)] <- A0
   
-  out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "D")
+  set.seed(1)
+  out <- fastgssa::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "D")
+  #out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf+burntime, method = "BTL")
   output = process_ssa(out)
   expression = output$expression
   times = output$times
@@ -156,10 +158,14 @@ simulate_cell = function(timeofsampling=NULL) {
   for(i in seq_len(nruns-1)) {
     X0 = tail(expression, n=1)[1,]
     
-    A0 = A0s[[i+1]]
-    params = c(params, A0)
+    print(X0)
     
-    out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf, method="D")
+    A0 = A0s[[i+1]]
+    params[names(A0)] <- A0
+    
+    set.seed(1)
+    out <- fastgssa::ssa(X0,formulas,nu,params,tf=tf, method="D")
+    #out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf, method="BTL")
     output <- process_ssa(out, last(times))
     expression<-methods::rbind2(expression, output$expression)
     times <- c(times, output$times)
@@ -178,7 +184,7 @@ simulate_cell = function(timeofsampling=NULL) {
     return(expression[max(1, findInterval(timeofsampling, times)),])
   }
 }
-celltimes = runif(100, 0, totaltime)
+celltimes = runif(500, 0, totaltime)
 
 #library(profvis)
 #profvis({simulate_cell(1)})
@@ -199,8 +205,15 @@ datadf = datadf[datadf$gene %in% paste0("x", tfs),]
 ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 
-library(SCORPIUS)
-space = reduce.dimensionality(correlation.distance(E),ndim = 3)
+space = SCORPIUS::reduce.dimensionality(SCORPIUS::correlation.distance(E),ndim = 2)
+
+space = tsne::tsne(as.dist(correlation.distance(E)))
+colnames(space) = c("Comp1", "Comp2")
+
+space = diffusionMap::diffuse(as.dist(correlation.distance(E)))
+space = space$X[,c(1:2)]
+colnames(space) = c("Comp1", "Comp2")
+
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
 rownames(E) = c(1:nrow(E))
@@ -213,25 +226,18 @@ draw.trajectory.heatmap(E, celltimes, factor(cut(celltimes, breaks=length(cellti
 
 # check correlations between cells
 cellcor = cor(t(E[order(celltimes),]))
+pheatmap(cellcor, cluster_rows=F, cluster_cols=F)
 
+# check correlation between perturbations and simulated expression
 runtimes = seq(0, totaltime, length=nruns+1)
 Eperturb = matrix(unlist(sapply(celltimes, function(t) A0s[min(length(A0s),max(0, findInterval(t, runtimes)))])), nrow=length(celltimes), byrow = T)
 colnames(Eperturb) = paste0("x", G)
 
 E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 
-pheatmap(Eperturb[order(celltimes),], cluster_cols=F, cluster_rows=F)
-pheatmap(E[order(celltimes),], cluster_cols=F, cluster_rows=F, scale="column")
-
-
 joined = left_join(melt(E, value.name="simul"), melt(Eperturb, value.name = "perturb"), c("Var1", "Var2"))
 colnames(joined)[1:2] = c("time", "gene")
 
 ggplot(joined) + geom_point(aes(perturb, simul)) + facet_wrap(~gene, scales = c("free_y"))
 
-
-
-plot(Eperturb[,"x4"], E[,"x4"])
-
 pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=F)
-
