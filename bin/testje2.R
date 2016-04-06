@@ -9,7 +9,7 @@ library(parallel)
 library(PRISM)
 
 G = c(1:50)
-tfs = G[1:10]
+tfs = G[1:20]
 target2tfs <- lapply(G, function(g) {
   if(g%in%tfs) {
     return(double())
@@ -51,9 +51,9 @@ formulas = c(production, decay)
 
 ## generating the (initial) parameters of the system
 
-R = rlnorm(length(G), log(10))
+R = rlnorm(length(G), log(10))/5
 names(R) = paste0("r", G)
-D = rep(1,length(G))
+D = rep(1,length(G))/5
 names(D) = paste0("d", G)
 K = sapply(kterms, function(kterm) R[paste0("r",str_replace(kterm, "k(\\d*)g\\d*", "\\1"))]/2)
 names(K) = kterms
@@ -83,41 +83,47 @@ process_ssa = function(out, starttime=0) {
   return(list(times=times, expression=data))
 }
 
-## Simulate multiple single cells following the same linear trajectory
+## Simulate multiple single cells following the same trajectory
 
 # we will change the basal expression level of transcription factors during the simulation
 # we need to determine these perturbations beforehand as they will be the same for every cell
 # initial basal expression levels
-nruns = 20
-totaltime = 20
+nruns = length(tfs) + 1
+totaltime = 40
 burntime = 4
 
 A0[] = 0.05
-A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.2))] = 1
+#A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.2))] = 1
 params = c(a1=1, R, D, K, A0)
 
+# perturbations (saved in A0s)
 # linear
-A0s = lapply(c(1:(nruns)), function(i) {
-  if(i == 1) {
-    return(A0)
-  } else {
-    A0[sample(tfs, 2)] <<- 1
-    A0[sample(tfs, 2)] <<- 0.05
-    return(A0)
+A0s = lapply(seq_len(nruns), function(i) A0) # how ugly!!
+for(i in c(1:length(tfs))) {
+  g = i
+  start = i
+  length = sample(seq_len(length(A0s) - start), 1)
+  print(start)
+  
+  for(i in seq(start, start+length)) {
+    if(i < start) {
+      print(i)
+    }
+    A0s[[i]][g] = 1
   }
-})
+}
+pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=F)
 # cyclic
 A0[] = 0.05
 A0s = lapply(seq_len(nruns), function(i) A0) # how ugly!!
-for(i in c(1:3)) {
+for(i in c(1:100)) {
   if(runif(1) > 0.5) {
-    perturbation = 1
+    perturbation = 0.05
   } else {
     perturbation = 1
   }
   
   g = sample(tfs, 1)
-  print(g)
   start = sample(c(1:nruns), 1)
   length = sample(c(1:nruns), 1)
   
@@ -131,7 +137,7 @@ pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=
 
 
 simulate_cell = function(timeofsampling=NULL) {
-  require(fastgssa)
+  requireNamespace("fastgssa")
   
   tf = totaltime/nruns
   
@@ -153,8 +159,6 @@ simulate_cell = function(timeofsampling=NULL) {
     A0 = A0s[[i+1]]
     params = c(params, A0)
     
-    print(A0)
-    
     out <- GillespieSSA::ssa(X0,formulas,nu,params,tf=tf, method="D")
     output <- process_ssa(out, last(times))
     expression<-methods::rbind2(expression, output$expression)
@@ -171,15 +175,15 @@ simulate_cell = function(timeofsampling=NULL) {
     return(list(expression=expression, times=times))
   } else {
     if(timeofsampling > last(times)) warning("samplingtime larger than simulated time")
-    return(expression[findInterval(timeofsampling, times),])
+    return(expression[max(1, findInterval(timeofsampling, times)),])
   }
 }
-celltimes = runif(200, 0, totaltime)
+celltimes = runif(100, 0, totaltime)
 
 #library(profvis)
 #profvis({simulate_cell(1)})
 
-cells = mclapply(celltimes, simulate_cell, mc.cores=8)
+#cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 cells = qsub.lapply(celltimes, simulate_cell)
 
 E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
@@ -202,4 +206,32 @@ draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_dis
 rownames(E) = c(1:nrow(E))
 draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(celltimes, breaks=length(celltimes), labels=F)))
 
+SCORPIUS::evaluate.trajectory(trajectory$time, celltimes)
+
 draw.trajectory.heatmap(E, celltimes, factor(cut(celltimes, breaks=length(celltimes), labels=F)), show.labels.row = T)
+
+
+# check correlations between cells
+cellcor = cor(t(E[order(celltimes),]))
+
+runtimes = seq(0, totaltime, length=nruns+1)
+Eperturb = matrix(unlist(sapply(celltimes, function(t) A0s[min(length(A0s),max(0, findInterval(t, runtimes)))])), nrow=length(celltimes), byrow = T)
+colnames(Eperturb) = paste0("x", G)
+
+E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
+
+pheatmap(Eperturb[order(celltimes),], cluster_cols=F, cluster_rows=F)
+pheatmap(E[order(celltimes),], cluster_cols=F, cluster_rows=F, scale="column")
+
+
+joined = left_join(melt(E, value.name="simul"), melt(Eperturb, value.name = "perturb"), c("Var1", "Var2"))
+colnames(joined)[1:2] = c("time", "gene")
+
+ggplot(joined) + geom_point(aes(perturb, simul)) + facet_wrap(~gene, scales = c("free_y"))
+
+
+
+plot(Eperturb[,"x4"], E[,"x4"])
+
+pheatmap(matrix(unlist(A0s), nrow=nruns, byrow=T), cluster_cols=F, cluster_rows=F)
+
