@@ -8,6 +8,10 @@ library(pheatmap)
 library(parallel)
 library(PRISM)
 
+
+
+library(dyngen)
+
 amnt.genes <- 50
 amnt.edges <- 200
 ba.network <- generate.ba(amnt.nodes = amnt.genes, amnt.edges = amnt.edges, reverse.edges = T, offset.exponent = 1.5)
