@@ -1,3 +1,172 @@
+AbstractFormula <- setClass(
+  "AbstractFormula",
+  slots = c(
+    type = "character",
+    name = "character",
+    arguments = "list",
+    string = "character"
+  ),
+  validity = function(object) {
+    if (! object@type %in% c("infix.fun", "prefix.fun", "var", "con")) {
+      return("type must be one of: infix.fun, prefix.fun, var or con")
+    }
+    if (object@name == "") return("name must be at least length 1")
+    return(TRUE)
+  }
+)
+
+#' Create a new infix function to be used for the AbstractFormula system
+#'
+#' @param fun the function as a string
+#'
+#' @return an infix function which to create S4 class \code{AbstractFormula} objects
+#' @export
+#'
+#' @examples
+#' `%f-%` <- finfix("-")
+finfix <- function(fun) {
+  function(lhs, rhs) {
+    if (class(lhs) != "AbstractFormula") stop(sQuote("lhs"), " must be made by var, con, finfix or fprefix")
+    if (class(rhs) != "AbstractFormula") stop(sQuote("rhs"), " must be made by var, con, finfix or fprefix")
+    AbstractFormula(type = "infix.fun", name = fun, arguments = c(lhs, rhs), string = paste0("(", lhs@string, " ", fun, " ", rhs@string, ")"))
+  }
+}
+
+#' Create a new prefix function to be used for the AbstractFormula system
+#'
+#' @param fun the function as a string
+#'
+#' @return a prefix function which to create S4 class \code{AbstractFormula} objects
+#' @export
+#'
+#' @examples
+#' fsum <- fprefix("sum")
+fprefix <- function(fun) {
+  function(arguments) {
+    if (any(sapply(arguments, function(a) class(a) != "AbstractFormula"))) stop("all args must be made by var, con, finfix or fprefix")
+    arg.string <- paste(sapply(arguments, function(arg) arg@string), collapse = ", ")
+    AbstractFormula(type = "prefix.fun", name = fun, arguments = arguments, string = paste0(fun, "(", arg.string, ")"))
+  }
+}
+
+#' Create a new variable
+#'
+#' @param prefix the prefix of the variable
+#' @param ... optional arguments for the variable name
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' total <- fvar("total")
+#' gene <- fvar("gene", 1)
+fvar <- function(prefix, ...) {
+  arguments <- list(...)
+  AbstractFormula(type = "var", name = prefix, arguments = arguments, string = paste(c(prefix, arguments), collapse="_"))
+}
+
+#' Create a new constant
+#'
+#' @param value the value of the constant
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' con1 <- fcon(1)
+#' con2 <- fcon(2.1)
+fcon <- function(value) {
+  AbstractFormula(type = "con", name = as.character(value), arguments = list(), string = as.character(value))
+}
+
+#' Divide function
+#'
+#' @param lhs left hand side S4 class \code{AbstractFormula} object
+#' @param rhs right hand side S4 class \code{AbstractFormula} object
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' fvar("total") %f/% fcon(10)
+`%f/%` <- finfix("/")
+
+#' Multiplication function
+#'
+#' @param lhs left hand side S4 class \code{AbstractFormula} object
+#' @param rhs right hand side S4 class \code{AbstractFormula} object
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' fvar("total") %f*% fcon(10)
+`%f*%` <- finfix("*")
+
+#' Addition function
+#'
+#' @param lhs left hand side S4 class \code{AbstractFormula} object
+#' @param rhs right hand side S4 class \code{AbstractFormula} object
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' fvar("total") %f+% fcon(10)
+`%f+%` <- finfix("+")
+
+#' Subtraction function
+#'
+#' @param lhs left hand side S4 class \code{AbstractFormula} object
+#' @param rhs right hand side S4 class \code{AbstractFormula} object
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' fvar("total") %f-% fcon(10)
+`%f-%` <- finfix("-")
+
+#' Apply a function over all arguments, then collapse it with another function
+#'
+#' @param collapse.fun a function which can collapse multiple S4 class \code{AbstractFormula} objects into a new one
+#' @param lapply.args arguments for the lapply
+#' @param lapply.fun a function for the lapply that will return S4 class \code{AbstractFormula} objects
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' freduce(`f+`, c(1,2,3), fcon)
+freduce <- function(collapse.fun, lapply.args, lapply.fun) {
+  Reduce(collapse.fun, lapply(lapply.args, lapply.fun))
+}
+
+#' Sum of AbstractFormula objects
+#'
+#' @param arguments the S4 class \code{AbstractFormula} objects to be summed
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' fsum(lapply(c(1,2,3), fcon))
+#' fsum(fcon(1), fcon(2))
+fsum <- fprefix("sum")
+
+#' Product of AbstractFormula objects
+#'
+#' @param arguments the S4 class \code{AbstractFormula} objects to be multiplied
+#'
+#' @return an S4 class \code{AbstractFormula} object
+#' @export
+#'
+#' @examples
+#' fprod(lapply(c(1,2,3), fcon))
+#' fprod(fcon(1), fcon(2))
+fprod <- fprefix("prod")
+
+
 #' @title Generate production formulae 
 #'
 #' @param g the gene in question
@@ -7,22 +176,18 @@
 #' @export
 generate.production.formula <- function(g, regs, amnt.genes) {
   if (length(regs) == 0) {
-    variables <- paste0(c("r", "a0g"), g)
-    formula <- paste0("r", g, "*a0g", g)
+    formula <- var("r", g) %f*% var("a0g", g)
   } else {
-    variables <- c(
-      paste0(c("r", "a0g", "x"), g),
-      paste0("k", regs, "g", g)
-    )
-    
-    inputs <- paste0("(x", regs, "/k", regs, "g", g, ")")
-    num <- paste0("(a0g", g, "+", paste("a1", inputs, sep="*", collapse="+"), ")")
-    denom <- paste0("(1+", paste0(inputs, collapse="+"), ")")
-    formula <- paste0("r", g, "*", num, "/", denom)
+    inputs <- fsum(lapply(regs, function(r) fvar("x", r) %f/% fvar("kg", r, g)))
+    numerator <- var("a0g", g) %f+% (var("a1") %f*% inputs)
+    denominator <- con(1) %f+% inputs
+    formula <- var("r", g) %f*% numerator %f/% denominator
   }
+  
   nu <- rep(0, amnt.genes)
   nu[[g]] <- 1
-  list(variables = variables, formula = formula, nu = nu)
+  
+  list(formula = formula, nu = nu)
 }
 
 #' @title Generate decay formulae
@@ -32,9 +197,10 @@ generate.production.formula <- function(g, regs, amnt.genes) {
 #'
 #' @export
 generate.decay.formula <- function(g, amnt.genes) {
-  variables <- paste0(c("d", "x"), g)
-  formula <- paste0("d", g, "*x", g)
+  formula <- fvar("d", g) %f*% var("x", g)
+  
   nu <- rep(0, amnt.genes)
   nu[[g]] <- -1
-  list(variables = variables, formula = formula, nu = nu)
+  
+  list(formula = formula, nu = nu)
 }
