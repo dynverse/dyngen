@@ -15,6 +15,28 @@ AbstractFormula <- setClass(
   }
 )
 
+setMethod("show", "AbstractFormula", function(object) cat("Formula: ", slot(object, "string"), "\n", sep=""))
+
+
+#' Extract all variables from a formula
+#'
+#' @param formula An S4 class \code{AbstractFormula}
+#'
+#' @return A list of S4 class objects
+#' @export
+#'
+#' @examples
+#' extract.variables(fvar("c", 1) %f*% (fcon(1) - fvar("c", 2)))
+extract.variables <- function(formula) {
+  if (formula@type == "var") {
+    formula
+  } else if (formula@type %in% c("infix.fun", "prefix.fun")) {
+    unique(unlist(lapply(formula@arguments, extract.variables), recursive = F))
+  } else {
+    c()
+  }
+}
+
 #' Create a new infix function to be used for the AbstractFormula system
 #'
 #' @param fun the function as a string
@@ -130,6 +152,11 @@ fcon <- function(value) {
 #' @examples
 #' fvar("total") %f-% fcon(10)
 `%f-%` <- finfix("-")
+
+setMethod("+", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
+setMethod("-", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
+setMethod("*", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
+setMethod("/", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
 #' Apply a function over all arguments, then collapse it with another function
 #'
