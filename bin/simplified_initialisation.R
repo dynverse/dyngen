@@ -3,11 +3,11 @@ library(dyngen)
 # formule testje
 g <- 21
 regs <- c(3,4,5)
-inputs <- fsum(lapply(regs, function(r) fvar("x", r) %f/% fvar("kg", r, g)))
-numerator <- fvar("a0g", g) %f+% (fvar("a1") %f*% inputs)
-denominator <- fcon(1) %f+% inputs
-production.form <- fvar("r", g) %f*% numerator %f/% denominator
-production.form@string
+inputs <- fsum(lapply(regs, function(r) fvar("x", r) / fvar("kg", r, g)))
+numerator <- fvar("a0g", g) + (fvar("a1") * inputs)
+denominator <- fcon(1) + inputs
+production.form <- fvar("r", g) * numerator / denominator
+production.form
 
 
 # barabasi albert testje
@@ -19,19 +19,19 @@ formulae <- unlist(recursive = F, lapply(seq_len(amnt.genes), function(g) {
   
   # generate production formula and nu
   if (length(regs) == 0) {
-    prod.formula <- fvar("r", g) %f*% fvar("a0g", g)
+    prod.formula <- fvar("r", g) * fvar("a0g", g)
   } else {
-    inputs <- fsum(lapply(regs, function(r) fvar("x", r) %f/% fvar("kg", r, g)))
-    numerator <- fvar("a0g", g) %f+% (fvar("a1") %f*% inputs)
-    denominator <- fcon(1) %f+% inputs
-    prod.formula <- fvar("r", g) %f*% numerator %f/% denominator
+    inputs <- fsum(lapply(regs, function(r) fvar("x", r) / fvar("kg", r, g)))
+    numerator <- fvar("a0g", g) + (fvar("a1") * inputs)
+    denominator <- fcon(1) + inputs
+    prod.formula <- fvar("r", g) * numerator / denominator
   }
   
   prod.nu <- rep(0, amnt.genes)
   prod.nu[[g]] <- 1
   
   # generate decay formula and nu
-  decay.formula <- fvar("d", g) %f*% fvar("x", g)
+  decay.formula <- fvar("d", g) * fvar("x", g)
   
   decay.nu <- rep(0, amnt.genes)
   decay.nu[[g]] <- -1
