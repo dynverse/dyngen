@@ -180,12 +180,12 @@ fprod <- fprefix("prod")
 #' @export
 generate.production.formula <- function(g, regs, amnt.genes) {
   if (length(regs) == 0) {
-    formula <- var("r", g) %f*% var("a0g", g)
+    formula <- fvar("r", g) %f*% fvar("a0g", g)
   } else {
     inputs <- fsum(lapply(regs, function(r) fvar("x", r) %f/% fvar("kg", r, g)))
-    numerator <- var("a0g", g) %f+% (var("a1") %f*% inputs)
-    denominator <- con(1) %f+% inputs
-    formula <- var("r", g) %f*% numerator %f/% denominator
+    numerator <- fvar("a0g", g) %f+% (fvar("a1") %f*% inputs)
+    denominator <- fcon(1) %f+% inputs
+    formula <- fvar("r", g) %f*% numerator %f/% denominator
   }
   
   nu <- rep(0, amnt.genes)
@@ -201,7 +201,7 @@ generate.production.formula <- function(g, regs, amnt.genes) {
 #'
 #' @export
 generate.decay.formula <- function(g, amnt.genes) {
-  formula <- fvar("d", g) %f*% var("x", g)
+  formula <- fvar("d", g) %f*% fvar("x", g)
   
   nu <- rep(0, amnt.genes)
   nu[[g]] <- -1

@@ -4,9 +4,9 @@ library(dyngen)
 g <- 21
 regs <- c(3,4,5)
 inputs <- fsum(lapply(regs, function(r) fvar("x", r) %f/% fvar("kg", r, g)))
-numerator <- var("a0g", g) %f+% (var("a1") %f*% inputs)
-denominator <- con(1) %f+% inputs
-production.form <- var("r", g) %f*% numerator %f/% denominator
+numerator <- fvar("a0g", g) %f+% (fvar("a1") %f*% inputs)
+denominator <- fcon(1) %f+% inputs
+production.form <- fvar("r", g) %f*% numerator %f/% denominator
 production.form@string
 
 
@@ -19,19 +19,19 @@ formulae <- unlist(recursive = F, lapply(seq_len(amnt.genes), function(g) {
   
   # generate production formula and nu
   if (length(regs) == 0) {
-    prod.formula <- var("r", g) %f*% var("a0g", g)
+    prod.formula <- fvar("r", g) %f*% fvar("a0g", g)
   } else {
     inputs <- fsum(lapply(regs, function(r) fvar("x", r) %f/% fvar("kg", r, g)))
-    numerator <- var("a0g", g) %f+% (var("a1") %f*% inputs)
-    denominator <- con(1) %f+% inputs
-    prod.formula <- var("r", g) %f*% numerator %f/% denominator
+    numerator <- fvar("a0g", g) %f+% (fvar("a1") %f*% inputs)
+    denominator <- fcon(1) %f+% inputs
+    prod.formula <- fvar("r", g) %f*% numerator %f/% denominator
   }
   
   prod.nu <- rep(0, amnt.genes)
   prod.nu[[g]] <- 1
   
   # generate decay formula and nu
-  decay.formula <- fvar("d", g) %f*% var("x", g)
+  decay.formula <- fvar("d", g) %f*% fvar("x", g)
   
   decay.nu <- rep(0, amnt.genes)
   decay.nu[[g]] <- -1
