@@ -120,7 +120,7 @@
 #' }
 #' @export
 #' 
-#' @importFrom dplyr rbind_fill
+#' @importFrom dplyr bind_rows
 #'
 #' @examples
 #' generate.ba(amnt.nodes = 100, amnt.edges = 1000, reverse.edges = T, offset.exponent = 1.5, trace = T)

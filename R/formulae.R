@@ -85,6 +85,7 @@ fcon <- function(value) {
 #' @param rhs right hand side S4 class \code{AbstractFormula} object
 #'
 #' @return an S4 class \code{AbstractFormula} object
+#' @rdname fdiv
 #' @export
 #'
 #' @examples
@@ -97,6 +98,7 @@ fcon <- function(value) {
 #' @param rhs right hand side S4 class \code{AbstractFormula} object
 #'
 #' @return an S4 class \code{AbstractFormula} object
+#' @rdname dmult
 #' @export
 #'
 #' @examples
@@ -109,6 +111,7 @@ fcon <- function(value) {
 #' @param rhs right hand side S4 class \code{AbstractFormula} object
 #'
 #' @return an S4 class \code{AbstractFormula} object
+#' @rdname fadd
 #' @export
 #'
 #' @examples
@@ -121,6 +124,7 @@ fcon <- function(value) {
 #' @param rhs right hand side S4 class \code{AbstractFormula} object
 #'
 #' @return an S4 class \code{AbstractFormula} object
+#' @rdname fmin
 #' @export
 #'
 #' @examples
