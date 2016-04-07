@@ -5,7 +5,7 @@ g <- 21
 regs <- c(3,4,5)
 inputs <- fsum(lapply(regs, function(r) fvar("x", r) / fvar("kg", r, g)))
 numerator <- fvar("a0g", g) + (fvar("a1") * inputs)
-denominator <- fcon(1) + inputs
+denominator <- 1 + inputs
 production.form <- fvar("r", g) * numerator / denominator
 production.form
 
@@ -23,7 +23,7 @@ formulae <- unlist(recursive = F, lapply(seq_len(amnt.genes), function(g) {
   } else {
     inputs <- fsum(lapply(regs, function(r) fvar("x", r) / fvar("kg", r, g)))
     numerator <- fvar("a0g", g) + (fvar("a1") * inputs)
-    denominator <- fcon(1) + inputs
+    denominator <- 1 + inputs
     prod.formula <- fvar("r", g) * numerator / denominator
   }
   
@@ -43,15 +43,11 @@ formulae <- unlist(recursive = F, lapply(seq_len(amnt.genes), function(g) {
   )
 }))
 
-# formulae <- unlist(recursive = F, lapply(seq_len(amnt.genes), function(g) {
-#   list(
-#     generate.production.formula(g, ba.network$incoming.edges[[g]], amnt.genes),
-#     generate.decay.formula(g, amnt.genes)
-#   )
-# }))
-
 formulae.strings <- sapply(formulae, function(fl) fl$formula@string)
 formulae.nus <- sapply(formulae, function(fl) fl$nu)
+formulae.vars <- unique(unlist(lapply(formulae, function(fl) extract.variables(fl$formula))))
+formulae.var.types <- sapply(formulae.vars, function(va) va@name)
+xl <- tapply(formulae.vars, formulae.var.types, identity, simplify = F)
 
 # 
 # 
