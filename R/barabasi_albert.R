@@ -47,7 +47,7 @@
 .ba.add.node.with.edges <- function(net, i, num.edges, offset.exponent, reverse.edges) {
   if (num.edges >= i) stop(sQuote("num.edges"), " must be smaller than ", sQuote("i"))
   
-  poss.neighs <- setdiff(seq_len(i-1), net$incoming.edges[[i]]) # only smaller than i
+  poss.neighs <- seq_len(i-1) # only smaller than i
   w <- net$degree[poss.neighs]
   w[w == 0] <- 1
   w <- (w / sum(w)) 
@@ -64,7 +64,7 @@
 }
 
 # adapted from http://stackoverflow.com/questions/24845909/generate-n-random-integers-that-sum-to-m-in-r
-.ba.num.edges <- function(amnt.nodes, amnt.edges, sd = 1, pos.only = TRUE) {
+.ba.num.edges <- function(amnt.nodes, amnt.edges, sd = 1, pos.only = TRUE, redistribute.start = T) {
   vec <- rnorm(amnt.nodes, amnt.edges/amnt.nodes, sd)
   if (abs(sum(vec)) < 0.01) vec <- vec + 1
   vec <- round(vec / sum(vec) * amnt.edges)
@@ -78,13 +78,15 @@
     vec[negs][i] <- vec[negs][i <- sample(sum(negs), 1)] + 1
     vec[pos][i]  <- vec[pos ][i <- sample(sum(pos ), 1)] - 1
   }
-  for (i in seq_along(vec)) {
-    if (vec[[i]] >= i) {
-      num.edges.to.redistribute <- vec[[i]] - i + 1
-      vec[[i]] <- i - 1
-      places.to.put <- sample(seq(i+1, length(vec)), size = num.edges.to.redistribute, replace = T)
-      for (j in places.to.put) {
-        vec[[j]] <- vec[[j]] + 1
+  if (redistribute.start) {
+    for (i in seq_along(vec)) {
+      if (vec[[i]] >= i) {
+        num.edges.to.redistribute <- vec[[i]] - i + 1
+        vec[[i]] <- i - 1
+        places.to.put <- sample(seq(i+1, length(vec)), size = num.edges.to.redistribute, replace = T)
+        for (j in places.to.put) {
+          vec[[j]] <- vec[[j]] + 1
+        }
       }
     }
   }
