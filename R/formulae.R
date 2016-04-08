@@ -37,40 +37,6 @@ extract.variables <- function(formula) {
   }
 }
 
-#' Create a new infix function to be used for the AbstractFormula system
-#'
-#' @param fun the function as a string
-#'
-#' @return an infix function which to create S4 class \code{AbstractFormula} objects
-#' @export
-#'
-#' @examples
-#' `%f-%` <- finfix("-")
-finfix <- function(fun) {
-  function(lhs, rhs) {
-    if (class(lhs) != "AbstractFormula") stop(sQuote("lhs"), " must be made by var, con, finfix or fprefix")
-    if (class(rhs) != "AbstractFormula") stop(sQuote("rhs"), " must be made by var, con, finfix or fprefix")
-    AbstractFormula(type = "infix.fun", name = fun, arguments = c(lhs, rhs), string = paste0("(", lhs@string, " ", fun, " ", rhs@string, ")"))
-  }
-}
-
-#' Create a new prefix function to be used for the AbstractFormula system
-#'
-#' @param fun the function as a string
-#'
-#' @return a prefix function which to create S4 class \code{AbstractFormula} objects
-#' @export
-#'
-#' @examples
-#' fsum <- fprefix("sum")
-fprefix <- function(fun) {
-  function(arguments) {
-    if (any(sapply(arguments, function(a) class(a) != "AbstractFormula"))) stop("all args must be made by var, con, finfix or fprefix")
-    arg.string <- paste(sapply(arguments, function(arg) arg@string), collapse = ", ")
-    AbstractFormula(type = "prefix.fun", name = fun, arguments = arguments, string = paste0(fun, "(", arg.string, ")"))
-  }
-}
-
 #' Create a new variable
 #'
 #' @param prefix the prefix of the variable
@@ -99,6 +65,44 @@ fvar <- function(prefix, ...) {
 #' con2 <- fcon(2.1)
 fcon <- function(value) {
   AbstractFormula(type = "con", name = as.character(value), arguments = list(), string = as.character(value))
+}
+
+#' Create a new infix function to be used for the AbstractFormula system
+#'
+#' @param fun the function as a string
+#'
+#' @return an infix function which to create S4 class \code{AbstractFormula} objects
+#' @export
+#'
+#' @examples
+#' `%f-%` <- finfix("-")
+finfix <- function(fun) {
+  function(lhs, rhs) {
+    if (class(lhs) != "AbstractFormula") lhs <- fcon(lhs)
+    if (class(rhs) != "AbstractFormula") rhs <- fcon(rhs)
+    AbstractFormula(type = "infix.fun", name = fun, arguments = c(lhs, rhs), string = paste0("(", lhs@string, " ", fun, " ", rhs@string, ")"))
+  }
+}
+
+#' Create a new prefix function to be used for the AbstractFormula system
+#'
+#' @param fun the function as a string
+#'
+#' @return a prefix function which to create S4 class \code{AbstractFormula} objects
+#' @export
+#'
+#' @examples
+#' fsum <- fprefix("sum")
+fprefix <- function(fun) {
+  function(arguments) {
+    for (i in seq_along(arguments)) {
+      if (class(arguments[[i]]) != "AbstractFormula") {
+        arguments[[i]] <- fcon(arguments[[i]])
+      }
+    }
+    arg.string <- paste(sapply(arguments, function(arg) arg@string), collapse = ", ")
+    AbstractFormula(type = "prefix.fun", name = fun, arguments = arguments, string = paste0(fun, "(", arg.string, ")"))
+  }
 }
 
 #' Divide function
@@ -157,6 +161,16 @@ setMethod("+", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), functi
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
+
+setMethod("+", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f+% e2)
+setMethod("-", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f-% e2)
+setMethod("*", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f*% e2)
+setMethod("/", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f/% e2)
+
+setMethod("+", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
+setMethod("-", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
+setMethod("*", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
+setMethod("/", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
 #' Apply a function over all arguments, then collapse it with another function
 #'
