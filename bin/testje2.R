@@ -10,7 +10,7 @@ library(PRISM)
 
 library(dyngen)
 
-G = c(1:50)
+G = 1:50
 amt.genes = length(G)
 tfs = G[1:20]
 target2tfs <- lapply(G, function(g) {
