@@ -22,6 +22,10 @@ target2tfs <- lapply(G, function(g) {
 })
 names(target2tfs) = G
 
+G = c(1,2,3)
+tfs = c(1,2)
+target2tfs = list(numeric(), c(1), c(2))
+
 # source("bin/ba_network.R")
 # G = c(1:50)
 # ba.network <- generate.ba(amnt.nodes = length(G), amnt.edges = 100)
@@ -109,15 +113,18 @@ formulae.nus <- sapply(formulae, function(fl) fl$nu)
 ## generating the (initial) parameters of the system
 
 R = rlnorm(length(G), log(20))/5
+R[] = 20
 names(R) = paste0("r_", G)
 D = rep(1,length(G))/5
 names(D) = paste0("d_", G)
-K = sapply(kterms, function(kterm) R[paste0("r_",str_replace(kterm, "k_(\\d*)_\\d*", "\\1"))]/2)
+K = sapply(kterms, function(kterm) (R/D)[paste0("r_",str_replace(kterm, "k_\\d*_(\\d*)", "\\1"))]/4)
 names(K) = kterms
-A0 = rep(0.1, length(G))
+A0 = rep(0.05, length(G))
 names(A0) = paste0("a0_", G)
+A0[[1]] = 1
 
-X0 = c(round(R/2, 0), rep(0, length(G)))
+X0 = c(rep(0, length(G)), rep(0, length(G)))
+X0[[1]] = 1
 names(X0) = c(paste0("x_", G), paste0("y_", G))
 
 P = rep(1,length(G))/10
@@ -137,7 +144,7 @@ process_ssa <- function(out, starttime=0) {
   data <- data[data$t<=final.time,]
   times <- data$t + starttime
   data <- as.matrix(data[,-1])
-
+  
   return(list(times=times, expression=data))
 }
 
@@ -147,25 +154,11 @@ process_ssa <- function(out, starttime=0) {
 # we need to determine these perturbations beforehand as they will be the same for every cell
 # initial basal expression levels
 totaltime = 40
-burntime = 10
+burntime = 0
 
-A0[] = 0.05
-#A0[sample(tfs, 1+rbinom(1, length(tfs)-1, 0.2))] = 1
 params = c(a1=1, R, D, K, A0, P, Q)
 params = c(t=0, params)
-
-# perturbations (saved in A0s)
-# linear
-params = matrix(params, nrow=nruns, byrow=T, ncol = length(params), dimnames = list(c(1:nruns), names(params)))
-params[,"t"] = as.numeric(seq(0, totaltime-4, length=nrow(params)))
-for(i in c(1:length(tfs))) {
-  g = i
-  start = i
-  length = sample(seq(min(4, nrow(params)-start), nrow(params) - start), 1)
-  for(i in seq(start, start+length)) {
-    params[i,paste0("a0_", g)] = 1
-  }
-}
+params = matrix(params, nrow=totaltime, byrow=T, ncol = length(params), dimnames = list(c(1:totaltime), names(params)))
 
 # add burn in time to params
 params[,"t"] = params[,"t"] + burntime
@@ -175,7 +168,7 @@ params[1,"t"] = 0
 fit = function(X) apply(X, 2, function(x) (x-min(x))/(max(x)-min(x)))
 pheatmap(fit(params[,apply(params, 2, sd) > 0]), cluster_cols=F, cluster_rows=F)
 
-simulate_cell = function(timeofsampling=NULL) {
+simulate_cell = function(timeofsampling) {
   requireNamespace("fastgssa")
   
   if (!is.null(timeofsampling)) {
@@ -183,15 +176,15 @@ simulate_cell = function(timeofsampling=NULL) {
   } else {
     time = totaltime
   }
-
-  out <- fastgssa::ssa(X0,formulae.strings,formulae.nus, burntime+time,params, method=fastgssa::ssa.direct(), recalculate.all =F)
+  
+  out <- fastgssa::ssa(X0,formulae.strings,formulae.nus, burntime+time, params, method=fastgssa::ssa.direct(), recalculate.all =F)
   output = process_ssa(out)
   expression = output$expression
   times = output$times
   burnin = times > burntime
   expression = methods::rbind2(output$expression[max(1, findInterval(burntime, output$times)),], output$expression[burnin,])
   times = c(0,times[burnin] - burntime)
-
+  
   # return either the full expression matrix, or the expression at timeofsampling
   if(is.null(timeofsampling)) {
     rownames(expression) = c(1:nrow(expression))
@@ -208,9 +201,7 @@ celltimes = runif(200, 0, totaltime)
 #library(profvis)
 #profvis({simulate_cell(1)})
 
-simulate_cell(4)
-
-cells = mclapply(celltimes, simulate_cell, mc.cores=1)
+cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 cells = qsub.lapply(celltimes, simulate_cell)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
@@ -220,14 +211,13 @@ E = E[,apply(E, 2, sd) > 0]
 Eprot = expression[,str_detect(colnames(expression), "y_")]
 Eprot = Eprot[,apply(Eprot, 2, sd) > 0]
 
-pheatmap(t(E), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
-pheatmap(t(Eprot), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
+pheatmap(t(E[order(celltimes),]), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
+pheatmap(t(Eprot[order(celltimes),]), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
 
 library(ggplot2)
-datadf = melt(E)
+datadf = melt(Eprot[order(celltimes),])
 colnames(datadf) = c("time", "gene", "count")
 
-datadf = datadf[datadf$gene %in% paste0("x_", tfs),]
 ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 library(SCORPIUS)
