@@ -14,6 +14,7 @@ Simulate different types of experiments:
 * Integrating different data types prior or after trajectory inference
 * Synchronizing trajectories between interacting cells (physically and/or chemically)
 * Dynamics of the regulatory network
+* Monoallelic expression
 
 Get data both for individual cells as well as at the bulk level
 
@@ -34,4 +35,5 @@ Stress test your methods against:
 
 ## Interesting studies
 
-* http://genome.cshlp.org/content/24/3/496.full
+* http://genome.cshlp.org/content/24/3/496.full Simulations of sources of noise in sc RNA-seq data
+* http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000935 Combinatorial regulation

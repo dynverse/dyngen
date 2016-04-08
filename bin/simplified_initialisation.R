@@ -13,7 +13,7 @@ production.form
 # barabasi albert testje
 amnt.genes <- 50
 amnt.edges <- 200
-ba.network <- generate.ba(amnt.nodes = amnt.genes, amnt.edges = amnt.edges, reverse.edges = T, offset.exponent = 1.5)
+ba.network <- generate.ba(amnt.nodes = amnt.genes, amnt.edges = amnt.edges, offset.exponent = 1.5)
 
 formulae <- unlist(recursive = F, lapply(seq_len(amnt.genes), function(g) {
   
