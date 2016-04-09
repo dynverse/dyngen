@@ -158,15 +158,7 @@ burntime = 0
 
 params = c(a1=1, R, D, K, A0, P, Q)
 params = c(t=0, params)
-params = matrix(params, nrow=totaltime, byrow=T, ncol = length(params), dimnames = list(c(1:totaltime), names(params)))
-
-# add burn in time to params
-params[,"t"] = params[,"t"] + burntime
-params = rbind2(params[1,], params)
-params[1,"t"] = 0
-
-fit = function(X) apply(X, 2, function(x) (x-min(x))/(max(x)-min(x)))
-pheatmap(fit(params[,apply(params, 2, sd) > 0]), cluster_cols=F, cluster_rows=F)
+params = matrix(params, nrow=1, byrow=T, ncol = length(params), dimnames = list(1, names(params)))
 
 simulate_cell = function(timeofsampling=NULL) {
   requireNamespace("fastgssa")
@@ -198,7 +190,7 @@ simulate_cell = function(timeofsampling=NULL) {
 
 celltimes = runif(100, 0, totaltime)
 
-cells = mclapply(celltimes, simulate_cell, mc.cores=8)
+cells = mclapply(celltimes, simulate_cell, mc.cores=1)
 cells = qsub.lapply(celltimes, simulate_cell)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
