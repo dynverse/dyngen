@@ -1,3 +1,5 @@
+# A brief example of binding -> transcription -> translation
+
 library(fastgssa)
 library(plyr)
 library(dplyr)
@@ -29,6 +31,7 @@ params = c(k_1=10,a0=0.05, a1=1, c=0.1, d=1, r=10, o=0.1, p=0.1)
 # you could call it a "burst" parameter
 # it resembles how hard it is for a transcription factor to get to the binding site
 # we use this parameter to keep the k parameter at concentration of half maximal binding
+# by balancing the ka (association constant) with kd (deassociation constant)
 
 initial.state = c(y_1=10, u_1=1, b_1=0, x_2=0, y_2=0)
 
