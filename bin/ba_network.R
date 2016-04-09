@@ -98,6 +98,6 @@ generate.ba <- function(amnt.nodes, amnt.edges, offset.exponent = 1, trace=T) {
 
 network.to.df <- function(net) {
   bind_rows(lapply(seq_len(net$amnt.nodes), function(i) {
-    data.frame(i = net$neighbours[[i]], j = rep(i, length(net$neighbours[[i]])))
+    data.frame(from = net$neighbours[[i]], to = rep(i, length(net$neighbours[[i]])))
   }))
 }

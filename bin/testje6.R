@@ -1,4 +1,4 @@
-## A simple network A -> B -> C for testing binding
+## More complex networks, based on a given network of lineage-determining TFs following a certain trajectory, and which then influence the expression of other TFs
 
 library(fastgssa)
 library(plyr)
@@ -9,14 +9,30 @@ library(stringr)
 library(pheatmap)
 library(parallel)
 library(PRISM)
+library(readr)
 
 library(dyngen)
 
 source("bin/testje4_functions.R")
 
-G = c(1,2,3)
-tfs = c(1,2)
-target2tfs = list(numeric(), c(1), c(2))
+net = read_tsv("data/networks/linear.tsv")
+ldtfs = sort(unique(net$from))
+
+# source("bin/ba_network.R")
+# ba.network <- generate.ba(amnt.nodes = 50, amnt.edges = 100)
+# ba.net.df <- network.to.df(ba.network) # indien nodig
+# ba.net.df$effect = 1
+# ba.net.df = ba.net.df[!(ba.net.df$to %in% ldtfs),]
+# 
+# net = bind_rows(net, ba.net.df)
+# pheatmap(sapply(G, function(i) sapply(G, function(j) .jacc(net$from[net$to==i], net$from[net$to==j]))))
+
+nG = 50
+data.from(from=sample(ldtfs, 50))
+
+G = sort(unique(union(net$from, net$to)))
+tfs = sort(unique(net$from))
+
 
 ## generating reaction formulas (the probability that a reaction occurs in [t, t dt])
 formulae = list()
@@ -30,7 +46,7 @@ add.variable = function(variable, ...) {
   variables[[varname]] <<- info
   
   group = str_replace(varname, "^(.*?)[_$].*", "\\1")
-  if (group %in% c("b", "u", "x", "y", "k", "r", "d", "p", "q", "a0")) {
+  if (group %in% c("b", "u", "x", "y", "k", "r", "d", "p", "q", "a0", "a")) {
     vargroups[[group]] <<- c(vargroups[[group]], varname)
   }
   return(variable)
@@ -51,22 +67,29 @@ for (target in G) {
   p = add.variable(fvar("p", target), gene=target)
   a0 = add.variable(fvar("a0", target), gene=target)
   
-  regs = target2tfs[[target]]
+  subnet = net[net$to == target,]
+  regs = subnet$from
+  effects = subnet$effect
   
   boundvars = list()
   
+  decisiontree = "" # quick and dirty decision tree, the last interaction will have priority
+  
   # regulator binding sites
-  for (regulator in regs) {
-    u = add.variable(fvar("u", target, regulator), target=g, regulator=regulator)
-    b = add.variable(fvar("b", target, regulator), target=g, regulator=regulator)
-    k = add.variable(fvar("k", target, regulator), target=g, regulator=regulator)
+  for (i in seq_len(length(regs))) {
+    regulator = regs[[i]]
+    effect = effects[[i]]
+    
+    u = add.variable(fvar("u", target, regulator), target=target, regulator=regulator)
+    b = add.variable(fvar("b", target, regulator), target=target, regulator=regulator)
+    k = add.variable(fvar("k", target, regulator), target=target, regulator=regulator)
     
     boundvars = c(boundvars, b)
     
     y_regulator = fvar("y", regulator)
     
     # binding
-    formula = u * y_regulator * kg
+    formula = u * y_regulator
     nu = get.nu(b, list(y_regulator, u))
     add.formula(formula, nu)
     
@@ -74,10 +97,20 @@ for (target in G) {
     formula = b * k * kg
     nu = get.nu(list(y_regulator, u), b)
     add.formula(formula, nu)
+    
+    # add to decision tree
+    a = add.variable(fvar("a", target, regulator), target=target, regulator=regulator, effect=effect)
+    
+    if(i == 1) {
+      decisiontree = fcon(paste0("ifelse(", b@string, ",", a@string, ",", a0@string, ")"))
+    } else {
+      decisiontree = fcon(paste0("ifelse(", b@string, ",", a@string, ",", decisiontree@string, ")"))
+    }
   }
   
   # mRNA production
-  formula = rg * r * fcon(paste0("ifelse(any(c(", paste0(sapply(boundvars, function(var) var@string)), ")), a1, a0_", target, ")"))
+    
+  formula = rg * r * decisiontree
   nu = get.nu(x)
   add.formula(formula, nu)
   
@@ -105,12 +138,16 @@ R = sapply(vargroups$r, function(r) 20)
 D = sapply(vargroups$d, function(d) 1)
 
 K = sapply(vargroups$k, function(k) unname((R/D)[paste0("r_",str_replace(k, "k_\\d*_(\\d*)", "\\1"))]/2))
+K[["k_3_3"]] = 0.1
+K[["k_1_3"]] = 1
 
 P = sapply(vargroups$p, function(p) 1)
 Q = sapply(vargroups$q, function(q) 1)
 
 A0 = sapply(vargroups$a0, function(a0) 0)
 A0[[1]] = 1
+
+A = sapply(vargroups$a, function(a) ifelse(variables[[a]]$effect==1, 1, 0))
 
 initial.state = numeric()
 initial.state[vargroups$x] = 0
@@ -120,7 +157,7 @@ initial.state[vargroups$u] = 1
 initial.state[vargroups$b] = 0
 molecules = names(initial.state)
 
-params = c(R, D, K, P, Q, A0, rg=0.1,dg=0.1,kg=1,pg=.01,qg=.01, a1=1)
+params = c(R, D, K, P, Q, A0,A, rg=0.1,dg=0.1,kg=1,pg=.1,qg=.1, a1=1)
 
 formulae.nus = sapply(nus.changes, function(nu.changes) {
   nu = sapply(molecules, function(r) 0)
@@ -133,7 +170,7 @@ formulae.nus = sapply(nus.changes, function(nu.changes) {
 totaltime = 100
 burntime = 0
 
-celltimes = runif(500, 0, totaltime)
+celltimes = runif(100, 0, totaltime)
 
 cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 
@@ -141,10 +178,10 @@ cells = qsub.lapply(celltimes, simulate_cell)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 E = expression[,str_detect(colnames(expression), "x_")]
-E = E[,apply(E, 2, sd) > 0]
+#E = E[,apply(E, 2, sd) > 0]
 
 Eprot = expression[,str_detect(colnames(expression), "y_")]
-Eprot = Eprot[,apply(Eprot, 2, sd) > 0]
+#Eprot = Eprot[,apply(Eprot, 2, sd) > 0]
 
 pheatmap(t(E[order(celltimes),]), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
 pheatmap(t(Eprot[order(celltimes),]), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
@@ -157,12 +194,12 @@ ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
 # check a random tf and his targets, for example to check the time lag
 tf = tfs[[1]]
-targets = G[sapply(target2tfs, function(tfs) (tf %in% tfs) && length(tfs)==1)]
+targets = net[net$from == tf,]$to
 length(targets)
-pheatmap(t(E[order(celltimes),c(tf,targets)]), scale="row", cluster_rows=F, cluster_cols = F)
+pheatmap(t(expression[order(celltimes),c(paste0("y_", tf), paste0("x_", targets))]), scale="row", cluster_rows=F, cluster_cols = F)
 
 # check protein and mRNA
-i = 3
+i = 1
 x = paste0("x_",i)
 y = paste0("y_",i)
 plotdata = bind_rows(
@@ -201,7 +238,9 @@ ggplot(plotdata) + geom_line(aes(time, expression, group=simulation, color=simul
 totaltime=100
 output = simulate_cell()
 
-expression = output$expression
+filtervars = colnames(output$expression)[sapply(strsplit(colnames(output$expression), "_"), function(x) {x[[2]] %in% ldtfs})]
+
+expression = output$expression[,filtervars]
 times = output$times
 
 # % of the time bound
@@ -224,3 +263,4 @@ plotdata$type = sapply(str_split(plotdata$var, "_"), function(x) x[[1]])
 plotdata$gene = sapply(str_split(plotdata$var, "_"), function(x) x[[2]])
 plotdata$time = output$times[plotdata$time]
 ggplot(plotdata) + geom_step(aes(time, expression, group=var, color=var)) + facet_grid(gene~type, scales = "free")
+
