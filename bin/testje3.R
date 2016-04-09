@@ -168,7 +168,7 @@ params[1,"t"] = 0
 fit = function(X) apply(X, 2, function(x) (x-min(x))/(max(x)-min(x)))
 pheatmap(fit(params[,apply(params, 2, sd) > 0]), cluster_cols=F, cluster_rows=F)
 
-simulate_cell = function(timeofsampling) {
+simulate_cell = function(timeofsampling=NULL) {
   requireNamespace("fastgssa")
   
   if (!is.null(timeofsampling)) {
@@ -196,10 +196,7 @@ simulate_cell = function(timeofsampling) {
   }
 }
 
-celltimes = runif(200, 0, totaltime)
-
-#library(profvis)
-#profvis({simulate_cell(1)})
+celltimes = runif(100, 0, totaltime)
 
 cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 cells = qsub.lapply(celltimes, simulate_cell)
@@ -220,44 +217,6 @@ colnames(datadf) = c("time", "gene", "count")
 
 ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
-library(SCORPIUS)
-space = reduce.dimensionality(correlation.distance(E),ndim = 3)
-#
-# space = tsne::tsne(as.dist(correlation.distance(E)))
-# colnames(space) = c("Comp1", "Comp2")
-#
-# space = diffusionMap::diffuse(as.dist(correlation.distance(E)))
-# space = space$X[,c(1:2)]
-# colnames(space) = c("Comp1", "Comp2")
-
-trajectory = infer.trajectory(space)
-draw.trajectory.plot(space, celltimes, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu")
-rownames(E) = c(1:nrow(E))
-draw.trajectory.heatmap(E, trajectory$time, as.factor(cut(celltimes, breaks=length(celltimes), labels=F)))
-
-SCORPIUS::evaluate.trajectory(trajectory$time, celltimes)
-
-draw.trajectory.heatmap(E, celltimes, factor(cut(celltimes, breaks=length(celltimes), labels=F)), show.labels.row = T)
-
-
-# check correlations between cells
-cellcor = cor(t(E[order(celltimes),]))
-pheatmap(cellcor, cluster_rows=F, cluster_cols=F)
-
-# check correlation between perturbations and simulated expression
-runtimes = seq(0, totaltime, length=nruns+1)
-Eperturb = matrix(unlist(sapply(celltimes, function(t) A0s[min(length(A0s),max(0, findInterval(t, runtimes)))])), nrow=length(celltimes), byrow = T)
-colnames(Eperturb) = paste0("x", G)
-
-E = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
-
-joined = left_join(melt(E, value.name="simul"), melt(Eperturb, value.name = "perturb"), c("Var1", "Var2"))
-colnames(joined)[1:2] = c("time", "gene")
-
-ggplot(joined) + geom_point(aes(perturb, simul)) + facet_wrap(~gene, scales = c("free_y"))
-
-pheatmap(fit(params[,apply(params, 2, sd) > 0]), cluster_cols=F, cluster_rows=F)
-
 # check a random tf and his targets, for example to check the time lag
 tf = tfs[[1]]
 targets = G[sapply(target2tfs, function(tfs) (tf %in% tfs) && length(tfs)==1)]
@@ -265,7 +224,7 @@ length(targets)
 pheatmap(t(E[order(celltimes),c(tf,targets)]), scale="row", cluster_rows=F, cluster_cols = F)
 
 # check protein and mRNA
-i = 1
+i = 3
 x = paste0("x_",i)
 y = paste0("y_",i)
 plotdata = bind_rows(
@@ -274,6 +233,23 @@ plotdata = bind_rows(
 )
 
 ggplot(plotdata) + geom_point(aes(time, expression, group=g, color=g))
+
+#
+
+nknots = 8
+Esmooth = cbind2(apply(E, 2, function(x) {smooth.spline(celltimes, x, nknots=nknots)$y}), apply(Eprot, 2, function(x) {smooth.spline(celltimes,x, nknots=nknots)$y}))
+Esmooth = cbind2(apply(E[order(celltimes), ], 2, smooth, kind="3RS3R"), apply(Eprot[order(celltimes), ], 2, smooth, kind="3RS3R"))
+plotdata = melt(Esmooth, value.name="expression")
+plotdata = melt(cbind2(E, Eprot), value.name="expression")
+colnames(plotdata) = c("time", "var", "expression")
+plotdata$time = celltimes[plotdata$time]
+plotdata$type = sapply(str_split(plotdata$var, "_"), function(x) x[[1]])
+plotdata$gene = sapply(str_split(plotdata$var, "_"), function(x) x[[2]])
+
+ggplot(plotdata, aes(x=time, y=expression)) + 
+  geom_point(aes(color=gene, shape=type), alpha=1)+
+  geom_smooth(aes(group=var, color=gene, linetype=type)) + 
+  facet_wrap(~gene)
 
 # check multiple individual cells
 plotdata = bind_rows(lapply(seq_len(10), function(i) {
