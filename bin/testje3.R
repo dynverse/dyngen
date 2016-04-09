@@ -1,3 +1,5 @@
+## A simple network A -> B -> C for testing binding
+
 library(fastgssa)
 library(plyr)
 library(dplyr)
@@ -84,31 +86,6 @@ formulae <- unlist(recursive = F, lapply(G, function(g) {
 
 formulae.strings <- sapply(formulae, function(fl) fl$formula@string)
 formulae.nus <- sapply(formulae, function(fl) fl$nu)
-
-#unlist(sapply(formulae, function(fl) {lapply(extract.variables(fl$formula), function(x) {x@string})}))
-
-# 
-# kterms = c()
-# production = mapply(function(g, tfs) {
-#   if (length(tfs) > 0) {
-#     inputs = sapply(tfs, function(tf) paste0("(x", tf, "/k", tf, "g", g, ")"))
-# 
-#     kterms <<- c(kterms, sapply(tfs, function(tf) paste0("k", tf, "g", g)))
-# 
-#     up = paste0("(a0g", g, "+", paste("a1", inputs, sep="*", collapse="+"), ")")
-#     down = paste0("(1+", paste0(inputs, collapse="+"), ")")
-#   } else {
-#     up = paste0("(a0g", g, ")")
-#     down = "1"
-#   }
-#   return(paste0("r", g, "*", up, "/", down))
-# }, tfs=target2tfs, g=names(target2tfs))
-# 
-# decay = mapply(function(g, tfs) {
-#   return(paste0("d", g, "*x" , g))
-# }, tfs=target2tfs, g=names(target2tfs))
-#
-#formulae = c(production, decay)
 
 ## generating the (initial) parameters of the system
 

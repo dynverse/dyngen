@@ -8,7 +8,7 @@ simulate_cell = function(timeofsampling=NULL) {
     time = totaltime
   }
   
-  out <- fastgssa::ssa(initial.state,formulae.strings,formulae.nus, burntime+time, params, method=fastgssa::ssa.direct(), recalculate.all =F)
+  out <- fastgssa::ssa(initial.state,formulae.strings,formulae.nus, burntime+time, params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
   output = process_ssa(out)
   expression = output$expression
   times = output$times
