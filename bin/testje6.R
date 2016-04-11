@@ -19,7 +19,7 @@ library(dyngen)
 source("bin/testje4_functions.R")
 
 #net = read_tsv("data/networks/linear.tsv")
-net = read_tsv("data/networks/bifurcating.tsv")
+net = read_tsv("data/networks/trifurcating.tsv")
 ldtfs = sort(unique(net$from))
 
 # source("bin/ba_network.R")
@@ -31,12 +31,12 @@ ldtfs = sort(unique(net$from))
 # net = unique(net)
 
 ### ONLY RUN IF YOU WANT EXTRA TARGET GENES
-subtfs = c(last(ldtfs)+1:10)
+subtfs = c(last(ldtfs)+1:15)
 net = bind_rows(net, data.frame(from=sample(ldtfs, length(subtfs), replace = T), to=subtfs, effect=1, strength=1))
 
 tfs = c(ldtfs, subtfs)
 
-targets = c(last(subtfs)+1:50)
+targets = c(last(subtfs)+1:100)
 net = bind_rows(net, data.frame(from=sample(tfs, length(targets), replace = T), to=targets, effect=1, strength=1))
 ###
 
@@ -44,7 +44,9 @@ G = sort(unique(union(net$from, net$to)))
 tfs = sort(unique(net$from))
 
 graph = graph_from_data_frame(net)
-plot.igraph(graph, edge.color = as.numeric(factor(net$effect)))
+layout <- layout.reingold.tilford(graph)
+layout <- layout.fruchterman.reingold(graph)
+plot.igraph(graph, edge.color = c("red", "blue")[as.numeric(factor(net$effect, levels = c(-1,1)))], layout=layout, vertex.size = c(1,5)[as.numeric(factor(G %in% ldtfs, levels = c(F, T)))], edge.arrow.size=0.1, vertex.label=lapply(G, function(g) ifelse(g%in%ldtfs, g, "")))
 
 barplot(degree(graph, mode="in"))
 
@@ -193,7 +195,7 @@ simulate_cell()
 
 cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 
-cells = qsub.lapply(celltimes, simulate_cell)
+cells = qsub.lapply(celltimes, simulate_cell, qsub.config = qsub.conf)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 E = ExpressionSet(t(expression[,str_detect(colnames(expression), "x_")]), AnnotatedDataFrame(data.frame(time=celltimes, row.names = 1:length(celltimes))))
@@ -206,7 +208,7 @@ Eprot = ExpressionSet(t(expression[,str_detect(colnames(expression), "y_")]), An
 pheatmap(exprs(E)[,order(phenoData(E)$time)], scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=phenoData(E)$time, row.names = sampleNames(E)))
 pheatmap(exprs(Eprot)[,order(phenoData(Eprot)$time)], scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=phenoData(Eprot)$time, row.names = sampleNames(Eprot)))
 
-plot(exprs(E["x_4",]), exprs(E["x_3",]))
+plot(exprs(E["x_6",]), exprs(E["x_5",]))
 
 library(ggplot2)
 datadf = melt(Eprot[order(celltimes),])
@@ -217,7 +219,16 @@ ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 # trajectory
 library(SCORPIUS)
 Efiltered =  E[apply(exprs(E), 1, sd) > 0,apply(exprs(E), 2, sd) > 0]
-space = reduce.dimensionality(correlation.distance(t(exprs(Efiltered))),ndim = 2)
+space = reduce.dimensionality(correlation.distance(t(exprs(Efiltered))),ndim = 3)
+
+space = tsne::tsne(as.dist(correlation.distance(t(exprs(Efiltered)))))
+colnames(space) = c("Comp1", "Comp2")
+
+rgl::plot3d(space, col=phenoData(Efiltered)$time)
+
+plotdata = as.data.frame(space)
+plotdata$progression = phenoData(Efiltered)$time
+ggplot(plotdata) + geom_point(aes(Comp2, Comp3, color=progression)) +  scale_colour_distiller(palette = "RdYlBu") + theme_classic()
 
 trajectory = infer.trajectory(space)
 draw.trajectory.plot(space, phenoData(Efiltered)$time, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu") + theme_classic()
