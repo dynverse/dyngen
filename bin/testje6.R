@@ -9,30 +9,46 @@ library(stringr)
 library(pheatmap)
 library(parallel)
 library(PRISM)
+qsub.conf = qsub.configuration(exec.before = c("module unload python", "module load python"))
 library(readr)
+library(Biobase)
+library(igraph)
 
 library(dyngen)
 
 source("bin/testje4_functions.R")
 
-net = read_tsv("data/networks/linear.tsv")
+#net = read_tsv("data/networks/linear.tsv")
+net = read_tsv("data/networks/bifurcating.tsv")
 ldtfs = sort(unique(net$from))
 
 # source("bin/ba_network.R")
-# ba.network <- generate.ba(amnt.nodes = 50, amnt.edges = 100)
+# ba.network <- generate.ba(amnt.nodes = 50, amnt.edges = 50, offset.exponent = 0)
 # ba.net.df <- network.to.df(ba.network) # indien nodig
 # ba.net.df$effect = 1
 # ba.net.df = ba.net.df[!(ba.net.df$to %in% ldtfs),]
-# 
 # net = bind_rows(net, ba.net.df)
-# pheatmap(sapply(G, function(i) sapply(G, function(j) .jacc(net$from[net$to==i], net$from[net$to==j]))))
+# net = unique(net)
 
-nG = 50
-data.from(from=sample(ldtfs, 50))
+### ONLY RUN IF YOU WANT EXTRA TARGET GENES
+subtfs = c(last(ldtfs)+1:10)
+net = bind_rows(net, data.frame(from=sample(ldtfs, length(subtfs), replace = T), to=subtfs, effect=1, strength=1))
+
+tfs = c(ldtfs, subtfs)
+
+targets = c(last(subtfs)+1:50)
+net = bind_rows(net, data.frame(from=sample(tfs, length(targets), replace = T), to=targets, effect=1, strength=1))
+###
 
 G = sort(unique(union(net$from, net$to)))
 tfs = sort(unique(net$from))
 
+graph = graph_from_data_frame(net)
+plot.igraph(graph, edge.color = as.numeric(factor(net$effect)))
+
+barplot(degree(graph, mode="in"))
+
+pheatmap(sapply(G, function(i) sapply(G, function(j) .jacc(net$from[net$to==i], net$from[net$to==j]))))
 
 ## generating reaction formulas (the probability that a reaction occurs in [t, t dt])
 formulae = list()
@@ -73,43 +89,47 @@ for (target in G) {
   
   boundvars = list()
   
-  decisiontree = "" # quick and dirty decision tree, the last interaction will have priority
-  
   # regulator binding sites
-  for (i in seq_len(length(regs))) {
-    regulator = regs[[i]]
-    effect = effects[[i]]
-    
-    u = add.variable(fvar("u", target, regulator), target=target, regulator=regulator)
-    b = add.variable(fvar("b", target, regulator), target=target, regulator=regulator)
-    k = add.variable(fvar("k", target, regulator), target=target, regulator=regulator)
-    
-    boundvars = c(boundvars, b)
-    
-    y_regulator = fvar("y", regulator)
-    
-    # binding
-    formula = u * y_regulator
-    nu = get.nu(b, list(y_regulator, u))
-    add.formula(formula, nu)
-    
-    # deassociation
-    formula = b * k * kg
-    nu = get.nu(list(y_regulator, u), b)
-    add.formula(formula, nu)
-    
-    # add to decision tree
-    a = add.variable(fvar("a", target, regulator), target=target, regulator=regulator, effect=effect)
-    
-    if(i == 1) {
-      decisiontree = fcon(paste0("ifelse(", b@string, ",", a@string, ",", a0@string, ")"))
-    } else {
-      decisiontree = fcon(paste0("ifelse(", b@string, ",", a@string, ",", decisiontree@string, ")"))
+  if (length(regs) > 0) {
+    for (i in seq_len(length(regs))) {
+      regulator = regs[[i]]
+      effect = effects[[i]]
+      strength = subnet[i,]$strength
+      
+      u = add.variable(fvar("u", target, regulator), target=target, regulator=regulator)
+      b = add.variable(fvar("b", target, regulator), target=target, regulator=regulator)
+      k = add.variable(fvar("k", target, regulator), target=target, regulator=regulator, strength=strength)
+      
+      boundvars = c(boundvars, b)
+      
+      y_regulator = fvar("y", regulator)
+      
+      # binding
+      formula = u * y_regulator
+      nu = get.nu(b, list(y_regulator, u))
+      add.formula(formula, nu)
+      
+      # deassociation
+      formula = b * k * kg
+      nu = get.nu(list(y_regulator, u), b)
+      add.formula(formula, nu)
+      
+      # add to decision tree
+      a = add.variable(fvar("a", target, regulator), target=target, regulator=regulator, effect=effect)
+      
+      # quick and dirty decision tree, the last interaction will have priority
+      if(i == 1) {
+        decisiontree = fcon(paste0("ifelse(", b@string, ",", a@string, ",", a0@string, ")"))
+      } else {
+        decisiontree = fcon(paste0("ifelse(", b@string, ",", a@string, ",", decisiontree@string, ")"))
+      }
     }
+  } else {
+    decisiontree = 1
   }
   
   # mRNA production
-    
+  
   formula = rg * r * decisiontree
   nu = get.nu(x)
   add.formula(formula, nu)
@@ -137,27 +157,24 @@ formulae.strings <- sapply(formulae, function(fl) fl@string)
 R = sapply(vargroups$r, function(r) 20)
 D = sapply(vargroups$d, function(d) 1)
 
-K = sapply(vargroups$k, function(k) unname((R/D)[paste0("r_",str_replace(k, "k_\\d*_(\\d*)", "\\1"))]/2))
-K[["k_3_3"]] = 0.1
-K[["k_1_3"]] = 1
+K = sapply(vargroups$k, function(k) unname((R/D)[paste0("r_",str_replace(k, "k_\\d*_(\\d*)", "\\1"))]/2/variables[[k]]$strength))
 
 P = sapply(vargroups$p, function(p) 1)
 Q = sapply(vargroups$q, function(q) 1)
 
 A0 = sapply(vargroups$a0, function(a0) 0)
-A0[[1]] = 1
 
 A = sapply(vargroups$a, function(a) ifelse(variables[[a]]$effect==1, 1, 0))
 
 initial.state = numeric()
 initial.state[vargroups$x] = 0
-initial.state[[1]] = 1
+initial.state[[1]] = 20
 initial.state[vargroups$y] = 0
 initial.state[vargroups$u] = 1
 initial.state[vargroups$b] = 0
 molecules = names(initial.state)
 
-params = c(R, D, K, P, Q, A0,A, rg=0.1,dg=0.1,kg=1,pg=.1,qg=.1, a1=1)
+params = c(R, D, K, P, Q, A0,A, rg=.1,dg=.1,kg=1,pg=.1,qg=.1, a1=1)
 
 formulae.nus = sapply(nus.changes, function(nu.changes) {
   nu = sapply(molecules, function(r) 0)
@@ -170,21 +187,26 @@ formulae.nus = sapply(nus.changes, function(nu.changes) {
 totaltime = 100
 burntime = 0
 
-celltimes = runif(100, 0, totaltime)
+celltimes = runif(500, 0, totaltime)
+
+simulate_cell()
 
 cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 
 cells = qsub.lapply(celltimes, simulate_cell)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
-E = expression[,str_detect(colnames(expression), "x_")]
+E = ExpressionSet(t(expression[,str_detect(colnames(expression), "x_")]), AnnotatedDataFrame(data.frame(time=celltimes, row.names = 1:length(celltimes))))
+#E = apply(E, 2, function(x) {sapply(x, function(y) {rbinom(1, y, 0.3)})})
 #E = E[,apply(E, 2, sd) > 0]
 
-Eprot = expression[,str_detect(colnames(expression), "y_")]
+Eprot = ExpressionSet(t(expression[,str_detect(colnames(expression), "y_")]), AnnotatedDataFrame(data.frame(time=celltimes, row.names = 1:length(celltimes))))
 #Eprot = Eprot[,apply(Eprot, 2, sd) > 0]
 
-pheatmap(t(E[order(celltimes),]), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
-pheatmap(t(Eprot[order(celltimes),]), scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=celltimes, row.names = rownames(E)))
+pheatmap(exprs(E)[,order(phenoData(E)$time)], scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=phenoData(E)$time, row.names = sampleNames(E)))
+pheatmap(exprs(Eprot)[,order(phenoData(Eprot)$time)], scale="row", cluster_cols=F, cluster_rows=T, clustering_distance_rows = "correlation", annotation_col = data.frame(time=phenoData(Eprot)$time, row.names = sampleNames(Eprot)))
+
+plot(exprs(E["x_4",]), exprs(E["x_3",]))
 
 library(ggplot2)
 datadf = melt(Eprot[order(celltimes),])
@@ -192,8 +214,21 @@ colnames(datadf) = c("time", "gene", "count")
 
 ggplot(datadf) + geom_line(aes(time, count, group=gene, color=gene))
 
+# trajectory
+library(SCORPIUS)
+Efiltered =  E[apply(exprs(E), 1, sd) > 0,apply(exprs(E), 2, sd) > 0]
+space = reduce.dimensionality(correlation.distance(t(exprs(Efiltered))),ndim = 2)
+
+trajectory = infer.trajectory(space)
+draw.trajectory.plot(space, phenoData(Efiltered)$time, trajectory$final.path) + scale_colour_distiller(palette = "RdYlBu") + theme_classic()
+rownames(E) = c(1:nrow(E))
+draw.trajectory.heatmap(t(exprs(Efiltered)), trajectory$time, as.factor(cut(phenoData(Efiltered)$time, breaks=length(phenoData(Efiltered)$time), labels=F)))
+
+draw.trajectory.heatmap(t(exprs(Efiltered)), phenoData(Efiltered)$time, as.factor(cut(phenoData(Efiltered)$time, breaks=length(phenoData(Efiltered)$time), labels=F)), show.labels.row = T)
+
 # check a random tf and his targets, for example to check the time lag
-tf = tfs[[1]]
+tf = tfs[[6]]
+print(tf)
 targets = net[net$from == tf,]$to
 length(targets)
 pheatmap(t(expression[order(celltimes),c(paste0("y_", tf), paste0("x_", targets))]), scale="row", cluster_rows=F, cluster_cols = F)
@@ -235,7 +270,7 @@ ggplot(plotdata) + geom_line(aes(time, expression, group=simulation, color=simul
 
 ##
 # one individual simulation
-totaltime=100
+totaltime=200
 output = simulate_cell()
 
 filtervars = colnames(output$expression)[sapply(strsplit(colnames(output$expression), "_"), function(x) {x[[2]] %in% ldtfs})]
@@ -245,8 +280,13 @@ times = output$times
 
 # % of the time bound
 binding = expression[,str_detect(colnames(expression), "b_"),drop=F]
-binding = bind_rows(lapply(colnames(binding), function(g) data.frame(expression=rep(binding[,g], each=2)[-length(times)*2], time=rep(1:length(times), each=2)[-1], var=g)))
-dlply(binding, "var", function(binding) pracma::trapz(binding$time, binding$expression)/max(binding$time)) # percentage of binding
+#binding = bind_rows(lapply(colnames(binding), function(g) data.frame(expression=rep(binding[,g], each=2)[-length(times)*2], time=rep(1:length(times), each=2)[-1], var=g))) # step plot
+#dlply(binding, "var", function(binding) pracma::trapz(binding$time, binding$expression)/max(binding$time)) # percentage of binding
+
+ma <- function(x,n=5){stats::filter(x,rep(1/n,n), sides=2)}
+binding = apply(binding, 2, ma, n=1000)
+binding = melt(binding, varnames = c("time", "var"), value.name = "expression")
+
 ggplot(binding) + geom_line(aes(time, expression, color=var)) + facet_wrap(~var)
 
 
@@ -255,12 +295,14 @@ Eprot = expression[,str_detect(colnames(expression), "y_"),drop=F]
 Ebind= expression[,str_detect(colnames(expression), "b_"),drop=F]
 
 plotdata = bind_rows(
-  melt(Ebind, varnames=c("time", "var"), value.name="expression"),
+  #melt(Ebind, varnames=c("time", "var"), value.name="expression"),
+  melt(apply(Ebind, 2, ma, n=1000), varnames = c("time", "var"), value.name = "expression"),
   melt(E, varnames=c("time", "var"), value.name="expression"),
   melt(Eprot, varnames=c("time", "var"), value.name="expression")
 )
 plotdata$type = sapply(str_split(plotdata$var, "_"), function(x) x[[1]])
 plotdata$gene = sapply(str_split(plotdata$var, "_"), function(x) x[[2]])
+plotdata$goi = sapply(str_split(plotdata$var, "_"), function(x) ifelse(x[[1]] == "b", x[[3]], x[[2]]))
 plotdata$time = output$times[plotdata$time]
-ggplot(plotdata) + geom_step(aes(time, expression, group=var, color=var)) + facet_grid(gene~type, scales = "free")
+ggplot(plotdata) + geom_step(aes(time, expression, group=var, color=goi)) + facet_wrap(gene~type, scales = "free_y")
 
