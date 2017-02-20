@@ -12,25 +12,38 @@ library(igraph)
 library(dyngen)
 library(cowplot)
 
-source("scripts/testje4_functions.R")
+source("scripts/1/testje4_functions.R")
+source("scripts/1/ssa_deterministic.R")
 
 net = read_tsv("data/networks/linear.tsv")
 
 ldtfs = sort(unique(c(net$from, net$to)))
 
+allgenes = ldtfs
+
 ### ONLY RUN IF YOU WANT EXTRA TARGET GENES
-subtfs = c(last(ldtfs)+1:10)
-net = bind_rows(net, data.frame(from=sample(ldtfs, length(subtfs), replace = T), to=subtfs, effect=1, strength=1, cooperativity=1))
-
-tfs = c(ldtfs, subtfs)
-
-targets = c(last(subtfs)+1:100)
-net = bind_rows(net, data.frame(from=sample(tfs, length(targets), replace = T), to=targets, effect=1, strength=1, cooperativity=1))
+# subtfs = c(last(ldtfs)+1:10)
+# net = bind_rows(net, data.frame(from=sample(ldtfs, length(subtfs), replace = T), to=subtfs, effect=1, strength=1, cooperativity=1))
+# 
+# tfs = c(ldtfs, subtfs)
+# 
+# targets = c(last(subtfs)+1:100)
+# net = bind_rows(net, data.frame(from=sample(tfs, length(targets), replace = T), to=targets, effect=1, strength=1, cooperativity=1))
 ###
+
+####
+for(ldtf in ldtfs) {
+  nnewtargets = sample(10:25, 1)
+  subnet = dyngen::generate.ba.with.modules(nnewtargets, nnewtargets*2, 0.1, 0.1)$data.frame %>% rename(from=i, to=j) %>% mutate(effect=1, strength=1, cooperativity=1) %>% mutate(from=from+max(allgenes), to=to+max(allgenes)) %>% mutate(from=replace(from, from==max(allgenes)+1, ldtf))
+  
+  net = bind_rows(net, subnet)
+  allgenes = sort(unique(union(net$from, net$to)))
+}
+##
+
 
 G = sort(unique(union(net$from, net$to)))
 tfs = sort(unique(net$from))
-
 
 graph = graph_from_data_frame(net)
 layout <- layout_with_fr(graph)

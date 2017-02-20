@@ -23,7 +23,6 @@ expressions = qsub.lapply(1:16, function(i) {
   rownames(expression) = NULL
   list(expression=expression, celltimes=celltimes, simulationid=i)
 }, qsub.config=qsub.conf)
-
 expression = do.call(rbind, map(expressions, ~.$expression))
 celltimes = do.call(c, map(expressions, ~.$celltimes))
 
@@ -35,7 +34,7 @@ Ebound = E[str_detect(featureNames(E), "b_")]
 
 pheatmap(SCORPIUS::quant.scale(exprs(Emrna[,phenoData(Emrna)$time %>% order])), cluster_cols = F, scale="none")
 
-Emrna2 = emdbook::rzinbinom(length(exprs(Emrna)), exprs(Emrna), 5, 0.2)
+Emrna2 = emdbook::rzinbinom(length(exprs(Emrna)), exprs(Emrna), 5, 0.05)
 #Emrna2 = MASS::rnegbin(length(exprs(Emrna)), exprs(Emrna), 2)
 Emrna2[is.na(Emrna2)] = 0
 Emrna2 = matrix(Emrna2, nrow = nrow(Emrna), ncol=ncol(Emrna), dimnames = dimnames(Emrna))

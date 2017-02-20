@@ -1,27 +1,45 @@
 library(GENIE3)
 
-
-shift_expression = function(E, delay) {
-  mapped_cells = map_int(phenoData(E)$time - delay, function(time) which.min(abs(phenoData(E)$time - time)))
-  E[,mapped_cells]
+shift_expression = function(E, delay, get_mapping=F) {
+  mapping = map_int(phenoData(E)$time - delay, function(time) which.min(abs(phenoData(E)$time - time)))
+  if(!get_mapping) {
+    E[,mapping]
+  } else {
+    mapping
+  }
 }
 
 # ni
+testbag = paste0("x_", sample(allgenes, length(allgenes)/2))
+
 delay = 2
 Eregulators = shift_expression(Emrna, delay)[,order(phenoData(Emrna)$time)]
 Etargets = Emrna[,order(phenoData(Emrna)$time)]
 
-result = genie3(t(exprs(Etargets)), regulators = paste0("x_", tfs), mc.cores = 8)
-result2 = cor(t(exprs(Etargets))) %>% .[paste0("x_", tfs),] %>% abs
-result3 = cor(t(exprs(Eregulators)), t(exprs(Etargets))) %>% .[paste0("x_", tfs),] %>% abs
-source("scripts/lagged_genie3.R")
-result4 = genie3(t(exprs(Etargets)), regulators = paste0("x_", tfs), data.regulators = t(exprs(Eregulators)), mc.cores = 8)
+regulators = intersect(paste0("x_", net$from %>% unique), featureNames(Etargets))
+set.seed(1)
+result = genie3(t(exprs(Etargets)), regulators = regulators, mc.cores ="qsub", nb.trees = 1000)
+result2 = cor(t(exprs(Etargets))) %>% .[regulators,] %>% abs
+result3 = cor(t(exprs(Eregulators)), t(exprs(Etargets))) %>% .[regulators,] %>% abs
+source("scripts/1/lagged_genie3.R")
+result4 = genie3(t(exprs(Etargets)), regulators = regulators, data.regulators = t(exprs(Eregulators)), mc.cores = "qsub")
+result5 = genie3(t(exprs(Etargets)), regulators = regulators, data.regulators = t(exprs(Eregulators2)), mc.cores = 8)
 
 # performance
-cal_performance = function(observed_net, net, plot=F) {
-  net.adj = net %>% reshape2::acast(from~to, function(x) any(x>0), value.var="strength")
-  rownames(net.adj) = paste("x_", rownames(net.adj))
-  colnames(net.adj) = paste("x_", colnames(net.adj))
+cal_performance = function(observed_net, net, exclude=c(), include=union(colnames(observed_net), rownames(observed_net)), plot=F) {
+  net$from = paste0("x_",net$from)
+  net$to = paste0("x_",net$to)
+  
+  observed_net = observed_net[setdiff(intersect(rownames(observed_net), include), exclude), setdiff(intersect(colnames(observed_net), include), exclude)]
+  net = net[(net$from %in% include) & !(net$from %in% exclude) & (net$to %in% include) & !(net$to %in% exclude),]
+  net$from = factor(net$from, levels=rownames(observed_net))
+  net$to = factor(net$to, levels=colnames(observed_net))
+  
+  observed_net = observed_net + rnorm(length(observed_net), 0, 0.000001)
+  
+  net.adj = net %>% reshape2::acast(from~to, function(x) any(x>0), value.var="strength", drop=F)
+  
+  #net.adj = net.adj[rownames(observed_net), colnames(observed_net)]
   
   prediction = ROCR::prediction(observed_net %>% as.numeric, net.adj %>% as.logical)
   performance1 = ROCR::performance(prediction, measure="tpr", x.measure="fpr")
@@ -36,10 +54,13 @@ cal_performance = function(observed_net, net, plot=F) {
   
   if (plot) limma::barcodeplot(result3 %>% as.numeric, net.adj)
   
-  list(aupr=aupr, auc=ROCR::performance(prediction, measure="auc")@y.values[[1]])
+  print(length(observed_net %>% as.numeric))
+  print(length(net.adj %>% as.logical))
+  
+  list(aupr=aupr, auroc=ROCR::performance(prediction, measure="auc")@y.values[[1]])
 }
-
-bind_rows(lapply(list(result, result2, result3, result4), function(result) cal_performance(result, net)))
+bind_rows(lapply(list(result, result2, result3, result4), function(result) cal_performance(result, net, exclude=testbag)))
+bind_rows(lapply(list(result, result2, result3, result4, result5), function(result) cal_performance(result, net, exclude=testbag)))
 ### find the delay
 
 find_delay = function(from, to, plot=F) {
@@ -53,21 +74,17 @@ find_delay = function(from, to, maxdelay = 100, plot=F) {
 }
 
 
-net = net %>% rowwise() %>% mutate(delay=find_delay(from, to, maxdelay = 100))
+net = net %>% rowwise() %>% mutate(delay=find_delay(from, to, maxdelay = 50))
 delay = mean(net$delay)
 net %>% ggplot() + geom_histogram(aes(delay)) + geom_vline(xintercept=delay)
 
-linkid = 2
+linkid = 100
 from = paste0("x_", net[linkid,]$from)
 to = paste0("x_", net[linkid,]$to)
 
 plotdata = data.frame(t(exprs(Emrna)[c(from, to),]), time=phenoData(Emrna)$time) %>% rename_(from=from, to=to)
 plotdata %>% 
-  ggplot() + geom_smooth(aes(time, from), color="green") + geom_smooth(aes(time, to), color="blue") + geom_smooth(aes(time-delay, to), color="#232784")
-plotdata %>% 
-  ggplot() + geom_point(aes(time, from), color="green") + geom_point(aes(time, to), color="blue") + geom_point(aes(time-delay, to), color="#232784")
-plotdata %>% 
-  ggplot() + geom_point(aes(from, to), color="green") + geom_point(aes(time, to), color="blue") + geom_point(aes(time-delay, to), color="#232784")
+  ggplot() + geom_smooth(aes(time, from), color="green", span=0.5) + geom_smooth(aes(time, to), color="blue", span=0.5) + geom_smooth(aes(time-delay, to), color="#232784", span=0.5)+ geom_point(aes(time, from), color="green", alpha=0.2) + geom_point(aes(time, to), color="blue", alpha=0.2) + geom_point(aes(time-delay, to), color="#232784", alpha=0.2)
 
 
 delay = 2
@@ -76,17 +93,17 @@ plot(exprs(Emrna)[from,1:(ncol(Emrna)-delay)], exprs(Emrna)[to,(delay+1):ncol(Em
 plot(exprs(Emrna)[from,], exprs(Emrna)[to,])
 
 
-Emrna_shifted = shift_expression(Emrna, 10)
+Emrna_shifted = shift_expression(Emrna, 3)
 plotdata = tibble(
   from_original=exprs(Emrna)[from,],
   to_original=exprs(Emrna)[to,],
   from_shifted=exprs(Emrna_shifted)[from,],
-  to_shifted=exprs(Emrna_shifted)[to,]
+  to_shifted=exprs(Emrna)[to,]
 )
-plotdata %>% ggplot() + geom_point(aes(from_original, to_original), color="blue") + 
+plotdata %>% ggplot() + 
+  geom_point(aes(from_original, to_original), color="blue") + 
   geom_point(aes(from_shifted, to_shifted), color="red")
 plot(plotdata$from_shifted, plotdata$to_shifted)
-
 
 ######
 allgenes = c(tfs, targets)
@@ -126,32 +143,50 @@ for (i in 1:2) {
 
 # method 2: from the last cell, try to move each cell as far as possible as long as it increases performance
 # in principle you could allow a cell to go further than the next cell, eg. to improve TI, although this is not advisable IMO
-for (cellid in 2:ncells) {
-  newmapping_scores = lapply(0:200, function(stepsize) {
-    if ((cellid-stepsize < 1) | (mapping[[cellid-1]] > mapping[[cellid]] - stepsize)) return(list(auc=0, aupr=0, newmapping=list(mapping)))
-    #if(mapping[[cellid]] <= mapping[[cellid-1]]) return(list(auc=0, aupr=0, newmapping=list(mapping)))
-    newmapping = mapping
-    newmapping[[cellid]] = newmapping[[cellid]] - stepsize
-    Eregulators = Etargets[paste0("x_", tfs), newmapping]
+stepid = 0
+maxstepsize = 50
+for (i in 1:1) {
+  for (cellid in 2:ncells) {
+    newmapping_scores = lapply(0:maxstepsize, function(stepsize) {
+      if (mapping[[cellid]]-stepsize < 1) return(list(auc=0, aupr=0, newmapping=list(mapping)))
+      #if ((mapping[[cellid]]-stepsize < 1) | (mapping[[cellid-1]] > mapping[[cellid]] - stepsize)) return(list(auc=0, aupr=0, newmapping=list(mapping)))
+      newmapping = mapping
+      newmapping[[cellid]] = newmapping[[cellid]] - stepsize
+      Eregulators = Etargets[regulators, newmapping]
+      
+      observed_net = cor(t(exprs(Eregulators)), t(exprs(Etargets))) %>% abs
+      
+      scores = cal_performance(observed_net, net)
+      scores$newmapping = list(newmapping)
+      scores
+    }) %>% bind_rows
+    newmapping_id = newmapping_scores$auc %>% which.max
+    newauc = newmapping_scores$auc[[newmapping_id]]
+    newaupr = newmapping_scores$aupr[[newmapping_id]]
     
-    observed_net = cor(t(exprs(Eregulators)), t(exprs(Etargets))) %>% abs
+    print(cellid)
+    print(newauc)
+    print(newaupr)
+    print("---")
     
-    scores = cal_performance(observed_net, net)
-    scores$newmapping = list(newmapping)
-    scores
-  }) %>% bind_rows
-  newmapping_id = newmapping_scores$auc %>% which.max
-  newscore = newmapping_scores$auc[[newmapping_id]]
-  
-  print(cellid)
-  print(newscore)
-  print("---")
-  
-  mapping = newmapping_scores$newmapping[[newmapping_id]]
-  
-  steps[[length(steps) + 1]] = list(original=list(1:length(mapping)), mapping=list(mapping), stepid=i, auc=newscore)
+    mapping = newmapping_scores$newmapping[[newmapping_id]]
+    
+    stepid = stepid + 1
+    
+    steps[[length(steps) + 1]] = tibble(original=list(1:length(mapping)), mapping=list(mapping), stepid=stepid, auc=newauc, aupr=newaupr)
+  }
 }
-newmapping_scores %>% .$auc %>% keep(~.>0.1) %>% plot
+steps = bind_rows(steps) %>% dplyr::mutate(stepid=1:length(steps))
+p = steps %>% unnest() %>% ggplot(aes(original, mapping, frame=stepid)) + geom_point()
+#gg_animate(p, interval=0.1)
+Eregulators2 = Emrna[,order(phenoData(Emrna)$time)[mapping]]
+
+plotdata = bind_rows(
+  tibble(original=1:length(mapping), mapping = mapping, mapper="cellshift"), 
+  tibble(original=rank(phenoData(Emrna)$time), mapping=rank(phenoData(Emrna)$time)[shift_expression(Emrna, delay, T)], mapper="timeshift"),
+  tibble(original=1:length(mapping), mapping=1:length(mapping), mapper="original")
+)
+plotdata %>% ggplot() + geom_point(aes(original, mapping, color=mapper))
 
 # method 3: http://stats.stackexchange.com/questions/146950/how-can-i-estimate-the-delay-between-two-non-periodic-time-series
 # estimate the delay between a known regulator and target, do this for every regulator and target and ...?
