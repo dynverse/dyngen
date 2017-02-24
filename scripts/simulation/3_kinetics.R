@@ -4,7 +4,7 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   R = sapply(vargroups$r, function(r) 20)
   D = sapply(vargroups$d, function(d) 5)
   
-  K = sapply(vargroups$k, function(k) unname((R/D)[paste0("r_",str_replace(k, "k_\\d*_(\\d*)", "\\1"))]/2/variables[[k]]$strength))
+  K = sapply(vargroups$k, function(k) unname((R/D)[paste0("r_",str_replace(k, "k_G\\d*_(G\\d*)", "\\1"))]/2/variables[[k]]$strength))
   
   P = sapply(vargroups$p, function(p) 0.2)
   Q = sapply(vargroups$q, function(q) 0.2)
@@ -40,4 +40,11 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   params = params[unique(names(params))] # remove duplicates, retain first
   
   named.list(formulae.nus, params, initial.state)
+}
+
+## determine start state genes (active during burn-in)
+determine_burngenes = function(model) {
+  variables_genes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist()
+  modulesoi = model$modulenodes %>% filter(burn == 1) %>% .$module
+  (variables_genes %in% (model$geneinfo %>% filter(module %in% modulesoi | is.na(module)) %>% .$gene)) %>% variables_genes[.]
 }

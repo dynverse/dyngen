@@ -4,19 +4,24 @@ source(file.path(scriptfolder, "2_formulae.R"))
 source(file.path(scriptfolder, "3_kinetics.R"))
 source(file.path(scriptfolder, "4_simulate_functions.R"))
 
-modulenetname = "linear";celltypes = tibble(celltype=c(1), dies=c(F))
-modulenetname = "linear_intercell";celltypes = tibble(celltype=c(1, 2), dies=c(T, F))
-modulenetname = "cycle";celltypes = tibble(celltype=c(1), dies=c(F))
-modulenetname = "bifurcating";celltypes = tibble(celltype=c(1), dies=c(F))
+#modulenetname = "linear"
+#modulenetname = "bifurcating_convergence"
+
+#modulenetname = "linear_intercell";celltypes = tibble(celltype=c(1, 2), dies=c(T, F))
+#modulenetname = "cycle";celltypes = tibble(celltype=c(1), dies=c(F))
+#modulenetname = "bifurcating";celltypes = tibble(celltype=c(1), dies=c(F))
 #modulenetname = "bifurcating_cycle"
 #modulenetname = "trifurcating"
-modulenetname = "consecutive_bifurcating";celltypes = tibble(celltype=c(1), dies=c(F))
+#modulenetname = "consecutive_bifurcating";celltypes = tibble(celltype=c(1), dies=c(F))
 #modulenetname = "bifurcating_convergence"
 
 # load module net
-modulenodes = read_tsv(paste0("data/networks/", modulenetname, "_nodes.tsv"))
-modulenodes$celltype = 1
-modulenet = read_tsv(paste0("data/networks/", modulenetname, ".tsv"))
+modulenodes = read_tsv(paste0("data/networks/", modulenetname, "/modulenodes.tsv"), col_types=cols())
+if(!("celltype" %in% colnames(modulenodes))) {
+  modulenodes$celltype = 1
+}
+modulenet = read_tsv(paste0("data/networks/", modulenetname, "/modulenet.tsv"), col_types=cols())
+celltypes = read_tsv(paste0("data/networks/", modulenetname, "/celltypes.tsv"), col_types=cols())
 
 # generate gene network
 modulenet_to_modules(modulenet, modulenodes) %>% list2env(.GlobalEnv)
@@ -26,7 +31,6 @@ add_targets_shared(net) %>% list2env(.GlobalEnv)
 net$effect[net$effect == 0] = sample(c(1, -1), sum(net$effect == 0), replace=T)
 
 net = bind_rows(net, tibble(from=last(ldtfs), to=max(net$to)+1, effect=1, strength=1, cooperativity=2)) # add death marker
-
 
 G = allgenes = sort(unique(union(net$from, net$to)))
 tfs = sort(unique(net$from))
@@ -57,7 +61,6 @@ plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "#7cd637")[as.numeric(fa
 jaccard = function(x, y) {length(intersect(x, y))/length(union(x,y))}
 pheatmap(sapply(G, function(i) sapply(G, function(j) jaccard(net$from[net$to==i], net$from[net$to==j]))))
 
-
 generate_formulae(net, genes, celltypes) %>% list2env(.GlobalEnv)
 generate_kinetics(vargroups, variables, nus.changes) %>% list2env(.GlobalEnv)
 
@@ -67,53 +70,53 @@ modulesoi = modulenodes %>% filter(celltype == 2) %>% .$module
 modulesoi = 1
 burngenes = (variables_genes %in% (genes %>% filter(module %in% modulesoi | is.na(module)) %>% .$gene)) %>% variables_genes[.]
 
-newtime = 5
-
 ##
-totaltime = 8
+#totaltime = 8
 burntime = 2
-newtime = estimate_convergence(8, verbose=T, totaltime=15) %>% max() %>% {.+1}
+#ncells = 500
 
-E = expression_multiple_cells(burntime, totaltime, 1000)
-E = expression_one_cell(burntime, totaltime)
-E = expression_multiple_cells_split_local(burntime, totaltime)
+#newtime = estimate_convergence(8, verbose=T, totaltime=15) %>% max() %>% {.+1}
+
+E = expression_multiple_cells(burntime, totaltime, burngenes, ncells)
+#E = expression_one_cell(burntime, totaltime, burngenes=burngenes)
+E = expression_multiple_cells_split(burntime, totaltime, burngenes=burngenes, ncores = 40, ncellspercore = 20)
 
 E = E[,!(exprs(E) %>% apply(2, function(x) any(is.na(x))))]
 E = E[,phenoData(E)$time %>% order]
-Emrna = E[str_detect(featureNames(E), "x_")]
 
-pheatmap(SCORPIUS::quant.scale(exprs(Emrna[,phenoData(Emrna)$time %>% order]) %>% t) %>% t, cluster_cols = F, cluster_rows=T,scale="none")
-exprs(E)["rg_1",] %>% plot
-exprs(E)[paste0("x_", (net$to %>% last)),] %>% plot
+# determine cell states & cell orderings within states
+Emodules = lapply(modulemembership, function(module) apply(exprs(E)[intersect(featureNames(E), paste0("x_", module)),,drop=F], 2, mean)) %>% do.call(rbind, .)
+pheatmap(SCORPIUS::quant.scale(t(Emodules[,phenoData(E)$time %>% order]), 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, labels_row = 1:nrow(Emodules))
+base = 3
+basemax = 4
+cellstateinfo = Emodules %>% apply(2, function(x) {
+  state = (1:length(x))[x>base] %>% last
+  if (is.na(state)) {
+    warning("no good state")
+    state = which.max(x)
+  }
+  progression = pmin((x[state] - base)/(basemax-base), 1)
+  
+  tibble(state=state, progression=progression)
+}) %>% bind_rows
+phenoData(E)$state = factor(cellstateinfo$state)
+phenoData(E)$progression = cellstateinfo$progression
+ggplot(phenoData(E) %>% as("data.frame")) + geom_area(aes(time, group=state, fill=factor(state)), position="fill", stat="bin", bins=20)
+
+# process mRNA counts
+Emrna = E[str_detect(featureNames(E), "x_")]
+Emrna = Emrna[,phenoData(Emrna)$time %>% order]
+
+pheatmap(SCORPIUS::quant.scale(exprs(Emrna) %>% t) %>% t, cluster_cols = F, cluster_rows=T,scale="none", annotation_col=data.frame(state=phenoData(Emrna)$state), row.names=rownames(Emrna))
 
 counts = Emrna %>% exprs %>% {.*100} %>% round() %>% abs()
 Emrna2 = libprep(counts, amplifyrate = c(0.01, 0.03), verbose=T, verbose_plot_cell= 10, verbose_follow_gene=c("x_3","x_10", "x_50"))
 colnames(Emrna2) = sampleNames(Emrna)
 Emrna2 = Emrna2 %>% ExpressionSet(phenoData(Emrna))
 pheatmap(exprs(Emrna2)[,phenoData(Emrna2)$time %>% order], cluster_cols = F, scale="none", cluster_row=F, show_rownames = F, show_colnames = F)
+counts = Emrna2
 
-pheatmap(SCORPIUS::quant.scale(exprs(Emrna2[,phenoData(Emrna2)$time %>% order]) %>% t, 0.05) %>% t, cluster_cols = F, scale="none", cluster_row=T, show_rownames = F, show_colnames = F)
+pheatmap(SCORPIUS::quant.scale(exprs(counts[,phenoData(counts)$time %>% order]) %>% t, 0.05) %>% t, cluster_cols = F, scale="none", cluster_row=T, show_rownames = F, show_colnames = F)
 
+exprs(E)[vargroups$rg,,drop=F] %>% reshape2::melt(varnames=c("variable", "cell"), value.name="expression") %>% ggplot() + geom_line(aes(cell, expression, group=variable, color=variable))
 
-Emodules = lapply(modulemembership, function(module) apply(exprs(E)[intersect(featureNames(E), paste0("x_", module)),,drop=F], 2, mean)) %>% do.call(rbind, .)
-pheatmap(SCORPIUS::quant.scale(t(Emodules[,phenoData(Emrna)$time %>% order]), 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, labels_row = 1:nrow(Emodules))
-base = 2
-basemax = 4
-cellstateinfo = Emodules %>% apply(2, function(x) {
-  state = (1:length(x))[x>base] %>% last
-  if (is.na(state)) {
-    warning("no good state")
-    state = 1
-  }
-  progression = pmin((x[state] - base)/(basemax-base), 1)
-  
-  tibble(state=state, progression=progression)
-}) %>% bind_rows
-phenoData(E)$state = cellstateinfo$state
-phenoData(E)$progression = cellstateinfo$progression
-ggplot(phenoData(E) %>% as("data.frame")) + geom_area(aes(time, group=state, fill=factor(state)), position="fill", stat="bin", bins=30)
-
-
-
-
-exprs(E)[vargroups$rg,] %>% reshape2::melt(varnames=c("variable", "cell"), value.name="expression") %>% ggplot() + geom_line(aes(cell, expression, group=variable, color=variable))

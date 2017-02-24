@@ -1,4 +1,8 @@
+## Get cell distances in gold standard
+# Goal: get a pairwise distance matrix between all cells, based on their branch and progression in the gold standard
+
 # network between states
+# at bifurcation points, the two states after a bifurcation are connected through a head2head edge
 statenet = modulenet %>% filter(effect == 1) %>% filter(from != to) %>% select(from, to) %>% mutate(type="head2tail")
 statenet = statenet %>% group_by(from) %>% summarise(n=n()) %>% filter(n>1) %>% .$from %>% map(function(fromoi) {
   statesoi = statenet %>% filter(from==fromoi) %>% .$to
@@ -10,10 +14,18 @@ snet = statenet %>% graph_from_data_frame(vertices=unique(statenet$from, statene
 # head2head = weight 2 (double the path)
 # head2tail = weight 1 ()
 # start and end state: check 
+
+# the distance if the states are the same is just the difference in progression time within this stage
 traj_distance_samestate = function(time1, time2, verbose=F) abs(time1-time2)
+
+
 get_state_edge = function(state1, state2) {
   statenet %>% filter((from == state1 & to==state2) | (from == state2 & to == state1)) %>% as.list()
 }
+
+# processessing the shortest path between 2 states through the state network
+# returns a function which can be used to get the distance of two cells in these two respective states
+# we calculate these functions here so that they do not need to be recalculated for every pair of cells in the same two states
 process_sp = function(sp) {
   extracost = 0
   if(length(sp) == 1) {
@@ -64,6 +76,7 @@ func = get_cell_distance_func(snet, 1, 2)
 func(0.9, 0.1)
 func(0.2, 0.3)
 
+phenoData(E)$state = factor(phenoData(E)$state) # make sure this is a factor, because if some states are missing this will mess up the indexing
 allstates = unique(phenoData(E)$state) %>% sort
 cell_distance_funcs = map(allstates, function(state1) map(allstates, ~get_cell_distance_func(snet, state1, .)))
 
@@ -94,13 +107,13 @@ cell_distances[] %>% pheatmap(cluster_cols=F, cluster_rows=F)
 cell_distances
 
 #### TI evaluation ####
-#### actual evaluation
-# rank correlation
+# Evaluate TI methods based on a given cell_distances_observed, all pairwise distances between cells generated from trajectory model
+## rank correlation: for every cell, how well do the rankings of cell distances correspond?
 cellcors = map_dbl(1:ncol(Efiltered), function(cellid) cor(cell_distances[,cellid], cell_distances_observed[,cellid], method="spearman"))
 cellcors %>% hist
 cellcors %>% mean
 
-# nearest neighbours
+## nearest neighbours: for every cell, how well do its neigbours correspond?
 k = 100
 knn = apply(cell_distances, 1, function(row) order(row)[1:k])
 knn_observed = apply(cell_distances_observed, 1, function(row) order(row)[1:k])
@@ -120,12 +133,14 @@ plotdata = bind_rows(
 ggplot(plotdata) + geom_histogram(aes(jaccard, group=type, fill=type), alpha=0.7, position="identity")
 
 
-#### Dim red evaluation ####
+#### Dimensionality reduction evaluation ####
 get_knn = function(distances, k=100) {
   diag(distances) = max(distances)+0.1
   knn = apply(distances, 1, function(row) order(row)[1:k])
   split(knn, rep(1:ncol(knn), each=nrow(knn)))
 }
+
+## first get the distances between every pair of cells
 original = exprs(Efiltered)
 celltimes = phenoData(Efiltered)$time
 
@@ -135,8 +150,9 @@ space_distances$random = space_distances$original %>% sample %>% matrix(nrow=nro
 
 scores = tibble(space=character())
 
-# predict simulation time
+## predict simulation/progression time
 k = 20
+# get for every cell its knn and calculate the average time
 celltimes_observeds = lapply(space_distances, function(distances) {
   knn = get_knn(distances, k)
   map_dbl(knn, function(knn) {mean(celltimes[knn])})
@@ -147,10 +163,10 @@ celltimes_observeds = tibble(time=celltimes, cell=1:length(celltimes)) %>% right
 
 ggplot(celltimes_observeds) + geom_point(aes(time, time_observed)) + facet_wrap(~space)
 
-scores = celltimes_observeds %>% group_by(space) %>% summarise(score_simtimecor=cor(time, time_observed, method="spearman")) %>% left_join(scores, by="space", suffix)
+scores = celltimes_observeds %>% group_by(space) %>% summarise(score=cor(time, time_observed, method="spearman")) %>% mutate(scorename = "simtimecor") %>% left_join(scores, by="space")
 
 # nearby cells
-k = 100
+k = 25
 knn_observeds = lapply(space_distances, function(distances) {
   get_knn(distances, k)
 })
@@ -163,8 +179,8 @@ jaccards = lapply(names(knn_observeds), function(spacename) {
   jaccards = map_dbl(1:length(knn), function(i) jaccard(knn[[i]], knn_observed[[i]]))
   tibble(jaccard=jaccards, cells=1:length(knn_observed), space=spacename)
 }) %>% bind_rows()
-scores = jaccards %>% group_by(space) %>% summarise(score_meanjaccard=mean(jaccard)) %>% left_join(scores, by="space")
+scores = jaccards %>% group_by(space) %>% summarise(score=mean(jaccard)) %>% mutate(scorename="meanjaccard") %>% bind_rows(scores)
 
 
 
-scores %>% filter(space!="state") %>% ggplot() + geom_bar(aes(space, score_meanjaccard), stat="identity")
+scores %>% filter(space!="state") %>% ggplot() + geom_bar(aes(space, score), stat="identity") + facet_wrap(~scorename) + coord_flip()

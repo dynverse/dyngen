@@ -64,6 +64,7 @@ bind_cols(map(crv, "w")) %>% View
 
 
 
+## Monocle
 
 space = SCORPIUS::reduce.dimensionality(SCORPIUS::correlation.distance(t(exprs(Efiltered))),ndim = 3)
 spaces$mds = space## Monocle

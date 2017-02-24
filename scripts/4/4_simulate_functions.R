@@ -1,3 +1,66 @@
+simulate_cell = function(timeofsampling=NULL, deterministic=F, burngenes=c(), totaltime=10, burntime=2) {
+  requireNamespace("fastgssa")
+  requireNamespace("tidyr")
+  requireNamespace("purrr")
+  library(purrr)
+  
+  variables_burngenes = map(variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% burngenes) %>% names
+  formulae.nus.burn = formulae.nus
+  formulae.nus.burn[setdiff(rownames(formulae.nus.burn), variables_burngenes),] = 0
+  
+  # burn in
+  if (!deterministic) {
+    out <- fastgssa::ssa(initial.state, formulae.strings, formulae.nus.burn, burntime, params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
+  } else {
+    out <- fastgssa::ssa(initial.state, formulae.strings, formulae.nus.burn, burntime, params, method=fastgssa::ssa.em(), recalculate.all =F, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+  }
+  output = process_ssa(out)
+  initial.state.burn = output$expression[nrow(output$expression), ] %>% abs
+  
+  # determine total time to simulate
+  if (!is.null(timeofsampling)) {
+    time = timeofsampling
+  } else {
+    time = totaltime
+  }
+  
+  # actual simulation
+  if (!deterministic) {
+    out <- fastgssa::ssa(initial.state.burn, formulae.strings, formulae.nus, time, params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
+  } else {
+    out <- fastgssa::ssa(initial.state.burn, formulae.strings, formulae.nus, time, params, method=fastgssa::ssa.em(), recalculate.all = FALSE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+  }
+  output = process_ssa(out)
+  expression = output$expression
+  times = output$times
+  
+  # return either the full expression matrix, or the expression at timeofsampling
+  if(is.null(timeofsampling)) {
+    rownames(expression) = c(1:nrow(expression))
+    return(list(expression=expression, times=times))
+  } else {
+    return(tail(expression, n=1)[1,])
+  }
+}
+
+process_ssa <- function(out, starttime=0) {
+  final.time <- out$args$final.time
+  data <- out$timeseries
+  lastrow <- tail(data, n=1)
+  lastrow$t <- final.time
+  data[nrow(data)+1,] <- lastrow
+  data <- data[data$t<=final.time,]
+  times <- data$t + starttime
+  data <- as.matrix(data[,-1])
+  
+  return(list(times=times, expression=data))
+}
+
+
+
+
+
+
 # Emrna doesnt get updated, this function does not work
 estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
   convergences = mclapply(1:nruns, function(i) {
@@ -17,7 +80,7 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
 }
 
 
-expression_one_cell = function(burntime, totaltime) {
+expression_one_cell = function(burntime, totaltime, burngenes) {
   cell = simulate_cell(deterministic = T, burngenes=burngenes, burntime=burntime, totaltime=totaltime)
   sampleids = sort(sample(length(cell$times), min(length(cell$times), 500)))
   celltimes = cell$times[sampleids]
@@ -28,7 +91,7 @@ expression_one_cell = function(burntime, totaltime) {
 }
 
 
-expression_multiple_cells = function(burntime, totaltime, ncells=500) {
+expression_multiple_cells = function(burntime, totaltime, burngenes, ncells=500) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
   cells = qsub.lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T, burngenes=burngenes, totaltime=totaltime, burntime=burntime)}, qsub.config = qsub.conf)
@@ -38,10 +101,10 @@ expression_multiple_cells = function(burntime, totaltime, ncells=500) {
 }
 
 
-expression_multiple_cells_split = function(burntime, totaltime) {
-  expressions = qsub.lapply(1:16, function(i) {
+expression_multiple_cells_split = function(burntime, totaltime, burngenes, ncores=16, ncellspercore=30) {
+  expressions = qsub.lapply(seq_len(ncores), function(i) {
     cell = simulate_cell(deterministic = T, burngenes=burngenes, totaltime=totaltime, burntime=burntime)
-    sampleids = sort(sample(length(cell$times), min(length(cell$times), 30)))
+    sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspercore)))
     celltimes = cell$times[sampleids]
     expression = cell$expression[sampleids,]
     rownames(expression) = NULL
