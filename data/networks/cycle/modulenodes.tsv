@@ -1,5 +1,5 @@
-module	a0	burn
-1	1	1
-2	1	0
-3	1	0
-4	0	0
+module	a0	burn	state
+1	1	1	1
+2	1	0	2
+3	1	0	3
+4	0	0	

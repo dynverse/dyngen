@@ -9,7 +9,9 @@ load_modulenet = function(modulenetname) {
     mutate(from=paste0("M", from), to=paste0("M", to))
   celltypes = read_tsv(paste0("data/networks/", modulenetname, "/celltypes.tsv"), col_types=cols())
   
-  named.list(modulenodes, modulenet, celltypes, modulenetname=modulenetname)
+  statenet = read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
+  
+  named.list(modulenodes, modulenet, celltypes, modulenetname, statenet)
 }
 
 ## add extra target genes to every ldtf
@@ -125,7 +127,7 @@ plot_net = function(model) {
   graph = graph_from_data_frame(model$net)
   layout <- layout_with_fr(graph)
   ldtf_filter = as.numeric(factor(model$geneinfo$ldtf, levels = c(F, T)))
-  plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "#7cd637")[as.numeric(factor(model$net$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = c(1,5)[ldtf_filter], edge.arrow.size=0.5, vertex.label=lapply(model$geneinfo$gene, function(g) ifelse(model$geneinfo$ldtf, "", "")), edge.loop.angle=0.1, vertex.color=c("black", "white")[ldtf_filter])
+  plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "#7cd637")[as.numeric(factor(model$net$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = c(1,5)[ldtf_filter], edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("black", "white")[ldtf_filter])
 }
 
 plot_net_overlaps = function(model) {
