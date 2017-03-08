@@ -9,7 +9,7 @@ library(stringr)
 library(pheatmap)
 library(parallel)
 library(PRISM)
-qsub.conf = qsub.configuration(exec.before = c("module unload python", "module load python"), memory = "1G")
+qsub_conf = qsub_configuration(exec.before = c("module unload python", "module load python"), memory = "1G")
 library(readr)
 library(Biobase)
 library(igraph)
@@ -216,7 +216,7 @@ rownames(expression) = NULL
 celltimes = runif(500, 0, totaltime)
 cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
 
-cells = qsub.lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T)}, qsub.config = qsub.conf)
+cells = qsub_lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T)}, qsub_config = qsub_conf)
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 ##
 

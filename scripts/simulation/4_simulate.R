@@ -82,9 +82,13 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
 
 ## Get the molecules matrix of multiple cells
 
-simulate_one_cell = function(model, burntime, totaltime) {
+simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
   cell = simulate_cell(model, deterministic = T, burntime=burntime, totaltime=totaltime)
-  sampleids = sort(sample(length(cell$times), min(length(cell$times), 500)))
+  if(!is.null(ncells)) {
+    sampleids = sort(sample(length(cell$times), min(length(cell$times), ncells)))
+  } else {
+    sampleids = seq_len(length(cell$times))
+  }
   celltimes = cell$times[sampleids]
   molecules = cell$molecules[sampleids,]
   
@@ -92,18 +96,18 @@ simulate_one_cell = function(model, burntime, totaltime) {
 }
 
 
-simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub.conf=NULL) {
+simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
-  cells = qsub.lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime)}, qsub.config = qsub.conf)
+  cells = qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime)}, qsub_config = qsub_conf)
   molecules = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
   
   process_simulation(molecules, celltimes, seq_len(nrow(molecules)))
 }
 
-simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub.conf=NULL) {
+simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub_conf=NULL) {
   if(!local) {
-    multilapply = function(x, fun) {qsub.lapply(x, fun, qsub.config=qsub.conf)}
+    multilapply = function(x, fun) {qsub_lapply(x, fun, qsub_config=qsub_conf)}
   } else {
     multilapply = function(x, fun) {mclapply(x, fun, mc.cores = 8)}
   }
@@ -114,18 +118,18 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
     celltimes = cell$times[sampleids]
     molecules = cell$molecules[sampleids,]
     rownames(molecules) = NULL
-    list(molecules=molecules, celltimes=celltimes, simulationids=rep(i, length(celltimes)))
+    list(molecules=molecules, celltimes=celltimes, simulationids=rep(i, length(celltimes)), simulation=cell$molecules)
   })
   
   process_simulation(
     do.call(rbind, map(moleculess, "molecules")), 
     do.call(c, map(moleculess, "celltimes")),
-    do.call(c, map(moleculess, "simulationids"))
+    do.call(c, map(moleculess, "simulationids")),
+    map(moleculess, "simulation")
   )
 }
 
-process_simulation = function(molecules, celltimes, simulationids=1) {
-  
+process_simulation = function(molecules, celltimes, simulationids=1, simulations=NULL) {
   rownames(molecules) = paste0("C", seq_len(nrow(molecules)))
   cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulationid=simulationids)
   
@@ -134,5 +138,11 @@ process_simulation = function(molecules, celltimes, simulationids=1) {
   expression = molecules[,str_detect(colnames(molecules), "x_")]
   colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
   
-  named.list(molecules, cellinfo, expression)
+  simulations = map(simulations, function(molecules) {
+    expression = molecules[,str_detect(colnames(molecules), "x_")]
+    colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
+    list(molecules = molecules,expression = expression)
+  })
+  
+  named_list(molecules, cellinfo, expression, simulations)
 }

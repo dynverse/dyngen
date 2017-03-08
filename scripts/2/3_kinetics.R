@@ -36,5 +36,5 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   
   params = c(R, D, K, P, Q, A0,A, rg=1,dg=1,kg=1,pg=10,qg=10, a1=1)
   
-  named.list(formulae.nus, params, initial.state)
+  named_list(formulae.nus, params, initial.state)
 }

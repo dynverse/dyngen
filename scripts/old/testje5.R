@@ -137,7 +137,7 @@ celltimes = runif(500, 0, totaltime)
 
 cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 
-cells = qsub.lapply(celltimes, simulate_cell)
+cells = qsub_lapply(celltimes, simulate_cell)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 E = expression[,str_detect(colnames(expression), "x_")]

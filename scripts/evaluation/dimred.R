@@ -1,7 +1,7 @@
 settings = expand.grid(datasetid=seq_len(length(datasets)), dimredname=names(dimreds)) %>% split(1:nrow(.))
 
 spaces = settings %>% keep(~T) %>% 
-  qsub.lapply(function(x) dimreds[[x$dimredname]](datasets[[x$datasetid]]$counts), qsub.config=qsub.conf)
+  mclapply2(function(x) dimreds[[x$dimredname]](datasets[[x$datasetid]]$counts))
 
 
 get_knn = function(distances, k=100) {
@@ -12,6 +12,7 @@ get_knn = function(distances, k=100) {
 
 
 ## predict simulation time
+simulationtime_comparison = map(settings, ~tibble(datasets[[.$datasetid]]$cellinfo$simulationtime, )
 scores = simulationtime_comparison %>% group_by(datasetid, dimredname) %>% summarise(simcor = cor(observedtime, simulationtime))
 
 datasetinfo = tibble(datasetid=seq_len(length(datasets)), modulenetname=map_chr(datasets, ~.$model$modulenetname))
@@ -26,14 +27,14 @@ cellcomparison = map2(settings, spaces, function(setting, space) {
   dataset = datasets[[setting$datasetid]]
   
   ## first get the distances between every pair of cells
-  original = dataset$expression
-  simulationtimes = dataset$cellinfo$simulationtime
+  original = dataset$expression[rownames(dataset$counts), ]
+  simulationtimes = dataset$cellinfo$simulationtime[rownames(dataset$counts)]
   
   distances = SCORPIUS::euclidean.distance(space)
   
-  k = 20
+  k = 200
   knn_observed = get_knn(distances, k)
-  knn = get_knn(dataset$cell_distances)
+  knn = get_knn(dataset$gs$celldistances[rownames(dataset$counts), rownames(dataset$counts)])
   
   #> simulation time prediction
   observedtimes = map_dbl(knn_observed, function(neighborhood) {mean(simulationtimes[neighborhood])})
@@ -46,4 +47,4 @@ cellcomparison = map2(settings, spaces, function(setting, space) {
 
 scores = cellcomparison %>% group_by(datasetid, dimredname) %>% summarise(simcor = cor(observedtime, simulationtime), avjaccard=mean(jaccard))
 scores %<>% left_join(datasetinfo, by="datasetid")
-ggplot(scores) + geom_point(aes(dimredname, simcor, color=factor(modulenetname))) + facet_wrap(~modulenetname)
+ggplot(scores) + geom_point(aes(dimredname, avjaccard, color=factor(modulenetname))) + facet_wrap(~modulenetname)

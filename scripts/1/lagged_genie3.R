@@ -117,7 +117,7 @@ genie3 <- function(data, regulators=seq_len(ncol(data)), targets=seq_len(ncol(da
   # check mc.cores parameter
   if (mc.cores == "qsub") {
     requireNamespace("PRISM")
-    lapplyfun <- function(X, FUN, ...) PRISM::qsub.lapply(X = X, FUN = FUN, qsub.environment = c("data", "feature.names", "regulators", "nb.trees", "importance.measure", "regulator.names", "num.regulators"))
+    lapplyfun <- function(X, FUN, ...) PRISM::qsub_lapply(X = X, FUN = FUN, qsub.environment = c("data", "feature.names", "regulators", "nb.trees", "importance.measure", "regulator.names", "num.regulators"))
   } else if (mc.cores < 1) {
     stop("Parameter \"mc.cores\" must be larger than or equal to 0")
   } else if (mc.cores > 1) {

@@ -144,5 +144,5 @@ generate_formulae = function(net) {
   
   formulae.strings <- sapply(formulae, function(fl) fl@string)
   
-  named.list(vargroups, variables, formulae.strings, nus.changes)
+  named_list(vargroups, variables, formulae.strings, nus.changes)
 }

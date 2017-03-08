@@ -3,7 +3,7 @@ library(dplyr)
 source("scripts/simulation/0_simulation.R")
 
 ## Run experiments
-
+# Experiment settings
 nreplicates = 2
 experimentsettings = list(
   tibble(modulenetname = "linear", totaltime=4, replicate=seq_len(nreplicates)),
@@ -19,9 +19,7 @@ run_settingid = function(experimentid) {
 }
 
 wrapper = function(modulenetname, totaltime, replicate, ncells, experimentname) {
-  qsub.conf = qsub.configuration(exec.before = c("module unload python", "module load python", "module load R/x86_64/3.2.2"), memory = "1G", name=experimentname)
-  
-  run_experiment(modulenetname, totaltime, ncells=ncells, qsub.conf=qsub.conf)
+  run_experiment(modulenetname, totaltime, ncells=ncells)
 }
 
 experiments = mclapply(seq_len(nrow(experimentsettings)), run_settingid, mc.cores = 8)
@@ -33,12 +31,22 @@ experiments = mclapply(experiments, function(experiment) {
 }, mc.cores = 8)
 
 ## Run scRNAseq
+platforms = read_tsv("data/platforms.tsv")
+# platforms2 = expand.grid(sequencerate = c(seq_len(10)/10), cellcapturerate = seq_len(10)/10) %>% as.data.frame()
+# platforms = platforms[1, ] %>% select(-sequencerate, -cellcapturerate) %>% data.frame(platforms2)
+# platforms$platformname = seq_len(nrow(platforms)) %>% as.character
 datasets = lapply(experiments, function(experiment) {
   lapply(seq_len(nrow(platforms)), function(platformid) {
     platform = platforms[platformid, ] %>% as.list
     dataset = run_scrnaseq(experiment, platform)
   })
 }) %>% unlist(recursive=F)
+
+## Extract gold standard
+datasets = lapply(datasets, function(dataset) {
+  dataset$gs = dataset$gs = extract_goldstandard(dataset, verbose=T)
+  dataset
+})
 
 saveRDS(datasets, file="results/datasets.rds")
 

@@ -11,18 +11,18 @@ rownames(expression) = NULL
 ##2: multiple cells at random end points
 celltimes = runif(50, 0, totaltime)
 #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
-cells = qsub.lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T)}, qsub.config = qsub.conf)
+cells = qsub_lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T)}, qsub_config = qsub_conf)
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 
 ##3: combination
-expressions = qsub.lapply(1:16, function(i) {
+expressions = qsub_lapply(1:16, function(i) {
   cell = simulate_cell(deterministic = T)
   sampleids = sort(sample(length(cell$times), min(length(cell$times), 30)))
   celltimes = cell$times[sampleids]
   expression = cell$expression[sampleids,]
   rownames(expression) = NULL
   list(expression=expression, celltimes=celltimes, simulationid=i)
-}, qsub.config=qsub.conf)
+}, qsub_config=qsub_conf)
 expression = do.call(rbind, map(expressions, ~.$expression))
 celltimes = do.call(c, map(expressions, ~.$celltimes))
 

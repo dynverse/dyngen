@@ -9,7 +9,7 @@ library(stringr)
 library(pheatmap)
 library(parallel)
 library(PRISM)
-qsub.conf = qsub.configuration(exec.before = c("module unload python", "module load python"))
+qsub_conf = qsub_configuration(exec.before = c("module unload python", "module load python"))
 library(readr)
 library(Biobase)
 library(igraph)
@@ -204,7 +204,7 @@ simulate_cell()
 
 cells = mclapply(celltimes, simulate_cell, mc.cores=8)
 
-cells = qsub.lapply(celltimes, simulate_cell, qsub.config = qsub.conf)
+cells = qsub_lapply(celltimes, simulate_cell, qsub_config = qsub_conf)
 
 expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
 E = ExpressionSet(t(expression[,str_detect(colnames(expression), "x_")]), AnnotatedDataFrame(data.frame(time=celltimes, row.names = 1:length(celltimes))))

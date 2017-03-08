@@ -11,7 +11,7 @@ load_modulenet = function(modulenetname) {
   
   statenet = read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
   
-  named.list(modulenodes, modulenet, celltypes, modulenetname, statenet)
+  named_list(modulenodes, modulenet, celltypes, modulenetname, statenet)
 }
 
 ## add extra target genes to every ldtf
@@ -71,7 +71,7 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
     #tibble(from=sample(from, nedges, T), to=sample(to, nedges, T), effect=modulenet[i,]$effect, strength=modulenet[i, ]$strength, cooperativity=2)
   }) %>% bind_rows
   
-  named.list(modulemembership, net)
+  named_list(modulemembership, net)
 }
 
 # generate gene network
@@ -95,7 +95,7 @@ modulenet_to_genenet = function(modulenet, modulenodes) {
     ldtf = gene %in% paste0("G", ldtfs)
   )
   
-  named.list(net, geneinfo, modulemembership, allgenes)
+  named_list(net, geneinfo, modulemembership, allgenes)
 }
 
 # list genes

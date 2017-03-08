@@ -94,7 +94,7 @@ expression_one_cell = function(burntime, totaltime, burngenes) {
 expression_multiple_cells = function(burntime, totaltime, burngenes, ncells=500) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
-  cells = qsub.lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T, burngenes=burngenes, totaltime=totaltime, burntime=burntime)}, qsub.config = qsub.conf)
+  cells = qsub_lapply(celltimes, function(celltime) {simulate_cell(celltime, deterministic=T, burngenes=burngenes, totaltime=totaltime, burntime=burntime)}, qsub_config = qsub_conf)
   expression = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
   
   ExpressionSet(t(expression), AnnotatedDataFrame(data.frame(time=celltimes, row.names = 1:length(celltimes))))
@@ -102,14 +102,14 @@ expression_multiple_cells = function(burntime, totaltime, burngenes, ncells=500)
 
 
 expression_multiple_cells_split = function(burntime, totaltime, burngenes, ncores=16, ncellspercore=30) {
-  expressions = qsub.lapply(seq_len(ncores), function(i) {
+  expressions = qsub_lapply(seq_len(ncores), function(i) {
     cell = simulate_cell(deterministic = T, burngenes=burngenes, totaltime=totaltime, burntime=burntime)
     sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspercore)))
     celltimes = cell$times[sampleids]
     expression = cell$expression[sampleids,]
     rownames(expression) = NULL
     list(expression=expression, celltimes=celltimes, simulationid=i)
-  }, qsub.config=qsub.conf)
+  }, qsub_config=qsub_conf)
   expression = do.call(rbind, map(expressions, ~.$expression))
   celltimes = do.call(c, map(expressions, ~.$celltimes))
   

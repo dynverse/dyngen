@@ -165,5 +165,5 @@ generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
   
   formulae.strings <- sapply(formulae, function(fl) fl@string)
   
-  named.list(vargroups, variables, formulae.strings, nus.changes)
+  named_list(vargroups, variables, formulae.strings, nus.changes)
 }

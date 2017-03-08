@@ -1,0 +1,128 @@
+---
+title: "Evaluating branching trajectories"
+output: html_document
+---
+
+Branching structure (at trajectory level)
+Similar ordering (at cell level)
+
+
+```{r setup, include=FALSE}
+goldstandard_edges = tibble(from=c(1), to=c(2), weight=1)
+observed_edges = tibble(from=c(1, 1), to=c(2, 3), weight=c(0.6, 0.4))
+
+goldstandard_edges = tibble(from=c(1, 1), to=c(2, 3), weight=c(0.4, 0.6))
+observed_edges = tibble(from=c(1, 1, 3, 3), to=c(2, 3, 4, 5), weight=c(0.4, 0.3, 0.15, 0.15))
+
+goldstandard_nodes = unique(c(goldstandard_edges$from, goldstandard_edges$to))
+observed_nodes = unique(c(observed_edges$from, observed_edges$to))
+
+goldstandard = graph_from_data_frame(goldstandard_edges)
+observed = graph_from_data_frame(observed_edges)
+
+costs = list(deleted=1, added=1)
+
+net = observed
+step = function(net, cost=0, restweight=0, step=1) {
+  gtools::permutations(length(V(net)), 2, V(net)) %>% t %>% as.data.frame %>% as.list %>% walk(function(combination) {
+    newnet = net
+    if(net[combination[[1]], combination[[2]]]) {
+      restweight = restweight + edge_attr(net, "weight")[net %>% get.edge.ids(c(combination[[1]], combination[[2]]))]
+      newnet[combination[[1]], combination[[2]]] = 0
+      cost = cost + costs$deleted
+    } else {
+      newnet[combination[[1]], combination[[2]]] = 1
+      cost = cost + costs$added
+    }
+    
+    repeat {
+      uselessnodes = (
+        (
+          (degree(newnet, mode="in") == 1) & 
+          (degree(newnet, mode="in") == degree(newnet, mode="out"))
+        ) | (
+          degree(newnet) == 0
+        )
+      ) %>% which
+      
+      if((length(uselessnodes) == 0) || (length(V(newnet)) <= length(V(goldstandard)))) {
+        break
+      }
+      newnet = newnet %>% delete.vertices(uselessnodes[[1]])
+    }
+    
+    #plot(newnet)
+    
+    if(isomorphic(newnet, goldstandard)) {
+      bestbucket = bucket(newnet, goldstandard) %>% as.double %>% min()
+      edits <<- bind_rows(edits, list(cost=cost, bestbucket=bestbucket))
+    } else {
+      if(step > 1) {
+        #print("terminated")
+      } else {
+        step(newnet, cost, restweight, step+1)
+      }
+    }
+  })
+}
+```
+
+```{r}
+edits = tibble()
+step(net)
+
+bucket = function(newnet) {
+  isomorphisms = isomorphisms(newnet, goldstandard)
+  
+}
+```
+
+```{r}
+goldstandard_edges = tibble(from=c(1, 2, 3), to=c(2, 3, 4), weight=1)
+goldstandard_nodes = unique(c(goldstandard_edges$from, goldstandard_edges$to))
+observed_edges = tibble(from=c(2, 3, 4), to=c(3, 4, 1), weight=1)
+observed_nodes = unique(c(observed_edges$from, observed_edges$to))
+
+goldstandard_edges = tibble(from=c("1", "2", "3"), to=c("2", "3", "4"), weight=c(0.2, 0.6, 0.2))
+goldstandard_nodes = unique(c(goldstandard_edges$from, goldstandard_edges$to))
+observed_edges = tibble(from=c("2", "3", "4"), to=c("3", "4", "1"), weight=c(0.2, 0.7, 0.1))
+observed_nodes = unique(c(observed_edges$from, observed_edges$to))
+
+goldstandard = graph_from_data_frame(goldstandard_edges)
+observed = graph_from_data_frame(observed_edges)
+
+isomorphize = function(net1, net2) {
+  lapply(isomorphisms(net2, net1), function(isomorphism) {
+    isomorphism = isomorphism %>% {setNames(V(net2) %>% names, names(isomorphism))}
+    net1 %>% get.data.frame() %>% mutate(from=isomorphism[from], to=isomorphism[to]) %>% graph_from_data_frame()
+  })
+}
+
+bucket = function(observed, goldstandard) {
+  isomorphize(observed, goldstandard) %>% map(function(observed) {
+    observed = observed %>% get.data.frame() %>% mutate(from=as.integer(from), to=as.integer(to))
+    goldstandard = goldstandard %>% get.data.frame() %>% mutate(from=as.integer(from), to=as.integer(to))
+    
+    differences = (observed %>% arrange(from, to) %>% .$weight) - (goldstandard %>% arrange(from, to) %>% .$weight)
+    differences %>% abs %>% sum
+  })
+}
+
+
+isomorphisms(goldstandard, observed)[[1]] %>% 
+
+observed %>% igraph::permute(isomorphisms(goldstandard, observed)[[1]])
+observed %>% igraph::permute(c(3,1,2)) %>% plot()
+```
+
+
+Recovery & Relevance between branches
+```{r cars}
+
+```
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

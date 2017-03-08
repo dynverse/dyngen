@@ -39,7 +39,7 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   
   params = params[unique(names(params))] # remove duplicates, retain first
   
-  named.list(formulae.nus, params, initial.state)
+  named_list(formulae.nus, params, initial.state)
 }
 
 ## determine start state genes (active during burn-in)

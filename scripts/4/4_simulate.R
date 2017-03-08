@@ -11,14 +11,14 @@ E = expression_multiple_cells(2, newtime)
 
 ##3: combination
 expression_multiple_cells_split = function(burntime, totaltime) {
-  expressions = qsub.lapply(1:16, function(i) {
+  expressions = qsub_lapply(1:16, function(i) {
     cell = simulate_cell(deterministic = T, burngenes=burngenes)
     sampleids = sort(sample(length(cell$times), min(length(cell$times), 30)))
     celltimes = cell$times[sampleids]
     expression = cell$expression[sampleids,]
     rownames(expression) = NULL
     list(expression=expression, celltimes=celltimes, simulationid=i)
-  }, qsub.config=qsub.conf)
+  }, qsub_config=qsub_conf)
   expression = do.call(rbind, map(expressions, ~.$expression))
   celltimes = do.call(c, map(expressions, ~.$celltimes))
   
