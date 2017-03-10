@@ -11,7 +11,7 @@ load_modulenet = function(modulenetname) {
   
   statenet = read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
   
-  named_list(modulenodes, modulenet, celltypes, modulenetname, statenet)
+  dambiutils::named_list(modulenodes, modulenet, celltypes, modulenetname, statenet)
 }
 
 ## add extra target genes to every ldtf
@@ -118,21 +118,21 @@ list_genes = function(geneinfo, modulemembership, net, modulenodes) {
 
 #' # Plotting
 plot_modulenet = function(model) {
-  graph = graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
-  layout <- layout_with_fr(graph)
+  graph = igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
+  layout <- igraph::layout_with_fr(graph)
   #png(file.path(imagefolder, "net_consecutive_bifurcating.png"), pointsize = 30, width=1000, height=1000)
-  plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = 20, edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("#222222", "#662222")[model$modulenodes$a0+1], vertex.label.color="white", vertex.label.size=20)
+  igraph::plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = 20, edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("#222222", "#662222")[model$modulenodes$a0+1], vertex.label.color="white", vertex.label.size=20)
   #dev.off()
 }
 
 plot_net = function(model) {
-  graph = graph_from_data_frame(model$net)
-  layout <- layout_with_fr(graph)
+  graph = igraph::graph_from_data_frame(model$net)
+  layout <- igraph::layout_with_fr(graph)
   ldtf_filter = as.numeric(factor(model$geneinfo$ldtf, levels = c(F, T)))
-  plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "#7cd637")[as.numeric(factor(model$net$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = c(1,5)[ldtf_filter], edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("black", "white")[ldtf_filter])
+  igraph::plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "#7cd637")[as.numeric(factor(model$net$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = c(1,5)[ldtf_filter], edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("black", "white")[ldtf_filter])
 }
 
 plot_net_overlaps = function(model) {
   jaccard = function(x, y) {length(intersect(x, y))/length(union(x,y))}
-  pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
+  pheatmap::pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
 }

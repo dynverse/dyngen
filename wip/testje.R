@@ -1,15 +1,23 @@
+modulenetname="consecutive_bifurcating"; totaltime=0.5; burntime=2; nsimulations = 2; ncells = 500
+
+
+
+
+
+
 modulenetname="linear"; totaltime=5; burntime=2; nsimulations = 40; ncells = 500
 modulenetname="cycle"; totaltime=40; burntime=2; nsimulations = 40; ncells = 500
 modulenetname="consecutive_bifurcating"; totaltime=8; burntime=2; nsimulations = 40; ncells = 500
 modulenetname="bifurcating_convergence"; totaltime=8; burntime=2; nsimulations = 40; ncells = 500
 modulenetname="trifurcating"; totaltime=5; burntime=2; nsimulations = 40; ncells = 500
 
+platforms = read_tsv("data/platforms.tsv")
+experiment = dyngen:::run_experiment(modulenetname, totaltime, burntime, nsimulations, ncells)
+dataset = dyngen::run_scrnaseq(experiment, platforms[1, ] %>% as.list)
+dataset$gs = dyngen::extract_goldstandard(experiment, verbose=T)
 
-experiment = run_experiment(modulenetname, totaltime, burntime, nsimulations, ncells)
-dataset = run_scrnaseq(experiment, platforms[1, ] %>% as.list)
-dataset$gs = extract_goldstandard(experiment, verbose=T)
 
-
+dataset 
 
 plot(dataset$gs$cellinfo$progression, dataset$cellinfo$simulationtime)
 plot_piecestate_changes(dataset)

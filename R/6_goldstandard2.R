@@ -13,13 +13,13 @@ get_piecenet = function(statenet) {
     }
   }
   piecenet %<>% mutate(piece=seq_len(nrow(.)))
-  piecenet %>% graph_from_data_frame() %>% plot
+  piecenet %>% igraph::graph_from_data_frame() %>% plot
   
   piecenet
 }
 
 get_piecestatenet = function(piecenet) {
-  piecenet %>% graph_from_data_frame() %>% make_line_graph() %>% igraph::as_data_frame()
+  piecenet %>% igraph::graph_from_data_frame() %>% igraph::make_line_graph() %>% igraph::as_data_frame()
 }
 
 get_piecestates = function(piecenet) {
@@ -38,7 +38,7 @@ get_piecestates = function(piecenet) {
 
 # first get the smoothed module expression of all simulations
 smoothe_simulations = function(simulations, model) {
-  newdata = mclapply(simulations, function(simulation) {
+  newdata = parallel::mclapply(simulations, function(simulation) {
     expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% set_rownames(rownames(simulation$expression))
     expression_modules = get_module_counts(expression_smooth, model$modulemembership)
     list(expression_smooth = expression_smooth, expression_modules=expression_modules)
@@ -110,10 +110,10 @@ divide_simulations = function(simulations, piecestates, model) {
     ggplot(progressioninfo) + geom_area(aes(simulationtime, group=state, fill=factor(state)), position="fill", stat="bin", bins=50)
     ggplot(progressioninfo) + geom_point(aes(simulationtime, state))
     
-    pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state))
+    pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state))
     
     expression_pieces = divide_simulation(progressioninfo, piecestates, simulations[[simulationid]]$expression_smooth)
-    #expression_pieces[[2]] %>% t %>% pheatmap(cluster_cols=F, scale="row", cluster_rows=T)
+    #expression_pieces[[2]] %>% t %>% pheatmap::pheatmap(cluster_cols=F, scale="row", cluster_rows=T)
     
     expression_pieces$simulationid = simulationid
     
@@ -147,8 +147,8 @@ average_pieces = function(piecesoi, model) {
   meanexpression = meanexpression %>% zoo::rollmean(window, c("extend", "extend", "extend")) %>% set_rownames(rownames(meanexpression))
   
   
-  #meanexpression %>% t %>% pheatmap(cluster_rows=T, cluster_cols=F, scale="row")
-  get_module_counts(meanexpression, model$modulemembership) %>% t %>% pheatmap(cluster_rows=F, cluster_cols=F)
+  #meanexpression %>% t %>% pheatmap::pheatmap(cluster_rows=T, cluster_cols=F, scale="row")
+  get_module_counts(meanexpression, model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_rows=F, cluster_cols=F)
   
   rownames(meanexpression) = seq_len(nrow(meanexpression))/nrow(meanexpression) * map_int(piecesoi$expression, nrow) %>% mean # get realtime estimate based on average number of cells in each piece
   
@@ -172,8 +172,8 @@ get_reference_expression = function(pieces, model) {
   rownames(reference_cellinfo) = rownames(reference_expression)
   reference_cellinfo$piecestateid = factor(reference_cellinfo$piecestateid)
   
-  #reference_expression %>% t %>% pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$piecestateid)) != 0))
-  reference_expression %>% get_module_counts(., model$modulemembership) %>% t %>% pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$piecestateid)) != 0))
+  #reference_expression %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$piecestateid)) != 0))
+  reference_expression %>% get_module_counts(., model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$piecestateid)) != 0))
   
   list(expression=reference_expression, cellinfo=reference_cellinfo)
 }
@@ -201,8 +201,8 @@ plot_piecestate_changes = function(dataset) {
     
   }) %>% bind_rows() %>% mutate(start=factor(start))
   
-  g = graph_from_data_frame(dataset$gs$piecenet) %>% make_line_graph()
-  vertex.attributes(g) = edge.attributes(graph_from_data_frame(dataset$gs$piecenet %>% select(-contains)))
+  g = igraph::graph_from_data_frame(dataset$gs$piecenet) %>% igraph::make_line_graph()
+  vertex.attributes(g) = igraph::edge.attributes(igraph::graph_from_data_frame(dataset$gs$piecenet %>% select(-contains)))
   ggnet = ggnetwork::ggnetwork(g)
   ggnet$x = ggnet$x[, 1]
   ggnet$y = ggnet$y[, 1]

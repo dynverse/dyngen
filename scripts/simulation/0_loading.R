@@ -26,3 +26,5 @@ library(cowplot)
 library(magrittr)
 
 library(dambiutils)
+
+library(dyngen)

@@ -1,5 +1,7 @@
 # dyngen: Synthetic single cell data
 
+![goalssss](goals.png "Goals =) \=D/")
+
 Simulate different types of experiments:
 
 * Cellular heterogeneity

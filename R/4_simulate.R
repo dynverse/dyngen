@@ -99,7 +99,7 @@ simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
 simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
-  cells = qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime)}, qsub_config = qsub_conf)
+  cells = PRISM::qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime)}, qsub_config = qsub_conf)
   molecules = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
   
   process_simulation(molecules, celltimes, seq_len(nrow(molecules)))
@@ -107,9 +107,9 @@ simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_
 
 simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub_conf=NULL) {
   if(!local) {
-    multilapply = function(x, fun) {qsub_lapply(x, fun, qsub_config=qsub_conf)}
+    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf)}
   } else {
-    multilapply = function(x, fun) {mclapply(x, fun, mc.cores = 8)}
+    multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 8)}
   }
   
   moleculess = multilapply(seq_len(nsimulations), function(i) {

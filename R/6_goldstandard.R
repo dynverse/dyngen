@@ -82,8 +82,8 @@ get_states = function(expression_modules, model, minexpression = 0.8, minratio =
 # Goal: get a pairwise distance matrix between all cells, based on their branch and progression in the gold standard
 
 get_line_graph = function(net) {
-  g = net %>% graph_from_data_frame() %>% make_line_graph()
-  if(length(V(g)) == 1) {
+  g = net %>% igraph::graph_from_data_frame() %>% igraph::make_line_graph()
+  if(length(igraph::V(g)) == 1) {
     return(tibble(from=1, to=-1)) # if there is only one state, add a "pseudo-state", so that igraph stops whining
   }
   g %>% as_data_frame()
@@ -101,7 +101,7 @@ get_branchconnected_statenet = function(statenet, statenodes) {
   }) %>% bind_rows() %>% mutate(type="head2head") %>% bind_rows(statenet)
   print(statenet$type)
   if(nrow(statenet) > 1) igraph::graph_from_data_frame(statenet[,c("from", "to")]) %>% plot(edge.color=factor(statenet$type))
-  snet = statenet[,c("from", "to")] %>% graph_from_data_frame(vertices=unique(c(statenet$from, statenet$to)) %>% sort)
+  snet = statenet[,c("from", "to")] %>% igraph::graph_from_data_frame(vertices=unique(c(statenet$from, statenet$to)) %>% sort)
   list(snet=snet, statenet=statenet, statenodes=statenodes)
 }
 
@@ -171,7 +171,7 @@ process_sp = function(sp, snet) {
 get_cell_distance_func = function(snet, state1, state2) {
   state1 = as.character(state1) # because igraph works with character names and order of vertices is not numerical
   state2 = as.character(state2)
-  shortest_paths(snet$snet, state1, state2, mode = "all")$vpath[[1]] %>% names() %>% as.integer() %>% process_sp(snet)
+  igraph::shortest_paths(snet$snet, state1, state2, mode = "all")$vpath[[1]] %>% names() %>% as.integer() %>% process_sp(snet)
 }
 #func = get_cell_distance_func(snet, 1, 2)
 #func(0.9, 0.1)
@@ -205,7 +205,7 @@ get_cell_distances = function(cellinfo, snet) {
   }) %>% {matrix(unlist(.), ncol=length(allcells))}
   
   cellsoi = cellinfo$state %in% c(1,2)
-  cell_distances[] %>% pheatmap(cluster_cols=F, cluster_rows=F)
+  cell_distances[] %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=F)
   
   dimnames(cell_distances) = list(cellinfo$cell, cellinfo$cell)
   

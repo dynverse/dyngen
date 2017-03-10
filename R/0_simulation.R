@@ -1,7 +1,5 @@
+#' @import tidyverse
 run_experiment = function(modulenetname, totaltime, burntime=2, nsimulations = 40, ncells = 500) {
-  scriptfolder = "./scripts/simulation/"
-  walk(c("1_network_generation.R", "2_formulae.R", "3_kinetics.R", "4_simulate.R", "5_scrnaseq.R", "6_goldstandard.R"), ~source(file.path(scriptfolder, .)))
-  
   model = load_modulenet(modulenetname)
   class(model) = "dyngen::model"
   model = modulenet_to_genenet(model$modulenet, model$modulenodes) %>% c(model)
@@ -24,15 +22,16 @@ run_experiment = function(modulenetname, totaltime, burntime=2, nsimulations = 4
   # get module counts
   experiment$expression_modules = get_module_counts(experiment$expression, experiment$model$modulemembership)
   
-  pheatmap(SCORPIUS::quant.scale(experiment$expression_modules) %>% t, cluster_cols=F)
+  pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules) %>% t, cluster_cols=F)
   experiment$expression_modules %>% reshape2::melt(varnames=c("cell", "module"), value.name="expression") %>% ggplot() + geom_histogram(aes(expression)) + facet_wrap(~module) + geom_vline(xintercept = 2)
   
   experiment
 }
 
+#' @import tidyverse
 run_scrnaseq = function(experiment, platform) {
   scriptfolder = "./scripts/simulation/"
-  walk(c("5_scrnaseq.R"), ~source(file.path(scriptfolder, .)))
+  purrr::walk(c("5_scrnaseq.R"), ~source(file.path(scriptfolder, .)))
   
   dataset = experiment
   class(dataset) = "dyngen::dataset"
@@ -40,11 +39,12 @@ run_scrnaseq = function(experiment, platform) {
   dataset$counts = simulate_scrnaseq(dataset$expression, platform)
   dataset$platform = platform
   
-  #pheatmap(SCORPIUS::quant.scale(dataset$counts) %>% t, cluster_cols=F)
+  #pheatmap::pheatmap(SCORPIUS::quant.scale(dataset$counts) %>% t, cluster_cols=F)
   
   dataset
 }
 
+#' @import tidyverse
 extract_goldstandard = function(experiment, verbose=F) {
   scriptfolder = "./scripts/simulation/"
   walk(c("6_goldstandard.R", "6_goldstandard2.R"), ~source(file.path(scriptfolder, .)))
@@ -67,7 +67,7 @@ extract_goldstandard = function(experiment, verbose=F) {
   if(verbose) print(">> assigning")
   gs$cellinfo = assign_progression(experiment$expression, gs$reference)
   
-  pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(piecestateid) %>% mutate(piecestateid=factor(piecestateid)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
+  pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(piecestateid) %>% mutate(piecestateid=factor(piecestateid)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
   ggplot(gs$cellinfo) + geom_area(aes(simulationtime, group=piecestateid, fill=factor(piecestateid)), position="fill", stat="bin", bins=10)
   
   if(verbose) print(">> calculating cell distances")

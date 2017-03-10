@@ -1,7 +1,5 @@
 library(dplyr)
 
-source("scripts/simulation/0_simulation.R")
-
 ## Run experiments
 # Experiment settings
 nreplicates = 2
@@ -9,7 +7,8 @@ experimentsettings = list(
   tibble(modulenetname = "linear", totaltime=4, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "cycle", totaltime=20, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "consecutive_bifurcating", totaltime=6, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "bifurcating_convergence", totaltime=8, replicate=seq_len(nreplicates))
+  tibble(modulenetname = "bifurcating_convergence", totaltime=8, replicate=seq_len(nreplicates)),
+  tibble(modulenetname = "trifurcating", totaltime=8, replicate=seq_len(nreplicates))
 ) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0(modulenetname, "_", replicate))
 
 run_settingid = function(experimentid) {
@@ -19,16 +18,23 @@ run_settingid = function(experimentid) {
 }
 
 wrapper = function(modulenetname, totaltime, replicate, ncells, experimentname) {
-  run_experiment(modulenetname, totaltime, ncells=ncells)
+  dyngen::run_experiment(modulenetname, totaltime, ncells=ncells)
 }
 
 experiments = mclapply(seq_len(nrow(experimentsettings)), run_settingid, mc.cores = 8)
 
-experiments = mclapply(experiments, function(experiment) {
-  snet = get_branchconnected_statenet(experiment$model$statenet)
-  experiment$cell_distances = get_cell_distances(experiment$cellinfo, snet$snet, snet$statenet)
+## Extract gold standard
+gss = mclapply(experiments, function(experiment) {
+  gs = extract_goldstandard(experiment, verbose=T)
+  gs
+}, mc.cores=4)
+
+experiments = map2(experiments, gss, function(experiment, gs) {
+  experiment$gs = gs
   experiment
-}, mc.cores = 8)
+})
+
+experiment = experiments[[5]]
 
 ## Run scRNAseq
 platforms = read_tsv("data/platforms.tsv")
@@ -42,13 +48,11 @@ datasets = lapply(experiments, function(experiment) {
   })
 }) %>% unlist(recursive=F)
 
-## Extract gold standard
-datasets = lapply(datasets, function(dataset) {
-  dataset$gs = dataset$gs = extract_goldstandard(dataset, verbose=T)
-  dataset
-})
+
 
 saveRDS(datasets, file="results/datasets.rds")
+
+datasets = readRDS("results/datasets.rds")
 
 ##
 
