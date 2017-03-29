@@ -1,3 +1,4 @@
+#' @import dplyr
 get_module_counts = function(counts, modulemembership) {
   found = lapply(modulemembership, function(module) {all(module %in% colnames(counts))}) %>% unlist
   if(any(!found)) {
@@ -7,7 +8,7 @@ get_module_counts = function(counts, modulemembership) {
   lapply(modulemembership, function(module) apply(counts[,module], 1, mean)) %>% do.call(cbind, .)
 }
 
-
+#' @import dplyr
 get_states_and_progression = function(expression_modules, modulenodes, expression_cutoff=2, expression_max=4) {
   modulesoi = modulenodes %>% filter(!is.na(state))
   
@@ -30,6 +31,7 @@ get_states_and_progression = function(expression_modules, modulenodes, expressio
 ## Get cell states and progression
 
 # shouldn't we start from the end and retrace our steps? What if due to stochsticity a primed cell still choses for another path?
+#' @import dplyr
 get_states = function(expression_modules, model, minexpression = 0.8, minratio = 1.5, state=1) {
   statechanged = T
   states = state
@@ -80,17 +82,17 @@ get_states = function(expression_modules, model, minexpression = 0.8, minratio =
 
 ## Get cell distances in gold standard
 # Goal: get a pairwise distance matrix between all cells, based on their branch and progression in the gold standard
-
+#' @import dplyr
 get_line_graph = function(net) {
   g = net %>% igraph::graph_from_data_frame() %>% igraph::make_line_graph()
   if(length(igraph::V(g)) == 1) {
     return(tibble(from=1, to=-1)) # if there is only one state, add a "pseudo-state", so that igraph stops whining
   }
-  g %>% as_data_frame()
+  g %>% igraph::as_data_frame()
 }
 
 
-
+#' @import dplyr
 get_branchconnected_statenet = function(statenet, statenodes) {
   # network between states
   # at bifurcation points, the two states after a bifurcation are connected through a head2head edge
@@ -113,6 +115,7 @@ get_branchconnected_statenet = function(statenet, statenodes) {
 # the distance if the states are the same is just the difference in progression time within this stage
 traj_distance_samestate = function(time1, time2, verbose=F) abs(time1-time2)
 
+#' @import dplyr
 get_state_edge = function(state1, state2, statenet) {
   statenet %>% filter((from == state1 & to==state2) | (from == state2 & to == state1)) %>% as.list()
 }
@@ -120,10 +123,12 @@ get_state_edge = function(state1, state2, statenet) {
 # processessing the shortest path between 2 states through the state network
 # returns a function which can be used to get the distance of two cells in these two respective states
 # we calculate these functions here so that they do not need to be recalculated for every pair of cells in the same two states
+#' @import dplyr
 get_maxprogressions = function(snet, states) {
   snet$statenodes %>% filter(state %in% states) %>% .$maxprogression %>% sum
 }
 
+#' @import dplyr
 process_sp = function(sp, snet) {
   statenet = snet$statenet
   extracost = 0
@@ -177,6 +182,8 @@ get_cell_distance_func = function(snet, state1, state2) {
 #func(0.9, 0.1)
 #func(0.2, 0.3)
 
+#' @import dplyr
+#' @import purrr
 get_cell_distances = function(cellinfo, snet) {
   cellinfo$state = factor(cellinfo$state) # make sure this is a factor, because if some states are missing this will mess up the indexing
   allstates = unique(cellinfo$state) %>% sort

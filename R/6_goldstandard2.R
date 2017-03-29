@@ -1,3 +1,4 @@
+#' @import dplyr
 get_piecenet = function(statenet) {
   piecenet = statenet %>% select(from, to) %>% mutate(contains = map(seq_len(nrow(statenet)), ~integer()))
   for (node in unique(c(statenet$from, statenet$to))) {
@@ -18,10 +19,12 @@ get_piecenet = function(statenet) {
   piecenet
 }
 
+#' @import dplyr
 get_piecestatenet = function(piecenet) {
   piecenet %>% igraph::graph_from_data_frame() %>% igraph::make_line_graph() %>% igraph::as_data_frame()
 }
 
+#' @import dplyr
 get_piecestates = function(piecenet) {
   piecestates <- lapply(seq_len(nrow(piecenet)), function(rowid){
     piece = c()
@@ -37,6 +40,7 @@ get_piecestates = function(piecenet) {
 
 
 # first get the smoothed module expression of all simulations
+#' @import dplyr
 smoothe_simulations = function(simulations, model) {
   newdata = parallel::mclapply(simulations, function(simulation) {
     expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% set_rownames(rownames(simulation$expression))
@@ -51,6 +55,7 @@ smoothe_simulations = function(simulations, model) {
 
 # the linear state ordering of every piece
 # based on the state progression, divide the expression data into linear pieces
+#' @import dplyr
 divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
   statesunique = integer()
   statesunique_windows = list()
@@ -96,6 +101,9 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
 
 
 # now use this to scale all simulations
+#' @import dplyr
+#' @import purrr
+#' @import ggplot2
 divide_simulations = function(simulations, piecestates, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
   combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.01)
@@ -128,6 +136,8 @@ divide_simulations = function(simulations, piecestates, model) {
 }
 
 # determine average expression, mapped to the first piece
+#' @import dplyr
+#' @import purrr
 average_pieces = function(piecesoi, model) {
   total = tibble()
   piece1id = piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
@@ -155,13 +165,12 @@ average_pieces = function(piecesoi, model) {
   meanexpression
 }
 
+#' @import dplyr
 get_reference_expression = function(pieces, model) {
   reference_list = lapply(unique(pieces$piecestateid) %>% sort, function(piecestateidoi) {
     piecesoi = pieces %>% filter(piecestateid == piecestateidoi)
     
     meanexpression = average_pieces(piecesoi, model)
-    
-    print(piecesoi %>% nrow)
     
     list(cellinfo = tibble(piecestateid=piecestateidoi, progression=as.numeric(rownames(meanexpression))), meanexpression=meanexpression)
   })
@@ -178,6 +187,7 @@ get_reference_expression = function(pieces, model) {
   list(expression=reference_expression, cellinfo=reference_cellinfo)
 }
 
+#' @import dplyr
 assign_progression = function(expression, reference) {
   cellcors = SCORPIUS::euclidean.distance(reference$expression, expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
@@ -188,7 +198,8 @@ assign_progression = function(expression, reference) {
   )
 }
 
-
+#' @import dplyr
+#' @import ggplot2
 plot_piecestate_changes = function(dataset) {
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")
   
@@ -202,7 +213,7 @@ plot_piecestate_changes = function(dataset) {
   }) %>% bind_rows() %>% mutate(start=factor(start))
   
   g = igraph::graph_from_data_frame(dataset$gs$piecenet) %>% igraph::make_line_graph()
-  vertex.attributes(g) = igraph::edge.attributes(igraph::graph_from_data_frame(dataset$gs$piecenet %>% select(-contains)))
+  igraph::vertex.attributes(g) = igraph::edge.attributes(igraph::graph_from_data_frame(dataset$gs$piecenet %>% select(-contains)))
   ggnet = ggnetwork::ggnetwork(g)
   ggnet$x = ggnet$x[, 1]
   ggnet$y = ggnet$y[, 1]
@@ -227,7 +238,8 @@ plot_piecestate_changes = function(dataset) {
   gganimate::gg_animate(p)
 }
 
-
+#' @import dplyr
+#' @import ggplot2
 plot_piecestate_progression = function(dataset) {
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")
   cellinfo %>% ggplot() + geom_point(aes(simulationtime, piecestateid, color=piecestateid))

@@ -1,9 +1,7 @@
+#' @import dplyr
+#' @import purrr
+#' @import fastgssa
 simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2) {
-  requireNamespace("fastgssa")
-  requireNamespace("tidyr")
-  requireNamespace("purrr")
-  library(purrr)
-  
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
   formulae.nus.burn = model$formulae.nus
   formulae.nus.burn[setdiff(rownames(formulae.nus.burn), variables_burngenes),] = 0
@@ -43,6 +41,7 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
   }
 }
 
+#' @import dplyr
 process_ssa <- function(out, starttime=0) {
   final.time <- out$args$final.time
   data <- out$timeseries
@@ -62,8 +61,9 @@ process_ssa <- function(out, starttime=0) {
 
 
 # Emrna doesnt get updated, this function does not work
+#' @import dplyr
 estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
-  convergences = mclapply(1:nruns, function(i) {
+  convergences = parallel::mclapply(1:nruns, function(i) {
     E = expression_one_cell(burntime, totaltime)
     Emrna = E[str_detect(featureNames(E), "x_")]
     
@@ -81,7 +81,7 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
 
 
 ## Get the molecules matrix of multiple cells
-
+#' @import dplyr
 simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
   cell = simulate_cell(model, deterministic = T, burntime=burntime, totaltime=totaltime)
   if(!is.null(ncells)) {
@@ -95,7 +95,7 @@ simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
   process_simulation(molecules, celltimes, 1)
 }
 
-
+#' @import dplyr
 simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
@@ -105,6 +105,8 @@ simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_
   process_simulation(molecules, celltimes, seq_len(nrow(molecules)))
 }
 
+#' @import dplyr
+#' @import purrr
 simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub_conf=NULL) {
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf)}
@@ -129,6 +131,9 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
   )
 }
 
+#' @import dplyr
+#' @import ggplot2
+#' @import purrr
 process_simulation = function(molecules, celltimes, simulationids=1, simulations=NULL) {
   rownames(molecules) = paste0("C", seq_len(nrow(molecules)))
   cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulationid=simulationids)
@@ -147,11 +152,9 @@ process_simulation = function(molecules, celltimes, simulationids=1, simulations
   named_list(molecules, cellinfo, expression, simulations)
 }
 
-
-
-
-
-
+#' @import dplyr
+#' @import ggplot2
+#' @import purrr
 plot_simulations = function(simulations, samplingrate=0.1) {
   for (i in seq_len(length(simulations))) {
     sample = sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))

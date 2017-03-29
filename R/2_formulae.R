@@ -1,3 +1,4 @@
+#' @import dplyr
 generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
   ## generating reaction formulas (the probability that a reaction occurs in [t, t+dt])
   formulae = list()

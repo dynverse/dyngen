@@ -11,7 +11,7 @@ amplify = function(a=0, steps=100, rate=0.05) {
   a
 }
 
-libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, amplifysteps = 100, amplifyrate = c(0.0001, 0.03), sequencerate=0.1, cellcapturerate = 1, verbose=F, verbose_plot_cell=50, verbose_follow_gene="x_1") {
+libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, amplifysteps = 100, amplifyrate = c(0.0001, 0.03), sequencerate=0.1, cellcapturerate = 1, celldoubletrate = 0, verbose=F, verbose_plot_cell=50, verbose_follow_gene="x_1") {
   curcounts = counts
   curcounts = counts_cellcaptured = counts[runif(nrow(counts)) <= cellcapturerate, ]
   

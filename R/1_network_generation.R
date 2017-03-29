@@ -1,4 +1,6 @@
 # load module net
+#' @import dplyr
+#' @import readr
 load_modulenet = function(modulenetname) {
   modulenodes = read_tsv(paste0("data/networks/", modulenetname, "/modulenodes.tsv"), col_types=cols()) %>% 
     mutate(module=paste0("M", module))
@@ -15,6 +17,7 @@ load_modulenet = function(modulenetname) {
 }
 
 ## add extra target genes to every ldtf
+#' @import dplyr
 add_targets_individually = function(net) {
   allgenes = ldtfs = sort(unique(union(net$from, net$to)))
   for(ldtf in ldtfs) {
@@ -35,6 +38,7 @@ add_targets_individually = function(net) {
 }
 
 ## add extra target genes to every ldtf in a modular nature, where some target modules are regulated by multiple ldtf modules
+#' @import dplyr
 add_targets_shared = function(net) {
   allgenes = ldtfs = sort(unique(union(net$from, net$to)))
   for(i in 1:length(ldtfs)) {
@@ -52,6 +56,8 @@ add_targets_shared = function(net) {
 }
 
 # convert modulenet to modules including lineage determining transcription factors (ldtfs)
+#' @import dplyr
+#' @import tibble
 modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
   modulenames = c(modulenet$from, modulenet$to) %>% unique
   nmodules = ngenespermodule * (length(modulenames))
@@ -75,6 +81,7 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
 }
 
 # generate gene network
+#' @import dplyr
 modulenet_to_genenet = function(modulenet, modulenodes) {
   convertedmodulenet = modulenet_to_modules(modulenet, modulenodes)
   net = convertedmodulenet$net
@@ -101,6 +108,7 @@ modulenet_to_genenet = function(modulenet, modulenodes) {
 }
 
 # list genes
+#' @import dplyr
 list_genes = function(geneinfo, modulemembership, net, modulenodes) {
   allgenes = sort(unique(union(net$from, net$to)))
   gene2module = unlist(lapply(names(modulemembership), function(moduleid) setNames(rep(moduleid, length(modulemembership[[moduleid]])), modulemembership[[moduleid]])))

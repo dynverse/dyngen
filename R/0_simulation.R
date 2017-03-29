@@ -12,7 +12,7 @@ run_experiment = function(modulenetname, totaltime, burntime=2, nsimulations = 4
   
   #newtime = estimate_convergence(8, verbose=T, totaltime=15) %>% max() %>% {.+1}
   
-  #experiment = simulate_multiple_cells(model, burntime, totaltime, ncells=1000)
+  experiment = simulate_multiple_cells(model, burntime, totaltime, ncells=1000)
   #experiment = simulate_one_cell(model, burntime, totaltime, ncells=NULL)
   experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations))
   class(experiment) = "dyngen::experiment"
@@ -30,9 +30,6 @@ run_experiment = function(modulenetname, totaltime, burntime=2, nsimulations = 4
 
 #' @import tidyverse
 run_scrnaseq = function(experiment, platform) {
-  scriptfolder = "./scripts/simulation/"
-  purrr::walk(c("5_scrnaseq.R"), ~source(file.path(scriptfolder, .)))
-  
   dataset = experiment
   class(dataset) = "dyngen::dataset"
   
@@ -46,9 +43,6 @@ run_scrnaseq = function(experiment, platform) {
 
 #' @import tidyverse
 extract_goldstandard = function(experiment, verbose=F) {
-  scriptfolder = "./scripts/simulation/"
-  walk(c("6_goldstandard.R", "6_goldstandard2.R"), ~source(file.path(scriptfolder, .)))
-  
   if(is.null(experiment$simulations)) stop("requires multiple individual simulations to align to gold standard")
   gs = list()
   gs$piecenet = get_piecenet(experiment$model$statenet)

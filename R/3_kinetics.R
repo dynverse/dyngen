@@ -1,3 +1,6 @@
+#' @import dplyr
+#' @import stringr
+#' @import dambiutils
 generate_kinetics = function(vargroups, variables, nus.changes) {
   ## generating the (initial) parameters of the system
   
@@ -43,6 +46,8 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
 }
 
 ## determine start state genes (active during burn-in)
+#' @import dplyr
+#' @import purrr
 determine_burngenes = function(model) {
   variables_genes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist()
   modulesoi = model$modulenodes %>% filter(burn == 1) %>% .$module
