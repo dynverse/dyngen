@@ -92,7 +92,7 @@ simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
   celltimes = cell$times[sampleids]
   molecules = cell$molecules[sampleids,]
   
-  process_simulation(molecules, celltimes, 1)
+  process_simulation(molecules, celltimes, 1, list(molecules))
 }
 
 #' @import dplyr
