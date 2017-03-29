@@ -2,8 +2,8 @@ library(dplyr)
 
 ## Run experiments
 # Experiment settings
-nreplicates = 2
-experimentsettings = list(
+nreplicates <- 2
+experimentsettings <- list(
   tibble(modulenetname = "linear", totaltime=4, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "cycle", totaltime=20, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "consecutive_bifurcating", totaltime=6, replicate=seq_len(nreplicates)),
@@ -11,8 +11,8 @@ experimentsettings = list(
   tibble(modulenetname = "trifurcating", totaltime=8, replicate=seq_len(nreplicates))
 ) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0(modulenetname, "_", replicate))
 
-run_settingid = function(experimentid) {
-  setting = experimentsettings[experimentid,] %>% as.list()
+run_settingid <- function(experimentid) {
+  setting <- experimentsettings[experimentid,] %>% as.list()
   print(setting)
   do.call(wrapper, setting)
 }
@@ -54,7 +54,7 @@ datasets = lapply(experiments, function(experiment) {
 
 saveRDS(datasets, file="results/datasets2.rds")
 
-datasets = readRDS("results/datasets.rds")
+datasets <- readRDS("results/datasets.rds")
 
 ##
 
