@@ -13,7 +13,7 @@ run_experiment = function(modulenetname, totaltime, burntime=2, nsimulations = 4
   #newtime = estimate_convergence(8, verbose=T, totaltime=15) %>% max() %>% {.+1}
   
   #experiment = simulate_multiple_cells(model, burntime, totaltime, ncells=1000)
-  experiment = simulate_one_cell(model, burntime, totaltime, ncells=NULL)
+  experiment = simulate_one_cell(model, burntime, totaltime, ncells=NULL, ssa.algorithm=ssa.em(noise_strength=100))
   experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations))
   class(experiment) = "dyngen::experiment"
   

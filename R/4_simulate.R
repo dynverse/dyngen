@@ -83,7 +83,7 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
 ## Get the molecules matrix of multiple cells
 #' @import dplyr
 simulate_one_cell = function(model, burntime, totaltime, ncells=500, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  cell = simulate_cell(model, deterministic = T, burntime=burntime, totaltime=totaltime)
+  cell = simulate_cell(model, deterministic = T, burntime=burntime, totaltime=totaltime, ssa.algorithm=ssa.algorithm)
   if(!is.null(ncells)) {
     sampleids = sort(sample(length(cell$times), min(length(cell$times), ncells)))
   } else {
@@ -99,7 +99,7 @@ simulate_one_cell = function(model, burntime, totaltime, ncells=500, ssa.algorit
 simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
-  cells = PRISM::qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime)}, qsub_config = qsub_conf)
+  cells = PRISM::qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)}, qsub_config = qsub_conf)
   molecules = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
   
   process_simulation(molecules, celltimes, seq_len(nrow(molecules)))
@@ -115,7 +115,7 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
   }
   
   moleculess = multilapply(seq_len(nsimulations), function(i) {
-    cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime)
+    cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)
     sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspersimulation)))
     celltimes = cell$times[sampleids]
     molecules = cell$molecules[sampleids,]
