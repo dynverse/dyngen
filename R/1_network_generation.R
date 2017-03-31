@@ -127,6 +127,11 @@ list_genes = function(geneinfo, modulemembership, net, modulenodes) {
 #' # Plotting
 plot_modulenet = function(model) {
   graph = igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
+  
+  modulenames = unique(model$geneinfo$module)
+  colors = rainbow(length(modulenames))
+  V(graph)$color = colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
+  
   layout <- igraph::layout_with_fr(graph)
   #png(file.path(imagefolder, "net_consecutive_bifurcating.png"), pointsize = 30, width=1000, height=1000)
   igraph::plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = 20, edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("#222222", "#662222")[model$modulenodes$a0+1], vertex.label.color="white", vertex.label.size=20)
@@ -144,3 +149,17 @@ plot_net_overlaps = function(model) {
   jaccard = function(x, y) {length(intersect(x, y))/length(union(x,y))}
   pheatmap::pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
 }
+
+plot_net_tfs = function(model) {
+  goi = unique(model$net$from)
+  subnet = model$net %>% filter(from %in% goi) %>% filter(to %in% goi)
+  graph = graph_from_data_frame(subnet)
+  
+  modulenames = model$modulenodes$module
+  
+  colors = rainbow(length(modulenames))
+  V(graph)$color = colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
+  E(graph)$color = subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
+  plot(graph)
+}
+

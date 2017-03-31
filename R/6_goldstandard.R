@@ -5,7 +5,7 @@ get_module_counts = function(counts, modulemembership) {
     stop(list(modulemembership, found, colnames(counts)) %>% str)
   }
   
-  lapply(modulemembership, function(module) apply(counts[,module], 1, mean)) %>% do.call(cbind, .)
+  lapply(modulemembership, function(module) apply(counts[,module,drop=F], 1, mean)) %>% do.call(cbind, .)
 }
 
 #' @import dplyr

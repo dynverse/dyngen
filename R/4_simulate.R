@@ -1,7 +1,7 @@
 #' @import dplyr
 #' @import purrr
 #' @import fastgssa
-simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2) {
+simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
   formulae.nus.burn = model$formulae.nus
   formulae.nus.burn[setdiff(rownames(formulae.nus.burn), variables_burngenes),] = 0
@@ -10,7 +10,7 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
   if (!deterministic) {
     out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
   } else {
-    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=fastgssa::ssa.em(), recalculate.all =F, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=ssa.algorithm, recalculate.all =F, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   }
   output = process_ssa(out)
   initial.state.burn = output$molecules[nrow(output$molecules), ] %>% abs
@@ -26,7 +26,7 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
   if (!deterministic) {
     out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
   } else {
-    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=fastgssa::ssa.em(), recalculate.all = FALSE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=ssa.algorithm, recalculate.all = FALSE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   }
   output = process_ssa(out)
   molecules = output$molecules
@@ -82,7 +82,7 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
 
 ## Get the molecules matrix of multiple cells
 #' @import dplyr
-simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
+simulate_one_cell = function(model, burntime, totaltime, ncells=500, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   cell = simulate_cell(model, deterministic = T, burntime=burntime, totaltime=totaltime)
   if(!is.null(ncells)) {
     sampleids = sort(sample(length(cell$times), min(length(cell$times), ncells)))
@@ -96,7 +96,7 @@ simulate_one_cell = function(model, burntime, totaltime, ncells=500) {
 }
 
 #' @import dplyr
-simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL) {
+simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   celltimes = runif(ncells, 0, totaltime)
   #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
   cells = PRISM::qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime)}, qsub_config = qsub_conf)
@@ -107,7 +107,7 @@ simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_
 
 #' @import dplyr
 #' @import purrr
-simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub_conf=NULL) {
+simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf)}
   } else {
