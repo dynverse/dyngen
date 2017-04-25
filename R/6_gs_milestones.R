@@ -1,4 +1,4 @@
-get_bias = function(bifurcation, experiment, cellinfo, gs, k=50) {
+get_bias = function(bifurcation, experiment, cellinfo, gs, k=10) {
   model = experiment$model
   
   endmodules = bifurcation$endmodules

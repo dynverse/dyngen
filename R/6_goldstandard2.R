@@ -13,7 +13,7 @@ get_piecenet = function(statenet) {
       piecenet = piecenet %>% filter(from != node) %>% filter(to != node) %>% bind_rows(tibble(from=newfrom, to=newto, contains=list(contains), previous=last))
     }
   }
-  piecenet %<>% mutate(piece=seq_len(nrow(.)))
+  piecenet = piecenet %>% mutate(piece=seq_len(nrow(.)))
   piecenet %>% igraph::graph_from_data_frame() %>% plot
   
   piecenet
@@ -212,7 +212,7 @@ get_reference_expression = function(pieces, model) {
 
 #' @import dplyr
 assign_progression = function(expression, reference) {
-  cellcors = SCORPIUS::euclidean.distance(reference$expression, expression)
+  cellcors = SCORPIUS::correlation.distance(reference$expression, expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
   tibble(
     cell = colnames(cellcors),

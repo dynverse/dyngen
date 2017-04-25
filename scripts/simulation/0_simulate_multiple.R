@@ -36,9 +36,21 @@ experiments %>% walk(save_experiment)
 experiments = map(readRDS("results/experiments.rds")$id, load_experiment, contents_experiment(T, T, T, T, T, T, T))
 
 ## Extract gold standard
-goldstandards = parallel::mclapply(experiments, dyngen:::extract_goldstandard, verbose=F, mc.cores=1)
+goldstandards = qsub_lapply(experiments, function(x){
+  library(magrittr)
+  library(tidyverse)
+  library(dambiutils)
+  dyngen:::extract_goldstandard(x)
+}, qsub_environment = list2env(list()))
 walk(goldstandards, save_goldstandard)
-readRDS("results/goldstandards.rds")
+remove_duplicate_goldstandards()
+
+
+experiment = load_experiment(datasetsinfo$experimentid[[1]], contents_experiment(T, T, T, T, T, T, T))
+gs = extract_goldstandard(experiment)
+gs %>% save_goldstandard()
+remove_duplicate_goldstandards()
+
 
 ## Run scRNAseq
 platforms = readr::read_tsv("data/platforms.tsv")

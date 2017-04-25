@@ -58,6 +58,12 @@ load_goldstandard = function(goldstandardid, contents=contents_goldstandard()) {
   goldstandard_folder = file.path(.datasets_location, "goldstandards/", goldstandardid)
   readRDS(file.path(goldstandard_folder, "goldstandard.rds"))
 }
+#' @export
+delete_goldstandards = function(goldstandardids) {
+  purrr::walk(goldstandardids, ~unlink(file.path(.datasets_location, "goldstandards/", .), T))
+  goldstandards = readRDS(file.path(.datasets_location, "goldstandards.rds"))
+  goldstandards %>% filter(!(id %in% goldstandardids))  %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
+}
 
 #' @export
 contents_dataset = function(counts=TRUE, platform=TRUE, experiment=contents_experiment(), goldstandard=contents_goldstandard(), model=contents_model(), info=TRUE) {
@@ -110,5 +116,7 @@ refresh_datasets = function() readRDS(file.path(.datasets_location, "datasets.rd
 #' @export
 refresh_goldstandards = function() readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "goldstandards/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
 
-
+remove_duplicate_goldstandards = function() {
+  readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% group_by(experimentid) %>% filter(row_number() < n()) %>% .$id %>% delete_goldstandards()
+}
 #walk(c("experiments.rds", "models.rds", "datasets.rds", "goldstandards.rds"), function(x) {tibble() %>% write_rds(file.path(.datasets_location, x))})
