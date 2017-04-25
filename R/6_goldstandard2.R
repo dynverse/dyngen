@@ -42,7 +42,7 @@ get_piecestates = function(piecenet) {
 # first get the smoothed module expression of all simulations
 #' @import dplyr
 smoothe_simulations = function(simulations, model) {
-  newdata = parallel::mclapply(simulations, function(simulation) {
+  newdata = lapply(simulations, function(simulation) {
     expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% set_rownames(rownames(simulation$expression))
     expression_modules = get_module_counts(expression_smooth, model$modulemembership)
     list(expression_smooth = expression_smooth, expression_modules=expression_modules)
@@ -52,6 +52,8 @@ smoothe_simulations = function(simulations, model) {
   }
   simulations
 }
+
+
 
 # the linear state ordering of every piece
 # based on the state progression, divide the expression data into linear pieces
@@ -87,7 +89,9 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
         {tibble(
           cells=list(piece_cells), 
           piecestateid=piecestateid, 
-          expression = list(expression_smooth[piece_cells, ])
+          expression = list(expression_smooth[piece_cells, ]),
+          start=start,
+          end=end
         )}
         pieces = c(pieces, list(piece))
       }
@@ -125,6 +129,11 @@ divide_simulations = function(simulations, piecestates, model) {
     
     expression_pieces$simulationid = simulationid
     
+    if (nrow(expression_pieces)>1) {
+      expression_pieces = expression_pieces %>% arrange(end) %>% mutate(nextpiecestateid=c(piecestateid[2:nrow(.)], NA))
+      expression_pieces$nextpiecestateids = c(map(1:(nrow(expression_pieces)-1), ~expression_pieces$piecestateid[(.+1):nrow(expression_pieces)]), list(numeric())) # add all next piecestateids
+    }
+    
     print(expression_pieces$piecestateid)
     print("---")
     
@@ -156,11 +165,25 @@ average_pieces = function(piecesoi, model) {
   window = 30
   meanexpression = meanexpression %>% zoo::rollmean(window, c("extend", "extend", "extend")) %>% set_rownames(rownames(meanexpression))
   
-  
   #meanexpression %>% t %>% pheatmap::pheatmap(cluster_rows=T, cluster_cols=F, scale="row")
   get_module_counts(meanexpression, model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_rows=F, cluster_cols=F)
   
   rownames(meanexpression) = seq_len(nrow(meanexpression))/nrow(meanexpression) * map_int(piecesoi$expression, nrow) %>% mean # get realtime estimate based on average number of cells in each piece
+  
+  meanexpression
+}
+
+# determine average expression, mapped to an average piece
+#' @import dplyr
+#' @import purrr
+average_pieces = function(piecesoi, model, bw=0.05) {
+  expressions = piecesoi$expression
+  xs = map(expressions, ~seq(0, 1, length.out=nrow(.))) %>% unlist()
+  meanlength = (map_int(piecesoi$expression, nrow) %>% mean)
+  result = map(seq_len(ncol(expressions[[1]])), function(colid) {ksmooth(xs, map(expressions, ~.[, colid]) %>% unlist(), x.points=seq(0, 1, length.out=round(meanlength)), kernel="normal", bandwidth=bw)})
+  meanexpression = map(result, "y") %>% do.call(cbind, .) %>% set_colnames(colnames(expressions[[1]]))
+  
+  rownames(meanexpression) = seq_len(nrow(meanexpression))/nrow(meanexpression) * meanlength
   
   meanexpression
 }

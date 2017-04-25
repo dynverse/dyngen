@@ -1,4 +1,3 @@
-library(plyr)
 library(tidyverse)
 library(dplyr)
 library(fastgssa)
@@ -21,10 +20,13 @@ PRISM::set_default_qsub_config(qsub_config, permanent = F)
 library(readr)
 library(Biobase)
 library(igraph)
-library(dyngen)
 library(cowplot)
 library(magrittr)
+library(purrr)
 
 library(dambiutils)
 
 library(dyngen)
+
+
+devtools::load_all(".")

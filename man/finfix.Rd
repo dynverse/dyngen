@@ -18,4 +18,3 @@ Create a new infix function to be used for the AbstractFormula system
 \examples{
 `\%f-\%` <- finfix("-")
 }
-

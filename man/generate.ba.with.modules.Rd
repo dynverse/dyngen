@@ -39,4 +39,3 @@ Generate a Barabási–Albert graph
 \examples{
 generate.ba.with.modules(amnt.nodes = 100, amnt.edges = 1000, reverse.edges = T, exp1 = 1.5, exp2 = 1.5, trace = T)
 }
-

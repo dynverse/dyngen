@@ -88,7 +88,7 @@ modulenet_to_genenet = function(modulenet, modulenodes) {
   modulemembership = convertedmodulenet$modulemembership
   
   allgenes = ldtfs = sort(unique(union(net$from, net$to)))
-  net = add_targets_shared(net)
+  #net = add_targets_shared(net)
   net$effect[net$effect == 0] = sample(c(1, -1), sum(net$effect == 0), replace=T)
   net = bind_rows(net, tibble(from=last(ldtfs), to=max(net$to)+1, effect=1, strength=1, cooperativity=2)) # add death marker
   
@@ -119,6 +119,8 @@ list_genes = function(geneinfo, modulemembership, net, modulenodes) {
     left_join(modulenodes, by="module")
   geneinfo$a0 = ifelse(geneinfo$ldtf, geneinfo$a0, NA) # target genes will adapt the a0, not use the a0 of the module
   
+  geneinfo %<>% mutate(celltype=ifelse(is.na(celltype), 1, celltype))
+  
   geneinfo
 }
 
@@ -148,6 +150,20 @@ plot_net = function(model) {
 plot_net_overlaps = function(model) {
   jaccard = function(x, y) {length(intersect(x, y))/length(union(x,y))}
   pheatmap::pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
+}
+
+plot_net = function(model) {
+  goi = unique(c(model$net$from, model$net$to))
+  subnet = model$net %>% filter(from %in% goi) %>% filter(to %in% goi)
+  graph = graph_from_data_frame(subnet, vertices=model$geneinfo$gene)
+  
+  modulenames = model$modulenodes$module
+  
+  colors = rainbow(length(modulenames))
+  V(graph)$color = colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
+  V(graph)$label = model$geneinfo$name
+  E(graph)$color = subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
+  plot(graph)
 }
 
 plot_net_tfs = function(model) {

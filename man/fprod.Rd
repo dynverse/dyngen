@@ -19,4 +19,3 @@ Product of AbstractFormula objects
 fprod(lapply(c(1,2,3), fcon))
 fprod(fcon(1), fcon(2))
 }
-

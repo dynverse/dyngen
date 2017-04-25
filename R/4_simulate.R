@@ -107,18 +107,24 @@ simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_
 
 #' @import dplyr
 #' @import purrr
-simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, local=F, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
+simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, endonly=F, local=F, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
+  force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf)}
+    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf, qsub_environment = formalArgs(simulate_multiple_cells_split))}
   } else {
-    multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 8)}
+    multilapply = function(x, fun) {parallel::mclapply(x, fun)}
   }
   
   moleculess = multilapply(seq_len(nsimulations), function(i) {
     cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)
-    sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspersimulation)))
+    
+    if(!endonly) {
+      sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspersimulation)))
+    } else {
+      sampleids = length(cell$times) # only the last cell
+    }
     celltimes = cell$times[sampleids]
-    molecules = cell$molecules[sampleids,]
+    molecules = cell$molecules[sampleids,,drop=F]
     rownames(molecules) = NULL
     list(molecules=molecules, celltimes=celltimes, simulationids=rep(i, length(celltimes)), simulation=cell$molecules)
   })

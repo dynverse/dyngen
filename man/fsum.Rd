@@ -19,4 +19,3 @@ Sum of AbstractFormula objects
 fsum(lapply(c(1,2,3), fcon))
 fsum(fcon(1), fcon(2))
 }
-

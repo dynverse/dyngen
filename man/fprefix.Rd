@@ -18,4 +18,3 @@ Create a new prefix function to be used for the AbstractFormula system
 \examples{
 fsum <- fprefix("sum")
 }
-

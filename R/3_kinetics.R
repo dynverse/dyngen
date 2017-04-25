@@ -42,6 +42,8 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   
   params = params[unique(names(params))] # remove duplicates, retain first
   
+  if(any(is.na(params))) stop("Some parameters are NA!")
+  
   named_list(formulae.nus, params, initial.state)
 }
 
@@ -50,6 +52,5 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
 #' @import purrr
 determine_burngenes = function(model) {
   variables_genes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist()
-  modulesoi = model$modulenodes %>% filter(burn == 1) %>% .$module
-  (variables_genes %in% (model$geneinfo %>% filter(module %in% modulesoi | is.na(module)) %>% .$gene)) %>% variables_genes[.]
+  (variables_genes %in% (model$geneinfo %>% filter(as.logical(burn)) %>% .$gene)) %>% variables_genes[.]
 }

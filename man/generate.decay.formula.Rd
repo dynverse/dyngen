@@ -11,4 +11,3 @@ generate.decay.formula(g, amnt.genes)
 
 \item{amnt.genes}{the total number of genes}
 }
-

@@ -18,4 +18,3 @@ Extract all variables from a formula
 \examples{
 extract.variables(fvar("c", 1) \%f*\% (fcon(1) - fvar("c", 2)))
 }
-

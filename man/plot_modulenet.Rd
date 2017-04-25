@@ -9,4 +9,3 @@ plot_modulenet(model)
 \description{
 # Plotting
 }
-

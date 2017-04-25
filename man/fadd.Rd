@@ -20,4 +20,3 @@ Addition function
 \examples{
 fvar("total") \%f+\% fcon(10)
 }
-

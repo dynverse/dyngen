@@ -22,4 +22,3 @@ Apply a function over all arguments, then collapse it with another function
 \examples{
 freduce(`f+`, c(1,2,3), fcon)
 }
-

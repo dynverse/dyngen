@@ -21,4 +21,3 @@ Create a new variable
 total <- fvar("total")
 gene <- fvar("gene", 1)
 }
-

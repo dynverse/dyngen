@@ -19,4 +19,3 @@ Create a new constant
 con1 <- fcon(1)
 con2 <- fcon(2.1)
 }
-
