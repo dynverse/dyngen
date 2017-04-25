@@ -53,50 +53,9 @@ datasets = lapply(experiments, function(experiment) {
 }) %>% unlist(recursive=F)
 datasets %>% walk(save_dataset)
 
-##
 
 
-
-
-
-
-
-
-list2env(datasets[[12]], .GlobalEnv)
-list2env(dataset, .GlobalEnv)
-
-experiment = experiments[[1]]
-
-save_experiment(experiments[[1]])
-readRDS("results/experiments.rds") %>% filter(version==1) %>% .$id %>% delete_experiments
-
-
-
-
-
-
-
-
-
-tibble() %>% saveRDS("results/experiments.rds")
-walk(experiments, save_experiment)
-walk(datasets, save_dataset)
-
-
-
-save_experiment(experiments[[5]], 5)
-experiment = load_experiment(5)
-
-experimentsinfo = read_csv()
-
-
-
-
-experiment = datasets[[which((datasets %>% map_chr(~.$model$modulenetname)) == "consecutive_bifurcating")[[1]]]]
-
-
-
-
+#readRDS("results/experiments.rds") %>% filter(version==1) %>% .$id %>% delete_experiments
 
 task = dyneval::wrap_ti_prediction("cycle", "testje", gs$milestone_names, gs$milestone_net, gs$milestone_percentages, 1)
 task %>% dyneval::plotLearner.ti.default()
