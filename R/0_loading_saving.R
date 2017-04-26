@@ -101,9 +101,9 @@ load_dataset = function(datasetid, contents = contents_dataset()) {
   loadin = names(contents)[purrr::map_lgl(contents, ~.)]
   dataset = purrr::map(loadin, ~readRDS(file.path(dataset_folder, paste0(., ".rds"))))
   names(dataset) = loadin
-  if(contents2$experiment) dataset$experiment = load_experiment(dataset$info$experimentid, contents2$experiment)
-  if(contents2$goldstandard) dataset$gs = load_goldstandard(combinedinfo$goldstandardid, contents2$goldstandard)
-  if(contents2$dataset) dataset$model = load_model(combinedinfo$modelid, contents2$model)
+  if(is.list(contents2$experiment)) dataset$experiment = load_experiment(dataset$info$experimentid, contents2$experiment)
+  if(is.list(contents2$goldstandard)) dataset$gs = load_goldstandard(combinedinfo$goldstandardid, contents2$goldstandard)
+  if(is.list(contents2$dataset)) dataset$model = load_model(combinedinfo$modelid, contents2$model)
   dataset
 }
 
