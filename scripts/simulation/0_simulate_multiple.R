@@ -65,9 +65,9 @@ datasets = lapply(experiments, function(experiment) {
 }) %>% unlist(recursive=F)
 datasets %>% walk(save_dataset)
 
+## Sync to prism
+PRISM:::rsync_remote("", "~/thesis/projects/dyngen/results", "prism", "/group/irc/shared/dyngen_results")
 
 
-#readRDS("results/experiments.rds") %>% filter(version==1) %>% .$id %>% delete_experiments
-
-task = dyneval::wrap_ti_prediction("cycle", "testje", gs$milestone_names, gs$milestone_net, gs$milestone_percentages, 1)
-task %>% dyneval::plotLearner.ti.default()
+## Download from prism
+PRISM:::rsync_remote("prism", "/group/irc/shared/dyngen_results/results", "", "~/Workspace/papers/ti_eval/dyngen")

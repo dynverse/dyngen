@@ -17,6 +17,8 @@ generate_model = function(modulenetname, verbose=F) {
   
   model$info = list(date=date(), version=1, id=dambiutils:::random_time_string())
   
+  model$ti = list(type=modulenetname, generator="modulenet_barabasi", )
+  
   model
 }
 
