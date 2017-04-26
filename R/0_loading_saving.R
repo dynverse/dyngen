@@ -88,7 +88,11 @@ save_dataset = function(dataset, datasetid=dataset$info$id) {
 }
 #' @export
 load_dataset = function(datasetid, contents = contents_dataset()) {
-  combinedinfo = tibble(id=datasetid) %>% left_join(readRDS(file.path(".datasets_location", "datasets.rds")), by="id") %>% left_join(readRDS(file.path(".datasets_location", "goldstandards.rds")) %>% select(-version) %>% rename(goldstandardid=id), by="experimentid") %>% left_join(readRDS(file.path(".datasets_location", "experiments.rds")) %>% select(-version) %>% rename(experimentid=id), by="experimentid") %>% as.list()
+  combinedinfo = tibble(id=datasetid) %>%
+    left_join(readRDS(file.path(.datasets_location, "datasets.rds")), by="id") %>% 
+    left_join(readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% select(-version) %>% rename(goldstandardid=id), by="experimentid") %>%
+    left_join(readRDS(file.path(.datasets_location, "experiments.rds")) %>% select(-version) %>% rename(experimentid=id), by="experimentid") %>%
+    as.list()
   
   dataset = list()
   dataset_folder = file.path(.datasets_location, "/datasets/", datasetid)
