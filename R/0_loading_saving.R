@@ -103,7 +103,7 @@ load_dataset = function(datasetid, contents = contents_dataset()) {
   names(dataset) = loadin
   if(is.list(contents2$experiment)) dataset$experiment = load_experiment(dataset$info$experimentid, contents2$experiment)
   if(is.list(contents2$goldstandard)) dataset$gs = load_goldstandard(combinedinfo$goldstandardid, contents2$goldstandard)
-  if(is.list(contents2$dataset)) dataset$model = load_model(combinedinfo$modelid, contents2$model)
+  if(is.list(contents2$model)) dataset$model = load_model(combinedinfo$modelid, contents2$model)
   dataset
 }
 
