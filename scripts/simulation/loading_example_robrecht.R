@@ -1,4 +1,5 @@
 library(tidyverse)
+library(cowplot)
 
 .datasets_location <- "results"
 
@@ -10,17 +11,26 @@ experiment <- dataset$experiment
 model <- dataset$model
 experiment$expression_modules <- dyngen:::get_module_counts(experiment$expression, model$modulemembership)
 
-task <- dyneval::wrap_ti_task_data(
-  ti_type = dataset$model$modulenetname, 
-  name = dataset$info$id,
-  expression = dataset$experiment$expression,
-  state_names = gs$milestone_names, 
-  state_net = gs$milestone_net, 
-  state_percentages = gs$milestone_percentages
+task <- with(dataset, dyneval::wrap_ti_task_data(
+  ti_type = model$modulenetname,
+  name = info$id,
+  expression = log2(counts+1),
+  state_names = gs$milestone_names,
+  state_net = gs$milestone_net,
+  state_percentages = gs$milestone_percentages %>% slice(match(rownames(counts), id))
+))
+
+pred_output1 <- dyneval::trainLearner.ti.scorpius(task, .subset = NULL, num_dimensions = 3, num_clusters = 4)
+
+task_emdist <- dyneval::compute_emlike_dist(task)
+
+pred_emdist1 <- dyneval::compute_emlike_dist(pred_output1)
+
+corank1 <- dyneval::compute_coranking(task_emdist, pred_emdist1)
+
+cowplot::plot_grid(
+  dyneval::plotLearner.ti.default(task),
+  dyneval::plotLearner.ti.default(pred_output1)
 )
 
-#pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(piecestateid) %>% mutate(piecestateid=factor(piecestateid)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
-
-gs$reference$expression %>% dyngen:::get_module_counts(., model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=gs$reference$cellinfo, gaps_col = which(diff(as.numeric(gs$reference$cellinfo$piecestateid)) != 0))
-
-dyneval::plotLearner.ti.default(task)
+corank1$summary
