@@ -22,13 +22,11 @@ run_settingid <- function(experimentid) {
   experiment <- dyngen:::run_experiment(models[[experimentid]], setting$totaltime, ncells=setting$ncells)
 }
 
-experiments = map(list.files("results/experiments/"),  load_experiment, contents_experiment(T, T, T, T, T, T, T))
 
 
-
-experimentid = first(which(experimentsettings$modulenetname == "bifurcating_cycle"))
-experiment = run_settingid(experimentid)
-experiments = list(experiment)
+#experimentid = first(which(experimentsettings$modulenetname == "bifurcating_cycle"))
+#experiment = run_settingid(experimentid)
+#experiments = list(experiment)
 
 experiments = parallel::mclapply(seq_len(nrow(experimentsettings)), run_settingid, mc.cores = 8)
 experiments %>% walk(save_experiment)
