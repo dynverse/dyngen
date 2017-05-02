@@ -44,7 +44,7 @@ walk(goldstandards, save_goldstandard)
 remove_duplicate_goldstandards()
 
 
-experiment = load_experiment(datasetsinfo$experimentid[[1]], contents_experiment(T, T, T, T, T, T, T))
+experiment = load_experiment(datasetsinfo$experimentid[[10]], contents_experiment(T, T, T, T, T, T, T))
 gs = extract_goldstandard(experiment)
 gs %>% save_goldstandard()
 remove_duplicate_goldstandards()

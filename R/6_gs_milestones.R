@@ -178,10 +178,14 @@ get_milestones = function(experiment, gs) {
 
 
 untent_percentages = function(milestone_net, milestone_percentages) {
-  bifurcations = milestone_net %>% group_by(from) %>% summarise(to=list(to), nto=n()) %>% filter(nto>1) %>% {split(., 1:nrow(.))}
-  for(bifurcation in bifurcations) {
-    rowids = milestone_percentages[, bifurcation$to[[1]]] %>% {(. > 0) & (.<1)} %>% apply(1, all)
-    milestone_percentages[rowids,bifurcation$to[[1]]] = ((1-milestone_percentages[rowids, bifurcation$from])/2) %>% as.matrix() %>% as.numeric()
+  
+  bifurcations = milestone_net %>% group_by(from) %>% summarise(to=list(to), nto=n()) %>% filter(nto>1)
+  if(nrow(bifurcations) > 0) {
+    bifurcations = bifurcations %>% {split(., 1:nrow(.))}
+    for(bifurcation in bifurcations) {
+      rowids = milestone_percentages[, bifurcation$to[[1]]] %>% {(. > 0) & (.<1)} %>% apply(1, all)
+      milestone_percentages[rowids,bifurcation$to[[1]]] = ((1-milestone_percentages[rowids, bifurcation$from])/2) %>% as.matrix() %>% as.numeric()
+    }
   }
   
   milestone_percentages
