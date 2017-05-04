@@ -17,7 +17,7 @@ task <- with(dataset, dyneval::wrap_ti_task_data(
   expression = log2(counts+1),
   state_names = gs$milestone_names,
   state_net = gs$milestone_net,
-  state_percentages = gs$milestone_percentages %>% slice(match(rownames(counts), id))
+  state_percentages = gs$milestone_percentages_notent %>% slice(match(rownames(counts), id))
 ))
 
 pred_output1 <- dyneval::trainLearner.ti.scorpius(task, .subset = NULL, num_dimensions = 3, num_clusters = 4)

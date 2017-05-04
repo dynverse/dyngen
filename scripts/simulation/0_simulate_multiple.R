@@ -14,15 +14,28 @@ experimentsettings <- list(
   tibble(modulenetname = "bifurcating_cycle", totaltime=20, replicate=seq_len(nreplicates))
 ) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0(modulenetname, "_", replicate))
 
-models = map(experimentsettings$modulenetname, generate_model)
+models = map(experimentsettings$modulenetname, ~generate_model(modulenetname = .))
 models %>% walk(save_model)
+
+
+experimentsettings <- list(
+  tibble(treeseed = c(10, 100, 1000, 10000, 100000, 1000000, 20, 200, 2000, 20000, 200000, 2000000), totaltime=20)
+) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0("tree_", seq_along(treeseed)))
+models = map(experimentsettings$treeseed, ~generate_model(treeseed = .))
+models %>% walk(save_model)
+
+
+
+
+
 
 run_settingid <- function(experimentid) {
   setting <- experimentsettings[experimentid,] %>% as.list()
   experiment <- dyngen:::run_experiment(models[[experimentid]], setting$totaltime, ncells=setting$ncells)
+  experiment
 }
 
-
+experiment = run_settingid(1)
 
 #experimentid = first(which(experimentsettings$modulenetname == "bifurcating_cycle"))
 #experiment = run_settingid(experimentid)

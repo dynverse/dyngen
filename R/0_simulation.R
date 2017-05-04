@@ -1,6 +1,13 @@
 #' @import tidyverse
-generate_model = function(modulenetname, verbose=F) {
-  model = load_modulenet(modulenetname)
+generate_model = function(modulenetname=NULL, treeseed=NULL, verbose=F) {
+  if(!is.null(modulenetname)) {
+    model = load_modulenet(modulenetname)
+  } else if(!is.null(treeseed)) {
+    statenet = generate_random_tree(treeseed)
+    model = from_states_to_modulenet(statenet)
+  } else {
+    stop("Can't generate model if you don't tell me how!")
+  }
   class(model) = "dyngen::model"
   
   model = modulenet_to_genenet(model$modulenet, model$modulenodes) %>% c(model)

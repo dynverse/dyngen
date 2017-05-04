@@ -89,7 +89,7 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
         {tibble(
           cells=list(piece_cells), 
           piecestateid=piecestateid, 
-          expression = list(expression_smooth[piece_cells, ]),
+          expression = list(expression_smooth[piece_cells, ,drop=F]),
           start=start,
           end=end
         )}
