@@ -3,6 +3,7 @@
 #' @import fastgssa
 simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
+  variables_burngenes = c(variables_burngenes, experiment$model$vargroups$rg)
   formulae.nus.burn = model$formulae.nus
   formulae.nus.burn[setdiff(rownames(formulae.nus.burn), variables_burngenes),] = 0
   
