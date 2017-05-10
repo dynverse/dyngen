@@ -2,6 +2,10 @@ library(dplyr)
 
 .datasets_location = "/home/wouters/thesis/projects/dyngen/results/"
 
+
+refresh_datasets();refresh_experiments();refresh_goldstandards();refresh_models()
+
+
 ## Run experiments
 # Experiment settings
 nreplicates <- 2

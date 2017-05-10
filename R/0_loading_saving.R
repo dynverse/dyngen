@@ -87,12 +87,14 @@ save_dataset = function(dataset, datasetid=dataset$info$id) {
   datasets %>% filter(id != datasetid) %>% bind_rows(dataset$info) %>% saveRDS(file.path(.datasets_location, "datasets.rds"))
 }
 #' @export
-load_dataset = function(datasetid, contents = contents_dataset()) {
-  combinedinfo = tibble(id=datasetid) %>%
-    left_join(readRDS(file.path(.datasets_location, "datasets.rds")), by="id") %>% 
+list_datasets = function() {
+  readRDS(file.path(.datasets_location, "datasets.rds")) %>% 
     left_join(readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% select(-version) %>% rename(goldstandardid=id), by="experimentid") %>%
-    left_join(readRDS(file.path(.datasets_location, "experiments.rds")) %>% select(-version) %>% rename(experimentid=id), by="experimentid") %>%
-    as.list()
+    left_join(readRDS(file.path(.datasets_location, "experiments.rds")) %>% select(-version) %>% rename(experimentid=id), by="experimentid")
+}
+#' @export
+load_dataset = function(datasetid, contents = contents_dataset()) {
+  combinedinfo = list_datasets() %>% filter(id==datasetid) %>% as.list()
   
   dataset = list()
   dataset_folder = file.path(.datasets_location, "/datasets/", datasetid)
