@@ -148,6 +148,7 @@ process_simulation = function(molecules, celltimes, simulationids=1, simulations
   molecules = molecules[order(cellinfo$simulationtime),]
   cellinfo = cellinfo[order(cellinfo$simulationtime),]
   expression = molecules[,str_detect(colnames(molecules), "x_")]
+  expression[expression < 0] = 0
   colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
   
   simulations = map(simulations, function(molecules) {
