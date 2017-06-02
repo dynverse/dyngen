@@ -82,7 +82,7 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
 
 # generate gene network
 #' @import dplyr
-modulenet_to_genenet = function(modulenet, modulenodes) {
+modulenet_to_genenet = function(modulenet, modulenodes, Gprefix="G") {
   convertedmodulenet = modulenet_to_modules(modulenet, modulenodes)
   net = convertedmodulenet$net
   modulemembership = convertedmodulenet$modulemembership
@@ -92,14 +92,14 @@ modulenet_to_genenet = function(modulenet, modulenodes) {
   net$effect[net$effect == 0] = sample(c(1, -1), sum(net$effect == 0), replace=T)
   net = bind_rows(net, tibble(from=last(ldtfs), to=max(net$to)+1, effect=1, strength=1, cooperativity=2)) # add death marker
   
-  net$from = paste0("G", net$from)
-  net$to = paste0("G", net$to)
-  modulemembership = map(modulemembership, ~paste0("G", .))
+  net$from = paste0(Gprefix, net$from)
+  net$to = paste0(Gprefix, net$to)
+  modulemembership = map(modulemembership, ~paste0(Gprefix, .))
   
   allgenes = sort(unique(union(net$from, net$to)))
   geneinfo = tibble(gene=allgenes) %>% mutate(
     tf = gene %in% sort(unique(net$from)),
-    ldtf = gene %in% paste0("G", ldtfs)
+    ldtf = gene %in% paste0(Gprefix, ldtfs)
   )
   
   modulemembership = map(modulemembership, ~intersect(., allgenes)) # remove genes which are not regulated by any other gene
@@ -132,11 +132,14 @@ plot_modulenet = function(model) {
   
   modulenames = unique(model$geneinfo$module)
   colors = rainbow(length(modulenames))
-  V(graph)$color = colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
+  V(graph)$color = colors[match(names(V(graph)), modulenames)]
   
-  layout <- igraph::layout_with_fr(graph)
+  layout <- igraph::layout.graphopt(graph, charge=0.01, niter=10000)
+  #layout <- ForceAtlas2::layout.forceatlas2(graph, iterations=3000, plotstep=100)
   #png(file.path(imagefolder, "net_consecutive_bifurcating.png"), pointsize = 30, width=1000, height=1000)
-  igraph::plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = 20, edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("#222222", "#662222")[model$modulenodes$a0+1], vertex.label.color="white")
+  #igraph::plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = 20, edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color=c("#222222", "#662222")[model$modulenodes$a0+1], vertex.label.color="white")
+  
+  igraph::plot.igraph(graph, edge.color = c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))], layout=layout, vertex.size = 20, edge.arrow.size=0.5, edge.loop.angle=0.1, vertex.color = V(graph)$color, vertex.label.color="black")
   #dev.off()
 }
 
@@ -161,9 +164,10 @@ plot_net = function(model) {
   
   colors = rainbow(length(modulenames))
   V(graph)$color = colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
-  V(graph)$label = model$geneinfo$gene
+  #V(graph)$label = model$geneinfo$gene
+  V(graph)$label = ""
   E(graph)$color = subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
-  plot(graph)
+  plot(graph, vertex.size=6, edge.arrow.size=0.5)
 }
 
 plot_net_tfs = function(model) {

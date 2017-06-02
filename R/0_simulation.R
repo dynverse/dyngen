@@ -1,5 +1,5 @@
 #' @import tidyverse
-generate_model = function(modulenetname=NULL, treeseed=NULL, verbose=F) {
+generate_model = function(modulenetname=NULL, treeseed=NULL, Gprefix="G", verbose=F) {
   if(!is.null(modulenetname)) {
     model = load_modulenet(modulenetname)
   } else if(!is.null(treeseed)) {
@@ -10,7 +10,7 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, verbose=F) {
   }
   class(model) = "dyngen::model"
   
-  model = modulenet_to_genenet(model$modulenet, model$modulenodes) %>% c(model)
+  model = modulenet_to_genenet(model$modulenet, model$modulenodes, Gprefix=Gprefix) %>% c(model)
   #mnet_wanted = model$modulenet
   #model = extract_network_from_modulenet(real_modulenet, mnet_wanted) %>% c(model)
   
@@ -31,15 +31,20 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, verbose=F) {
 
 
 #' @import tidyverse
-run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncells = 500) {
+run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncells = 500, local=F) {
   #newtime = estimate_convergence(8, verbose=T, totaltime=15) %>% max() %>% {.+1}
   
   #experiment = simulate_multiple_cells(model, burntime, totaltime, ncells=1000)
   #experiment = simulate_one_cell(model, burntime, totaltime, ncells=NULL, ssa.algorithm=ssa.em(noise_strength=2))
-  experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations), ssa.algorithm=ssa.em(noise_strength=2), local=F)
+  experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations), ssa.algorithm=ssa.em(noise_strength=2), local=local)
   class(experiment) = "dyngen::experiment"
   
   experiment$model = model
+  
+  
+  additional_data = add_housekeeping_poisson(experiment$expression, experiment$model$geneinfo)
+  experiment$expression = additional_data$expression
+  experiment$geneinfo = additional_data$geneinfo
   
   # get module counts
   experiment$expression_modules = get_module_counts(experiment$expression, experiment$model$modulemembership)
@@ -48,7 +53,7 @@ run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncell
   pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression) %>% t, cluster_cols=F, labels_row=experiment$model$geneinfo$name)
   experiment$expression_modules %>% reshape2::melt(varnames=c("cell", "module"), value.name="expression") %>% ggplot() + geom_histogram(aes(expression)) + facet_wrap(~module) + geom_vline(xintercept = 2)
   
-  experiment$info = list(date=date(), version=1, id =dambiutils:::random_time_string(), modelid=model$info$id)
+  experiment$info = list(date=date(), version=.version, id = dambiutils:::random_time_string(), modelid=model$info$id)
   
   experiment
 }
@@ -62,7 +67,7 @@ run_scrnaseq = function(experiment, platform) {
   
   #pheatmap::pheatmap(SCORPIUS::quant.scale(dataset$counts) %>% t, cluster_cols=F)
   
-  dataset$info = list(experimentid=experiment$info$id, platformname=platform$platformname, id=dambiutils:::random_time_string(), version=1)
+  dataset$info = list(experimentid=experiment$info$id, platformname=platform$platformname, id=dambiutils:::random_time_string(), version=.version)
   
   dataset
 }

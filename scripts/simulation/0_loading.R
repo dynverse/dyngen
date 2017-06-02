@@ -1,3 +1,4 @@
+library(scater) # stupid package overrides filter, mutate and other useful function, WHY???? Nobody knows!
 library(tidyverse)
 library(dplyr)
 library(fastgssa)

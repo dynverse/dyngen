@@ -65,18 +65,22 @@ delete_goldstandards = function(goldstandardids) {
   goldstandards %>% filter(!(id %in% goldstandardids))  %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
 }
 
+#' @import dplyr
 #' @export
 contents_dataset = function(counts=TRUE, platform=TRUE, experiment=contents_experiment(), goldstandard=contents_goldstandard(), model=contents_model(), info=TRUE) {
   as.list(environment(), all=TRUE)
 }
+#' @import dplyr
 #' @export
 contents_goldstandard = function(goldstandard = TRUE) {
   as.list(environment(), all=TRUE)
 }
+#' @import dplyr
 #' @export
 contents_model = function(model = TRUE) {
   as.list(environment(), all=TRUE)
 }
+#' @import dplyr
 #' @export
 save_dataset = function(dataset, datasetid=dataset$info$id) {
   dataset_folder = file.path(.datasets_location, "datasets/", datasetid)
@@ -86,12 +90,14 @@ save_dataset = function(dataset, datasetid=dataset$info$id) {
   datasets = readRDS(file.path(.datasets_location, "datasets.rds"))
   datasets %>% filter(id != datasetid) %>% bind_rows(dataset$info) %>% saveRDS(file.path(.datasets_location, "datasets.rds"))
 }
+#' @import dplyr
 #' @export
 list_datasets = function() {
   readRDS(file.path(.datasets_location, "datasets.rds")) %>% 
     left_join(readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% select(-version) %>% rename(goldstandardid=id), by="experimentid") %>%
     left_join(readRDS(file.path(.datasets_location, "experiments.rds")) %>% select(-version) %>% rename(experimentid=id), by="experimentid")
 }
+#' @import dplyr
 #' @export
 load_dataset = function(datasetid, contents = contents_dataset()) {
   combinedinfo = list_datasets() %>% filter(id==datasetid) %>% as.list()
@@ -110,18 +116,24 @@ load_dataset = function(datasetid, contents = contents_dataset()) {
 }
 
 
+
+#' @import dplyr
 #' @export
 refresh_experiments = function() readRDS(file.path(.datasets_location, "experiments.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "experiments/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "experiments.rds"))
 
+#' @import dplyr
 #' @export
 refresh_models = function() readRDS(file.path(.datasets_location, "models.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "models/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "models.rds"))
 
+#' @import dplyr
 #' @export
 refresh_datasets = function() readRDS(file.path(.datasets_location, "datasets.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "datasets/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "datasets.rds"))
 
+#' @import dplyr
 #' @export
 refresh_goldstandards = function() readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "goldstandards/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
 
+#' @import dplyr
 remove_duplicate_goldstandards = function() {
   readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% group_by(experimentid) %>% filter(row_number() < n()) %>% .$id %>% delete_goldstandards()
 }

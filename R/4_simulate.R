@@ -3,7 +3,7 @@
 #' @import fastgssa
 simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
-  variables_burngenes = c(variables_burngenes, experiment$model$vargroups$rg)
+  variables_burngenes = c(variables_burngenes, model$vargroups$rg)
   formulae.nus.burn = model$formulae.nus
   formulae.nus.burn[setdiff(rownames(formulae.nus.burn), variables_burngenes),] = 0
   
@@ -149,6 +149,7 @@ process_simulation = function(molecules, celltimes, simulationids=1, simulations
   cellinfo = cellinfo[order(cellinfo$simulationtime),]
   expression = molecules[,str_detect(colnames(molecules), "x_")]
   expression[expression < 0] = 0
+  expression = round(expression * 100)
   colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
   
   simulations = map(simulations, function(molecules) {
@@ -197,4 +198,22 @@ plot_simulations = function(simulations, samplingrate=0.1) {
   
   for (i in unique(as.numeric(space$simulationid))) rgl::lines3d(space %>% filter(simulationid == i), col = rainbow(length(unique(space$simulationid)))[[i]])
   
+}
+
+
+
+
+#' Add housekeeping genes
+#' @export
+add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallaverage = mean(expression)) {
+  reference_expression <- (2^SCORPIUS::ginhoux$expression)-1
+  meanpoissons <- colMeans(reference_expression) %>% {./mean(reference_expression)*overallaverage}
+  
+  additional_expression <- purrr::map(sample(meanpoissons, ngenes), ~rpois(nrow(expression), .)) %>% 
+    invoke(cbind, .) %>% 
+    magrittr::set_colnames(paste0("G", seq_len(ngenes)+ncol(expression)))
+  
+  geneinfo <- dplyr::bind_rows(geneinfo %>% dplyr::mutate(housekeeping=F), tibble(gene=colnames(additional_expression), housekeeping=T))
+  
+  list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
 }
