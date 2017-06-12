@@ -1,6 +1,3 @@
-dimreds = list("pca"=pca, "mds"=mds, "tsne"=tsne, "dp"=dp, "ica"=ica, "lle"=lle, "simlr"=simlr)
-dimreds = list("mds"=mds, "pca"=pca, "ica"=ica, "lmds"=lmds, "tsne"=tsne, "dp"=dp)
-
 pca = function(x, ndim=3) {
   space = prcomp(t(x))$rotation[,seq_len(ndim)]
   process_dimred(space)
