@@ -9,12 +9,12 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
   
   # burn in
   if (!deterministic) {
-    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
+    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=fastgssa::ssa.direct(), recalculate.all = TRUE, stop.on.negstate = TRUE)
   } else {
-    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=ssa.algorithm, recalculate.all =F, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=ssa.algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   }
   output = process_ssa(out)
-  initial.state.burn = output$molecules[nrow(output$molecules), ] %>% abs
+  initial.state.burn = output$molecules[nrow(output$molecules), names(model$initial.state)] %>% abs
   
   # determine total time to simulate
   if (!is.null(timeofsampling)) {
@@ -25,9 +25,9 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
   
   # actual simulation
   if (!deterministic) {
-    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=fastgssa::ssa.direct(), recalculate.all =F, stop.on.negstate = TRUE)
+    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=fastgssa::ssa.direct(), recalculate.all = TRUE, stop.on.negstate = TRUE)
   } else {
-    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=ssa.algorithm, recalculate.all = FALSE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=ssa.algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   }
   output = process_ssa(out)
   molecules = output$molecules

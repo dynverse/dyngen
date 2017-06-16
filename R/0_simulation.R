@@ -36,7 +36,7 @@ run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncell
   
   #experiment = simulate_multiple_cells(model, burntime, totaltime, ncells=1000)
   #experiment = simulate_one_cell(model, burntime, totaltime, ncells=NULL, ssa.algorithm=ssa.em(noise_strength=2))
-  experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations), ssa.algorithm=ssa.em(noise_strength=2), local=local)
+  experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations), ssa.algorithm=fastgssa::ssa.em(noise_strength=2), local=local)
   class(experiment) = "dyngen::experiment"
   
   experiment$model = model

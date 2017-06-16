@@ -7,10 +7,10 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   R = sapply(vargroups$r, function(r) 20)
   D = sapply(vargroups$d, function(d) 5)
   
-  K = sapply(vargroups$k, function(k) unname((R/D)[paste0("r_",str_replace(k, "k_G[a-zA-Z]*\\d*_(G[a-zA-Z]*\\d*)", "\\1"))]/2/variables[[k]]$strength))
+  P = sapply(vargroups$p, function(p) 2)
+  Q = sapply(vargroups$q, function(q) 2*ifelse(!is.null(variables[[q]]$strength) && !is.na(variables[[q]]$strength), variables[[q]]$strength, 1))
   
-  P = sapply(vargroups$p, function(p) 0.2)
-  Q = sapply(vargroups$q, function(q) 0.2)
+  K = sapply(vargroups$k, function(k) 4/2/variables[[k]]$strength)
   
   g = c(1)
   #P[paste0("p_", g)] = P[paste0("p_", g)] /5
@@ -37,8 +37,14 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
     nu[names(nu.changes)] = nu.changes
     nu
   })
+  if(class(formulae.nus) != "matrix") stop("formulae.nus shoudl become matrix")
   
-  params = c(R, D, K, P, Q, A0,A, rg=1,dg=1,kg=1,pg=10,qg=10, a1=1)
+  params = c(R, D, K, P, Q, A0,A, rg=1,dg=1,kg=1,pg=1,qg=1, a1=1)
+  
+  if(!is.null(vargroups$assoc)) {params = c(params, sapply(vargroups$assoc, function(assoc) 1 * ifelse(!is.null(variables[[assoc]]$strength) && !is.na(variables[[assoc]]$strength), variables[[assoc]]$strength, 1)))}
+  if(!is.null(vargroups$deassoc)) {params = c(params, sapply(vargroups$deassoc, function(x) 1))}
+  
+  print(params)
   
   params = params[unique(names(params))] # remove duplicates, retain first
   
