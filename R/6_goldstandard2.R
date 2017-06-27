@@ -2,6 +2,9 @@
 get_piecenet = function(statenet) {
   piecenet = statenet %>% select(from, to) %>% mutate(contains = map(seq_len(nrow(statenet)), ~integer()))
   for (node in unique(c(statenet$from, statenet$to))) {
+    if(node == 1) {
+      next
+    }
     froms = piecenet %>% filter(from == node)
     tos = piecenet %>% filter(to == node)
     
@@ -43,7 +46,7 @@ get_piecestates = function(piecenet) {
 #' @import dplyr
 smoothe_simulations = function(simulations, model) {
   newdata = lapply(simulations, function(simulation) {
-    expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% set_rownames(rownames(simulation$expression))
+    expression_smooth = simulation$expression %>% zoo::rollmean(200, c("extend", "extend", "extend")) %>% set_rownames(rownames(simulation$expression))
     expression_modules = get_module_counts(expression_smooth, model$modulemembership)
     list(expression_smooth = expression_smooth, expression_modules=expression_modules)
   })
@@ -83,17 +86,19 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
     for (statesuniqueid in seq_len(length(statesunique))) {
       start = statesuniqueid
       end = statesuniqueid+length(piecestate)-1
-      if(all(statesunique[seq(start, end)] %>% keep(~!is.na(.)) == piecestate)) {
-        piece_cells = statesunique_windows[seq(start, end)] %>% unlist
-        piece = 
-        {tibble(
-          cells=list(piece_cells), 
-          piecestateid=piecestateid, 
-          expression = list(expression_smooth[piece_cells, ,drop=F]),
-          start=start,
-          end=end
-        )}
-        pieces = c(pieces, list(piece))
+      if(!any(is.na(statesunique[seq(start, end)]))) {
+        if(all(piecestate == statesunique[seq(start, end)])) {
+          piece_cells = statesunique_windows[seq(start, end)] %>% unlist
+          piece = 
+          {tibble(
+            cells=list(piece_cells), 
+            piecestateid=piecestateid, 
+            expression = list(expression_smooth[piece_cells, ,drop=F]),
+            start=start,
+            end=end
+          )}
+          pieces = c(pieces, list(piece))
+        }
       }
     }
   }
@@ -116,16 +121,18 @@ divide_simulations = function(simulations, piecestates, model) {
   pieces = list()
   for (simulationid in seq_len(length(simulations))) {
     expression_modules_scaled = quant_scale_combined(simulations[[simulationid]]$expression_modules)
-    expression_modules_scaled = simulations[[simulationid]]$expression_modules
+    #expression_modules_scaled = simulations[[simulationid]]$expression_modules
     
-    progressioninfo = get_states(expression_modules_scaled, model, minexpression = 0.3, minratio = 2) %>% select(-cell) %>% bind_cols(simulations[[simulationid]]$cellinfo)
-    ggplot(progressioninfo) + geom_area(aes(simulationtime, group=state, fill=factor(state)), position="fill", stat="bin", bins=50)
-    ggplot(progressioninfo) + geom_point(aes(simulationtime, state))
-    
-    pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state))
+    progressioninfo = get_states(expression_modules_scaled, model, minexpression = 0.5, minratio = 2) %>% select(-cell) %>% bind_cols(simulations[[simulationid]]$cellinfo)
+    #ggplot(progressioninfo) + geom_area(aes(simulationtime, group=state, fill=factor(state)), position="fill", stat="bin", bins=50)
+    #ggplot(progressioninfo) + geom_point(aes(simulationtime, state))
     
     expression_pieces = divide_simulation(progressioninfo, piecestates, simulations[[simulationid]]$expression_smooth)
+    
+    #pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state, piecestateid))
     #expression_pieces[[2]] %>% t %>% pheatmap::pheatmap(cluster_cols=F, scale="row", cluster_rows=T)
+    
+    if(nrow(expression_pieces) == 0) {stop("Could divide simulation")}
     
     expression_pieces$simulationid = simulationid
     
@@ -212,6 +219,8 @@ get_reference_expression = function(pieces, model) {
 
 #' @import dplyr
 assign_progression = function(expression, reference) {
+  expression = expression[, colnames(reference$expression)] # filter on genes not present in the reference (eg. housekeeping)
+  
   cellcors = SCORPIUS::correlation.distance(reference$expression, expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
   tibble(

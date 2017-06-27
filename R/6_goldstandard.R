@@ -5,7 +5,7 @@ get_module_counts = function(counts, modulemembership) {
     stop(list(modulemembership, found, colnames(counts)) %>% str)
   }
   
-  lapply(modulemembership, function(module) apply(counts[,module,drop=F], 1, mean)) %>% do.call(cbind, .)
+  lapply(modulemembership, function(module) apply(counts[,as.character(module),drop=F], 1, mean)) %>% do.call(cbind, .)
 }
 
 #' @import dplyr
@@ -57,7 +57,6 @@ get_states = function(expression_modules, model, minexpression = 0.8, minratio =
           statechanged = T
         }
       }
-      
     }
     states = c(states, state)
   }

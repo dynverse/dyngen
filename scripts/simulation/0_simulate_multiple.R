@@ -11,14 +11,15 @@ list_datasets()
 
 ## Run experiments
 # Experiment settings
-nreplicates <- 2
+nreplicates <- 1
 experimentsettings <- list(
   tibble(modulenetname = "linear", totaltime=4, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "cycle", totaltime=20, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "consecutive_bifurcating", totaltime=6, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "bifurcating_convergence", totaltime=8, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "trifurcating", totaltime=8, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "bifurcating_cycle", totaltime=20, replicate=seq_len(nreplicates))
+  tibble(modulenetname = "bifurcating_cycle", totaltime=20, replicate=seq_len(nreplicates)),
+  tibble(modulenetname = "bifurcating_loop", totaltime=20, replicate=seq_len(nreplicates)),
 ) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0(modulenetname, "_", replicate))
 
 models = map(experimentsettings$modulenetname, ~generate_model(modulenetname = .))

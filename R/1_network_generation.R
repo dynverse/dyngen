@@ -16,52 +16,72 @@ load_modulenet = function(modulenetname) {
   dambiutils::named_list(modulenodes, modulenet, celltypes, modulenetname, statenet)
 }
 
-## add extra target genes to every ldtf
+## add extra target genes to every tf
 #' @import dplyr
-add_targets_individually = function(net) {
-  allgenes = ldtfs = sort(unique(union(net$from, net$to)))
-  for(ldtf in ldtfs) {
-    nnewtargets = sample(1:2, 1)
+add_targets_individually = function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], genestartid = max(geneinfo$gene), add_to_existing_net = TRUE) {
+  allgenes = tfs
+  addnet = tibble()
+  for(tf in tfs) {
+    nnewtargets = sample(1:8, 1)
     if (nnewtargets > 10) {
-      subnet = dyngen::generate.ba.with.modules(nnewtargets, nnewtargets*2, 0.05, 0.05)$data.frame %>% rename(from=i, to=j) %>% mutate(effect=0, strength=1, cooperativity=1) %>% mutate(from=from+max(allgenes), to=to+max(allgenes)) %>% mutate(from=replace(from, from==max(allgenes)+1, ldtf))
+      subnet = dyngen::generate.ba.with.modules(nnewtargets, nnewtargets*2, 0.05, 0.05)$data.frame %>% rename(from=i, to=j) %>% mutate(from=paste0("G", from+genestartid), to=to+genestartid) %>% mutate(from=replace(from, from==paste0("G", genestartid+1), tf))
     } else if (nnewtargets > 0) {
-      subnet = tibble(from=ldtf, to=(max(allgenes)+1):(max(allgenes) + nnewtargets + 1), effect=0, strength=1, cooperativity=1)
+      subnet = tibble(from=tf, to=(genestartid+1):(genestartid + nnewtargets + 1))
     } else {
       subnet= tibble()
     }
     
-    net = bind_rows(net, subnet)
-    allgenes = sort(unique(union(net$from, net$to)))
+    subnet <- subnet
+    
+    addnet = bind_rows(addnet, subnet)
+    genestartid = max(c(as.numeric(gsub("G([0-9]*)", "\\1", c(addnet$from, addnet$to))))+1, genestartid)
   }
   
-  net
+  addgeneinfo <- tibble(gene=sort(unique(union(addnet$from, addnet$to)))) %>% mutate(tf = gene %in% addnet$from, isgene=ifelse(gene %in% addnet$to, TRUE, FALSE), a0=NA, celltype=1)
+  addnet <- addnet %>% mutate(effect=sample(c(-1, 1), length(to), TRUE), strength=1, cooperativity=1, randomize=TRUE)
+  
+  if(add_to_existing_net) {
+    list(net=bind_rows(net, addnet), geneinfo=bind_rows(geneinfo, addgeneinfo) %>% group_by(gene) %>% filter(duplicated(gene) | n()==1))
+  } else {
+    list(net=addnet, geneinfo=addgeneinfo)
+  }
+  
 }
 
-## add extra target genes to every ldtf in a modular nature, where some target modules are regulated by multiple ldtf modules
+## add extra target genes to every tf in a modular nature, where some target modules are regulated by multiple ldtf modules
 #' @import dplyr
-add_targets_shared = function(net) {
-  allgenes = ldtfs = sort(unique(union(net$from, net$to)))
-  for(i in 1:length(ldtfs)) {
+add_targets_shared = function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], add_to_existing_net = TRUE) {
+  allgenes = geneinfo$gene
+  addnet = tibble()
+  for(i in 1:length(tfs)) {
     nnewtargets = sample(1:6, 1)
     newtargets = (max(allgenes)+1):(max(allgenes) + nnewtargets + 1)
     
-    subnet = expand.grid(from=sample(ldtfs, size = sample(1:3, size=1, prob=c(0.4, 0.4, 0.2))), to=newtargets) %>% as.data.frame()
+    subnet = expand.grid(from=sample(tfs, size = sample(1:3, size=1, prob=c(0.4, 0.4, 0.2))), to=newtargets) %>% as.data.frame()
     
     subnet = subnet %>% mutate(effect=0, strength=1, cooperativity=1)
     
-    net = bind_rows(net, subnet)
-    allgenes = sort(unique(union(net$from, net$to)))
+    addnet = bind_rows(addnet, subnet)
+    allgenes = sort(unique(union(subnet$from, subnet$to)))
   }
-  net
+  
+  addgeneinfo <- tibble(gene=sort(unique(union(addnet$from, addnet$to)))) %>% mutate(tf = gene %in% addnet$from, isgene=ifelse(gene %in% addnet$to, TRUE, FALSE), a0=NA, celltype=1, burn=TRUE)
+  addnet <- addnet %>% mutate(effect=sample(c(-1, 1), length(to), TRUE), strength=1, cooperativity=1, randomize=TRUE)
+  
+  if(add_to_existing_net) {
+    list(net=bind_rows(net, addnet), geneinfo=bind_rows(geneinfo, addgeneinfo) %>% group_by(gene) %>% filter(duplicated(gene) | n()==1))
+  } else {
+    list(net=addnet, geneinfo=addgeneinfo)
+  }
 }
 
-# convert modulenet to modules including lineage determining transcription factors (ldtfs)
+# convert modulenet to modules including lineage determining transcription factors (tfs)
 #' @import dplyr
 #' @import tibble
-modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
+modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4, genestartid=0) {
   modulenames = c(modulenet$from, modulenet$to) %>% unique
   nmodules = ngenespermodule * (length(modulenames))
-  modulemembership = split(seq_len(nmodules), ceiling(seq_len(nmodules)/ngenespermodule)) %>% set_names(modulenames)
+  modulemembership = split(seq_len(nmodules)+genestartid, ceiling(seq_len(nmodules)/ngenespermodule)) %>% set_names(modulenames)
   
   net = lapply(seq_len(nrow(modulenet)), function(i) {
     from_module = modulenet[i,]$from
@@ -82,24 +102,20 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
 
 # generate gene network
 #' @import dplyr
-modulenet_to_genenet = function(modulenet, modulenodes, Gprefix="G") {
-  convertedmodulenet = modulenet_to_modules(modulenet, modulenodes)
+modulenet_to_genenet = function(modulenet, modulenodes, genestartid=0) {
+  convertedmodulenet = modulenet_to_modules(modulenet, modulenodes, genestartid=genestartid)
   net = convertedmodulenet$net
   modulemembership = convertedmodulenet$modulemembership
   
-  allgenes = ldtfs = sort(unique(union(net$from, net$to)))
+  allgenes = tfs = sort(unique(union(net$from, net$to)))
   #net = add_targets_shared(net)
   net$effect[net$effect == 0] = sample(c(1, -1), sum(net$effect == 0), replace=T)
-  net = bind_rows(net, tibble(from=last(ldtfs), to=max(net$to)+1, effect=1, strength=1, cooperativity=2)) # add death marker
-  
-  net$from = paste0(Gprefix, net$from)
-  net$to = paste0(Gprefix, net$to)
-  modulemembership = map(modulemembership, ~paste0(Gprefix, .))
+  net = bind_rows(net, tibble(from=last(tfs), to=max(net$to)+1, effect=1, strength=1, cooperativity=2)) # add death marker
   
   allgenes = sort(unique(union(net$from, net$to)))
   geneinfo = tibble(gene=allgenes) %>% mutate(
     tf = gene %in% sort(unique(net$from)),
-    ldtf = gene %in% paste0(Gprefix, ldtfs)
+    isgene=TRUE
   )
   
   modulemembership = map(modulemembership, ~intersect(., allgenes)) # remove genes which are not regulated by any other gene
@@ -110,14 +126,13 @@ modulenet_to_genenet = function(modulenet, modulenodes, Gprefix="G") {
 # list genes
 #' @import dplyr
 list_genes = function(geneinfo, modulemembership, net, modulenodes) {
-  allgenes = sort(unique(union(net$from, net$to)))
+  allgenes = geneinfo$gene
   gene2module = unlist(lapply(names(modulemembership), function(moduleid) setNames(rep(moduleid, length(modulemembership[[moduleid]])), modulemembership[[moduleid]])))
   gene2module = c(gene2module, net %>% group_by(to) %>% summarize(firstf = first(from)) %>% mutate(module=gene2module[as.character(firstf)]) %>% select(-firstf) %>% dplyr::rename(gene=to) %>% filter(!(gene %in% names(gene2module))) %>% {setNames(.$module, .$gene)}) # assign genes to its first parent module
-  geneinfo$module = gene2module[geneinfo$gene]
+  geneinfo$module = gene2module[as.character(geneinfo$gene)]
   geneinfo = geneinfo %>% bind_rows(tibble(gene=allgenes[!(allgenes %in% geneinfo$gene)])) %>% # add genes not in one of the modules
     mutate(tf=gene %in% net$from) %>% 
     left_join(modulenodes, by="module")
-  geneinfo$a0 = ifelse(geneinfo$ldtf, geneinfo$a0, NA) # target genes will adapt the a0, not use the a0 of the module
   
   geneinfo %<>% mutate(celltype=ifelse(is.na(celltype), 1, celltype))
   

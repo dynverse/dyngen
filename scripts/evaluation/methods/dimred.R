@@ -39,7 +39,8 @@ mds_smacof = function(x, ndim=3) {
 }
 
 tsne = function(x, ndim=3) {
-  space = tsne::tsne(as.dist(SCORPIUS::correlation.distance(x)), k = ndim)
+  space = Rtsne::Rtsne(as.dist(SCORPIUS::correlation.distance(x)), dims = ndim, is_distance = TRUE)$Y
+  rownames(space) = rownames(x)
   process_dimred(space)
 }
 

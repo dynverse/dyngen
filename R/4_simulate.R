@@ -14,7 +14,7 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
     out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=ssa.algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   }
   output = process_ssa(out)
-  initial.state.burn = output$molecules[nrow(output$molecules), names(model$initial.state)] %>% abs
+  initial.state.burn = output$molecules[nrow(output$molecules), names(model$initial.state)]
   
   # determine total time to simulate
   if (!is.null(timeofsampling)) {
@@ -211,9 +211,9 @@ add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallav
   
   additional_expression <- purrr::map(sample(meanpoissons, ngenes), ~rpois(nrow(expression), .)) %>% 
     invoke(cbind, .) %>% 
-    magrittr::set_colnames(paste0("G", seq_len(ngenes)+ncol(expression)))
+    magrittr::set_colnames(seq_len(ngenes)+ncol(expression))
   
-  geneinfo <- dplyr::bind_rows(geneinfo %>% dplyr::mutate(housekeeping=F), tibble(gene=colnames(additional_expression), housekeeping=T))
+  geneinfo <- dplyr::bind_rows(geneinfo %>% dplyr::mutate(housekeeping=F), tibble(gene=colnames(additional_expression) %>% as.numeric(), housekeeping=T))
   
   list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
 }

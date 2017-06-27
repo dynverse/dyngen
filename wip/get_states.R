@@ -38,9 +38,8 @@ nrows = map_int(matrices, nrow) %>% c(0, .)
 newmatrices = map(seq_len(length(nrows)-1), function(i) {combined[sum(nrows[1:i]):sum(nrows[1:(i+1)]), ]})
 map(seq_len(length(nrows)), ~rep(., nrows[[.]])) %>% unlist
 
-quant_scale_combined = function(matrices, outlier.cutoff = 0.05) {
+quant_scale_combined = function(matrices, simulations, outlier.cutoff = 0.05) {
   combined = map(simulations, "expression") %>% do.call(rbind2, .)
   combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
-  attributes(combined_scaled)
   attributes(combined_scaled)
 }

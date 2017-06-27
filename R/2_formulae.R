@@ -1,4 +1,4 @@
-add.formula = function(formula, nu, name, system) {print(name);system$formulae[[name]] <- formula;system$nus.changes[[name]] <- nu;assign("system", system, parent.frame())}
+add.formula = function(formula, nu, name, system) {system$formulae[[name]] <- formula;system$nus.changes[[name]] <- nu;assign("system", system, parent.frame())}
 
 add.variable = function(variable, ..., system) {
   varname = variable@string
@@ -50,6 +50,8 @@ generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
       regs = subnet$from
       effects = subnet$effect
       
+      if(!all(effects %in% c(1, -1))) stop("effects should be either 1 or -1")
+      
       rg = rgs[[geneinfo$celltype]]
       
       boundvars = list()
@@ -73,7 +75,7 @@ generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
           regulator = regs[[i]]
           effect = effects[[i]]
           strength = subnet[i,]$strength
-          cooperativity = subnet[i,]$cooperativity
+          cooperativity = ifelse(!is.na(subnet[i,]$cooperativity), subnet[i,]$cooperativity, 2)
           
           #u = add.variable(fvar("u", target, regulator), target=target, regulator=regulator)
           #b = add.variable(fvar("b", target, regulator), target=target, regulator=regulator)
@@ -84,12 +86,12 @@ generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
           y_regulator = fvar("y", regulator)
           
           # binding
-          if (cooperativity > 1) {
+          #if (cooperativity > 1) {
             #formula = fcon(paste0(u@string, " * ", y_regulator@string, "^", cooperativity, " * ", kg@string))
             #formula = u * y_regulator * y_regulator * kg
-          } else {
+          #} else {
             #formula = u * y_regulator * kg
-          }
+          #}
           
           #nu = get.nu(b, list(y_regulator, u))
           #add.formula(formula, nu)
@@ -176,7 +178,7 @@ generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
     }
   }
   
-  system$formulae.strings <- map(system$formulae, function(fl) fl@string)
+  system$formulae.strings <- map_chr(system$formulae, function(fl) fl@string)
   
   system
 }

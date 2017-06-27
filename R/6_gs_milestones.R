@@ -30,7 +30,9 @@ get_bias_knn = function(bifurcation, experiment, cellinfo, gs, k=10) {
     ordered = order(differences, decreasing=F)
     data.frame(cell=rownames(cellsoi_expression)[rowid], nextpiecestateidoi=observations$nextpiecestateidoi[ordered[seq_len(k)]])
   }) %>% bind_rows()
-  cellbiases = nearest_neighbors %>% group_by(cell, nextpiecestateidoi) %>% summarise(n=n()) %>% mutate(p=n/sum(n)) %>% ungroup() %>% select(-n) %>% spread(nextpiecestateidoi, p, fill=0)
+  cellbiases = nearest_neighbors %>% group_by(cell, nextpiecestateidoi) %>% summarise(n=n()) %>% mutate(p=n/sum(n)) %>% ungroup() %>% select(-n) %>% spread(nextpiecestateidoi, p, drop=FALSE, fill=0)
+  
+  if(!all(bifurcation$nextpiecestateids %in% colnames(cellbiases))) stop("not all biases recovered!!")
   
   #cellsoi_expression %>% as.data.frame() %>% rownames_to_column("cell") %>% left_join(cellbiases, by="cell") %>% 
   #ggplot() + geom_point(aes(M3, M4, color=`2`)) + scale_color_gradientn(colors=c("red", "black", "blue")) + coord_equal()
@@ -96,6 +98,8 @@ get_milestones = function(experiment, gs) {
   milestonenet = gs$piecestatenet %>% select(from, to)
   cellinfo = gs$cellinfo %>% mutate(piecestateid = as.numeric(piecestateid))
   
+  milestone2piecestateid = unique(c(gs$piecestatenet$from, gs$piecestatenet$to)) %>% {set_names(., .)}
+  
   if(nrow(milestonenet) > 0) {
     maxpieceid = (milestonenet %>% select(from, to) %>% max) + 1 # next name for a pieceid
     for (piecestateid in milestonenet %>% filter(from == to) %>% .$from) {
@@ -107,6 +111,8 @@ get_milestones = function(experiment, gs) {
         piecestateid = newpieces[ceiling(progression/progressionpartition)],
         progression = progression %% progressionpartition
       )
+      
+      milestone2piecestateid[as.character(newpieces)] = piecestateid
       
       maxprogressions <- c(maxprogressions, set_names(rep(progressionpartition, 2), as.character(newpieces[c(2, 3)])))
       maxprogressions[[as.character(piecestateid)]] <- progressionpartition
@@ -120,7 +126,7 @@ get_milestones = function(experiment, gs) {
   
   # add terminal nodes
   terminalnodes = gs$piecenet$piece %>% keep(!(. %in% milestonenet$from))
-  milestonenet = milestonenet %>% bind_rows(tibble(from = terminalnodes, to=seq(max(gs$piecenet$piece) + 1, length.out=length(terminalnodes))))
+  milestonenet = milestonenet %>% bind_rows(tibble(from = terminalnodes, to=seq(max(c(milestonenet$from, milestonenet$to)) + 1, length.out=length(terminalnodes))))
   milestonenet$length = maxprogressions[milestonenet$from]
   
   
@@ -151,7 +157,7 @@ get_milestones = function(experiment, gs) {
     
     if(length(nextpiecestateids) > 1) {
       # if bifurcating
-      topercentages = cellbiases %>% filter(cell == cellinfo$cell) %>% .[, as.character(nextpiecestateids)] %>% as.list() %>% unlist()
+      topercentages = cellbiases %>% filter(cell == cellinfo$cell) %>% .[, as.character(milestone2piecestateid[as.character(nextpiecestateids)])] %>% as.list() %>% unlist()
     } else {
       # if just progressing forward
       topercentages = 1 %>% set_names(nextpiecestateids)
@@ -170,8 +176,8 @@ get_milestones = function(experiment, gs) {
   named_list(
     milestone_names = percentages %>% select(-cell) %>% colnames, 
     milestone_net = milestonenet, 
-    milestone_percentages = percentages %>% rename(id=cell),
-    milestone_percentages_notent = untent_percentages(milestonenet, percentages) %>% rename(id=cell)
+    milestone_percentages = percentages %>% rename(id=cell)#,
+    #milestone_percentages_notent = untent_percentages(milestonenet, percentages) %>% rename(id=cell)
   )
 }
 

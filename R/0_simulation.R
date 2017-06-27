@@ -1,5 +1,5 @@
 #' @import tidyverse
-generate_model = function(modulenetname=NULL, treeseed=NULL, Gprefix="G", verbose=F) {
+generate_model = function(modulenetname=NULL, treeseed=NULL, genestartid=0, verbose=F) {
   if(!is.null(modulenetname)) {
     model = load_modulenet(modulenetname)
   } else if(!is.null(treeseed)) {
@@ -10,7 +10,7 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, Gprefix="G", verbos
   }
   class(model) = "dyngen::model"
   
-  model = modulenet_to_genenet(model$modulenet, model$modulenodes, Gprefix=Gprefix) %>% c(model)
+  model = modulenet_to_genenet(model$modulenet, model$modulenodes, genestartid) %>% c(model)
   #mnet_wanted = model$modulenet
   #model = extract_network_from_modulenet(real_modulenet, mnet_wanted) %>% c(model)
   
@@ -22,11 +22,15 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, Gprefix="G", verbos
   
   model$burngenes = determine_burngenes(model)
   
-  model$info = list(date=date(), version=1, id=dambiutils:::random_time_string())
+  model$info = generate_model_info()
   
   model$ti = list(type=modulenetname, generator="modulenet_barabasi", generatorinfo = list())
   
   model
+}
+
+generate_model_info <- function() {
+  list(date=date(), version=1, id=dambiutils:::random_time_string())
 }
 
 
@@ -41,7 +45,6 @@ run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncell
   
   experiment$model = model
   
-  
   additional_data = add_housekeeping_poisson(experiment$expression, experiment$model$geneinfo)
   experiment$expression = additional_data$expression
   experiment$geneinfo = additional_data$geneinfo
@@ -53,7 +56,7 @@ run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncell
   pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression) %>% t, cluster_cols=F, labels_row=experiment$model$geneinfo$name)
   experiment$expression_modules %>% reshape2::melt(varnames=c("cell", "module"), value.name="expression") %>% ggplot() + geom_histogram(aes(expression)) + facet_wrap(~module) + geom_vline(xintercept = 2)
   
-  experiment$info = list(date=date(), version=.version, id = dambiutils:::random_time_string(), modelid=model$info$id)
+  experiment$info = list(date=date(), id = dambiutils:::random_time_string(), modelid=model$info$id)
   
   experiment
 }
@@ -93,8 +96,8 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(verbose) print(">> assigning")
   gs$cellinfo = assign_progression(experiment$expression, gs$reference)
   
-  pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(piecestateid) %>% mutate(piecestateid=factor(piecestateid)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
-  ggplot(gs$cellinfo) + geom_area(aes(simulationtime, group=piecestateid, fill=factor(piecestateid)), position="fill", stat="bin", bins=10)
+ pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(piecestateid) %>% mutate(piecestateid=factor(piecestateid)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
+  ggplot(gs$cellinfo %>% left_join(experiment$cellinfo, by="cell")) + geom_area(aes(simulationtime, group=piecestateid, fill=factor(piecestateid)), position="fill", stat="bin", bins=10)
   
   # if(verbose) print(">> calculating cell distances")
   # statenodes = gs$piecenet %>% rename(state=piece) %>% left_join(gs$reference$cellinfo %>% group_by(piecestateid) %>% summarise(maxprogression=max(progression)) %>% mutate(state=as.integer(piecestateid)), by="state")
