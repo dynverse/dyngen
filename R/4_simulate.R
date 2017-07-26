@@ -127,13 +127,14 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
     celltimes = cell$times[sampleids]
     molecules = cell$molecules[sampleids,,drop=F]
     rownames(molecules) = NULL
-    list(molecules=molecules, celltimes=celltimes, simulationids=rep(i, length(celltimes)), simulation=cell$molecules)
+    list(molecules=molecules, celltimes=celltimes, simulationids=rep(i, length(celltimes)), simulation=cell$molecules, stepids = sampleids)
   })
   
   process_simulation(
     do.call(rbind, map(moleculess, "molecules")), 
     do.call(c, map(moleculess, "celltimes")),
     do.call(c, map(moleculess, "simulationids")),
+    do.call(c, map(moleculess, "stepids")),
     map(moleculess, "simulation")
   )
 }
@@ -141,9 +142,9 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
 #' @import dplyr
 #' @import ggplot2
 #' @import purrr
-process_simulation = function(molecules, celltimes, simulationids=1, simulations=NULL) {
+process_simulation = function(molecules, celltimes, simulationids=1, stepids=1, simulations=NULL) {
   rownames(molecules) = paste0("C", seq_len(nrow(molecules)))
-  cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulationid=simulationids)
+  cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulationid=simulationids, stepid=stepids, simulationstepid = paste0(simulationids, "_", stepids))
   
   molecules = molecules[order(cellinfo$simulationtime),]
   cellinfo = cellinfo[order(cellinfo$simulationtime),]
@@ -152,7 +153,8 @@ process_simulation = function(molecules, celltimes, simulationids=1, simulations
   expression = round(expression * 100)
   colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
   
-  simulations = map(simulations, function(molecules) {
+  simulations = map2(simulations, seq_along(simulations), function(molecules, simulationid) {
+    rownames(molecules) = paste0(simulationid, "_", seq_len(nrow(molecules)))
     expression = molecules[,str_detect(colnames(molecules), "x_")]
     colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
     list(molecules = molecules,expression = expression)

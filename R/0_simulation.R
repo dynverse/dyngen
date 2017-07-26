@@ -105,9 +105,17 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   # gs$celldistances = get_cell_distances(gs$cellinfo %>% mutate(state=piecestateid), snet)
   
   if(verbose) print(">> extracting milestones")
-  gs <- c(get_milestones(experiment, gs), gs)
+  #gs <- c(get_milestones(experiment, gs), gs)
   
   gs$info = list(experimentid=experiment$info$id, version=1, id=dambiutils:::random_time_string())
   
   gs
+}
+
+
+
+plot_goldstandard <- function(gs, experiment) {
+  ordered_cellinfo <- gs$cellinfo %>% arrange(piecestateid, progression)
+  
+  pheatmap(SCORPIUS::quant.scale(experiment$expression_modules[ordered_cellinfo$cell, ]) %>% t, cluster_cols=F, cluster_rows=T)
 }

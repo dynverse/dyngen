@@ -11,9 +11,11 @@ load_modulenet = function(modulenetname) {
     mutate(from=paste0("M", from), to=paste0("M", to))
   celltypes = read_tsv(paste0("data/networks/", modulenetname, "/celltypes.tsv"), col_types=cols())
   
-  statenet = read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
+  #statenet = read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
   
-  dambiutils::named_list(modulenodes, modulenet, celltypes, modulenetname, statenet)
+  piecestates = jsonlite::read_json(paste0("data/networks/", modulenetname, "/piecestates.json"), simplifyVector=TRUE)
+  
+  dambiutils::named_list(modulenodes, modulenet, celltypes, modulenetname, piecestates)
 }
 
 ## add extra target genes to every tf

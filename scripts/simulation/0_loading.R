@@ -1,3 +1,4 @@
+source("https://bioconductor.org/biocLite.R")
 library(scater) # stupid package overrides filter, mutate and other useful function, WHY???? Nobody knows!
 library(tidyverse)
 library(dplyr)
@@ -24,10 +25,9 @@ library(igraph)
 library(cowplot)
 library(magrittr)
 library(purrr)
+library(pdist)
 
 library(dambiutils)
-
-library(dyngen)
 
 
 devtools::load_all(".")
@@ -40,3 +40,5 @@ devtools::load_all(".")
 
 # devtools::install_github("dambi/fastgssa", host="github.ugent.be/api/v3", auth_token="8aaf33b05a1d0c728f070897ca344f468d17fcfe")
 # devtools::install_github("dambi/dambiutils", host="github.ugent.be/api/v3", auth_token="8aaf33b05a1d0c728f070897ca344f468d17fcfe")
+
+# devtools::install_github("rcannood/PRISM", auth_token="1381e4efbbcc986c4601f8a457943f1b16e31f58")

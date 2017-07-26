@@ -14,12 +14,13 @@ list_datasets()
 nreplicates <- 1
 experimentsettings <- list(
   tibble(modulenetname = "linear", totaltime=4, replicate=seq_len(nreplicates)),
+  tibble(modulenetname = "linear_long", totaltime=10, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "cycle", totaltime=20, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "consecutive_bifurcating", totaltime=6, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "bifurcating_convergence", totaltime=8, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "trifurcating", totaltime=8, replicate=seq_len(nreplicates)),
   tibble(modulenetname = "bifurcating_cycle", totaltime=20, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "bifurcating_loop", totaltime=20, replicate=seq_len(nreplicates)),
+  tibble(modulenetname = "bifurcating_loop", totaltime=20, replicate=seq_len(nreplicates))
 ) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0(modulenetname, "_", replicate))
 
 models = map(experimentsettings$modulenetname, ~generate_model(modulenetname = .))
@@ -55,12 +56,12 @@ experiments %>% walk(save_experiment)
 experiments = map(readRDS("results/experiments.rds")$id, load_experiment, contents_experiment(T, T, T, T, T, T, T))
 
 ## Extract gold standard
-goldstandards = qsub_lapply(experiments, function(x){
+goldstandards = mclapply(experiments, function(x){
   library(magrittr)
   library(tidyverse)
   library(dambiutils)
   dyngen:::extract_goldstandard(x)
-}, qsub_environment = list2env(list()))
+}, mc.cores = 8)#, qsub_environment = list2env(list()))
 walk(goldstandards, save_goldstandard)
 remove_duplicate_goldstandards()
 

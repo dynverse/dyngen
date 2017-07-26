@@ -35,7 +35,11 @@ get_piecestates = function(piecenet) {
       piece = c(1)
     }
     #piece = c(piecenet$from[[rowid]]) # remove if not include first interaction (except state 1)
-    c(piece, piecenet$contains[[rowid]], piecenet$to[[rowid]])
+    if(length(piece) == 0 || piece[[1]] != piecenet$to[[rowid]]) {
+      c(piece, piecenet$contains[[rowid]], piecenet$to[[rowid]])
+    } else {
+      c(piece, piecenet$contains[[rowid]])
+    }
   })
   
   piecestates
@@ -46,7 +50,7 @@ get_piecestates = function(piecenet) {
 #' @import dplyr
 smoothe_simulations = function(simulations, model) {
   newdata = lapply(simulations, function(simulation) {
-    expression_smooth = simulation$expression %>% zoo::rollmean(200, c("extend", "extend", "extend")) %>% set_rownames(rownames(simulation$expression))
+    expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(simulation$expression))
     expression_modules = get_module_counts(expression_smooth, model$modulemembership)
     list(expression_smooth = expression_smooth, expression_modules=expression_modules)
   })
@@ -115,7 +119,7 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
 #' @import ggplot2
 divide_simulations = function(simulations, piecestates, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.01)
+  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
   quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
   
   pieces = list()
@@ -123,7 +127,7 @@ divide_simulations = function(simulations, piecestates, model) {
     expression_modules_scaled = quant_scale_combined(simulations[[simulationid]]$expression_modules)
     #expression_modules_scaled = simulations[[simulationid]]$expression_modules
     
-    progressioninfo = get_states(expression_modules_scaled, model, minexpression = 0.5, minratio = 2) %>% select(-cell) %>% bind_cols(simulations[[simulationid]]$cellinfo)
+    progressioninfo = get_states(expression_modules_scaled, model, minexpression = 0.6, minratio = 2) %>% select(-cell) %>% bind_cols(simulations[[simulationid]]$cellinfo)
     #ggplot(progressioninfo) + geom_area(aes(simulationtime, group=state, fill=factor(state)), position="fill", stat="bin", bins=50)
     #ggplot(progressioninfo) + geom_point(aes(simulationtime, state))
     
@@ -132,12 +136,11 @@ divide_simulations = function(simulations, piecestates, model) {
     #pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state, piecestateid))
     #expression_pieces[[2]] %>% t %>% pheatmap::pheatmap(cluster_cols=F, scale="row", cluster_rows=T)
     
-    if(nrow(expression_pieces) == 0) {stop("Could divide simulation")}
-    
-    expression_pieces$simulationid = simulationid
+    if(nrow(expression_pieces) == 0) {warning("Could not divide simulation into pieces")}
     
     if (nrow(expression_pieces)>1) {
       expression_pieces = expression_pieces %>% arrange(end) %>% mutate(nextpiecestateid=c(piecestateid[2:nrow(.)], NA))
+      expression_pieces$simulationid = simulationid
       expression_pieces$nextpiecestateids = c(map(1:(nrow(expression_pieces)-1), ~expression_pieces$piecestateid[(.+1):nrow(expression_pieces)]), list(numeric())) # add all next piecestateids
     }
     
@@ -221,7 +224,7 @@ get_reference_expression = function(pieces, model) {
 assign_progression = function(expression, reference) {
   expression = expression[, colnames(reference$expression)] # filter on genes not present in the reference (eg. housekeeping)
   
-  cellcors = SCORPIUS::correlation.distance(reference$expression, expression)
+  cellcors = SCORPIUS::euclidean.distance(reference$expression, expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
   tibble(
     cell = colnames(cellcors),
