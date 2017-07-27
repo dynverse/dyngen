@@ -1,5 +1,7 @@
 extract_tobecomes <- function(simulations, piecestates) {
-  quant_scale_combined = get_combined_quant_scale(simulations)
+  combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
+  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
+  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
   
   ############################################
   ### This analysis is split in two parts:
@@ -32,7 +34,7 @@ extract_tobecomes <- function(simulations, piecestates) {
     
     await_low_expression = FALSE
     
-    if(!is.null(curpiecestate$to) && curpiecestate$to[[1]] == curpiecestate$piecestateid) {
+    if(curpiecestate$to[[1]] == curpiecestate$piecestateid) {
       await_low_expression = TRUE
       await_low_expression_module = curpiecestate$modules
     }
@@ -54,8 +56,12 @@ extract_tobecomes <- function(simulations, piecestates) {
         ## BIFURCATION upcoming
         module_order = sort(colMeans(next_expression), decreasing = TRUE)
         
-        if(module_order[[1]]-module_order[[2]] > 0.25) {
+        if(module_order[[1]]-module_order[[2]] > 0.5) {
           nextpiecestateid = curpiecestate$to[which(curpiecestate$modules == names(module_order)[[1]])]
+          
+          if(nextpiecestateid %in% c(3, 4)) {
+            print(paste0(nextpiecestateid, "   ", module_order[[1]],"    ", module_order[[2]]))
+          }
           
           if(nextpiecestateid == curpiecestate$piecestateid) {
             await_low_expression = TRUE
@@ -65,6 +71,7 @@ extract_tobecomes <- function(simulations, piecestates) {
       } else if (curpiecestate$type == "convergence") {
         ## AWAITING HIGH MODULE EXPRESSION (for cycles)
         # make sure the previous expression has been low for some time, then check whether the next expression will be high
+        
         nextpiecestateid = curpiecestate$to[[1]]
         
       } else if (curpiecestate$type == "cycle") {
@@ -145,13 +152,11 @@ lagpad <- function(x, k=1) {
   }
 }
 
+
+
+
+
 divide_pieces <- function(simulations, tobecomes, piecestates) {
-  quant_scale_combined = get_combined_quant_scale(simulations)
-  
-  combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
-  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
-  
   tobecomes_combined = tobecomes %>% bind_rows() %>% mutate(pieceids=map2(expression, pieceid, ~rep(.y, nrow(.x)))) %>% group_by(piecestateid) %>% summarise(expression=list(invoke(rbind, expression)), nextpiecestateids=list(nextpiecestateid), prevpiecestateids=list(prevpiecestateid), pieceids=list(unlist(pieceids))) # to becomes for each piecestateid
   #subsamples = map(tobecomes_combined$nextpiecestateids, ~sample(seq_along(.), size=length(.) * 0.1))
   #tobecomes_combined$expression = map2(subsamples, tobecomes_combined$expression, ~.y[.x, ])
@@ -199,13 +204,17 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
           
           reference = references[[as.character(curpiecestate$to)]]
           
-          for (i in seq(row$endstepid, nrow(expression_modules_scaled), 10)) {
+          for (i in seq(row$endstepid, nrow(expression_modules_scaled), 5)) {
             current_expression = expression_modules_scaled[i, ,drop=FALSE]
             distances = pdist::pdist(current_expression, reference$expression)@dist %>% tapply(reference$pieceid, min)
             
             result = wilcox.test(distances[!(reference$prevpiecestateids %in% curpiecestate$cross)], distances[reference$prevpiecestateids %in% curpiecestate$cross])
             
             result$p.value = ifelse(is.na(result$p.value), 1, result$p.value)
+            
+            pvals = c(pvals, result$p.value)
+            
+            print(result$p.value)
             
             if(result$p.value > 0.05) {
               print(glue::glue("converged at {i}"))
@@ -249,48 +258,46 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
       piecestepid = map2(start_stepid, end_stepid, ~seq_len(.y-.x+1))
     )
 }
+pieces %>% bind_rows %>% {hist(.$start_stepid)}
 
-
-extract_goldstandard <- function(experiment) {
-  experiment$simulations <- smoothe_simulations(experiment$simulations, experiment$model)
-  tobecomes <- extract_tobecomes(experiment$simulations, experiment$model$piecestates)
-  pieces <- divide_pieces(experiment$simulations, tobecomes, experiment$model$piecestates)
-  
-  cellinfo <- pieces %>% unnest(cellid, stepid, piecestepid) %>% select(-start_stepid, -end_stepid)
-  
-  cellinfo %<>% mutate(time = piecestepid)
-  
-  gs <- list(cellinfo=cellinfo)
-  gs
-}
-
-
-get_combined_quant_scale <- function(simulations) {
-  combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
-  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
-  quant_scale_combined
-}
+pieces %>% filter(piecestateid == 4) %>% sample_n(5) %>% {pheatmap(t(invoke(rbind, .$expression)), cluster_cols=F, cluster_rows=F, gaps_col=cumsum(map_int(.$expression, ~nrow(.))))}
 
 
 
 
 
-plot_goldstandard <- function(experiment, gs) {
-  ##
-  combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
-  expression = combined[gs$cellinfo$cellid, ]
-  
-  expression = experiment$expression %>% set_rownames(experiment$cellinfo$simulationstepid)
-  ##
-  
-  #space = ica(expression, ndim = 2)
-  #space = tsne(expression, ndim = 2)
-  space = mds_isomds(expression, ndim = 2)
-  #space = dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
-  
-  plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cellid=rownames(.)) %>% left_join(gs$cellinfo, by="cellid")
-  ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp2, Comp1, color=piecestateid, group=simulationid))
-  
-  ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp2, Comp1, color=stepid, group=simulationid))
-}
+
+
+
+
+
+pheatmap(t(expression_modules_scaled), cluster_cols=F, cluster_rows=F, gaps_col = pieces %>% filter(simulationid == simulationidoi) %>% pull(end_stepid))
+
+
+
+
+##
+source("~/thesis/projects/dyngen/scripts/evaluation/methods/dimred.R")
+combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
+combined = combined[simulationstepinfo$simulationstepid, ]
+space = ica(combined, ndim = 2)
+space = tsne(combined, ndim = 2)
+space = dambiutils::mds_withlandmarks(combined, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+
+plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% bind_cols(simulationstepinfo)
+ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_path(aes(Comp1, Comp2, color=piecestateid, group=simulationid))
+
+
+
+
+###
+expression = experiment$expression %>% {log2(.+1)}
+rownames(expression) = experiment$cellinfo$simulationstepid
+source("~/thesis/projects/dyngen/scripts/evaluation/methods/dimred.R")
+space = ica(expression, ndim = 2)
+space = tsne(expression, ndim = 2)
+space = mds(expression, ndim = 2)
+space = mds_smacof(expression, ndim = 2)
+
+plotdata = bind_cols(space %>% as.data.frame, simulationstepinfo %>% slice(match(rownames(space), simulationstepid)))
+ggplot(plotdata) + geom_point(aes(Comp2, Comp1, color=factor(piecestateid)))# + viridis::scale_color_viridis(option="A")

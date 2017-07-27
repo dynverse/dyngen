@@ -1,7 +1,7 @@
 library(dplyr)
 
 .datasets_location = "/home/wouters/thesis/projects/dyngen/results/"
-.version = 1
+.version = 2
 
 
 refresh_datasets();refresh_experiments();refresh_goldstandards();refresh_models()
@@ -27,6 +27,8 @@ models = map(experimentsettings$modulenetname, ~generate_model(modulenetname = .
 models %>% walk(save_model)
 
 
+
+
 experimentsettings <- list(
   tibble(treeseed = c(10, 100, 1000, 10000, 100000, 1000000, 20, 200, 2000, 20000, 200000, 2000000), totaltime=20)
 ) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0("tree_", seq_along(treeseed)))
@@ -40,7 +42,7 @@ models %>% walk(save_model)
 
 run_settingid <- function(experimentid) {
   setting <- experimentsettings[experimentid,] %>% as.list()
-  experiment <- dyngen:::run_experiment(models[[experimentid]], setting$totaltime, ncells=setting$ncells)
+  experiment <- dyngen:::run_experiment(models[[experimentid]], setting$totaltime, ncells=setting$ncells, nsimulations=100)
   experiment
 }
 
@@ -53,9 +55,18 @@ experiment = run_settingid(1)
 experiments = parallel::mclapply(seq_len(nrow(experimentsettings)), run_settingid, mc.cores = 8)
 experiments %>% walk(save_experiment)
 
-experiments = map(readRDS("results/experiments.rds")$id, load_experiment, contents_experiment(T, T, T, T, T, T, T))
+experimentids = readRDS("results/experiments.rds")$id[grepl("2017_06_27", readRDS("results/experiments.rds")$id)]
+experiments = map(experimentids, load_experiment, contents_experiment(T, T, T, T, T, T, T))
+
+dyngen:::extract_goldstandard(experiments[[3]])
 
 ## Extract gold standard
+goldstandards = map(experiments, function(x){
+  library(magrittr)
+  library(tidyverse)
+  library(dambiutils)
+  dyngen:::extract_goldstandard(x)
+})#, qsub_environment = list2env(list()))
 goldstandards = mclapply(experiments, function(x){
   library(magrittr)
   library(tidyverse)
