@@ -1,7 +1,7 @@
 #' @export
 save_model = function(model, modelid=model$info$id) {
   model_folder = file.path(.datasets_location, "models/", modelid)
-  dir.create(model_folder)
+  dir.create(model_folder, recursive=TRUE)
   saveRDS(model, file.path(model_folder, "model.rds"))
   
   models = readRDS(file.path(.datasets_location, "models.rds"))
@@ -29,7 +29,7 @@ load_experiment = function(experimentid, contents=contents_experiment()) {
 #' @export
 save_experiment = function(experiment, experimentid=experiment$info$id) {
   experiment_folder = file.path(.datasets_location, "experiments/", experimentid)
-  dir.create(experiment_folder)
+  dir.create(experiment_folder, recursive=TRUE)
   purrr::walk(names(experiment), ~saveRDS(experiment[[.]], file.path(experiment_folder, paste0(., ".rds"))))
   
   experiments = readRDS(file.path(.datasets_location, "experiments.rds"))
@@ -46,7 +46,7 @@ delete_experiments = function(experimentids) {
 #' @export
 save_goldstandard = function(goldstandard, goldstandardid=goldstandard$info$id) {
   goldstandard_folder = file.path(.datasets_location, "goldstandards/", goldstandardid)
-  dir.create(goldstandard_folder)
+  dir.create(goldstandard_folder, recursive=TRUE)
   saveRDS(goldstandard, file.path(goldstandard_folder, "goldstandard.rds"))
   
   goldstandards = readRDS(file.path(.datasets_location, "goldstandards.rds"))
@@ -84,7 +84,7 @@ contents_model = function(model = TRUE) {
 #' @export
 save_dataset = function(dataset, datasetid=dataset$info$id) {
   dataset_folder = file.path(.datasets_location, "datasets/", datasetid)
-  dir.create(dataset_folder)
+  dir.create(dataset_folder, recursive=TRUE)
   purrr::walk(names(dataset), ~saveRDS(dataset[[.]], file.path(dataset_folder, paste0(., ".rds"))))
   
   datasets = readRDS(file.path(.datasets_location, "datasets.rds"))

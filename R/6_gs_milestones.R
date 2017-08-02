@@ -88,98 +88,98 @@ get_bias_density = function(bifurcation, experiment, cellinfo, gs, k=10) {
 
 get_bias = get_bias_knn
 
-get_milestones = function(experiment, gs) {
-  # construct the milestonenet
-  # similar to piecestatenet, but with deduplication of circular edges
-  # and added start-end milestones
-  
-  ## deduplication of cycles: from 1->1 to 1->2->3->1
-  maxprogressions = gs$reference$cellinfo %>% group_by(piecestateid) %>% summarise(maxprogression=max(progression)) %>% {set_names(.$maxprogression, .$piecestateid)}
-  milestonenet = gs$piecestatenet %>% select(from, to)
-  cellinfo = gs$cellinfo %>% mutate(piecestateid = as.numeric(piecestateid))
-  
-  milestone2piecestateid = unique(c(gs$piecestatenet$from, gs$piecestatenet$to)) %>% {set_names(., .)}
-  
-  if(nrow(milestonenet) > 0) {
-    maxpieceid = (milestonenet %>% select(from, to) %>% max) + 1 # next name for a pieceid
-    for (piecestateid in milestonenet %>% filter(from == to) %>% .$from) {
-      newpieces = c(piecestateid, seq(maxpieceid, length.out=2))
-      
-      progressionpartition = maxprogressions[[piecestateid]] / 3
-      
-      cellinfo[cellinfo$piecestateid == piecestateid, ] <- cellinfo[cellinfo$piecestateid == piecestateid, ] %>% mutate(
-        piecestateid = newpieces[ceiling(progression/progressionpartition)],
-        progression = progression %% progressionpartition
-      )
-      
-      milestone2piecestateid[as.character(newpieces)] = piecestateid
-      
-      maxprogressions <- c(maxprogressions, set_names(rep(progressionpartition, 2), as.character(newpieces[c(2, 3)])))
-      maxprogressions[[as.character(piecestateid)]] <- progressionpartition
-      
-      milestonenet <- bind_rows(milestonenet, tibble(from=c(newpieces), to=c(newpieces[c(2, 3,1)])))
-      
-      maxpieceid = maxpieceid + 2
-    }
-    milestonenet <- milestonenet %>% filter(from != to)
-  }
-  
-  # add terminal nodes
-  terminalnodes = gs$piecenet$piece %>% keep(!(. %in% milestonenet$from))
-  milestonenet = milestonenet %>% bind_rows(tibble(from = terminalnodes, to=seq(max(c(milestonenet$from, milestonenet$to)) + 1, length.out=length(terminalnodes))))
-  milestonenet$length = maxprogressions[milestonenet$from]
-  
-  
-  # piecestateids: where to get the reference cells, to which piecestates can these belong? nextpiecestateids: possible follow up piecestateids.; tentpiecestateid: the starting piecestateid for the tent
-  bifurcations = lapply(gs$piecestatenet %>% count(from) %>% filter(n>1) %>% .$from, function(bifurcation_piecestateid) {
-    nextpiecestateids = gs$piecestatenet %>% filter(from==bifurcation_piecestateid) %>% .$to
-    nextpiecestate_firststates = map_int(nextpiecestateids, ~gs$piecestates[[.]][[1]])
-    endmodules = experiment$model$modulenodes$module[match(nextpiecestate_firststates, experiment$model$modulenodes$state)]
-    
-    list(
-      piecestateids = bifurcation_piecestateid,
-      nextpiecestateids = nextpiecestateids,
-      tentpiecestateid = bifurcation_piecestateid,
-      endmodules = endmodules
-    )
-  })
-  
-  print(bifurcations)
-  
-  cellbiases = bifurcations %>% map(get_bias, experiment=experiment, gs=gs, cellinfo=cellinfo) %>% c(list(tibble(cell=cellinfo$cell)), .) %>% plyr::join_all(type="full", by="cell")
-  ## add end states
-  
-  percentages = lapply(seq_len(nrow(cellinfo)), function(cellid) {
-    cellinfo = cellinfo[cellid, ]
-    nextpiecestateids = milestonenet %>% filter(from == cellinfo$piecestateid) %>% .$to
-    
-    frompercentage = cellinfo$progression/maxprogressions[[as.character(cellinfo$piecestateid)]]
-    
-    if(length(nextpiecestateids) > 1) {
-      # if bifurcating
-      topercentages = cellbiases %>% filter(cell == cellinfo$cell) %>% .[, as.character(milestone2piecestateid[as.character(nextpiecestateids)])] %>% as.list() %>% unlist()
-    } else {
-      # if just progressing forward
-      topercentages = 1 %>% set_names(nextpiecestateids)
-    }
-    
-    percentages = (1-frompercentage) * topercentages
-    percentages[[as.character(cellinfo$piecestateid)]] = frompercentage
-    
-    tibble(cell=cellinfo$cell, percentage=percentages, milestone=as.numeric(names(percentages)))
-  }) %>% bind_rows()
-  percentages = percentages %>% spread(milestone, percentage, fill=0)
-  
-  milestonenet = milestonenet %>% mutate(from=as.character(from), to=as.character(to))
-  colnames(percentages) = as.character(colnames(percentages))
-  
-  named_list(
-    milestone_names = percentages %>% select(-cell) %>% colnames, 
-    milestone_net = milestonenet, 
-    milestone_percentages = percentages %>% rename(id=cell)#,
-    #milestone_percentages_notent = untent_percentages(milestonenet, percentages) %>% rename(id=cell)
-  )
-}
+# get_milestones = function(experiment, gs) {
+#   # construct the milestonenet
+#   # similar to piecestatenet, but with deduplication of circular edges
+#   # and added start-end milestones
+#   
+#   ## deduplication of cycles: from 1->1 to 1->2->3->1
+#   maxprogressions = gs$reference$cellinfo %>% group_by(piecestateid) %>% summarise(maxprogression=max(progression)) %>% {set_names(.$maxprogression, .$piecestateid)}
+#   milestonenet = gs$piecestatenet %>% select(from, to)
+#   cellinfo = gs$cellinfo %>% mutate(piecestateid = as.numeric(piecestateid))
+#   
+#   milestone2piecestateid = unique(c(gs$piecestatenet$from, gs$piecestatenet$to)) %>% {set_names(., .)}
+#   
+#   if(nrow(milestonenet) > 0) {
+#     maxpieceid = (milestonenet %>% select(from, to) %>% max) + 1 # next name for a pieceid
+#     for (piecestateid in milestonenet %>% filter(from == to) %>% .$from) {
+#       newpieces = c(piecestateid, seq(maxpieceid, length.out=2))
+#       
+#       progressionpartition = maxprogressions[[piecestateid]] / 3
+#       
+#       cellinfo[cellinfo$piecestateid == piecestateid, ] <- cellinfo[cellinfo$piecestateid == piecestateid, ] %>% mutate(
+#         piecestateid = newpieces[ceiling(progression/progressionpartition)],
+#         progression = progression %% progressionpartition
+#       )
+#       
+#       milestone2piecestateid[as.character(newpieces)] = piecestateid
+#       
+#       maxprogressions <- c(maxprogressions, set_names(rep(progressionpartition, 2), as.character(newpieces[c(2, 3)])))
+#       maxprogressions[[as.character(piecestateid)]] <- progressionpartition
+#       
+#       milestonenet <- bind_rows(milestonenet, tibble(from=c(newpieces), to=c(newpieces[c(2, 3,1)])))
+#       
+#       maxpieceid = maxpieceid + 2
+#     }
+#     milestonenet <- milestonenet %>% filter(from != to)
+#   }
+#   
+#   # add terminal nodes
+#   terminalnodes = gs$piecenet$piece %>% keep(!(. %in% milestonenet$from))
+#   milestonenet = milestonenet %>% bind_rows(tibble(from = terminalnodes, to=seq(max(c(milestonenet$from, milestonenet$to)) + 1, length.out=length(terminalnodes))))
+#   milestonenet$length = maxprogressions[milestonenet$from]
+#   
+#   
+#   # piecestateids: where to get the reference cells, to which piecestates can these belong? nextpiecestateids: possible follow up piecestateids.; tentpiecestateid: the starting piecestateid for the tent
+#   bifurcations = lapply(gs$piecestatenet %>% count(from) %>% filter(n>1) %>% .$from, function(bifurcation_piecestateid) {
+#     nextpiecestateids = gs$piecestatenet %>% filter(from==bifurcation_piecestateid) %>% .$to
+#     nextpiecestate_firststates = map_int(nextpiecestateids, ~gs$piecestates[[.]][[1]])
+#     endmodules = experiment$model$modulenodes$module[match(nextpiecestate_firststates, experiment$model$modulenodes$state)]
+#     
+#     list(
+#       piecestateids = bifurcation_piecestateid,
+#       nextpiecestateids = nextpiecestateids,
+#       tentpiecestateid = bifurcation_piecestateid,
+#       endmodules = endmodules
+#     )
+#   })
+#   
+#   print(bifurcations)
+#   
+#   cellbiases = bifurcations %>% map(get_bias, experiment=experiment, gs=gs, cellinfo=cellinfo) %>% c(list(tibble(cell=cellinfo$cell)), .) %>% plyr::join_all(type="full", by="cell")
+#   ## add end states
+#   
+#   percentages = lapply(seq_len(nrow(cellinfo)), function(cellid) {
+#     cellinfo = cellinfo[cellid, ]
+#     nextpiecestateids = milestonenet %>% filter(from == cellinfo$piecestateid) %>% .$to
+#     
+#     frompercentage = cellinfo$progression/maxprogressions[[as.character(cellinfo$piecestateid)]]
+#     
+#     if(length(nextpiecestateids) > 1) {
+#       # if bifurcating
+#       topercentages = cellbiases %>% filter(cell == cellinfo$cell) %>% .[, as.character(milestone2piecestateid[as.character(nextpiecestateids)])] %>% as.list() %>% unlist()
+#     } else {
+#       # if just progressing forward
+#       topercentages = 1 %>% set_names(nextpiecestateids)
+#     }
+#     
+#     percentages = (1-frompercentage) * topercentages
+#     percentages[[as.character(cellinfo$piecestateid)]] = frompercentage
+#     
+#     tibble(cell=cellinfo$cell, percentage=percentages, milestone=as.numeric(names(percentages)))
+#   }) %>% bind_rows()
+#   percentages = percentages %>% spread(milestone, percentage, fill=0)
+#   
+#   milestonenet = milestonenet %>% mutate(from=as.character(from), to=as.character(to))
+#   colnames(percentages) = as.character(colnames(percentages))
+#   
+#   named_list(
+#     milestone_names = percentages %>% select(-cell) %>% colnames, 
+#     milestone_net = milestonenet, 
+#     milestone_percentages = percentages %>% rename(id=cell)#,
+#     #milestone_percentages_notent = untent_percentages(milestonenet, percentages) %>% rename(id=cell)
+#   )
+# }
 
 
 

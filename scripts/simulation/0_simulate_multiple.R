@@ -11,23 +11,69 @@ list_datasets()
 
 ## Run experiments
 # Experiment settings
-nreplicates <- 1
-experimentsettings <- list(
-  tibble(modulenetname = "linear", totaltime=4, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "linear_long", totaltime=10, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "cycle", totaltime=20, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "consecutive_bifurcating", totaltime=6, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "bifurcating_convergence", totaltime=8, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "trifurcating", totaltime=8, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "bifurcating_cycle", totaltime=20, replicate=seq_len(nreplicates)),
-  tibble(modulenetname = "bifurcating_loop", totaltime=20, replicate=seq_len(nreplicates))
-) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0(modulenetname, "_", replicate))
+nreplicates <- 4
+modelgenerators = list(
+  list(modulenetname = "linear", totaltime=4),
+  list(modulenetname = "linear_long", totaltime=10),
+  list(modulenetname = "consecutive_bifurcating", totaltime=6),
+  list(modulenetname = "bifurcating_convergence", totaltime=8),
+  list(modulenetname = "trifurcating", totaltime=8),
+  list(modulenetname = "bifurcating_cycle", totaltime=20),
+  list(modulenetname = "bifurcating_loop", totaltime=20)
+)
+takesettings = list(
+  list(type="snapshot", ncells=500),
+  list(type="synchronized", ntimepoints=10)
+)
 
-models = map(experimentsettings$modulenetname, ~generate_model(modulenetname = .))
+expand_lists <- function(...) {
+  dots <- list(...)
+  map(dots, ~seq_len(length(.))) %>% 
+    expand.grid() %>% 
+    set_names(names(dots)) %>% 
+    {split(., seq_len(nrow(.)))} %>% 
+    map(function(x){
+      map2(seq_len(length(x)), x, ~dots[[.x]][[.y]]) %>% set_names(names(x))
+    }) %>% 
+    setNames(NULL)
+}
+
+.version = "3/"
+
+modelsettings <- expand_lists(modelgenerator=modelgenerators, replicate=seq_len(nreplicates))
+models <- map(modelsettings, function(modelsetting) {
+  model <- generate_model(modulenetname = modelsetting$modelgenerator$modulenetname)
+  model$info$id <- paste0(.version, modelsetting$modelgenerator$modulenetname, "_", modelsetting$replicate)
+  model$modelsetting <- modelsetting
+  model
+})
 models %>% walk(save_model)
 
+simulations <- mclapply(models, function(model) {
+  run_simulations(model, model$modelsetting$modelgenerator$totaltime, 2, 32, local=FALSE)
+}, mc.cores=16)
 
 
+goldstandards = map(simulations[1], function(x){
+  print("----")
+  library(magrittr)
+  library(tidyverse)
+  library(dambiutils)
+  dyngen:::extract_goldstandard(x)
+})#, qsub_environment = list2env(list()))
+
+
+
+
+experimentsettings <- expand.grid(simulation=seq_along(simulations), takesetting=seq_along(takesettings))
+experiments <- map2(experimentsettings$simulation, experimentsettings$takesetting, function(simulationid, takesettingid) {
+  experiment <- run_experiment(simulations[[simulationid]], takesettings[[takesettingid]])
+  experiment$info$modelid <- models[[simulationid]]$info$id
+  experiment$info$id <- paste0(models[[simulationid]]$info$id, "_", takesettings[[takesettingid]]$type)
+  experiment
+})
+
+###
 
 experimentsettings <- list(
   tibble(treeseed = c(10, 100, 1000, 10000, 100000, 1000000, 20, 200, 2000, 20000, 200000, 2000000), totaltime=20)
@@ -35,46 +81,31 @@ experimentsettings <- list(
 models = map(experimentsettings$treeseed, ~generate_model(treeseed = .))
 models %>% walk(save_model)
 
-
-
-
-
-
-run_settingid <- function(experimentid) {
-  setting <- experimentsettings[experimentid,] %>% as.list()
-  experiment <- dyngen:::run_experiment(models[[experimentid]], setting$totaltime, ncells=setting$ncells, nsimulations=100)
-  experiment
-}
-
-experiment = run_settingid(1)
-
-#experimentid = first(which(experimentsettings$modulenetname == "bifurcating_cycle"))
-#experiment = run_settingid(experimentid)
-#experiments = list(experiment)
-
-experiments = parallel::mclapply(seq_len(nrow(experimentsettings)), run_settingid, mc.cores = 8)
+###
 experiments %>% walk(save_experiment)
 
-experimentids = readRDS("results/experiments.rds")$id[grepl("2017_06_27", readRDS("results/experiments.rds")$id)]
+experimentids = readRDS("results/experiments.rds")$id[grepl("2017_08_01", readRDS("results/experiments.rds")$id)]
 experiments = map(experimentids, load_experiment, contents_experiment(T, T, T, T, T, T, T))
 
-dyngen:::extract_goldstandard(experiments[[3]])
+#dyngen:::extract_goldstandard(experiments[[3]])
 
 ## Extract gold standard
-goldstandards = map(experiments, function(x){
-  library(magrittr)
-  library(tidyverse)
-  library(dambiutils)
-  dyngen:::extract_goldstandard(x)
-})#, qsub_environment = list2env(list()))
+
+experiments = map(experiments, function(x) {x$simulations <- smoothe_simulations(x$simulations, x$model); x})
+
 goldstandards = mclapply(experiments, function(x){
   library(magrittr)
   library(tidyverse)
   library(dambiutils)
-  dyngen:::extract_goldstandard(x)
+  dyngen:::extract_goldstandard(x, smooth = FALSE)
 }, mc.cores = 8)#, qsub_environment = list2env(list()))
 walk(goldstandards, save_goldstandard)
 remove_duplicate_goldstandards()
+
+
+plots = map2(experiments, goldstandards, function(experiment, gs) {
+  cowplot::plot_grid(plotlist=unlist(plot_goldstandard(experiment, gs), recursive=FALSE), ncol=2)
+})
 
 
 experiment = load_experiment(datasetsinfo$experimentid[[10]], contents_experiment(T, T, T, T, T, T, T))

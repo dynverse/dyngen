@@ -109,6 +109,11 @@ extract_tobecomes <- function(simulations, piecestates) {
           curpiecestate = nextpiecestate[[1]]
         }
         
+        if(curpiecestate$type == "convergence" && !is.null(curpiecestate$modules)) {
+          await_low_expression = TRUE
+          await_low_expression_module = curpiecestate$modules
+        }
+        
         nextpiecestateid = NA
       }
     }
@@ -159,10 +164,9 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
   
   references = split(tobecomes_combined, seq_len(nrow(tobecomes_combined))) %>% map(function(x) map(x, ~.[[1]])) %>% {set_names(., map(., "piecestateid"))} # contains for each piecestate associated expression values for which it is known to which next piecestate this cell will progress
   
-  
-  pieces <- list()
-  
-  for (simulationidoi in seq_along(simulations)) {
+  pieces <- pbapply::pblapply(seq_along(simulations), function(simulationidoi) {
+    subpieces <- list()
+    
     expression_modules_scaled <- quant_scale_combined(simulations[[simulationidoi]]$expression_modules)
     subtobecomes <- tobecomes %>% keep(~.$simulationid == simulationidoi)
     
@@ -170,6 +174,7 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
     for (rowid in seq_along(subtobecomes)) {
       row <- subtobecomes[[rowid]]
       
+      # if current piecestateid is not a terminal state
       if(as.character(row$piecestateid) %in% names(piecestates)) {
         curpiecestate <- piecestates[[as.character(row$piecestateid)]]
         
@@ -199,7 +204,7 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
           
           reference = references[[as.character(curpiecestate$to)]]
           
-          for (i in seq(row$endstepid, nrow(expression_modules_scaled), 10)) {
+          for (i in seq(row$endstepid, nrow(expression_modules_scaled), 50)) {
             current_expression = expression_modules_scaled[i, ,drop=FALSE]
             distances = pdist::pdist(current_expression, reference$expression)@dist %>% tapply(reference$pieceid, min)
             
@@ -216,7 +221,7 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
           i <- row$endstepid
         }
         
-        pieces <- c(pieces, list(tibble(
+        subpieces <- c(subpieces, list(tibble(
           start_stepid = prevsplit, 
           end_stepid = i, 
           piecestateid = curpiecestate$piecestateid,
@@ -226,7 +231,7 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
         prevsplit <- i + 1
         
       } else {
-        pieces <- c(pieces, list(tibble(
+        subpieces <- c(subpieces, list(tibble(
           start_stepid = prevsplit, 
           end_stepid = row$endstepid, 
           piecestateid = row$piecestateid,
@@ -237,7 +242,12 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
         break()
       }
     }
-  }
+    
+    subpieces
+  })
+  
+  pieces <- unlist(pieces, recursive = FALSE)
+  
   pieces %>% bind_rows %>% 
     mutate(
       prevpiecestateid = ifelse(lagpad(simulationid) == simulationid, lagpad(piecestateid), NA), 
@@ -251,18 +261,65 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
 }
 
 
-extract_goldstandard <- function(experiment) {
-  experiment$simulations <- smoothe_simulations(experiment$simulations, experiment$model)
+extract_piece_times <- function(pieces, piecestates) {
+  map(unique(pieces$piecestateid), function(piecestateidoi) {
+    piecestate <- piecestates %>% keep(~.$piecestateid == piecestateidoi) 
+    if(length(piecestate)) {iscycle = piecestate[[1]] %>% {.$piecestateid %in% .$to}} else {iscycle=FALSE} # check whether this piecestate is a cycle, for circular averaging of times
+    
+    expressions <- pieces %>% filter(piecestateid==piecestateidoi) %>% .$expression 
+    expressions_filtered <- expressions %>% map(~.[as.integer(seq(1, nrow(.), length.out=min(20, nrow(.)))), ,drop=FALSE])
+    
+    combined <- expressions_filtered %>% invoke(rbind, .)
+    
+    init.traj = expressions_filtered[[expressions %>% map_int(nrow) %>% which.max]]
+    fit <- princurve::principal.curve(combined, start = init.traj, plot.true = F, trace = F, stretch = 0)
+    times <- fit$lambda / max(fit$lambda)
+    
+    splitAt <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
+    
+    times <- splitAt(times, (map_int(expressions_filtered, nrow) %>% cumsum) + 1) # split according to piece
+    
+    map(seq_along(expressions), function(pieceid) {
+      expressionoi <- expressions[[pieceid]]
+      expressionoi_filtered <- expressions_filtered[[pieceid]]
+      timesoi <- times[[pieceid]]
+      
+      #linear interpolation, only if we estimated time of a subsample of all steps
+      if(length(timesoi) < nrow(expressionoi)) {
+        approx(which(rownames(expressionoi) %in% rownames(expressionoi_filtered)), timesoi, seq_len(nrow(expressionoi)))$y %>% tibble(time=., cellid=rownames(expressionoi), scaletime = time/max(time))
+      } else {
+        tibble(time=timesoi, cellid=rownames(expressionoi), scaletime = timesoi/max(timesoi))
+      }
+    }) %>% bind_rows()
+  }) %>% bind_rows()
+}
+
+# due to a bug in smoothing, R will halt somewhere in C code if the smoothing is run in parallel. If you want to extract the gold standard in parallel, smooth beforehand
+extract_goldstandard <- function(experiment, verbose=FALSE, smooth=FALSE) {
+  gs <-  list(info=list(experimentid=experiment$info$id, id=dambiutils:::random_time_string()))
+  
+  # smoothing + calculating module expression
+  if(smooth) experiment$simulations <- smoothe_simulations(experiment$simulations, experiment$model)
+  
+  if(verbose) {print("raw division")}
   tobecomes <- extract_tobecomes(experiment$simulations, experiment$model$piecestates)
+  
+  if(verbose) {print("exact division")}
   pieces <- divide_pieces(experiment$simulations, tobecomes, experiment$model$piecestates)
   
   cellinfo <- pieces %>% unnest(cellid, stepid, piecestepid) %>% select(-start_stepid, -end_stepid)
   
-  cellinfo %<>% mutate(time = piecestepid)
+  if(verbose) {print("extracting times")}
+  cellinfo <- cellinfo %>% left_join(extract_piece_times(pieces, experiment$model$piecestates), by="cellid")
+  gs$cellinfo <- cellinfo
   
-  gs <- list(cellinfo=cellinfo)
+  if(verbose) {print("converting to milestones")}
+  gs <- c(gs, get_milestones(experiment, gs))
+  
   gs
 }
+
+#plot_goldstandard(experiment, gs)
 
 
 get_combined_quant_scale <- function(simulations) {
@@ -272,10 +329,6 @@ get_combined_quant_scale <- function(simulations) {
   quant_scale_combined
 }
 
-
-
-
-
 plot_goldstandard <- function(experiment, gs) {
   ##
   combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
@@ -284,13 +337,106 @@ plot_goldstandard <- function(experiment, gs) {
   expression = experiment$expression %>% set_rownames(experiment$cellinfo$simulationstepid)
   ##
   
-  #space = ica(expression, ndim = 2)
-  #space = tsne(expression, ndim = 2)
-  space = mds_isomds(expression, ndim = 2)
-  #space = dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+  source("scripts/evaluation/methods/dimred.R")
   
-  plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cellid=rownames(.)) %>% left_join(gs$cellinfo, by="cellid")
-  ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp2, Comp1, color=piecestateid, group=simulationid))
   
-  ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp2, Comp1, color=stepid, group=simulationid))
+  map(c(ica, tsne, mds, mds_smacof), function(space_func) {
+    space = space_func(expression, ndim = 2)
+    #space = mds_smacof(expression, ndim = 2)
+    #space = dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+    
+    plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cellid=rownames(.)) %>% left_join(gs$cellinfo, by="cellid")
+    
+    list(
+      ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp1, Comp2, color=piecestateid, group=simulationid))
+      ,
+      ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp1, Comp2, color=time, group=simulationid)) + viridis::scale_color_viridis()
+    )
+  })
 }
+
+
+plot_goldstandard_percentages <- function(experiment, gs) {
+  ##
+  combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
+  expression = combined[gs$cellinfo$cellid, ]
+  
+  expression = experiment$expression %>% set_rownames(experiment$cellinfo$simulationstepid)
+  ##
+  
+  source("scripts/evaluation/methods/dimred.R")
+  
+  map(c(ica, tsne, mds, mds_smacof), function(space_func) {
+    space = space_func(expression, ndim = 2)
+    #space = mds_smacof(expression, ndim = 2)
+    #space = dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+    
+    plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cellid=rownames(.)) %>% left_join(gs$cellinfo, by="cellid") %>% right_join(gs$percentages, by="cellid")
+    
+    list(
+      ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp1, Comp2, color=percentage)) + facet_wrap(~milestone) + viridis::scale_color_viridis(option="B", direction = -1)
+    )
+  })
+}
+
+
+
+
+get_milestones <- function(experiment, gs) {
+  # construct the milestonenet
+  # similar to piecestatenet, but with deduplication of circular edges
+  # and added start-end milestones
+  
+  piecestatenet <- map(experiment$model$piecestates, function(x) {if(is.null(x$to)){x$to = NA};data.frame(from=x$piecestateid, to=x$to)}) %>% bind_rows()
+  milestonenet <- piecestatenet
+  cellinfo <- gs$cellinfo %>% mutate(piecestateid = as.numeric(piecestateid))
+  
+  maxtimes <- gs$cellinfo %>% group_by(piecestateid) %>% summarise(maxtime=max(time)) %>% {set_names(.$maxtime, .$piecestateid)}
+  
+  milestone2piecestateid <- unique(c(piecestatenet$from, piecestatenet$to)) %>% keep(~!is.na(.)) %>% {set_names(., .)}
+  
+  
+  ## deduplication of cycles: from 1->1 to 1->2->3->1
+  if(nrow(milestonenet) > 0) {
+    maxpieceid <- (milestonenet %>% select(from, to) %>% max) + 1 # next name for a pieceid
+    
+    # divide each circular path in three subpaths (three milestones)
+    for (piecestateid in milestonenet %>% filter(from == to) %>% .$from) {
+      newpieces <- c(piecestateid, seq(maxpieceid, length.out=2))
+      
+      timepartition <- maxtimes[[piecestateid]] / 3
+      
+      cellinfo[cellinfo$piecestateid == piecestateid, ] <- cellinfo[cellinfo$piecestateid == piecestateid, ] %>% mutate(
+        piecestateid = newpieces[pmax(1, ceiling(time/timepartition))],
+        time = time %% timepartition
+      )
+      
+      milestone2piecestateid[as.character(newpieces)] <- piecestateid
+      
+      maxtimes <- c(maxtimes, set_names(rep(timepartition, 2), as.character(newpieces[c(2, 3)])))
+      maxtimes[[as.character(piecestateid)]] <- timepartition
+      
+      milestonenet <- bind_rows(milestonenet, tibble(from=c(newpieces), to=c(newpieces[c(2, 3,1)])))
+      
+      maxpieceid <- maxpieceid + 2
+    }
+    milestonenet <- milestonenet %>% filter(is.na(to) | (from != to))
+  }
+  
+  # add terminal nodes
+  terminalnodes <- c(milestonenet$from[is.na(milestonenet$to)], milestonenet$to[!(milestonenet$to %in% milestonenet$from)]) %>% keep(~!is.na(.))
+  milestonenet <- milestonenet %>% bind_rows(tibble(from = terminalnodes, to=seq(max(c(milestonenet$from, milestonenet$to) %>% keep(~!is.na(.))) + 1, length.out=length(terminalnodes)))) %>% filter(!is.na(to))
+  
+  milestonenet$length <- maxtimes[milestonenet$from]
+  
+  # join with milestonenet, find from percentage, use this to get to percentage(s) for every to
+  percentages <- cellinfo %>% left_join(milestonenet, by=c("piecestateid"="from")) %>% 
+    mutate(from=piecestateid, from_percentage=1-time/maxtimes[as.character(from)]) %>% 
+    group_by(cellid) %>% 
+    mutate(to_percentage=(1-from_percentage)/length(to)) %>% 
+    summarise(milestone=list(c(from, to)), percentage=list(c(from_percentage, to_percentage))) %>% 
+    unnest(milestone, percentage)
+  
+  tibble::lst(percentages, milestonenet)
+}
+

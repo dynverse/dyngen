@@ -79,8 +79,6 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
   }
   timepoints
 }
-
-
 ## Get the molecules matrix of multiple cells
 #' @import dplyr
 simulate_one_cell = function(model, burntime, totaltime, ncells=500, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
@@ -108,7 +106,7 @@ simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_
 
 #' @import dplyr
 #' @import purrr
-simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, endonly=F, local=F, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
+simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, endonly=F, allcells=TRUE, local=F, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf, qsub_environment = formalArgs(simulate_multiple_cells_split))}
@@ -120,7 +118,11 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
     cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)
     
     if(!endonly) {
-      sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspersimulation)))
+      if(!allcells) {
+        sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspersimulation)))
+      } else {
+        sampleids = seq_len(length(cell$times))
+      }
     } else {
       sampleids = length(cell$times) # only the last cell
     }
@@ -137,6 +139,63 @@ simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulation
     do.call(c, map(moleculess, "stepids")),
     map(moleculess, "simulation")
   )
+}
+
+
+
+simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
+  force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
+  if(!local) {
+    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = formalArgs(simulate_multiple_cells_split))}
+  } else {
+    multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 1)}
+  }
+  
+  simulations = multilapply(seq_len(nsimulations), function(i) {
+    cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)
+    
+    rownames(cell$molecules) = paste0(i, "_", seq_len(nrow(cell$molecules)))
+    
+    expression = cell$molecules[,str_detect(colnames(cell$molecules), "x_")]
+    colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
+    stepinfo = tibble(stepid = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times)
+    
+    tibble::lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
+  })
+  
+  simulations
+}
+
+take_experiment_cells <- function(simulations, takesettings = list(type="snapshot", ncells=500)) {
+  #takesettings = list(type="snapshot", ncells=500)
+  #takesettings = list(type="synchronized", ntimepoints=10)
+  
+  if(takesettings$type == "snapshot"){
+    ncellspersimulation <- ceiling(takesettings$ncells/length(simulations))
+    samples <- map(simulations, function(simulation) {
+      sampleids <- sample(seq_len(nrow(simulation$expression)), ncellspersimulation)
+      list(
+        expression=simulation$expression[sampleids, ],
+        cellinfo=simulation$stepinfo[sampleids, ]
+      )
+    })
+  } else if(takesettings$type == "synchronized") {
+    totaltime <- max(simulations[[1]]$stepinfo$simulationtime)
+    timepoints <- seq(0, totaltime, length.out=takesettings$ntimepoints)
+    
+    samples <- map(simulations, function(simulation) {
+      sampleids <- map_int(timepoints, ~which.min(abs(simulation$stepinfo$simulationtime - .)))
+      list(
+        expression=simulation$expression[sampleids, ],
+        cellinfo=simulation$stepinfo[sampleids, ] %>% mutate(timepoint=factor(timepoints))
+      )
+    })
+  }
+  expression <- map(samples, "expression") %>% purrr::invoke(rbind, .)
+  rownames(expression) <- paste0("C", seq_len(nrow(expression)))
+  cellinfo <- map(samples, "cellinfo") %>% bind_rows() %>% mutate(cellid=rownames(expression))
+  
+  tibble::lst(cellinfo, expression)
 }
 
 #' @import dplyr

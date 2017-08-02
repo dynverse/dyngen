@@ -23,42 +23,40 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, genestartid=0, verb
   model$burngenes = determine_burngenes(model)
   
   model$info = generate_model_info()
-  
   model$ti = list(type=modulenetname, generator="modulenet_barabasi", generatorinfo = list())
   
   model
 }
 
 generate_model_info <- function() {
-  list(date=date(), version=1, id=dambiutils:::random_time_string())
+  list(date=date(), id=paste0(.version, "/", dambiutils:::random_time_string()))
 }
 
+#' @import tidyverse
+run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
+  simulations <- simulate_multiple(model, burntime, totaltime, nsimulations, local, ssa.algorithm=fastgssa::ssa.em(noise_strength=2))
+  tibble::lst(simulations, model)
+}
 
 #' @import tidyverse
-run_experiment = function(model, totaltime, burntime=2, nsimulations = 40, ncells = 500, local=F) {
-  #newtime = estimate_convergence(8, verbose=T, totaltime=15) %>% max() %>% {.+1}
-  
-  #experiment = simulate_multiple_cells(model, burntime, totaltime, ncells=1000)
-  #experiment = simulate_one_cell(model, burntime, totaltime, ncells=NULL, ssa.algorithm=ssa.em(noise_strength=2))
-  experiment = simulate_multiple_cells_split(model, burntime, totaltime, nsimulations = nsimulations, ncellspersimulation = ceiling(ncells/nsimulations), ssa.algorithm=fastgssa::ssa.em(noise_strength=2), local=local)
-  class(experiment) = "dyngen::experiment"
-  
-  experiment$model = model
+run_experiment <- function(experiment, add_housekeeping=TRUE) {
+  experiment = c(experiment, take_experiment_cells(experiment$simulations))
   
   additional_data = add_housekeeping_poisson(experiment$expression, experiment$model$geneinfo)
   experiment$expression = additional_data$expression
   experiment$geneinfo = additional_data$geneinfo
   
-  # get module counts
+  experiment$info = list(date=date(), id=paste0(.version, "/", dambiutils:::random_time_string()), modelid=model$info$id)
+  
+  experiment
+}
+
+plot_experiment <- function(experiment) {
   experiment$expression_modules = get_module_counts(experiment$expression, experiment$model$modulemembership)
   
   pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules) %>% t, cluster_cols=F)
   pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression) %>% t, cluster_cols=F, labels_row=experiment$model$geneinfo$name)
   experiment$expression_modules %>% reshape2::melt(varnames=c("cell", "module"), value.name="expression") %>% ggplot() + geom_histogram(aes(expression)) + facet_wrap(~module) + geom_vline(xintercept = 2)
-  
-  experiment$info = list(date=date(), id = dambiutils:::random_time_string(), modelid=model$info$id)
-  
-  experiment
 }
 
 #' @import tidyverse
@@ -70,7 +68,7 @@ run_scrnaseq = function(experiment, platform) {
   
   #pheatmap::pheatmap(SCORPIUS::quant.scale(dataset$counts) %>% t, cluster_cols=F)
   
-  dataset$info = list(experimentid=experiment$info$id, platformname=platform$platformname, id=dambiutils:::random_time_string(), version=.version)
+  dataset$info = list(experimentid=experiment$info$id, platformname=platform$platformname, id=paste0(.version, "/", dambiutils:::random_time_string()))
   
   dataset
 }
@@ -107,7 +105,7 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(verbose) print(">> extracting milestones")
   #gs <- c(get_milestones(experiment, gs), gs)
   
-  gs$info = list(experimentid=experiment$info$id, version=1, id=dambiutils:::random_time_string())
+  gs$info = list(experimentid=experiment$info$id, id=paste0(.version, "/", dambiutils:::random_time_string()))
   
   gs
 }
