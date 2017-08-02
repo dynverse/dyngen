@@ -59,7 +59,7 @@ goldstandards = map(simulations[1], function(x){
   library(magrittr)
   library(tidyverse)
   library(dambiutils)
-  dyngen:::extract_goldstandard(x)
+  dyngen:::extract_goldstandard(x, smooth=TRUE)
 })#, qsub_environment = list2env(list()))
 
 

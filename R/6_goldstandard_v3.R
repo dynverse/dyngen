@@ -296,8 +296,6 @@ extract_piece_times <- function(pieces, piecestates) {
 
 # due to a bug in smoothing, R will halt somewhere in C code if the smoothing is run in parallel. If you want to extract the gold standard in parallel, smooth beforehand
 extract_goldstandard <- function(experiment, verbose=FALSE, smooth=FALSE) {
-  gs <-  list(info=list(experimentid=experiment$info$id, id=dambiutils:::random_time_string()))
-  
   # smoothing + calculating module expression
   if(smooth) experiment$simulations <- smoothe_simulations(experiment$simulations, experiment$model)
   
