@@ -110,7 +110,7 @@ modulenet_to_genenet = function(modulenet, modulenodes, genestartid=0) {
   modulemembership = convertedmodulenet$modulemembership
   
   allgenes = tfs = sort(unique(union(net$from, net$to)))
-  #net = add_targets_shared(net)
+  net = add_targets_shared(net, geneinfo=tibble(gene=allgenes, tf=TRUE))$net
   net$effect[net$effect == 0] = sample(c(1, -1), sum(net$effect == 0), replace=T)
   net = bind_rows(net, tibble(from=last(tfs), to=max(net$to)+1, effect=1, strength=1, cooperativity=2)) # add death marker
   

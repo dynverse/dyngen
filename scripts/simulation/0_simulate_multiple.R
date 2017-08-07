@@ -1,16 +1,9 @@
 library(dplyr)
 
 .datasets_location = "/home/wouters/thesis/projects/dyngen/results/"
-.version = 2
 
 
-refresh_datasets();refresh_experiments();refresh_goldstandards();refresh_models()
-
-
-list_datasets()
-
-## Run experiments
-# Experiment settings
+# Model settings
 nreplicates <- 4
 modelgenerators = list(
   list(modulenetname = "linear", totaltime=4),
@@ -42,36 +35,102 @@ expand_lists <- function(...) {
 
 modelsettings <- expand_lists(modelgenerator=modelgenerators, replicate=seq_len(nreplicates))
 models <- map(modelsettings, function(modelsetting) {
-  model <- generate_model(modulenetname = modelsetting$modelgenerator$modulenetname)
-  model$info$id <- paste0(.version, modelsetting$modelgenerator$modulenetname, "_", modelsetting$replicate)
+  generate_model(modulenetname = modelsetting$modelgenerator$modulenetname)
+})
+models <- map2(models, modelsettings, function(model, modelsetting) {
+  model$info <- list(
+    id = paste0(.version, modelsetting$modelgenerator$modulenetname, "_", modelsetting$replicate)
+  )
   model$modelsetting <- modelsetting
   model
 })
-models %>% walk(save_model)
+saver(models, "models")
 
 simulations <- mclapply(models, function(model) {
-  run_simulations(model, model$modelsetting$modelgenerator$totaltime, 2, 32, local=FALSE)
-}, mc.cores=16)
+  simulations <-run_simulations(model, model$modelsetting$modelgenerator$totaltime, 2, 32, local=FALSE)
+}, mc.cores=8)
+simulations <- map(simulations, function(x) {x$simulations <- smoothe_simulations(x$simulations, x$model); x})
+simulations <- map(simulations, function(simulation) {
+  simulation$info <- list(
+    id = paste0(simulation$model$info$id),
+    modelid = simulation$model$info$id
+  )
+  simulation
+})
+saver(simulations, "simulations")
 
+sub = simulations %>% map(function(simulations) {
+  simulations$simulations = map(simulations$simulations, ~list(expression_modules = .$expression_modules))
+  simulations
+})
 
-goldstandards = map(simulations[1], function(x){
+goldstandards <- pbapply::pblapply(sub, function(x){
   print("----")
   library(magrittr)
   library(tidyverse)
   library(dambiutils)
-  dyngen:::extract_goldstandard(x, smooth=TRUE)
-})#, qsub_environment = list2env(list()))
+  dyngen:::extract_goldstandard(x, smooth=FALSE)
+})#, mc.cores=8)#, qsub_environment = list2env(list()))
+goldstandards <- map2(goldstandards, simulations, function(gs, simulation) {
+  gs$info <- list(id=simulation$info$id, simulationid = simulation$info$id, modelid = simulation$info$modelid)
+  gs
+})
 
-
-
+saver(goldstandards, "goldstandards")
 
 experimentsettings <- expand.grid(simulation=seq_along(simulations), takesetting=seq_along(takesettings))
 experiments <- map2(experimentsettings$simulation, experimentsettings$takesetting, function(simulationid, takesettingid) {
   experiment <- run_experiment(simulations[[simulationid]], takesettings[[takesettingid]])
   experiment$info$modelid <- models[[simulationid]]$info$id
+  experiment$info$goldstandardid <- goldstandards[[simulationid]]$info$id
+  experiment$info$simulationid <- simulations[[simulationid]]$info$id
   experiment$info$id <- paste0(models[[simulationid]]$info$id, "_", takesettings[[takesettingid]]$type)
   experiment
 })
+saver(experiments, "experiments")
+
+# make gold standard plots
+walk(experiments, function(experiment) {
+  print(experiment$info$id)
+  gs <- goldstandards %>% keep(~(.$info$id == experiment$info$goldstandardid)) %>% first
+  
+  plot = plot_goldstandard(experiment, gs) %>% unlist(recursive=FALSE) %>% 
+    cowplot::plot_grid(plotlist = ., ncol=2) %>% add_sub(experiment$info$id)
+  
+  dir.create(dirname(paste0("images/", experiment$info$id, ".png")), recursive = TRUE)
+  ggsave(paste0("images/", experiment$info$id, ".png"), plot, width = 10, height=10)
+})
+
+
+
+## Run scRNAseq
+platforms = readr::read_tsv("data/platforms.tsv")
+# platforms2 = expand.grid(sequencerate = c(seq_len(10)/10), cellcapturerate = seq_len(10)/10) %>% as.data.frame()
+# platforms = platforms[1, ] %>% select(-sequencerate, -cellcapturerate) %>% data.frame(platforms2)
+# platforms$platformname = seq_len(nrow(platforms)) %>% as.character
+datasets = lapply(experiments, function(experiment) {
+  lapply(seq_len(nrow(platforms)), function(platformid) {
+    platform = platforms[platformid, ] %>% as.list
+    dataset = dyngen:::run_scrnaseq(experiment, platform)
+    dataset$info = experiment$info
+    dataset$info$experimentid <- experiment$info$id
+    dataset$info$id <- paste0(experiment$info$id, "_", platform$platformname)
+    dataset
+  })
+}) %>% unlist(recursive=F)
+saver(datasets, "datasets")
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###
 
@@ -87,45 +146,12 @@ experiments %>% walk(save_experiment)
 experimentids = readRDS("results/experiments.rds")$id[grepl("2017_08_01", readRDS("results/experiments.rds")$id)]
 experiments = map(experimentids, load_experiment, contents_experiment(T, T, T, T, T, T, T))
 
-#dyngen:::extract_goldstandard(experiments[[3]])
-
-## Extract gold standard
-
-experiments = map(experiments, function(x) {x$simulations <- smoothe_simulations(x$simulations, x$model); x})
-
-goldstandards = mclapply(experiments, function(x){
-  library(magrittr)
-  library(tidyverse)
-  library(dambiutils)
-  dyngen:::extract_goldstandard(x, smooth = FALSE)
-}, mc.cores = 8)#, qsub_environment = list2env(list()))
-walk(goldstandards, save_goldstandard)
-remove_duplicate_goldstandards()
-
 
 plots = map2(experiments, goldstandards, function(experiment, gs) {
   cowplot::plot_grid(plotlist=unlist(plot_goldstandard(experiment, gs), recursive=FALSE), ncol=2)
 })
 
 
-experiment = load_experiment(datasetsinfo$experimentid[[10]], contents_experiment(T, T, T, T, T, T, T))
-gs = extract_goldstandard(experiment)
-gs %>% save_goldstandard()
-remove_duplicate_goldstandards()
-
-
-## Run scRNAseq
-platforms = readr::read_tsv("data/platforms.tsv")
-# platforms2 = expand.grid(sequencerate = c(seq_len(10)/10), cellcapturerate = seq_len(10)/10) %>% as.data.frame()
-# platforms = platforms[1, ] %>% select(-sequencerate, -cellcapturerate) %>% data.frame(platforms2)
-# platforms$platformname = seq_len(nrow(platforms)) %>% as.character
-datasets = lapply(experiments, function(experiment) {
-  lapply(seq_len(nrow(platforms)), function(platformid) {
-    platform = platforms[platformid, ] %>% as.list
-    dataset = dyngen:::run_scrnaseq(experiment, platform)
-  })
-}) %>% unlist(recursive=F)
-datasets %>% walk(save_dataset)
 
 ## Sync to prism
 PRISM:::rsync_remote("", "~/thesis/projects/dyngen/results", "prism", "/group/irc/shared/dyngen_results")

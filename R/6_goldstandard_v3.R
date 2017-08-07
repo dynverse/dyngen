@@ -231,13 +231,15 @@ divide_pieces <- function(simulations, tobecomes, piecestates) {
         prevsplit <- i + 1
         
       } else {
-        subpieces <- c(subpieces, list(tibble(
-          start_stepid = prevsplit, 
-          end_stepid = row$endstepid, 
-          piecestateid = row$piecestateid,
-          simulationid = simulationidoi,
-          expression = list(expression_modules_scaled[seq(prevsplit, row$endstepid),,drop=F])
-        )))
+        if(prevsplit < row$endstepid) {
+          subpieces <- c(subpieces, list(tibble(
+            start_stepid = prevsplit, 
+            end_stepid = row$endstepid, 
+            piecestateid = row$piecestateid,
+            simulationid = simulationidoi,
+            expression = list(expression_modules_scaled[seq(prevsplit, row$endstepid),,drop=F])
+          )))
+        }
         
         break()
       }
@@ -296,6 +298,8 @@ extract_piece_times <- function(pieces, piecestates) {
 
 # due to a bug in smoothing, R will halt somewhere in C code if the smoothing is run in parallel. If you want to extract the gold standard in parallel, smooth beforehand
 extract_goldstandard <- function(experiment, verbose=FALSE, smooth=FALSE) {
+  gs <- list()
+  
   # smoothing + calculating module expression
   if(smooth) experiment$simulations <- smoothe_simulations(experiment$simulations, experiment$model)
   
@@ -327,13 +331,16 @@ get_combined_quant_scale <- function(simulations) {
   quant_scale_combined
 }
 
-plot_goldstandard <- function(experiment, gs) {
+plot_goldstandard <- function(experiment, gs, simulations=NULL) {
   ##
-  combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
-  expression = combined[gs$cellinfo$cellid, ]
+  if(!is.null(simulations)) {
+    combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
+    expression = combined[gs$cellinfo$cellid, ]
+  } else {
+    expression = experiment$expression %>% set_rownames(experiment$cellinfo$stepid)
+  }
   
-  expression = experiment$expression %>% set_rownames(experiment$cellinfo$simulationstepid)
-  ##
+  expression = log2(expression + 1)
   
   source("scripts/evaluation/methods/dimred.R")
   
@@ -361,6 +368,8 @@ plot_goldstandard_percentages <- function(experiment, gs) {
   
   expression = experiment$expression %>% set_rownames(experiment$cellinfo$simulationstepid)
   ##
+  
+  expression = log2(expression + 1)
   
   source("scripts/evaluation/methods/dimred.R")
   

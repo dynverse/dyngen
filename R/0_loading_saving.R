@@ -1,140 +1,46 @@
+#' List all datasets
+#' @import dplyr
 #' @export
-save_model = function(model, modelid=model$info$id) {
-  model_folder = file.path(.datasets_location, "models/", modelid)
-  dir.create(model_folder, recursive=TRUE)
-  saveRDS(model, file.path(model_folder, "model.rds"))
+list_datasets = function() overviewer("datasets")
+
+#' Save a dataset of a particular type
+#' @import dplyr
+#' @export
+saver <- function(x, type) {
+  newoverview <- map(x, ~.$info) %>% bind_rows()
   
-  models = readRDS(file.path(.datasets_location, "models.rds"))
-  models %>% filter(id != modelid) %>% bind_rows(model$info) %>% saveRDS(file.path(.datasets_location, "models.rds"))
-}
-#' @export
-load_model = function(modelid, contents=contents_model()) {
-  model_folder = file.path(.datasets_location, "models/", modelid)
-  readRDS(file.path(model_folder, "model.rds"))
-}
-
-#' @export
-contents_experiment = function(molecules=FALSE, cellinfo=TRUE, expression=TRUE, simulations=FALSE, model=TRUE, expression_modules=FALSE, info=TRUE) {
-  as.list(environment(), all=TRUE)
-}
-#' @export
-load_experiment = function(experimentid, contents=contents_experiment()) {
-  experiment = list()
-  experiment_folder = file.path(.datasets_location, "/experiments/", experimentid)
-  loadin = names(contents)[purrr::map_lgl(contents, ~.)]
-  experiment = purrr::map(loadin, ~readRDS(file.path(experiment_folder, paste0(., ".rds"))))
-  names(experiment) = loadin
-  experiment
-}
-#' @export
-save_experiment = function(experiment, experimentid=experiment$info$id) {
-  experiment_folder = file.path(.datasets_location, "experiments/", experimentid)
-  dir.create(experiment_folder, recursive=TRUE)
-  purrr::walk(names(experiment), ~saveRDS(experiment[[.]], file.path(experiment_folder, paste0(., ".rds"))))
+  for(xi in x) {
+    path <- paste0(.datasets_location, "/", type, "/", xi$info$id, ".rds")
+    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+    saveRDS(xi, path)
+  }
   
-  experiments = readRDS(file.path(.datasets_location, "experiments.rds"))
-  experiments %>% filter(id != experimentid) %>% bind_rows(experiment$info) %>% saveRDS(file.path(.datasets_location, "experiments.rds"))
-  print(experiments %>% filter(id != experimentid) %>% bind_rows(experiment$info))
-}
-#' @export
-delete_experiments = function(experimentids) {
-  purrr::walk(experimentids, ~unlink(file.path(.datasets_location, "experiments/", .), T))
-  experiments = readRDS(file.path(.datasets_location, "experiments.rds"))
-  experiments %>% filter(!(id %in% experimentids))  %>% saveRDS(file.path(.datasets_location, "experiments.rds"))
-}
-
-#' @export
-save_goldstandard = function(goldstandard, goldstandardid=goldstandard$info$id) {
-  goldstandard_folder = file.path(.datasets_location, "goldstandards/", goldstandardid)
-  dir.create(goldstandard_folder, recursive=TRUE)
-  saveRDS(goldstandard, file.path(goldstandard_folder, "goldstandard.rds"))
+  overview_location <- paste0(.datasets_location, "/", type, ".rds")
+  overview <- if(file.exists(overview_location)) {readRDS(paste0(.datasets_location, "/", type, ".rds"))} else {tibble()  }
   
-  goldstandards = readRDS(file.path(.datasets_location, "goldstandards.rds"))
-  goldstandards %>% filter(id != goldstandardid) %>% bind_rows(goldstandard$info) %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
+  overview %>% 
+    filter(!(id %in% newoverview$id)) %>% 
+    bind_rows(newoverview) %>% 
+    saveRDS(paste0(.datasets_location, "/", type, ".rds"))
 }
 
+#' Generate an overview data.frame for a particular type of data
+#' @example overviewer("datasets")
+#' @import dplyr
 #' @export
-load_goldstandard = function(goldstandardid, contents=contents_goldstandard()) {
-  goldstandard_folder = file.path(.datasets_location, "goldstandards/", goldstandardid)
-  readRDS(file.path(goldstandard_folder, "goldstandard.rds"))
-}
-#' @export
-delete_goldstandards = function(goldstandardids) {
-  purrr::walk(goldstandardids, ~unlink(file.path(.datasets_location, "goldstandards/", .), T))
-  goldstandards = readRDS(file.path(.datasets_location, "goldstandards.rds"))
-  goldstandards %>% filter(!(id %in% goldstandardids))  %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
+overviewer <- function(type) {
+  overview_location <- paste0(.datasets_location, "/", type, ".rds")
+  if(file.exists(overview_location)) {readRDS(paste0(.datasets_location, "/", type, ".rds"))} else {tibble(id=character())  }
 }
 
+#' Load multiple datasets of one type
 #' @import dplyr
 #' @export
-contents_dataset = function(counts=TRUE, platform=TRUE, experiment=contents_experiment(), goldstandard=contents_goldstandard(), model=contents_model(), info=TRUE) {
-  as.list(environment(), all=TRUE)
-}
-#' @import dplyr
-#' @export
-contents_goldstandard = function(goldstandard = TRUE) {
-  as.list(environment(), all=TRUE)
-}
-#' @import dplyr
-#' @export
-contents_model = function(model = TRUE) {
-  as.list(environment(), all=TRUE)
-}
-#' @import dplyr
-#' @export
-save_dataset = function(dataset, datasetid=dataset$info$id) {
-  dataset_folder = file.path(.datasets_location, "datasets/", datasetid)
-  dir.create(dataset_folder, recursive=TRUE)
-  purrr::walk(names(dataset), ~saveRDS(dataset[[.]], file.path(dataset_folder, paste0(., ".rds"))))
+loader <- function(x, type) {
+  overview <- overviewer(type)
   
-  datasets = readRDS(file.path(.datasets_location, "datasets.rds"))
-  datasets %>% filter(id != datasetid) %>% bind_rows(dataset$info) %>% saveRDS(file.path(.datasets_location, "datasets.rds"))
+  map(x, function(xi) {
+    path <- paste0(.datasets_location, "/", type, "/", xi, ".rds")
+    readRDS(path)
+  })
 }
-#' @import dplyr
-#' @export
-list_datasets = function() {
-  readRDS(file.path(.datasets_location, "datasets.rds")) %>% 
-    left_join(readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% select(-version) %>% rename(goldstandardid=id), by="experimentid") %>%
-    left_join(readRDS(file.path(.datasets_location, "experiments.rds")) %>% select(-version) %>% rename(experimentid=id), by="experimentid")
-}
-#' @import dplyr
-#' @export
-load_dataset = function(datasetid, contents = contents_dataset()) {
-  combinedinfo = list_datasets() %>% filter(id==datasetid) %>% as.list()
-  
-  dataset = list()
-  dataset_folder = file.path(.datasets_location, "/datasets/", datasetid)
-  contents2 = keep(contents, ~!is_logical(.)) # all additional contents, not directly loaded from a dataset
-  contents = keep(contents, ~is_logical(.)) # all contents loaded from a dataset
-  loadin = names(contents)[purrr::map_lgl(contents, ~.)]
-  dataset = purrr::map(loadin, ~readRDS(file.path(dataset_folder, paste0(., ".rds"))))
-  names(dataset) = loadin
-  if(is.list(contents2$experiment)) dataset$experiment = load_experiment(dataset$info$experimentid, contents2$experiment)
-  if(is.list(contents2$goldstandard)) dataset$gs = load_goldstandard(combinedinfo$goldstandardid, contents2$goldstandard)
-  if(is.list(contents2$model)) dataset$model = load_model(combinedinfo$modelid, contents2$model)
-  dataset
-}
-
-
-
-#' @import dplyr
-#' @export
-refresh_experiments = function() readRDS(file.path(.datasets_location, "experiments.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "experiments/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "experiments.rds"))
-
-#' @import dplyr
-#' @export
-refresh_models = function() readRDS(file.path(.datasets_location, "models.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "models/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "models.rds"))
-
-#' @import dplyr
-#' @export
-refresh_datasets = function() readRDS(file.path(.datasets_location, "datasets.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "datasets/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "datasets.rds"))
-
-#' @import dplyr
-#' @export
-refresh_goldstandards = function() readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% filter(id %in% list.dirs(file.path(.datasets_location, "goldstandards/."), full.names=F)) %>% saveRDS(file.path(.datasets_location, "goldstandards.rds"))
-
-#' @import dplyr
-remove_duplicate_goldstandards = function() {
-  readRDS(file.path(.datasets_location, "goldstandards.rds")) %>% group_by(experimentid) %>% filter(row_number() < n()) %>% .$id %>% delete_goldstandards()
-}
-#walk(c("experiments.rds", "models.rds", "datasets.rds", "goldstandards.rds"), function(x) {tibble() %>% write_rds(file.path(.datasets_location, x))})

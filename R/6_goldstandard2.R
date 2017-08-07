@@ -50,9 +50,10 @@ get_piecestates = function(piecenet) {
 #' @import dplyr
 smoothe_simulations = function(simulations, model) {
   newdata = lapply(simulations, function(simulation) {
-    expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(simulation$expression))
-    expression_modules = get_module_counts(expression_smooth, model$modulemembership)
-    list(expression_smooth = expression_smooth, expression_modules=expression_modules)
+    #expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(simulation$expression))
+    expression_modules = get_module_counts(simulation$expression, model$modulemembership)
+    expression_smooth = expression_modules %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(expression_modules))
+    list(expression_modules=expression_modules)
   })
   for (simulationid in seq_len(length(simulations))) {
     simulations[[simulationid]] = c(simulations[[simulationid]], newdata[[simulationid]])

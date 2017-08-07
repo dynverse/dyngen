@@ -39,14 +39,12 @@ run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, l
 }
 
 #' @import tidyverse
-run_experiment <- function(experiment, add_housekeeping=TRUE) {
-  experiment = c(experiment, take_experiment_cells(experiment$simulations))
+run_experiment <- function(simulation, takesettings, add_housekeeping=TRUE) {
+  experiment = take_experiment_cells(simulation$simulations, takesettings)
   
-  additional_data = add_housekeeping_poisson(experiment$expression, experiment$model$geneinfo)
+  additional_data = add_housekeeping_poisson(experiment$expression, simulation$model$geneinfo)
   experiment$expression = additional_data$expression
   experiment$geneinfo = additional_data$geneinfo
-  
-  experiment$info = list(date=date(), id=paste0(.version, "/", dambiutils:::random_time_string()), modelid=model$info$id)
   
   experiment
 }
@@ -67,8 +65,6 @@ run_scrnaseq = function(experiment, platform) {
   dataset$platform = platform
   
   #pheatmap::pheatmap(SCORPIUS::quant.scale(dataset$counts) %>% t, cluster_cols=F)
-  
-  dataset$info = list(experimentid=experiment$info$id, platformname=platform$platformname, id=paste0(.version, "/", dambiutils:::random_time_string()))
   
   dataset
 }
