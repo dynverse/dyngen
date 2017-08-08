@@ -79,76 +79,13 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
   }
   timepoints
 }
-## Get the molecules matrix of multiple cells
-#' @import dplyr
-simulate_one_cell = function(model, burntime, totaltime, ncells=500, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  cell = simulate_cell(model, deterministic = T, burntime=burntime, totaltime=totaltime, ssa.algorithm=ssa.algorithm)
-  if(!is.null(ncells)) {
-    sampleids = sort(sample(length(cell$times), min(length(cell$times), ncells)))
-  } else {
-    sampleids = seq_len(length(cell$times))
-  }
-  celltimes = cell$times[sampleids]
-  molecules = cell$molecules[sampleids,]
-  
-  process_simulation(molecules, celltimes, 1, list(molecules))
-}
-
-#' @import dplyr
-simulate_multiple_cells = function(model, burntime, totaltime, ncells=500, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  celltimes = runif(ncells, 0, totaltime)
-  #cells = mclapply(celltimes, simulate_cell, mc.cores=8, deterministic=T)
-  cells = PRISM::qsub_lapply(celltimes, function(celltime) {simulate_cell(model, celltime, deterministic=T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)}, qsub_config = qsub_conf)
-  molecules = matrix(unlist(cells), nrow=length(cells), byrow=T, dimnames = list(c(1:length(cells)), names(cells[[1]])))
-  
-  process_simulation(molecules, celltimes, seq_len(nrow(molecules)))
-}
-
-#' @import dplyr
-#' @import purrr
-simulate_multiple_cells_split = function(model, burntime, totaltime, nsimulations=16, ncellspersimulation=30, endonly=F, allcells=TRUE, local=F, qsub_conf=NULL, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
-  if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_config=qsub_conf, qsub_environment = formalArgs(simulate_multiple_cells_split))}
-  } else {
-    multilapply = function(x, fun) {parallel::mclapply(x, fun)}
-  }
-  
-  moleculess = multilapply(seq_len(nsimulations), function(i) {
-    cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)
-    
-    if(!endonly) {
-      if(!allcells) {
-        sampleids = sort(sample(length(cell$times), min(length(cell$times), ncellspersimulation)))
-      } else {
-        sampleids = seq_len(length(cell$times))
-      }
-    } else {
-      sampleids = length(cell$times) # only the last cell
-    }
-    celltimes = cell$times[sampleids]
-    molecules = cell$molecules[sampleids,,drop=F]
-    rownames(molecules) = NULL
-    list(molecules=molecules, celltimes=celltimes, simulationids=rep(i, length(celltimes)), simulation=cell$molecules, stepids = sampleids)
-  })
-  
-  process_simulation(
-    do.call(rbind, map(moleculess, "molecules")), 
-    do.call(c, map(moleculess, "celltimes")),
-    do.call(c, map(moleculess, "simulationids")),
-    do.call(c, map(moleculess, "stepids")),
-    map(moleculess, "simulation")
-  )
-}
-
-
 
 simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = formalArgs(simulate_multiple_cells_split))}
+    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun)}
   } else {
-    multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 1)}
+    multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 8)}
   }
   
   simulations = multilapply(seq_len(nsimulations), function(i) {
@@ -219,7 +156,7 @@ process_simulation = function(molecules, celltimes, simulationids=1, stepids=1, 
     list(molecules = molecules,expression = expression)
   })
   
-  named_list(molecules, cellinfo, expression, simulations)
+  tibble::lst(molecules, cellinfo, expression, simulations)
 }
 
 #' @import dplyr

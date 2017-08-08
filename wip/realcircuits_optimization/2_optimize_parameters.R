@@ -1,6 +1,8 @@
 library(GA)
+library(tidyverse)
+library(igraph)
 
-base_model = generate_model("cycle", Gprefix = "Gc")
+base_model = generate_model("cycle")
 base_model = load_circuit("cell_cycle_arabidopsis")
 
 plot_net(base_model)

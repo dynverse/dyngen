@@ -32,7 +32,7 @@ load_circuit = function(genenetname) {
   
   celltypes = tibble(celltype=1, dies=F)
   
-  model = named_list(
+  model = tibble::lst(
     net, modulenodes, modulemembership, celltypes, statenet
   )
   

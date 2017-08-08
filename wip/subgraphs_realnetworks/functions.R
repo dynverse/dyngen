@@ -35,7 +35,7 @@ get_modulenetwork_from_network = function(realnet) {
   mnet = ((sentstrengths >= 1)) %>% reshape2::melt(varnames=c("from", "to"), value.name="weight") %>% filter(weight) %>% filter(from!=to)
   mgraph = mnet %>% graph_from_data_frame()# %>% as.undirected()
   
-  named_list(mnet, allmodules)
+  tibble::lst(mnet, allmodules)
 }
 
 extract_network_from_modulenet = function(real_modulenet, mnet_wanted) {
@@ -151,7 +151,7 @@ process_extracted_net = function(netoi_all, tfsoi, genesoi_modulenames) {
   modulemembership = map(modulemembership, ~intersect(., allgenes)) # remove genes which are not regulated by any other gene
   names(modulemembership) = levels(genesoi_modulenames)
   
-  named_list(net=realnet %>% select(from, to, effect, strength, cooperativity), geneinfo, modulemembership, allgenes)
+  tibble::lst(net=realnet %>% select(from, to, effect, strength, cooperativity), geneinfo, modulemembership, allgenes)
 }
 
 real_modulenet = get_modulenetwork_from_network(realnet)

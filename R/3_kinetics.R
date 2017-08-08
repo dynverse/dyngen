@@ -43,7 +43,7 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   
   if(any(is.na(params))) stop("Some parameters are NA!")
   
-  named_list(formulae.nus, params, initial.state)
+  tibble::lst(formulae.nus, params, initial.state)
 }
 
 ## determine start state genes (active during burn-in)

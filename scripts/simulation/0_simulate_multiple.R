@@ -1,9 +1,9 @@
 library(dplyr)
 
 .datasets_location = "/home/wouters/thesis/projects/dyngen/results/"
+.version = "4/"
 
-
-# Model settings
+## Model settings----
 nreplicates <- 4
 modelgenerators = list(
   list(modulenetname = "linear", totaltime=4),
@@ -31,8 +31,7 @@ expand_lists <- function(...) {
     setNames(NULL)
 }
 
-.version = "3/"
-
+## Generate models-------------
 modelsettings <- expand_lists(modelgenerator=modelgenerators, replicate=seq_len(nreplicates))
 models <- map(modelsettings, function(modelsetting) {
   generate_model(modulenetname = modelsetting$modelgenerator$modulenetname)
@@ -46,6 +45,7 @@ models <- map2(models, modelsettings, function(model, modelsetting) {
 })
 saver(models, "models")
 
+## Simulate models----------------
 simulations <- mclapply(models, function(model) {
   simulations <-run_simulations(model, model$modelsetting$modelgenerator$totaltime, 2, 32, local=FALSE)
 }, mc.cores=8)
@@ -64,6 +64,7 @@ sub = simulations %>% map(function(simulations) {
   simulations
 })
 
+## Extract gold standards-------------------
 goldstandards <- pbapply::pblapply(sub, function(x){
   print("----")
   library(magrittr)
@@ -78,6 +79,7 @@ goldstandards <- map2(goldstandards, simulations, function(gs, simulation) {
 
 saver(goldstandards, "goldstandards")
 
+## Extract experiments-------------------
 experimentsettings <- expand.grid(simulation=seq_along(simulations), takesetting=seq_along(takesettings))
 experiments <- map2(experimentsettings$simulation, experimentsettings$takesetting, function(simulationid, takesettingid) {
   experiment <- run_experiment(simulations[[simulationid]], takesettings[[takesettingid]])
@@ -89,7 +91,7 @@ experiments <- map2(experimentsettings$simulation, experimentsettings$takesettin
 })
 saver(experiments, "experiments")
 
-# make gold standard plots
+# plot gold standards-------------------
 walk(experiments, function(experiment) {
   print(experiment$info$id)
   gs <- goldstandards %>% keep(~(.$info$id == experiment$info$goldstandardid)) %>% first
@@ -102,8 +104,7 @@ walk(experiments, function(experiment) {
 })
 
 
-
-## Run scRNAseq
+## Run scRNAseq----------------------
 platforms = readr::read_tsv("data/platforms.tsv")
 # platforms2 = expand.grid(sequencerate = c(seq_len(10)/10), cellcapturerate = seq_len(10)/10) %>% as.data.frame()
 # platforms = platforms[1, ] %>% select(-sequencerate, -cellcapturerate) %>% data.frame(platforms2)
@@ -120,42 +121,8 @@ datasets = lapply(experiments, function(experiment) {
 }) %>% unlist(recursive=F)
 saver(datasets, "datasets")
 
-
-
-
-
-
-
-
-
-
-
-
-
-###
-
-experimentsettings <- list(
-  tibble(treeseed = c(10, 100, 1000, 10000, 100000, 1000000, 20, 200, 2000, 20000, 200000, 2000000), totaltime=20)
-) %>% bind_rows() %>% mutate(ncells=500, experimentname=paste0("tree_", seq_along(treeseed)))
-models = map(experimentsettings$treeseed, ~generate_model(treeseed = .))
-models %>% walk(save_model)
-
-###
-experiments %>% walk(save_experiment)
-
-experimentids = readRDS("results/experiments.rds")$id[grepl("2017_08_01", readRDS("results/experiments.rds")$id)]
-experiments = map(experimentids, load_experiment, contents_experiment(T, T, T, T, T, T, T))
-
-
-plots = map2(experiments, goldstandards, function(experiment, gs) {
-  cowplot::plot_grid(plotlist=unlist(plot_goldstandard(experiment, gs), recursive=FALSE), ncol=2)
-})
-
-
-
 ## Sync to prism
 PRISM:::rsync_remote("", "~/thesis/projects/dyngen/results", "prism", "/group/irc/shared/dyngen_results")
-
 
 ## Download from prism
 PRISM:::rsync_remote("prism", "/group/irc/shared/dyngen_results/results", "", "~/Workspace/papers/ti_eval/dyngen")

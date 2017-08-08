@@ -15,7 +15,7 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4) {
     #tibble(from=sample(from, nedges, T), to=sample(to, nedges, T), effect=modulenet[i,]$effect, strength=modulenet[i, ]$strength, cooperativity=2)
   }) %>% bind_rows
   
-  named_list(modulemembership, net)
+  tibble::lst(modulemembership, net)
 }
 
 ## add extra target genes to every ldtf
@@ -35,7 +35,7 @@ add_targets_individually = function(net) {
     allgenes = sort(unique(union(net$from, net$to)))
   }
   
-  named_list(net, allgenes)
+  tibble::lst(net, allgenes)
 }
 
 ## add extra target genes to every ldtf in a modular nature, where some target modules are regulated by multiple ldtf modules
@@ -52,6 +52,6 @@ add_targets_shared = function(net) {
     net = bind_rows(net, subnet)
     allgenes = sort(unique(union(net$from, net$to)))
   }
-  named_list(net, allgenes)
+  tibble::lst(net, allgenes)
 }
 

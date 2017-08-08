@@ -6,7 +6,12 @@ adapt_model = function(vars, model) {
 }
 
 run_cycle = function(model, totaltime=50, burntime=5) {
-  experiment = dyngen:::simulate_one_cell(model, burntime, totaltime, ncells=NULL, ssa.algorithm=fastgssa::ssa.em(noise_strength=1))
+  experiment = dyngen:::simulate_multiple(model, burntime, totaltime,  ssa.algorithm=fastgssa::ssa.em(noise_strength=1), local=TRUE, nsimulations = 4)
+  experiment$expression = map(experiment, "expression") %>% do.call(rbind, .)
+  experiment$expression = experiment$expression[sample(seq_len(nrow(experiment$expression)), 1000),]
+  experiment$cellinfo = map(experiment, "stepinfo") %>% bind_rows() %>% filter(stepid %in% rownames(experiment$expression)) %>% arrange(simulationtime)
+  experiment$expression = experiment$expression[experiment$cellinfo$stepid, ]
+  
   if(!is.null(model$modulemembership)) {experiment$expression_modules = dyngen:::get_module_counts(experiment$expression, model$modulemembership)}
   
   experiment

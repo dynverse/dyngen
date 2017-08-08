@@ -15,7 +15,7 @@ load_modulenet = function(modulenetname) {
   
   piecestates = jsonlite::read_json(paste0("data/networks/", modulenetname, "/piecestates.json"), simplifyVector=TRUE)
   
-  dambiutils::named_list(modulenodes, modulenet, celltypes, modulenetname, piecestates)
+  tibble::lst(modulenodes, modulenet, celltypes, modulenetname, piecestates)
 }
 
 ## add extra target genes to every tf
@@ -99,7 +99,7 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4, genes
     #tibble(from=sample(from, nedges, T), to=sample(to, nedges, T), effect=modulenet[i,]$effect, strength=modulenet[i, ]$strength, cooperativity=2)
   }) %>% bind_rows
   
-  named_list(modulemembership, net)
+  tibble::lst(modulemembership, net)
 }
 
 # generate gene network
@@ -122,7 +122,7 @@ modulenet_to_genenet = function(modulenet, modulenodes, genestartid=0) {
   
   modulemembership = map(modulemembership, ~intersect(., allgenes)) # remove genes which are not regulated by any other gene
   
-  named_list(net, geneinfo, modulemembership, allgenes)
+  tibble::lst(net, geneinfo, modulemembership, allgenes)
 }
 
 # list genes
@@ -172,10 +172,11 @@ plot_net_overlaps = function(model) {
   pheatmap::pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
 }
 
+#' @import igraph
 plot_net = function(model) {
   goi = unique(c(model$net$from, model$net$to))
   subnet = model$net %>% filter(from %in% goi) %>% filter(to %in% goi)
-  graph = graph_from_data_frame(subnet, vertices=model$geneinfo$gene)
+  graph = igraph::graph_from_data_frame(subnet, vertices=model$geneinfo$gene)
   
   modulenames = model$modulenodes$module
   
@@ -187,10 +188,11 @@ plot_net = function(model) {
   plot(graph, vertex.size=6, edge.arrow.size=0.5)
 }
 
+#' @import igraph
 plot_net_tfs = function(model) {
   goi = unique(model$net$from)
   subnet = model$net %>% filter(from %in% goi) %>% filter(to %in% goi)
-  graph = graph_from_data_frame(subnet)
+  graph = igraph::graph_from_data_frame(subnet)
   
   modulenames = model$modulenodes$module
   

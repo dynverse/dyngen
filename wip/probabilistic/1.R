@@ -89,7 +89,7 @@ get_milestones = function(experiment) {
   milestonenet = milestonenet %>% mutate(from=as.character(from), to=as.character(to))
   colnames(percentages) = as.character(colnames(percentages))
   
-  named_list(
+  tibble::lst(
     milestone_names = percentages %>% select(-cell) %>% colnames, 
     milestone_net = milestonenet, 
     milestone_percentages = percentages %>% rename(id=cell))
