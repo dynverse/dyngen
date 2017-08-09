@@ -56,9 +56,9 @@ loader <- function(x, type) {
 load_dataset <- function(datasetid, contents=list(simulation=FALSE, goldstandard=TRUE, model=TRUE, experiment=TRUE)) {
   overview <- overviewer("datasets") %>% filter(id==datasetid) %>% as.list()
   dataset <- loader(datasetid, "datasets")[[1]]
-  if(contents$simulation) dataset$simulations <- loader(dataset$info$simulationid, "simulations")[[1]]
-  if(contents$goldstandard) dataset$gs <- loader(dataset$info$goldstandardid, "goldstandards")[[1]]
-  if(contents$model) dataset$model <- loader(dataset$info$modelid, "models")[[1]]
-  if(contents$experiment) dataset <- c(dataset, loader(dataset$info$experimentid, "experiments")[[1]])
+  if(contents$simulation) dataset$simulations <- loader(dataset$info$simulation_id, "simulations")[[1]]
+  if(contents$goldstandard) dataset$gs <- loader(dataset$info$goldstandard_id, "goldstandards")[[1]]
+  if(contents$model) dataset$model <- loader(dataset$info$model_id, "models")[[1]]
+  if(contents$experiment) dataset <- c(dataset, loader(dataset$info$experiment_id, "experiments")[[1]])
   dataset
 }

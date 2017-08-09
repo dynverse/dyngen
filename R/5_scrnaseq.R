@@ -33,8 +33,8 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
     curcounts = counts_amplified = lapply(1:nrow(curcounts), function(row_id) {
       amplify(curcounts[row_id, ], amplifysteps, amplifyrates[row_id, ])
     }) %>% do.call(rbind, .)
+    dimnames(curcounts) = dimnames(counts_amplified) = dimnames(counts_cellcaptured)
   }
-  dimnames(curcounts) = dimnames(counts_amplified) = dimnames(counts_cellcaptured)
   
   curcounts = counts_sequences = apply(curcounts, 1, function(col) rmultinom(1, sum(col)*sequencerate, col+0.000001)[,1]) %>% t # pseudocounts added because sum of probs cannot be zero
   dimnames(curcounts) = dimnames(counts_sequences) = dimnames(counts_cellcaptured)

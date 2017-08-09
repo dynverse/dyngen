@@ -48,8 +48,6 @@ models <- map2(models, modelsettings, function(model, modelsetting) {
 })
 saver(models, "models")
 
-models <- loader(overviewer("models")$id, "models")
-
 ## Simulate models----------------
 simulations <- parallel::mclapply(models, function(model) {
   simulations <-run_simulations(model, model$modelsetting$modelgenerator$totaltime, 2, 32, local=FALSE)
@@ -129,15 +127,15 @@ datasets = lapply(experiments, function(experiment) {
     dataset = dyngen:::run_scrnaseq(experiment, platform)
     dataset$info = experiment$info
     dataset$info$experiment_id <- experiment$info$id
-    dataset$info$id <- paste0(experiment$info$id, "_", platform$platformname)
+    dataset$info$id <- paste0(experiment$info$id, "_", platform$platform_id)
     dataset$info$version <- .version
     dataset
   })
 }) %>% unlist(recursive=F)
-saver(datasets, "datasets")
+saver(datasets, "datasets", overview_only=TRUE)
 
 ## Sync to prism
-PRISM:::rsync_remote("", "~/thesis/projects/dyngen/results", "prism", "/group/irc/shared/dyngen_results")
+PRISM:::rsync_remote("", paste0("~/thesis/projects/dyngen/results/", .version, "/"), "prism", paste0("/group/irc/shared/dyngen_results/", .version, "/"))
 
 ## Download from prism
 PRISM:::rsync_remote("prism", "/group/irc/shared/dyngen_results/results", "", "~/Workspace/papers/ti_eval/dyngen")

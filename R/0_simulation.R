@@ -105,11 +105,3 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   
   gs
 }
-
-
-
-plot_goldstandard <- function(gs, experiment) {
-  ordered_cellinfo <- gs$cellinfo %>% arrange(state_id, progression)
-  
-  pheatmap(SCORPIUS::quant.scale(experiment$expression_modules[ordered_cellinfo$cell, ]) %>% t, cluster_cols=F, cluster_rows=T)
-}

@@ -1,3 +1,4 @@
 platform_id	lysisrate	capturerate	amplify	amplifysteps	amplifyrate_max	amplifyrate_min	sequencerate	extracellrate	cellcapturerate
 10x_dropseq	0.6	0.1	T	100	0.03	0.0001	0.1	0.01	0.35
 fluidigm_c1	0.6	0.6	T	100	0.03	0.0001	0.1	0	0.95
+original	1	1	F	0	0	0	1	0	1

@@ -342,7 +342,7 @@ plot_goldstandard <- function(gs,experiment=NULL, simulations=NULL, plot_what="p
   } else {
     expression = experiment$expression %>% set_rownames(experiment$cellinfo$step_id)
     
-    dimred_methods <- c(ica, tsne, mds, mds_smacof)
+    dimred_methods <- c(ica)#, tsne, mds, mds_smacof)
   }
   
   expression = log2(expression + 1)
