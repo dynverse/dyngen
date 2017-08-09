@@ -83,7 +83,7 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
 simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun)}
+    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
   } else {
     multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 8)}
   }
