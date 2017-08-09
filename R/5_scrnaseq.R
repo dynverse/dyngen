@@ -30,8 +30,8 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
   amplifyrates = sqrt(amplifyrates_cells %o% amplifyrates_genes)
   
   if(amplify) {
-    curcounts = counts_amplified = lapply(1:nrow(curcounts), function(rowid) {
-      amplify(curcounts[rowid, ], amplifysteps, amplifyrates[rowid, ])
+    curcounts = counts_amplified = lapply(1:nrow(curcounts), function(row_id) {
+      amplify(curcounts[row_id, ], amplifysteps, amplifyrates[row_id, ])
     }) %>% do.call(rbind, .)
   }
   dimnames(curcounts) = dimnames(counts_amplified) = dimnames(counts_cellcaptured)

@@ -95,7 +95,7 @@ simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, loc
     
     expression = cell$molecules[,str_detect(colnames(cell$molecules), "x_")]
     colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
-    stepinfo = tibble(stepid = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times)
+    stepinfo = tibble(step_id = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times)
     
     tibble::lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
   })
@@ -110,10 +110,10 @@ take_experiment_cells <- function(simulations, takesettings = list(type="snapsho
   if(takesettings$type == "snapshot"){
     ncellspersimulation <- ceiling(takesettings$ncells/length(simulations))
     samples <- map(simulations, function(simulation) {
-      sampleids <- sample(seq_len(nrow(simulation$expression)), ncellspersimulation)
+      sample_ids <- sample(seq_len(nrow(simulation$expression)), ncellspersimulation)
       list(
-        expression=simulation$expression[sampleids, ],
-        cellinfo=simulation$stepinfo[sampleids, ]
+        expression=simulation$expression[sample_ids, ],
+        cellinfo=simulation$stepinfo[sample_ids, ]
       )
     })
   } else if(takesettings$type == "synchronized") {
@@ -121,16 +121,16 @@ take_experiment_cells <- function(simulations, takesettings = list(type="snapsho
     timepoints <- seq(0, totaltime, length.out=takesettings$ntimepoints)
     
     samples <- map(simulations, function(simulation) {
-      sampleids <- map_int(timepoints, ~which.min(abs(simulation$stepinfo$simulationtime - .)))
+      sample_ids <- map_int(timepoints, ~which.min(abs(simulation$stepinfo$simulationtime - .)))
       list(
-        expression=simulation$expression[sampleids, ],
-        cellinfo=simulation$stepinfo[sampleids, ] %>% mutate(timepoint=factor(timepoints))
+        expression=simulation$expression[sample_ids, ],
+        cellinfo=simulation$stepinfo[sample_ids, ] %>% mutate(timepoint=factor(timepoints))
       )
     })
   }
   expression <- map(samples, "expression") %>% purrr::invoke(rbind, .)
   rownames(expression) <- paste0("C", seq_len(nrow(expression)))
-  cellinfo <- map(samples, "cellinfo") %>% bind_rows() %>% mutate(cellid=rownames(expression))
+  cellinfo <- map(samples, "cellinfo") %>% bind_rows() %>% mutate(cell_id=rownames(expression))
   
   tibble::lst(cellinfo, expression)
 }
@@ -138,9 +138,9 @@ take_experiment_cells <- function(simulations, takesettings = list(type="snapsho
 #' @import dplyr
 #' @import ggplot2
 #' @import purrr
-process_simulation = function(molecules, celltimes, simulationids=1, stepids=1, simulations=NULL) {
+process_simulation = function(molecules, celltimes, simulation_ids=1, step_ids=1, simulations=NULL) {
   rownames(molecules) = paste0("C", seq_len(nrow(molecules)))
-  cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulationid=simulationids, stepid=stepids, simulationstepid = paste0(simulationids, "_", stepids))
+  cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulation_id=simulation_ids, step_id=step_ids, simulationstep_id = paste0(simulation_ids, "_", step_ids))
   
   molecules = molecules[order(cellinfo$simulationtime),]
   cellinfo = cellinfo[order(cellinfo$simulationtime),]
@@ -149,8 +149,8 @@ process_simulation = function(molecules, celltimes, simulationids=1, stepids=1, 
   expression = round(expression * 100)
   colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
   
-  simulations = map2(simulations, seq_along(simulations), function(molecules, simulationid) {
-    rownames(molecules) = paste0(simulationid, "_", seq_len(nrow(molecules)))
+  simulations = map2(simulations, seq_along(simulations), function(molecules, simulation_id) {
+    rownames(molecules) = paste0(simulation_id, "_", seq_len(nrow(molecules)))
     expression = molecules[,str_detect(colnames(molecules), "x_")]
     colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
     list(molecules = molecules,expression = expression)
@@ -183,18 +183,18 @@ plot_simulations = function(simulations, samplingrate=0.1) {
   overallexpression = overallexpression %>% set_rownames(1:nrow(overallexpression))
   #overallcellinfo = map(simulations, ~.$subcellinfo) %>% bind_rows()
   overallcellinfo = assign_progression(overallexpression, reference)
-  overallcellinfo$simulationid = map(seq_len(length(simulations)), ~rep(., nrow(simulations[[.]]$expression))) %>% unlist %>% factor()
+  overallcellinfo$simulation_id = map(seq_len(length(simulations)), ~rep(., nrow(simulations[[.]]$expression))) %>% unlist %>% factor()
   overallcellinfo$observed = T
   
   #overallexpression = rbind(overallexpression, reference_expression)
-  #overallcellinfo = bind_rows(overallcellinfo, tibble(simulationid=rep(NA, nrow(reference_cellinfo)), observed=FALSE))
+  #overallcellinfo = bind_rows(overallcellinfo, tibble(simulation_id=rep(NA, nrow(reference_cellinfo)), observed=FALSE))
   
   space =  lmds(overallexpression, 3) %>% as.data.frame() %>% bind_cols(overallcellinfo)
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulationid, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3)
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulationid, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3) + viridis::scale_color_viridis(option="A")
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(V1, V2, group=simulationid, color=piecestateid)) + geom_path(aes(V1, V2), data=space %>% filter(!observed), size=3)
+  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3)
+  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3) + viridis::scale_color_viridis(option="A")
+  space %>% filter(observed) %>% ggplot() + geom_path(aes(V1, V2, group=simulation_id, color=state_id)) + geom_path(aes(V1, V2), data=space %>% filter(!observed), size=3)
   
-  for (i in unique(as.numeric(space$simulationid))) rgl::lines3d(space %>% filter(simulationid == i), col = rainbow(length(unique(space$simulationid)))[[i]])
+  for (i in unique(as.numeric(space$simulation_id))) rgl::lines3d(space %>% filter(simulation_id == i), col = rainbow(length(unique(space$simulation_id)))[[i]])
   
 }
 

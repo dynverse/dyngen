@@ -23,13 +23,13 @@ get_piecenet = function(statenet) {
 }
 
 #' @import dplyr
-get_piecestatenet = function(piecenet) {
+get_statenet = function(piecenet) {
   piecenet %>% igraph::graph_from_data_frame() %>% igraph::make_line_graph() %>% igraph::as_data_frame()
 }
 
 #' @import dplyr
-get_piecestates = function(piecenet) {
-  piecestates <- lapply(seq_len(nrow(piecenet)), function(rowid){
+get_states = function(piecenet) {
+  states <- lapply(seq_len(nrow(piecenet)), function(rowid){
     piece = c()
     if(piecenet$from[[rowid]] == 1) {
       piece = c(1)
@@ -42,7 +42,7 @@ get_piecestates = function(piecenet) {
     }
   })
   
-  piecestates
+  states
 }
 
 
@@ -66,7 +66,7 @@ smoothe_simulations = function(simulations, model) {
 # the linear state ordering of every piece
 # based on the state progression, divide the expression data into linear pieces
 #' @import dplyr
-divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
+divide_simulation = function(progressioninfo, states, expression_smooth) {
   statesunique = integer()
   statesunique_windows = list()
   curstate = 1
@@ -84,20 +84,20 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
   print(statesunique)
   
   pieces = list()
-  # check for every possible piecestate
-  for (piecestateid in seq_len(length(piecestates))) {
-    piecestate = piecestates[[piecestateid]]
+  # check for every possible state
+  for (stateid in seq_len(length(states))) {
+    state = states[[stateid]]
     # check for every state sequence
     for (statesuniqueid in seq_len(length(statesunique))) {
       start = statesuniqueid
-      end = statesuniqueid+length(piecestate)-1
+      end = statesuniqueid+length(state)-1
       if(!any(is.na(statesunique[seq(start, end)]))) {
-        if(all(piecestate == statesunique[seq(start, end)])) {
+        if(all(state == statesunique[seq(start, end)])) {
           piece_cells = statesunique_windows[seq(start, end)] %>% unlist
           piece = 
           {tibble(
             cells=list(piece_cells), 
-            piecestateid=piecestateid, 
+            stateid=stateid, 
             expression = list(expression_smooth[piece_cells, ,drop=F]),
             start=start,
             end=end
@@ -118,7 +118,7 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
 #' @import dplyr
 #' @import purrr
 #' @import ggplot2
-divide_simulations = function(simulations, piecestates, model) {
+divide_simulations = function(simulations, states, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
   combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
   quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
@@ -132,20 +132,20 @@ divide_simulations = function(simulations, piecestates, model) {
     #ggplot(progressioninfo) + geom_area(aes(simulationtime, group=state, fill=factor(state)), position="fill", stat="bin", bins=50)
     #ggplot(progressioninfo) + geom_point(aes(simulationtime, state))
     
-    expression_pieces = divide_simulation(progressioninfo, piecestates, simulations[[simulationid]]$expression_smooth)
+    expression_pieces = divide_simulation(progressioninfo, states, simulations[[simulationid]]$expression_smooth)
     
-    #pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state, piecestateid))
+    #pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state, stateid))
     #expression_pieces[[2]] %>% t %>% pheatmap::pheatmap(cluster_cols=F, scale="row", cluster_rows=T)
     
     if(nrow(expression_pieces) == 0) {warning("Could not divide simulation into pieces")}
     
     if (nrow(expression_pieces)>1) {
-      expression_pieces = expression_pieces %>% arrange(end) %>% mutate(nextpiecestateid=c(piecestateid[2:nrow(.)], NA))
+      expression_pieces = expression_pieces %>% arrange(end) %>% mutate(nextstateid=c(stateid[2:nrow(.)], NA))
       expression_pieces$simulationid = simulationid
-      expression_pieces$nextpiecestateids = c(map(1:(nrow(expression_pieces)-1), ~expression_pieces$piecestateid[(.+1):nrow(expression_pieces)]), list(numeric())) # add all next piecestateids
+      expression_pieces$nextstateids = c(map(1:(nrow(expression_pieces)-1), ~expression_pieces$stateid[(.+1):nrow(expression_pieces)]), list(numeric())) # add all next stateids
     }
     
-    print(expression_pieces$piecestateid)
+    print(expression_pieces$stateid)
     print("---")
     
     pieces = c(pieces, list(expression_pieces))
@@ -201,22 +201,22 @@ average_pieces = function(piecesoi, model, bw=0.05) {
 
 #' @import dplyr
 get_reference_expression = function(pieces, model) {
-  reference_list = lapply(unique(pieces$piecestateid) %>% sort, function(piecestateidoi) {
-    piecesoi = pieces %>% filter(piecestateid == piecestateidoi)
+  reference_list = lapply(unique(pieces$stateid) %>% sort, function(stateidoi) {
+    piecesoi = pieces %>% filter(stateid == stateidoi)
     
     meanexpression = average_pieces(piecesoi, model)
     
-    list(cellinfo = tibble(piecestateid=piecestateidoi, progression=as.numeric(rownames(meanexpression))), meanexpression=meanexpression)
+    list(cellinfo = tibble(stateid=stateidoi, progression=as.numeric(rownames(meanexpression))), meanexpression=meanexpression)
   })
   reference_expression = map(reference_list, "meanexpression") %>% do.call(rbind, .)
   reference_cellinfo = map(reference_list, "cellinfo") %>% bind_rows() %>% as.data.frame()
   
   rownames(reference_expression) = seq_len(nrow(reference_expression))
   rownames(reference_cellinfo) = rownames(reference_expression)
-  reference_cellinfo$piecestateid = factor(reference_cellinfo$piecestateid)
+  reference_cellinfo$stateid = factor(reference_cellinfo$stateid)
   
-  #reference_expression %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$piecestateid)) != 0))
-  reference_expression %>% get_module_counts(., model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$piecestateid)) != 0))
+  #reference_expression %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$stateid)) != 0))
+  reference_expression %>% get_module_counts(., model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_cols=F, cluster_rows=T, annotation_col=reference_cellinfo, gaps_col = which(diff(as.numeric(reference_cellinfo$stateid)) != 0))
   
   list(expression=reference_expression, cellinfo=reference_cellinfo)
 }
@@ -230,13 +230,13 @@ assign_progression = function(expression, reference) {
   tibble(
     cell = colnames(cellcors),
     progression = reference$cellinfo$progression[bestreferencecell],
-    piecestateid = reference$cellinfo$piecestateid[bestreferencecell]
+    stateid = reference$cellinfo$stateid[bestreferencecell]
   )
 }
 
 #' @import dplyr
 #' @import ggplot2
-plot_piecestate_changes = function(dataset) {
+plot_state_changes = function(dataset) {
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")
   
   window = 1
@@ -244,7 +244,7 @@ plot_piecestate_changes = function(dataset) {
   window_cellinfos = lapply(seq(0, max(cellinfo$simulationtime)-window, step), function(start) {
     end = start + window
     cellinfo %>% filter(simulationtime >= start & simulationtime <= end) %>% 
-      group_by(piecestateid) %>% summarise(n=n()) %>% complete(piecestateid, fill=list(n=0)) %>% mutate(start=start, freq = n / sum(n))
+      group_by(stateid) %>% summarise(n=n()) %>% complete(stateid, fill=list(n=0)) %>% mutate(start=start, freq = n / sum(n))
     
   }) %>% bind_rows() %>% mutate(start=factor(start))
   
@@ -262,7 +262,7 @@ plot_piecestate_changes = function(dataset) {
     ggnetwork::geom_nodes(aes(color=factor(piece)), size=10) +
     ggnetwork::theme_blank()
   
-  ggnet2 = ggnet %>% right_join(window_cellinfos, by=c("piece"="piecestateid"))
+  ggnet2 = ggnet %>% right_join(window_cellinfos, by=c("piece"="stateid"))
   
   p = ggplot(ggnet2, aes(x = x, y = y, xend = xend, yend = yend, frame=start)) + 
     ggnetwork::geom_edges(color = "black", arrow = arrow(length = unit(6, "pt"), type = "closed")) +
@@ -276,15 +276,15 @@ plot_piecestate_changes = function(dataset) {
 
 #' @import dplyr
 #' @import ggplot2
-plot_piecestate_progression = function(dataset) {
+plot_state_progression = function(dataset) {
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")
-  cellinfo %>% ggplot() + geom_point(aes(simulationtime, piecestateid, color=piecestateid))
+  cellinfo %>% ggplot() + geom_point(aes(simulationtime, stateid, color=stateid))
   
   plotdata = cellinfo
-  pieceinfo = dataset$gs$reference$cellinfo %>% group_by(piecestateid) %>% summarise(maxprogression=max(progression)) %>% mutate(startprogression=c(0, cumsum(maxprogression)[-length(maxprogression)]))
-  startprogressions = set_names(pieceinfo$startprogression, pieceinfo$piecestateid)
-  plotdata$overallprogression = plotdata$progression + startprogressions[cellinfo$piecestateid]
-  ggplot(plotdata) + geom_point(aes(simulationtime, overallprogression, color=piecestateid)) + geom_hline(aes(yintercept=startprogression), data=pieceinfo)
+  pieceinfo = dataset$gs$reference$cellinfo %>% group_by(stateid) %>% summarise(maxprogression=max(progression)) %>% mutate(startprogression=c(0, cumsum(maxprogression)[-length(maxprogression)]))
+  startprogressions = set_names(pieceinfo$startprogression, pieceinfo$stateid)
+  plotdata$overallprogression = plotdata$progression + startprogressions[cellinfo$stateid]
+  ggplot(plotdata) + geom_point(aes(simulationtime, overallprogression, color=stateid)) + geom_hline(aes(yintercept=startprogression), data=pieceinfo)
 }
 
 

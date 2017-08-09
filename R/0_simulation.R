@@ -1,5 +1,5 @@
 #' @import tidyverse
-generate_model = function(modulenetname=NULL, treeseed=NULL, genestartid=0, verbose=F) {
+generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, verbose=F) {
   if(!is.null(modulenetname)) {
     model = load_modulenet(modulenetname)
   } else if(!is.null(treeseed)) {
@@ -10,7 +10,7 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, genestartid=0, verb
   }
   class(model) = "dyngen::model"
   
-  model = modulenet_to_genenet(model$modulenet, model$modulenodes, genestartid) %>% c(model)
+  model = modulenet_to_genenet(model$modulenet, model$modulenodes, genestart_id) %>% c(model)
   #mnet_wanted = model$modulenet
   #model = extract_network_from_modulenet(real_modulenet, mnet_wanted) %>% c(model)
   
@@ -74,15 +74,15 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(is.null(experiment$simulations)) stop("requires multiple individual simulations to align to gold standard")
   gs = list()
   gs$piecenet = get_piecenet(experiment$model$statenet)
-  gs$piecestates = get_piecestates(gs$piecenet)
-  gs$piecestatenet = get_piecestatenet(gs$piecenet)
+  gs$states = get_states(gs$piecenet)
+  gs$statenet = get_statenet(gs$piecenet)
   
   if(verbose) print(">> smoothing")
   experiment$simulations = smoothe_simulations(experiment$simulations, experiment$model) # add smoothened expression values
   
   if(verbose) print(">> dividing")
-  gs$pieces = divide_simulations(experiment$simulations, gs$piecestates, experiment$model)
-  gs$pieces = gs$pieces %>% mutate(ncells=map_int(cells, length)) %>% group_by(piecestateid) %>% mutate(outlierness = abs((ncells - mean(ncells))/sd(ncells))) %>% filter(is.na(outlierness) | outlierness < 2) %>% ungroup # remove long pieces (probably skipped a state)
+  gs$pieces = divide_simulations(experiment$simulations, gs$states, experiment$model)
+  gs$pieces = gs$pieces %>% mutate(ncells=map_int(cells, length)) %>% group_by(state_id) %>% mutate(outlierness = abs((ncells - mean(ncells))/sd(ncells))) %>% filter(is.na(outlierness) | outlierness < 2) %>% ungroup # remove long pieces (probably skipped a state)
   
   if(verbose) print(">> generating reference")
   gs$reference = get_reference_expression(gs$pieces, experiment$model)
@@ -90,18 +90,18 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(verbose) print(">> assigning")
   gs$cellinfo = assign_progression(experiment$expression, gs$reference)
   
- pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(piecestateid) %>% mutate(piecestateid=factor(piecestateid)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
-  ggplot(gs$cellinfo %>% left_join(experiment$cellinfo, by="cell")) + geom_area(aes(simulationtime, group=piecestateid, fill=factor(piecestateid)), position="fill", stat="bin", bins=10)
+ pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(state_id) %>% mutate(state_id=factor(state_id)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
+  ggplot(gs$cellinfo %>% left_join(experiment$cellinfo, by="cell")) + geom_area(aes(simulationtime, group=state_id, fill=factor(state_id)), position="fill", stat="bin", bins=10)
   
   # if(verbose) print(">> calculating cell distances")
-  # statenodes = gs$piecenet %>% rename(state=piece) %>% left_join(gs$reference$cellinfo %>% group_by(piecestateid) %>% summarise(maxprogression=max(progression)) %>% mutate(state=as.integer(piecestateid)), by="state")
+  # statenodes = gs$piecenet %>% rename(state=piece) %>% left_join(gs$reference$cellinfo %>% group_by(stateid) %>% summarise(maxprogression=max(progression)) %>% mutate(state=as.integer(state_id)), by="state")
   # snet = get_branchconnected_statenet(get_line_graph(gs$piecenet), statenodes)
-  # gs$celldistances = get_cell_distances(gs$cellinfo %>% mutate(state=piecestateid), snet)
+  # gs$celldistances = get_cell_distances(gs$cellinfo %>% mutate(state=state_id), snet)
   
   if(verbose) print(">> extracting milestones")
   #gs <- c(get_milestones(experiment, gs), gs)
   
-  gs$info = list(experimentid=experiment$info$id, id=paste0(.version, "/", dambiutils:::random_time_string()))
+  gs$info = list(experiment_id=experiment$info$id, id=paste0(.version, "/", dambiutils:::random_time_string()))
   
   gs
 }
@@ -109,7 +109,7 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
 
 
 plot_goldstandard <- function(gs, experiment) {
-  ordered_cellinfo <- gs$cellinfo %>% arrange(piecestateid, progression)
+  ordered_cellinfo <- gs$cellinfo %>% arrange(state_id, progression)
   
   pheatmap(SCORPIUS::quant.scale(experiment$expression_modules[ordered_cellinfo$cell, ]) %>% t, cluster_cols=F, cluster_rows=T)
 }

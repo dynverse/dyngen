@@ -13,22 +13,22 @@ load_modulenet = function(modulenetname) {
   
   #statenet = read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
   
-  piecestates = jsonlite::read_json(paste0("data/networks/", modulenetname, "/piecestates.json"), simplifyVector=TRUE)
+  states = jsonlite::read_json(paste0("data/networks/", modulenetname, "/states.json"), simplifyVector=TRUE)
   
-  tibble::lst(modulenodes, modulenet, celltypes, modulenetname, piecestates)
+  tibble::lst(modulenodes, modulenet, celltypes, modulenetname, states)
 }
 
 ## add extra target genes to every tf
 #' @import dplyr
-add_targets_individually = function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], genestartid = max(geneinfo$gene), add_to_existing_net = TRUE) {
+add_targets_individually = function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], genestart_id = max(geneinfo$gene), add_to_existing_net = TRUE) {
   allgenes = tfs
   addnet = tibble()
   for(tf in tfs) {
     nnewtargets = sample(1:8, 1)
     if (nnewtargets > 10) {
-      subnet = dyngen::generate.ba.with.modules(nnewtargets, nnewtargets*2, 0.05, 0.05)$data.frame %>% rename(from=i, to=j) %>% mutate(from=paste0("G", from+genestartid), to=to+genestartid) %>% mutate(from=replace(from, from==paste0("G", genestartid+1), tf))
+      subnet = dyngen::generate.ba.with.modules(nnewtargets, nnewtargets*2, 0.05, 0.05)$data.frame %>% rename(from=i, to=j) %>% mutate(from=paste0("G", from+genestart_id), to=to+genestart_id) %>% mutate(from=replace(from, from==paste0("G", genestart_id+1), tf))
     } else if (nnewtargets > 0) {
-      subnet = tibble(from=tf, to=(genestartid+1):(genestartid + nnewtargets + 1))
+      subnet = tibble(from=tf, to=(genestart_id+1):(genestart_id + nnewtargets + 1))
     } else {
       subnet= tibble()
     }
@@ -36,7 +36,7 @@ add_targets_individually = function(net, geneinfo, tfs = geneinfo$gene[geneinfo$
     subnet <- subnet
     
     addnet = bind_rows(addnet, subnet)
-    genestartid = max(c(as.numeric(gsub("G([0-9]*)", "\\1", c(addnet$from, addnet$to))))+1, genestartid)
+    genestart_id = max(c(as.numeric(gsub("G([0-9]*)", "\\1", c(addnet$from, addnet$to))))+1, genestart_id)
   }
   
   addgeneinfo <- tibble(gene=sort(unique(union(addnet$from, addnet$to)))) %>% mutate(tf = gene %in% addnet$from, isgene=ifelse(gene %in% addnet$to, TRUE, FALSE), a0=NA, celltype=1)
@@ -80,10 +80,10 @@ add_targets_shared = function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], a
 # convert modulenet to modules including lineage determining transcription factors (tfs)
 #' @import dplyr
 #' @import tibble
-modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4, genestartid=0) {
+modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4, genestart_id=0) {
   modulenames = c(modulenet$from, modulenet$to) %>% unique
   nmodules = ngenespermodule * (length(modulenames))
-  modulemembership = split(seq_len(nmodules)+genestartid, ceiling(seq_len(nmodules)/ngenespermodule)) %>% set_names(modulenames)
+  modulemembership = split(seq_len(nmodules)+genestart_id, ceiling(seq_len(nmodules)/ngenespermodule)) %>% set_names(modulenames)
   
   net = lapply(seq_len(nrow(modulenet)), function(i) {
     from_module = modulenet[i,]$from
@@ -104,8 +104,8 @@ modulenet_to_modules = function(modulenet, modulenodes, ngenespermodule=4, genes
 
 # generate gene network
 #' @import dplyr
-modulenet_to_genenet = function(modulenet, modulenodes, genestartid=0) {
-  convertedmodulenet = modulenet_to_modules(modulenet, modulenodes, genestartid=genestartid)
+modulenet_to_genenet = function(modulenet, modulenodes, genestart_id=0) {
+  convertedmodulenet = modulenet_to_modules(modulenet, modulenodes, genestart_id=genestart_id)
   net = convertedmodulenet$net
   modulemembership = convertedmodulenet$modulemembership
   
@@ -129,7 +129,7 @@ modulenet_to_genenet = function(modulenet, modulenodes, genestartid=0) {
 #' @import dplyr
 list_genes = function(geneinfo, modulemembership, net, modulenodes) {
   allgenes = geneinfo$gene
-  gene2module = unlist(lapply(names(modulemembership), function(moduleid) setNames(rep(moduleid, length(modulemembership[[moduleid]])), modulemembership[[moduleid]])))
+  gene2module = unlist(lapply(names(modulemembership), function(module_id) setNames(rep(module_id, length(modulemembership[[module_id]])), modulemembership[[module_id]])))
   gene2module = c(gene2module, net %>% group_by(to) %>% summarize(firstf = first(from)) %>% mutate(module=gene2module[as.character(firstf)]) %>% select(-firstf) %>% dplyr::rename(gene=to) %>% filter(!(gene %in% names(gene2module))) %>% {setNames(.$module, .$gene)}) # assign genes to its first parent module
   geneinfo$module = gene2module[as.character(geneinfo$gene)]
   geneinfo = geneinfo %>% bind_rows(tibble(gene=allgenes[!(allgenes %in% geneinfo$gene)])) %>% # add genes not in one of the modules

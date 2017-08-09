@@ -6,13 +6,15 @@ list_datasets = function() overviewer("datasets")
 #' Save a dataset of a particular type
 #' @import dplyr
 #' @export
-saver <- function(x, type) {
+saver <- function(x, type, overview_only=FALSE) {
   newoverview <- map(x, ~.$info) %>% bind_rows()
   
-  for(xi in x) {
-    path <- paste0(.datasets_location, "/", type, "/", xi$info$id, ".rds")
-    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-    saveRDS(xi, path)
+  if(!overview_only) {
+    for(xi in x) {
+      path <- paste0(.datasets_location, "/", type, "/", xi$info$id, ".rds")
+      dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+      saveRDS(xi, path)
+    }
   }
   
   overview_location <- paste0(.datasets_location, "/", type, ".rds")

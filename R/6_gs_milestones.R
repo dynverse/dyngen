@@ -2,37 +2,37 @@ get_bias_knn = function(bifurcation, experiment, cellinfo, gs, k=10) {
   model = experiment$model
   endmodules = bifurcation$endmodules
   
-  piecesoi = gs$pieces %>% filter(piecestateid %in% bifurcation$piecestateid) %>% filter(!is.na(nextpiecestateid)) # take those pieces which are currently bifurcating, then filter those with no next state
-  piecesoi$nextpiecestateidsoi = piecesoi$nextpiecestateids %>% map(~.[. %in% bifurcation$nextpiecestateids]) # get the next piecestateids of interest
-  piecesoi = piecesoi %>% rowwise() %>% filter(length(nextpiecestateidsoi) > 0) %>% ungroup() # filter those pieces which have any piecestateidoi in their next states
-  piecesoi$nextpiecestateidoi = map_int(piecesoi$nextpiecestateidsoi, first)
-  piecesoi = piecesoi %>% select(-nextpiecestateids, -nextpiecestateidsoi)
+  piecesoi = gs$pieces %>% filter(stateid %in% bifurcation$stateid) %>% filter(!is.na(nextstateid)) # take those pieces which are currently bifurcating, then filter those with no next state
+  piecesoi$nextstateidsoi = piecesoi$nextstateids %>% map(~.[. %in% bifurcation$nextstateids]) # get the next stateids of interest
+  piecesoi = piecesoi %>% rowwise() %>% filter(length(nextstateidsoi) > 0) %>% ungroup() # filter those pieces which have any stateidoi in their next states
+  piecesoi$nextstateidoi = map_int(piecesoi$nextstateidsoi, first)
+  piecesoi = piecesoi %>% select(-nextstateids, -nextstateidsoi)
   piecesoi$original_expression = map2(piecesoi$simulationid, piecesoi$cells, ~experiment$simulations[[.x]]$expression[.y, ])
   piecesoi$module_expression = map(piecesoi$original_expression, function(expression) {
     modulecounts <- get_module_counts(expression, model$modulemembership)[, endmodules]
     modulecounts %>% as.data.frame()
   })
-  observations = piecesoi %>% select(-cells, -expression, -original_expression) %>% unnest() %>% mutate(simulationid=factor(simulationid), nextpiecestateidoi=factor(nextpiecestateidoi), nextpiecestateid=factor(nextpiecestateid))  # contains different simulation steps, and at each point the expression of the modules of interest, together with their nextpiecestateid, which can be used to find for each "real" cell what the probability will be to get to a next piecestateid
+  observations = piecesoi %>% select(-cells, -expression, -original_expression) %>% unnest() %>% mutate(simulationid=factor(simulationid), nextstateidoi=factor(nextstateidoi), nextstateid=factor(nextstateid))  # contains different simulation steps, and at each point the expression of the modules of interest, together with their nextstateid, which can be used to find for each "real" cell what the probability will be to get to a next stateid
   
   plot(
     ggplot(observations) +
-      geom_path(aes_string(endmodules[[1]], endmodules[[2]], group="simulationid", color="nextpiecestateidoi")) + coord_equal()
+      geom_path(aes_string(endmodules[[1]], endmodules[[2]], group="simulationid", color="nextstateidoi")) + coord_equal()
   )
   
   observations_expression = observations[, endmodules]
   
-  cellsoi = cellinfo %>% filter(piecestateid %in% bifurcation$piecestateids)
+  cellsoi = cellinfo %>% filter(stateid %in% bifurcation$stateids)
   cellsoi_expression = experiment$expression_modules[cellsoi$cell, endmodules]
   
   nearest_neighbors = lapply(seq_along(rownames(cellsoi_expression)), function(rowid) {
     row = cellsoi_expression[rowid, ]
     differences = sweep(observations_expression, 2, row) %>% abs() %>% rowMeans()
     ordered = order(differences, decreasing=F)
-    data.frame(cell=rownames(cellsoi_expression)[rowid], nextpiecestateidoi=observations$nextpiecestateidoi[ordered[seq_len(k)]])
+    data.frame(cell=rownames(cellsoi_expression)[rowid], nextstateidoi=observations$nextstateidoi[ordered[seq_len(k)]])
   }) %>% bind_rows()
-  cellbiases = nearest_neighbors %>% group_by(cell, nextpiecestateidoi) %>% summarise(n=n()) %>% mutate(p=n/sum(n)) %>% ungroup() %>% select(-n) %>% spread(nextpiecestateidoi, p, drop=FALSE, fill=0)
+  cellbiases = nearest_neighbors %>% group_by(cell, nextstateidoi) %>% summarise(n=n()) %>% mutate(p=n/sum(n)) %>% ungroup() %>% select(-n) %>% spread(nextstateidoi, p, drop=FALSE, fill=0)
   
-  if(!all(bifurcation$nextpiecestateids %in% colnames(cellbiases))) stop("not all biases recovered!!")
+  if(!all(bifurcation$nextstateids %in% colnames(cellbiases))) stop("not all biases recovered!!")
   
   #cellsoi_expression %>% as.data.frame() %>% rownames_to_column("cell") %>% left_join(cellbiases, by="cell") %>% 
   #ggplot() + geom_point(aes(M3, M4, color=`2`)) + scale_color_gradientn(colors=c("red", "black", "blue")) + coord_equal()
@@ -45,32 +45,32 @@ get_bias_density = function(bifurcation, experiment, cellinfo, gs, k=10) {
   model = experiment$model
   endmodules = bifurcation$endmodules
   
-  piecesoi = gs$pieces %>% filter(piecestateid %in% bifurcation$piecestateid) %>% filter(!is.na(nextpiecestateid)) # take those pieces which are currently bifurcating, then filter those with no next state
-  piecesoi$nextpiecestateidsoi = piecesoi$nextpiecestateids %>% map(~.[. %in% bifurcation$nextpiecestateids]) # get the next piecestateids of interest
-  piecesoi = piecesoi %>% rowwise() %>% filter(length(nextpiecestateidsoi) > 0) %>% ungroup() # filter those pieces which have any piecestateidoi in their next states
-  piecesoi$nextpiecestateidoi = map_int(piecesoi$nextpiecestateidsoi, first)
-  piecesoi = piecesoi %>% select(-nextpiecestateids, -nextpiecestateidsoi)
+  piecesoi = gs$pieces %>% filter(stateid %in% bifurcation$stateid) %>% filter(!is.na(nextstateid)) # take those pieces which are currently bifurcating, then filter those with no next state
+  piecesoi$nextstateidsoi = piecesoi$nextstateids %>% map(~.[. %in% bifurcation$nextstateids]) # get the next stateids of interest
+  piecesoi = piecesoi %>% rowwise() %>% filter(length(nextstateidsoi) > 0) %>% ungroup() # filter those pieces which have any stateidoi in their next states
+  piecesoi$nextstateidoi = map_int(piecesoi$nextstateidsoi, first)
+  piecesoi = piecesoi %>% select(-nextstateids, -nextstateidsoi)
   piecesoi$original_expression = map2(piecesoi$simulationid, piecesoi$cells, ~experiment$simulations[[.x]]$expression[.y, ])
   piecesoi$module_expression = map(piecesoi$original_expression, function(expression) {
     modulecounts <- get_module_counts(expression, model$modulemembership)[, endmodules]
     modulecounts %>% as.data.frame()
   })
-  observations = piecesoi %>% select(-cells, -expression, -original_expression) %>% unnest() %>% mutate(simulationid=factor(simulationid), nextpiecestateidoi=factor(nextpiecestateidoi), nextpiecestateid=factor(nextpiecestateid))  # contains different simulation steps, and at each point the expression of the modules of interest, together with their nextpiecestateid, which can be used to find for each "real" cell what the probability will be to get to a next piecestateid
+  observations = piecesoi %>% select(-cells, -expression, -original_expression) %>% unnest() %>% mutate(simulationid=factor(simulationid), nextstateidoi=factor(nextstateidoi), nextstateid=factor(nextstateid))  # contains different simulation steps, and at each point the expression of the modules of interest, together with their nextstateid, which can be used to find for each "real" cell what the probability will be to get to a next stateid
   
   plot(
     ggplot(observations) +
-      geom_path(aes_string(endmodules[[1]], endmodules[[2]], group="simulationid", color="nextpiecestateidoi")) + coord_equal()
+      geom_path(aes_string(endmodules[[1]], endmodules[[2]], group="simulationid", color="nextstateidoi")) + coord_equal()
   )
   
   observations_expression = observations[, endmodules]
   
-  cellsoi = cellinfo %>% filter(piecestateid %in% bifurcation$piecestateids)
+  cellsoi = cellinfo %>% filter(stateid %in% bifurcation$stateids)
   cellsoi_expression = experiment$expression_modules[cellsoi$cell, endmodules]
   
   H = matrix(c(0.1, 0, 0, 0.1)*0.05, ncol=2)
-  observations_expression = observations %>% filter(nextpiecestateidoi == bifurcation$nextpiecestateids[[1]]) %>% .[, endmodules]
+  observations_expression = observations %>% filter(nextstateidoi == bifurcation$nextstateids[[1]]) %>% .[, endmodules]
   density1 = ks::kde(observations_expression, H=H)
-  observations_expression = observations %>% filter(nextpiecestateidoi == bifurcation$nextpiecestateids[[2]]) %>% .[, endmodules]
+  observations_expression = observations %>% filter(nextstateidoi == bifurcation$nextstateids[[2]]) %>% .[, endmodules]
   density2 = ks::kde(observations_expression, H=H)
   
   pheatmap(log2((density1$estimate+0.001)/(density2$estimate+0.001)), cluster_cols=F, cluster_rows=F)
@@ -80,8 +80,8 @@ get_bias_density = function(bifurcation, experiment, cellinfo, gs, k=10) {
   perc1 = x1s / (1+x1s)
   perc2 = 1-perc1
   cellbiases = tibble(cell=cellsoi$cell)
-  cellbiases[, as.character(bifurcation$nextpiecestateids[[1]])] = perc1
-  cellbiases[, as.character(bifurcation$nextpiecestateids[[2]])] = perc2
+  cellbiases[, as.character(bifurcation$nextstateids[[1]])] = perc1
+  cellbiases[, as.character(bifurcation$nextstateids[[2]])] = perc2
   
   cellbiases
 }
@@ -90,32 +90,32 @@ get_bias = get_bias_knn
 
 # get_milestones = function(experiment, gs) {
 #   # construct the milestonenet
-#   # similar to piecestatenet, but with deduplication of circular edges
+#   # similar to statenet, but with deduplication of circular edges
 #   # and added start-end milestones
 #   
 #   ## deduplication of cycles: from 1->1 to 1->2->3->1
-#   maxprogressions = gs$reference$cellinfo %>% group_by(piecestateid) %>% summarise(maxprogression=max(progression)) %>% {set_names(.$maxprogression, .$piecestateid)}
-#   milestonenet = gs$piecestatenet %>% select(from, to)
-#   cellinfo = gs$cellinfo %>% mutate(piecestateid = as.numeric(piecestateid))
+#   maxprogressions = gs$reference$cellinfo %>% group_by(stateid) %>% summarise(maxprogression=max(progression)) %>% {set_names(.$maxprogression, .$stateid)}
+#   milestonenet = gs$statenet %>% select(from, to)
+#   cellinfo = gs$cellinfo %>% mutate(stateid = as.numeric(stateid))
 #   
-#   milestone2piecestateid = unique(c(gs$piecestatenet$from, gs$piecestatenet$to)) %>% {set_names(., .)}
+#   milestone2stateid = unique(c(gs$statenet$from, gs$statenet$to)) %>% {set_names(., .)}
 #   
 #   if(nrow(milestonenet) > 0) {
 #     maxpieceid = (milestonenet %>% select(from, to) %>% max) + 1 # next name for a pieceid
-#     for (piecestateid in milestonenet %>% filter(from == to) %>% .$from) {
-#       newpieces = c(piecestateid, seq(maxpieceid, length.out=2))
+#     for (stateid in milestonenet %>% filter(from == to) %>% .$from) {
+#       newpieces = c(stateid, seq(maxpieceid, length.out=2))
 #       
-#       progressionpartition = maxprogressions[[piecestateid]] / 3
+#       progressionpartition = maxprogressions[[stateid]] / 3
 #       
-#       cellinfo[cellinfo$piecestateid == piecestateid, ] <- cellinfo[cellinfo$piecestateid == piecestateid, ] %>% mutate(
-#         piecestateid = newpieces[ceiling(progression/progressionpartition)],
+#       cellinfo[cellinfo$stateid == stateid, ] <- cellinfo[cellinfo$stateid == stateid, ] %>% mutate(
+#         stateid = newpieces[ceiling(progression/progressionpartition)],
 #         progression = progression %% progressionpartition
 #       )
 #       
-#       milestone2piecestateid[as.character(newpieces)] = piecestateid
+#       milestone2stateid[as.character(newpieces)] = stateid
 #       
 #       maxprogressions <- c(maxprogressions, set_names(rep(progressionpartition, 2), as.character(newpieces[c(2, 3)])))
-#       maxprogressions[[as.character(piecestateid)]] <- progressionpartition
+#       maxprogressions[[as.character(stateid)]] <- progressionpartition
 #       
 #       milestonenet <- bind_rows(milestonenet, tibble(from=c(newpieces), to=c(newpieces[c(2, 3,1)])))
 #       
@@ -130,16 +130,16 @@ get_bias = get_bias_knn
 #   milestonenet$length = maxprogressions[milestonenet$from]
 #   
 #   
-#   # piecestateids: where to get the reference cells, to which piecestates can these belong? nextpiecestateids: possible follow up piecestateids.; tentpiecestateid: the starting piecestateid for the tent
-#   bifurcations = lapply(gs$piecestatenet %>% count(from) %>% filter(n>1) %>% .$from, function(bifurcation_piecestateid) {
-#     nextpiecestateids = gs$piecestatenet %>% filter(from==bifurcation_piecestateid) %>% .$to
-#     nextpiecestate_firststates = map_int(nextpiecestateids, ~gs$piecestates[[.]][[1]])
-#     endmodules = experiment$model$modulenodes$module[match(nextpiecestate_firststates, experiment$model$modulenodes$state)]
+#   # stateids: where to get the reference cells, to which states can these belong? nextstateids: possible follow up stateids.; tentstateid: the starting stateid for the tent
+#   bifurcations = lapply(gs$statenet %>% count(from) %>% filter(n>1) %>% .$from, function(bifurcation_stateid) {
+#     nextstateids = gs$statenet %>% filter(from==bifurcation_stateid) %>% .$to
+#     nextstate_firststates = map_int(nextstateids, ~gs$states[[.]][[1]])
+#     endmodules = experiment$model$modulenodes$module[match(nextstate_firststates, experiment$model$modulenodes$state)]
 #     
 #     list(
-#       piecestateids = bifurcation_piecestateid,
-#       nextpiecestateids = nextpiecestateids,
-#       tentpiecestateid = bifurcation_piecestateid,
+#       stateids = bifurcation_stateid,
+#       nextstateids = nextstateids,
+#       tentstateid = bifurcation_stateid,
 #       endmodules = endmodules
 #     )
 #   })
@@ -151,20 +151,20 @@ get_bias = get_bias_knn
 #   
 #   percentages = lapply(seq_len(nrow(cellinfo)), function(cellid) {
 #     cellinfo = cellinfo[cellid, ]
-#     nextpiecestateids = milestonenet %>% filter(from == cellinfo$piecestateid) %>% .$to
+#     nextstateids = milestonenet %>% filter(from == cellinfo$stateid) %>% .$to
 #     
-#     frompercentage = cellinfo$progression/maxprogressions[[as.character(cellinfo$piecestateid)]]
+#     frompercentage = cellinfo$progression/maxprogressions[[as.character(cellinfo$stateid)]]
 #     
-#     if(length(nextpiecestateids) > 1) {
+#     if(length(nextstateids) > 1) {
 #       # if bifurcating
-#       topercentages = cellbiases %>% filter(cell == cellinfo$cell) %>% .[, as.character(milestone2piecestateid[as.character(nextpiecestateids)])] %>% as.list() %>% unlist()
+#       topercentages = cellbiases %>% filter(cell == cellinfo$cell) %>% .[, as.character(milestone2stateid[as.character(nextstateids)])] %>% as.list() %>% unlist()
 #     } else {
 #       # if just progressing forward
-#       topercentages = 1 %>% set_names(nextpiecestateids)
+#       topercentages = 1 %>% set_names(nextstateids)
 #     }
 #     
 #     percentages = (1-frompercentage) * topercentages
-#     percentages[[as.character(cellinfo$piecestateid)]] = frompercentage
+#     percentages[[as.character(cellinfo$stateid)]] = frompercentage
 #     
 #     tibble(cell=cellinfo$cell, percentage=percentages, milestone=as.numeric(names(percentages)))
 #   }) %>% bind_rows()
