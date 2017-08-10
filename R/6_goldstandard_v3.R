@@ -14,7 +14,6 @@ extract_tobecomes <- function(simulations, states) {
   max_before_breakpoint_expression = 0.1
   min_after_breakpoint_expression = 0.5
   for (simulation_id in seq_along(simulations)) {
-    print(simulation_id)
     
     expression_modules_scaled = quant_scale_combined(simulations[[simulation_id]]$expression_modules)
     
@@ -181,7 +180,7 @@ divide_pieces <- function(simulations, tobecomes, states) {
         if(curstate$type == "bifurcation" && !is.na(row$nextstate_id)) {
           # BIFURCATING
           
-          print("looking for earliest bifurcation moment")
+          #print("looking for earliest bifurcation moment")
           
           reference = references[[as.character(curstate$state_id)]]
           
@@ -193,14 +192,14 @@ divide_pieces <- function(simulations, tobecomes, states) {
             result$p.value = ifelse(is.na(result$p.value), 1, result$p.value)
             
             if(result$p.value > 0.05) {
-              print(glue::glue("split at {i}"))
+              #print(glue::glue("split at {i}"))
               break()
             }
           }
         } else if(curstate$type == "convergence") {
           ## CHECK FOR CONVERGENCE
           
-          print("looking for first convergence moment")
+          #print("looking for first convergence moment")
           
           reference = references[[as.character(curstate$to)]]
           
@@ -213,7 +212,7 @@ divide_pieces <- function(simulations, tobecomes, states) {
             result$p.value = ifelse(is.na(result$p.value), 1, result$p.value)
             
             if(result$p.value > 0.05) {
-              print(glue::glue("converged at {i}"))
+              #print(glue::glue("converged at {i}"))
               break()
             }
           }
@@ -269,17 +268,19 @@ extract_piece_times <- function(pieces, states) {
     if(length(state)) {iscycle = state[[1]] %>% {.$state_id %in% .$to}} else {iscycle=FALSE} # check whether this state is a cycle, for circular averaging of times
     
     expressions <- pieces %>% filter(state_id==state_idoi) %>% .$expression 
-    expressions_filtered <- expressions %>% map(~.[as.integer(seq(1, nrow(.), length.out=min(20, nrow(.)))), ,drop=FALSE])
+    expressions_filtered <- expressions %>% map(~.[as.integer(seq(1, nrow(.), length.out=min(5, nrow(.)))), ,drop=FALSE])
     
     combined <- expressions_filtered %>% invoke(rbind, .)
     
     init.traj = expressions_filtered[[expressions %>% map_int(nrow) %>% which.max]]
-    fit <- princurve::principal.curve(combined, start = init.traj, plot.true = F, trace = F, stretch = 0)
-    times <- fit$lambda / max(fit$lambda)
+    fit <- princurve::principal.curve(combined, start = init.traj, plot.true = FALSE, trace = FALSE, stretch = 1)
+    times <- fit$lambda #/ max(fit$lambda)
     
     splitAt <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
     
     times <- splitAt(times, (map_int(expressions_filtered, nrow) %>% cumsum) + 1) # split according to piece
+    times <- map(times, ~((. - .[[1]]) * (max(.) - min(.))))
+    times <- map(times, ~pmax(., cummax(.)))
     
     map(seq_along(expressions), function(piece_id) {
       expressionoi <- expressions[[piece_id]]
@@ -308,6 +309,7 @@ extract_goldstandard <- function(simulation, verbose=FALSE, smooth=FALSE) {
   
   if(verbose) {print("exact division")}
   pieces <- divide_pieces(simulation$simulations, tobecomes, simulation$model$states)
+  pieces <- check_division_quality(pieces, 0.5) %>% filter(!check)
   
   cellinfo <- pieces %>% unnest(cell_id, step_id, piecestep_id) %>% select(-start_step_id, -end_step_id)
   
@@ -316,7 +318,9 @@ extract_goldstandard <- function(simulation, verbose=FALSE, smooth=FALSE) {
   gs$cellinfo <- cellinfo
   
   if(verbose) {print("converting to milestones")}
-  gs <- c(gs, get_milestones(simulation$simulations, simulation$model, gs))
+  gs <- c(gs, get_milestones(simulation$simulations, simulation$model, gs, pieces))
+  
+  gs$milestone_percentages %>% left_join(cellinfo, by="cell_id") %>% filter(simulation_id == 9) %>% arrange(step_id) %>% ggplot() + geom_point(aes(step_id, percentage)) + facet_grid(milestone_id~.)
   
   gs
 }
@@ -401,7 +405,7 @@ plot_goldstandard_percentages <- function(experiment, gs) {
 
 
 # needs: model$states, gs$cellinfo
-get_milestones <- function(simulations, model, gs) {
+get_milestones <- function(simulations, model, gs, pieces) {
   # construct the milestone_network
   # similar to statenet, but with deduplication of circular edges
   # and added start-end milestones
@@ -411,9 +415,6 @@ get_milestones <- function(simulations, model, gs) {
   cellinfo <- gs$cellinfo %>% mutate(state_id = as.numeric(state_id))
   
   maxtimes <- gs$cellinfo %>% group_by(state_id) %>% summarise(maxtime=max(time)) %>% {set_names(.$maxtime, .$state_id)}
-  
-  milestone2state_id <- unique(c(statenet$from, statenet$to)) %>% keep(~!is.na(.)) %>% {set_names(., .)}
-  
   
   ## deduplication of cycles: from 1->1 to 1->2->3->1
   if(nrow(milestone_network) > 0) {
@@ -430,8 +431,6 @@ get_milestones <- function(simulations, model, gs) {
         time = time %% timepartition
       )
       
-      milestone2state_id[as.character(newpieces)] <- state_id
-      
       maxtimes <- c(maxtimes, set_names(rep(timepartition, 2), as.character(newpieces[c(2, 3)])))
       maxtimes[[as.character(state_id)]] <- timepartition
       
@@ -443,23 +442,105 @@ get_milestones <- function(simulations, model, gs) {
   }
   
   # add terminal nodes
-  terminalnodes <- c(milestone_network$from[is.na(milestone_network$to)], milestone_network$to[!(milestone_network$to %in% milestone_network$from)]) %>% keep(~!is.na(.))
+  terminalnodes <- c(milestone_network$from[is.na(milestone_network$to)], milestone_network$to[!(milestone_network$to %in% milestone_network$from)]) %>% keep(~!is.na(.)) %>% unique
   milestone_network <- milestone_network %>% bind_rows(tibble(from = terminalnodes, to=seq(max(c(milestone_network$from, milestone_network$to) %>% keep(~!is.na(.))) + 1, length.out=length(terminalnodes)))) %>% filter(!is.na(to))
   
-  milestone_network$length <- maxtimes[milestone_network$from]
+  milestone_network$length <- maxtimes[as.character(milestone_network$from)]
   
-  # join with milestone_network, find from percentage, use this to get to percentage(s) for every to
+  bifurcations = lapply(milestone_network %>% count(from) %>% filter(n>1) %>% .$from, function(start_milestone_id) {
+    tibble::lst(
+      start_milestone_id,
+      next_milestone_ids = milestone_network %>% filter(from==start_milestone_id) %>% .$to,
+    )
+  })
+  
+  print("calcualting biases...")
+  biases <- map(bifurcations, get_bias, pieces=pieces) %>% bind_rows()
+  
+  # join with milestone_network, find from percentage, use this to get to percentage(s) for every milestone
+  # when bifurcating, all next milestones get the same percentage (has to be corrected using their bias, which sums to one)
   milestone_percentages <- cellinfo %>% left_join(milestone_network, by=c("state_id"="from")) %>% 
     mutate(from=state_id, from_percentage=1-time/maxtimes[as.character(from)]) %>% 
     group_by(cell_id) %>% 
-    mutate(to_percentage=(1-from_percentage)/length(to)) %>% 
-    summarise(milestone=list(c(from[[1]], to)), percentage=list(c(from_percentage[[1]], to_percentage))) %>% 
-    unnest(milestone, percentage)
+    mutate(to_percentage=(1-from_percentage)) %>% 
+    summarise(milestone_id=list(c(from[[1]], to)), percentage=list(c(from_percentage[[1]], to_percentage))) %>% 
+    unnest(milestone_id, percentage)
+  
+  # now take into account the bias
+  if(nrow(biases) > 0) {
+    milestone_percentages <- left_join(milestone_percentages, biases, by=c("cell_id", "milestone_id")) %>% 
+      mutate(bias=ifelse(is.na(bias), 1, bias)) %>% 
+      mutate(percentage=bias * percentage)
+  }
   
   progression <- cellinfo %>% left_join(milestone_network, by=c("state_id"="from")) %>% 
     mutate(from=state_id, from_percentage=1-time/maxtimes[as.character(from)]) %>% 
     group_by(cell_id) %>% 
-    mutate(to_percentage=(1-from_percentage)/length(to)) %>% select(from, to, to_percentage) %>% rename(percentage=to_percentage)
+    mutate(to_percentage=(1-from_percentage)/length(to)) %>% select(cell_id, from, to, to_percentage) %>% rename(percentage=to_percentage)
   
   tibble::lst(milestone_percentages, milestone_network, progression)
+}
+
+
+
+
+
+
+
+
+
+
+get_bias <- function(bifurcation, pieces) {
+  subpieces <- pieces %>% filter((state_id == bifurcation$start_milestone_id) & (nextstate_id %in% bifurcation$next_milestone_ids))
+  
+  combined <- subpieces$expression %>% invoke(rbind, .)
+  combined_nextmilestone_ids <- map2(subpieces$expression, subpieces$nextstate_id, ~rep(.y, nrow(.x))) %>% invoke(c, .)
+  
+  # using knn
+  # use a fast (approximate) KNN to compute the nearest neighbors quickly
+  k <- 100
+  result <- FNN::knn.index(combined, k = k)
+  nearest_neighbors <- result %>% reshape2::melt(varnames=c("row_id", "k_id"), value.name= "neighbor_row_id")
+  nearest_neighbors$cell_id <- rownames(combined)[nearest_neighbors$row_id]
+  nearest_neighbors$milestone_id <- combined_nextmilestone_ids[nearest_neighbors$neighbor_row_id]
+  
+  # # using distance
+  # subsample_ids <- sample(seq_len(nrow(combined)), 5000)
+  # combined_sampled <- combined[subsample_ids, ]
+  # combined_nextmilestone_ids_sampled <- combined_nextmilestone_ids[subsample_ids]
+  # distances <- pdist::pdist(combined, combined_sampled) %>% as.matrix()
+  # nearest_neighbors <- reshape2::melt(distances, varnames=c("row_id", "subsample_id"), value.name="distance") %>% filter(distance < quantile(distance, 0.1)) %>% mutate(
+  #   cell_id = rownames(combined)[row_id],
+  #   milestone_id = combined_nextmilestone_ids_sampled[subsample_id]
+  # )
+  
+  bias <- nearest_neighbors %>% group_by(cell_id, milestone_id) %>% summarise(n=n()) %>% group_by(cell_id) %>% mutate(bias=n/sum(n))
+  
+  # add missing values (if none of the neighbors were biased)
+  bias <- bias %>% reshape2::acast(cell_id~milestone_id, value.var="bias", fill=0) %>% reshape2::melt(varnames=c("cell_id", "milestone_id"), value.name="bias")
+  
+  bias
+}
+
+check_division_quality <- function(pieces, max_mean_dist) {
+  pieces %>% 
+    group_by(state_id) %>% 
+    mutate(check=check_pieces_quality(expression)) %>% 
+    ungroup()
+  #group_by(simulation_id) %>% 
+  #summarise(any(check))
+}
+
+check_pieces_quality <- function(expressions, max_mean_dist=0.5) {
+  start_dists <- map(expressions, ~.[1, ]) %>% invoke(rbind, .) %>% dist %>% as.matrix() %>% rowMeans()
+  end_dists <- map(expressions, ~.[nrow(.), ]) %>% invoke(rbind, .) %>% dist %>% as.matrix() %>% rowMeans()
+  
+  max_mean_start_dist <- start_dists %>% quantile(0.8) * 2
+  max_mean_end_dist <- end_dists %>% quantile(0.8) * 2
+  
+  problem_pieces <- (start_dists >max_mean_start_dist) | (end_dists > max_mean_end_dist)
+  
+  if(any(problem_pieces)) {warning("problem pieces")}
+  
+  problem_pieces
 }

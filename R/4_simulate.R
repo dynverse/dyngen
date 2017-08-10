@@ -129,7 +129,7 @@ take_experiment_cells <- function(simulations, takesettings = list(type="snapsho
     })
   }
   expression <- map(samples, "expression") %>% purrr::invoke(rbind, .)
-  rownames(expression) <- paste0("C", seq_len(nrow(expression)))
+  #rownames(expression) <- paste0("C", seq_len(nrow(expression)))
   cellinfo <- map(samples, "cellinfo") %>% bind_rows() %>% mutate(cell_id=rownames(expression))
   
   tibble::lst(cellinfo, expression)

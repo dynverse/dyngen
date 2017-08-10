@@ -66,54 +66,66 @@ saver(simulations, "simulations")
 ## Extract gold standards-------------------
 # only retain smoothed module data, as this is the only data needed for gold standards
 # this makes it easier to transfer data to the cluster
-sub = simulations %>% map(function(simulations) {
-  simulations$simulations = map(simulations$simulations, ~list(expression_modules = .$expression_modules))
-  simulations
-})
-
-goldstandards <- pbapply::pblapply(sub, function(x){
+goldstandards <- pbapply::pblapply(overviewer("simulations")$id, function(x){
+  simulation <- loader(x, "simulations")[[1]]
+  simulation$simulations = map(simulation$simulations, ~list(expression_modules = .$expression_modules))
+  
   print("----")
   library(magrittr)
   library(tidyverse)
   library(dambiutils)
-  dyngen:::extract_goldstandard(x, smooth=FALSE, verbose = TRUE)
-})#, mc.cores=8)#, qsub_environment = list2env(list()))
-goldstandards <- map2(goldstandards, simulations, function(gs, simulation) {
+  gs <- dyngen:::extract_goldstandard(simulation, smooth=FALSE, verbose = TRUE)
+  
   gs$info <- list(
     id=simulation$info$id, 
     simulation_id = simulation$info$id, 
     model_id = simulation$info$model_id,
     version = .version
   )
+  
   gs
-})
+})#, mc.cores=8)#, qsub_environment = list2env(list()))
 
 saver(goldstandards, "goldstandards")
 
 ## Extract experiments-------------------
-experimentsettings <- expand.grid(simulation=seq_along(simulations), takesetting=seq_along(takesettings))
+experimentsettings <- expand.grid(simulation_id=overviewer("simulations")$id, takesetting=seq_along(takesettings))
 experiments <- map2(experimentsettings$simulation, experimentsettings$takesetting, function(simulation_id, takesetting_id) {
-  experiment <- run_experiment(simulations[[simulation_id]], takesettings[[takesetting_id]])
-  experiment$info$model_id <- models[[simulation_id]]$info$id
-  experiment$info$goldstandard_id <- goldstandards[[simulation_id]]$info$id
-  experiment$info$simulation_id <- simulations[[simulation_id]]$info$id
-  experiment$info$id <- paste0(models[[simulation_id]]$info$id, "_", takesettings[[takesetting_id]]$type)
+  
+  simulation <- loader(simulation_id, "simulations")[[1]]
+  
+  goldstandard <- goldstandards[[simulation_id]]
+  
+  experiment <- run_experiment(simulation, takesettings[[takesetting_id]])
+  
+  # require a gold standard value
+  experiment$expression <- experiment$expression[experiment$cellinfo$cell_id %in% goldstandard$cellinfo$cell_id, ]
+  experiment$cellinfo <- experiment$cellinfo[experiment$cellinfo$cell_id %in% goldstandard$cellinfo$cell_id, ]
+  
+  experiment$takesetting <- takesettings[[takesetting_id]]
+  
+  experiment$info$model_id <- simulation$info$model_id
+  experiment$info$goldstandard_id <- goldstandard$info$id
+  experiment$info$simulation_id <- simulation$info$id
+  experiment$info$id <- paste0(simulation$info$id, "_", takesettings[[takesetting_id]]$type)
   experiment$info$version <- .version
   experiment
 })
 saver(experiments, "experiments")
 
 # plot gold standards-------------------
-walk(experiments, function(experiment) {
+parallel::mclapply(experiments, function(experiment) {
   print(experiment$info$id)
   gs <- goldstandards %>% keep(~(.$info$id == experiment$info$goldstandard_id)) %>% first
   
   plot = plot_goldstandard(experiment=experiment, gs) %>% unlist(recursive=FALSE) %>% 
     cowplot::plot_grid(plotlist = ., ncol=2) %>% cowplot::add_sub(experiment$info$id)
   
+  cowplot::ggdraw(plot)
+  
   dir.create(dirname(paste0("images/", experiment$info$id, ".png")), recursive = TRUE)
-  ggsave(paste0("images/", experiment$info$id, ".png"), plot, width = 10, height=10)
-})
+  ggsave(paste0("images/", experiment$info$id, ".png"), plot, width = 5, height=5)
+}, mc.cores = 8)
 
 
 ## Run scRNAseq----------------------
