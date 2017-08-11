@@ -66,19 +66,6 @@ get_states = function(expression_modules, model, minexpression = 0.8, minratio =
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Get cell distances in gold standard
 # Goal: get a pairwise distance matrix between all cells, based on their branch and progression in the gold standard
 #' @import dplyr
@@ -182,7 +169,7 @@ get_cell_distance_func = function(snet, state1, state2) {
 #func(0.2, 0.3)
 
 #' @import dplyr
-#' @import purrr
+#' @importFrom purrr map %>%
 get_cell_distances = function(cellinfo, snet) {
   cellinfo$state = factor(cellinfo$state) # make sure this is a factor, because if some states are missing this will mess up the indexing
   allstates = unique(cellinfo$state) %>% sort

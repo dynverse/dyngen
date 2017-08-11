@@ -4,7 +4,7 @@
 \alias{saver}
 \title{Save a dataset of a particular type}
 \usage{
-saver(x, type)
+saver(x, type, overview_only = FALSE)
 }
 \description{
 Save a dataset of a particular type
