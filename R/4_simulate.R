@@ -1,5 +1,5 @@
 #' @import dplyr
-#' @import purrr
+#' @importFrom purrr %>% map map_int
 #' @import fastgssa
 simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
@@ -137,7 +137,7 @@ take_experiment_cells <- function(simulations, takesettings = list(type="snapsho
 
 #' @import dplyr
 #' @import ggplot2
-#' @import purrr
+#' @importFrom purrr %>% map map_int map2
 process_simulation = function(molecules, celltimes, simulation_ids=1, step_ids=1, simulations=NULL) {
   rownames(molecules) = paste0("C", seq_len(nrow(molecules)))
   cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulation_id=simulation_ids, step_id=step_ids, simulationstep_id = paste0(simulation_ids, "_", step_ids))
@@ -161,7 +161,7 @@ process_simulation = function(molecules, celltimes, simulation_ids=1, step_ids=1
 
 #' @import dplyr
 #' @import ggplot2
-#' @import purrr
+#' @importFrom purrr %>% map map_int 
 plot_simulations = function(simulations, samplingrate=0.1) {
   for (i in seq_len(length(simulations))) {
     sample = sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))

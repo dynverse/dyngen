@@ -48,7 +48,7 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
 
 ## determine start state genes (active during burn-in)
 #' @import dplyr
-#' @import purrr
+#' @importFrom purrr %>% map map_int
 determine_burngenes = function(model) {
   variables_genes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist()
   (variables_genes %in% (model$geneinfo %>% filter(as.logical(burn)) %>% .$gene)) %>% variables_genes[.]

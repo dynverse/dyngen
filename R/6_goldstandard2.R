@@ -1,4 +1,5 @@
 #' @import dplyr
+#' @importFrom purrr %>% map map_int
 get_piecenet = function(statenet) {
   piecenet = statenet %>% select(from, to) %>% mutate(contains = map(seq_len(nrow(statenet)), ~integer()))
   for (node in unique(c(statenet$from, statenet$to))) {
@@ -116,7 +117,7 @@ divide_simulation = function(progressioninfo, states, expression_smooth) {
 
 # now use this to scale all simulations
 #' @import dplyr
-#' @import purrr
+#' @importFrom purrr %>% map
 #' @import ggplot2
 divide_simulations = function(simulations, states, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
@@ -157,7 +158,7 @@ divide_simulations = function(simulations, states, model) {
 
 # determine average expression, mapped to the first piece
 #' @import dplyr
-#' @import purrr
+#' @importFrom purrr %>% map map_int
 average_pieces = function(piecesoi, model) {
   total = tibble()
   piece1id = piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
@@ -186,7 +187,7 @@ average_pieces = function(piecesoi, model) {
 
 # determine average expression, mapped to an average piece
 #' @import dplyr
-#' @import purrr
+#' @importFrom purrr %>% map map_int
 average_pieces = function(piecesoi, model, bw=0.05) {
   expressions = piecesoi$expression
   xs = map(expressions, ~seq(0, 1, length.out=nrow(.))) %>% unlist()
@@ -200,6 +201,7 @@ average_pieces = function(piecesoi, model, bw=0.05) {
 }
 
 #' @import dplyr
+#' @importFrom purrr %>% map
 get_reference_expression = function(pieces, model) {
   reference_list = lapply(unique(pieces$stateid) %>% sort, function(stateidoi) {
     piecesoi = pieces %>% filter(stateid == stateidoi)
