@@ -4,8 +4,7 @@
 \alias{load_dataset}
 \title{Load a dataset}
 \usage{
-load_dataset(datasetid, contents = list(simulation = FALSE, goldstandard =
-  TRUE, model = TRUE, experiment = TRUE))
+load_dataset(datasetid, contents = contents_dataset())
 }
 \description{
 Load a dataset

@@ -362,15 +362,15 @@ plot_goldstandard <- function(gs,experiment=NULL, simulations=NULL, plot_what="p
       plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cell_id=rownames(.)) %>% left_join(gs$cellinfo, by="cell_id")
       
       list(
-        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=state_id, group=simulation_id))
+        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=state_id, group=simulation_id)) + coord_equal()
         ,
-        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=time, group=simulation_id)) + viridis::scale_color_viridis()
+        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=time, group=simulation_id)) + viridis::scale_color_viridis() + coord_equal()
       )
     } else if (plot_what == "percentages") {
       plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cell_id=rownames(.)) %>% left_join(gs$cellinfo, by="cell_id") %>% right_join(gs$milestone_percentages, by="cell_id")
       
       list(
-        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=percentage)) + facet_wrap(~milestone) + viridis::scale_color_viridis(option="B", direction = -1)
+        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=percentage)) + facet_wrap(~milestone) + viridis::scale_color_viridis(option="B", direction = -1) + coord_equal()
       )
     }
   })

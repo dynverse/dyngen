@@ -39,7 +39,7 @@ models <- map(modelsettings, function(modelsetting) {
 })
 models <- map2(models, modelsettings, function(model, modelsetting) {
   model$info <- list(
-    id = paste0(modelsetting$modelgenerator$modulenetname, "_", modelsetting$replicate),
+    id = paste0(modelsetting$modelgenerator$modulenetname, "-", modelsetting$replicate),
     version = .version
   )
   class(model) <- "dyngen::model"
@@ -144,7 +144,7 @@ datasets = lapply(experiments, function(experiment) {
     dataset
   })
 }) %>% unlist(recursive=F)
-saver(datasets, "datasets", overview_only=TRUE)
+saver(datasets, "datasets")
 
 ## Sync to prism
 PRISM:::rsync_remote("", paste0("~/thesis/projects/dyngen/results/", .version, "/"), "prism", paste0("/group/irc/shared/dyngen_results/", .version, "/"))
