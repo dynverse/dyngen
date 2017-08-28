@@ -414,6 +414,8 @@ get_milestones <- function(simulations, model, gs, pieces) {
   milestone_network <- statenet
   cellinfo <- gs$cellinfo %>% mutate(state_id = as.numeric(state_id))
   
+  state2milestone <- unique(c(statenet$from, statenet$to)) %>% {setNames(., .)}
+  
   maxtimes <- gs$cellinfo %>% group_by(state_id) %>% summarise(maxtime=max(time)) %>% {set_names(.$maxtime, .$state_id)}
   
   ## deduplication of cycles: from 1->1 to 1->2->3->1
@@ -431,6 +433,9 @@ get_milestones <- function(simulations, model, gs, pieces) {
         time = time %% timepartition
       )
       
+      # in case of bifurcations and cycling, the next state_id does not match the correct milestone_id anymore, therefore change this here
+      pieces$nextstate_id[pieces$nextstate_id == state_id] = newpieces[2]
+      
       maxtimes <- c(maxtimes, set_names(rep(timepartition, 2), as.character(newpieces[c(2, 3)])))
       maxtimes[[as.character(state_id)]] <- timepartition
       
@@ -447,10 +452,10 @@ get_milestones <- function(simulations, model, gs, pieces) {
   
   milestone_network$length <- maxtimes[as.character(milestone_network$from)]
   
-  bifurcations = lapply(milestone_network %>% count(from) %>% filter(n>1) %>% .$from, function(start_milestone_id) {
+  bifurcations <- lapply(milestone_network %>% count(from) %>% filter(n>1) %>% .$from, function(start_milestone_id) {
     tibble::lst(
       start_milestone_id,
-      next_milestone_ids = milestone_network %>% filter(from==start_milestone_id) %>% .$to,
+      next_milestone_ids = milestone_network %>% filter(from==start_milestone_id) %>% .$to
     )
   })
   
@@ -491,18 +496,25 @@ get_milestones <- function(simulations, model, gs, pieces) {
 
 
 get_bias <- function(bifurcation, pieces) {
-  subpieces <- pieces %>% filter((state_id == bifurcation$start_milestone_id) & (nextstate_id %in% bifurcation$next_milestone_ids))
+  
+  subpieces <- pieces %>% filter(state_id == bifurcation$start_milestone_id)
+  #subpieces <- pieces %>% filter((state_id == bifurcation$start_milestone_id) & (nextstate_id %in% bifurcation$next_milestone_ids))
   
   combined <- subpieces$expression %>% invoke(rbind, .)
   combined_nextmilestone_ids <- map2(subpieces$expression, subpieces$nextstate_id, ~rep(.y, nrow(.x))) %>% invoke(c, .)
   
+  # filter on cells for which their destination is known
+  # this is the reference
+  combined2 <- combined[!is.na(combined_nextmilestone_ids),]
+  combined2_nextmilestone_ids <- combined_nextmilestone_ids[!is.na(combined_nextmilestone_ids)]
+  
   # using knn
   # use a fast (approximate) KNN to compute the nearest neighbors quickly
   k <- 100
-  result <- FNN::knn.index(combined, k = k)
+  result <- FNN::knnx.index(combined2, combined, k = k)
   nearest_neighbors <- result %>% reshape2::melt(varnames=c("row_id", "k_id"), value.name= "neighbor_row_id")
   nearest_neighbors$cell_id <- rownames(combined)[nearest_neighbors$row_id]
-  nearest_neighbors$milestone_id <- combined_nextmilestone_ids[nearest_neighbors$neighbor_row_id]
+  nearest_neighbors$milestone_id <- combined2_nextmilestone_ids[nearest_neighbors$neighbor_row_id]
   
   # # using distance
   # subsample_ids <- sample(seq_len(nrow(combined)), 5000)
