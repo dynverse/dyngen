@@ -434,7 +434,8 @@ get_milestones <- function(simulations, model, gs, pieces) {
       )
       
       # in case of bifurcations and cycling, the next state_id does not match the correct milestone_id anymore, therefore change this here
-      pieces$nextstate_id[pieces$nextstate_id == state_id] = newpieces[2]
+      # very strong limitations of the percentage based system here...
+      pieces$nextstate_id[pieces$nextstate_id == state_id] = newpieces[2] # fix nextstate_id
       
       maxtimes <- c(maxtimes, set_names(rep(timepartition, 2), as.character(newpieces[c(2, 3)])))
       maxtimes[[as.character(state_id)]] <- timepartition
@@ -460,7 +461,7 @@ get_milestones <- function(simulations, model, gs, pieces) {
   })
   
   print("calcualting biases...")
-  biases <- map(bifurcations, get_bias, pieces=pieces) %>% bind_rows()
+  biases <- map(bifurcations, get_bias, pieces=pieces, cellinfo=cellinfo) %>% bind_rows()
   
   # join with milestone_network, find from percentage, use this to get to percentage(s) for every milestone
   # when bifurcating, all next milestones get the same percentage (has to be corrected using their bias, which sums to one)
@@ -495,13 +496,19 @@ get_milestones <- function(simulations, model, gs, pieces) {
 
 
 
-get_bias <- function(bifurcation, pieces) {
+get_bias <- function(bifurcation, pieces, cellinfo) {
   
   subpieces <- pieces %>% filter(state_id == bifurcation$start_milestone_id)
   #subpieces <- pieces %>% filter((state_id == bifurcation$start_milestone_id) & (nextstate_id %in% bifurcation$next_milestone_ids))
   
   combined <- subpieces$expression %>% invoke(rbind, .)
   combined_nextmilestone_ids <- map2(subpieces$expression, subpieces$nextstate_id, ~rep(.y, nrow(.x))) %>% invoke(c, .)
+  
+  # now filter combined on those cells which are in this state
+  # this is a fix because the states of some cells get changed due to decycling because of conversion from progression to milestone system
+  filter_combined <- rownames(combined) %in% cellinfo$cell_id[cellinfo$state_id == bifurcation$start_milestone_id]
+  combined_nextmilestone_ids <- combined_nextmilestone_ids[filter_combined]
+  combined <- combined[filter_combined, ]
   
   # filter on cells for which their destination is known
   # this is the reference
