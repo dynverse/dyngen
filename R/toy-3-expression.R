@@ -44,6 +44,8 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
   
   expression <- expression + rnorm(length(expression), 0, noise_std)
   
+  expression <- expression[unique(progressions$cell_id), ]
+  
   expression
 }
 
