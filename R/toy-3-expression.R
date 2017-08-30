@@ -49,6 +49,12 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
   expression
 }
 
+#' @export
+generate_counts <- function(expression) {
+  counts <- round(expression * 100)
+  counts[counts < 0] <- 0
+}
+
 
 # library(tidyverse)
 # 
