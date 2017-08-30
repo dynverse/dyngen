@@ -2,10 +2,10 @@
 % Please edit documentation in R/toy-2-cells.R
 \name{random_progressions}
 \alias{random_progressions}
-\title{No tenting!}
+\title{Assign random progressions without tenting}
 \usage{
 random_progressions(milestone_network, ncells = 100)
 }
 \description{
-No tenting!
+Assign random progressions without tenting
 }

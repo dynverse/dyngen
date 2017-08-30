@@ -1,4 +1,4 @@
-#' No tenting!
+#' Assign random progressions without tenting
 #' @export
 random_progressions <- function(milestone_network, ncells=100) {
   cell_ids <- paste0("C", seq_len(ncells))
@@ -8,7 +8,7 @@ random_progressions <- function(milestone_network, ncells=100) {
     select(cell_id, from, to, percentage)
 }
 
-#' With tenting!
+#' Assign random progressions with tenting
 #' @export
 random_progressions_tented <- function(milestone_network, ncells=100) {
   from_probabilities <- milestone_network %>% group_by(from) %>% summarise(prob=sqrt(sum(length^2)))
