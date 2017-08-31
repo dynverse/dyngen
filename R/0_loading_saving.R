@@ -1,10 +1,8 @@
 #' List all datasets
-#' @import dplyr
 #' @export
 list_datasets = function() overviewer("datasets")
 
 #' Save a dataset of a particular type
-#' @import dplyr
 #' @export
 saver <- function(x, type, overview_only=FALSE) {
   newoverview <- map(x, ~.$info) %>% bind_rows()
@@ -27,7 +25,6 @@ saver <- function(x, type, overview_only=FALSE) {
 }
 
 #' Generate an overview data.frame for a particular type of data
-#' @import dplyr
 #' @export
 overviewer <- function(type) {
   overview_location <- paste0(.datasets_location, "/", type, ".rds")
@@ -35,7 +32,6 @@ overviewer <- function(type) {
 }
 
 #' Load multiple datasets of one type
-#' @import dplyr
 #' @export
 loader <- function(x, type) {
   overview <- overviewer(type)

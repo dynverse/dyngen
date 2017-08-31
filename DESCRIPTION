@@ -16,6 +16,7 @@ Imports:
   fastgssa,
   ggplot2,
   igraph,
+  jsonlite,
   magrittr,
   methods,
   purrr,

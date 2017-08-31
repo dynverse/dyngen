@@ -1,6 +1,6 @@
 # load module net
-#' @import dplyr
-#' @import readr
+#' @importFrom readr read_tsv
+#' @importFrom jsonlite read_json
 load_modulenet <- function(modulenetname) {
   modulenodes <- read_tsv(paste0("data/networks/", modulenetname, "/modulenodes.tsv"), col_types=cols()) %>% 
     mutate(module=paste0("M", module))
@@ -15,11 +15,10 @@ load_modulenet <- function(modulenetname) {
   
   states <- jsonlite::read_json(paste0("data/networks/", modulenetname, "/states.json"), simplifyVector=TRUE)
   
-  tibble::lst(modulenodes, modulenet, celltypes, modulenetname, states)
+  lst(modulenodes, modulenet, celltypes, modulenetname, states)
 }
 
 ## add extra target genes to every tf
-#' @import dplyr
 add_targets_individually <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], genestart_id = max(geneinfo$gene), add_to_existing_net = TRUE) {
   allgenes <- tfs
   addnet <- tibble()
@@ -51,7 +50,6 @@ add_targets_individually <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo
 }
 
 ## add extra target genes to every tf in a modular nature, where some target modules are regulated by multiple ldtf modules
-#' @import dplyr
 add_targets_shared <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], add_to_existing_net = TRUE) {
   allgenes <- geneinfo$gene
   addnet <- tibble()
@@ -78,8 +76,6 @@ add_targets_shared <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], 
 }
 
 # convert modulenet to modules including lineage determining transcription factors (tfs)
-#' @import dplyr
-#' @import tibble
 modulenet_to_modules <- function(modulenet, modulenodes, ngenespermodule=4, genestart_id=0) {
   modulenames <- c(modulenet$from, modulenet$to) %>% unique
   nmodules <- ngenespermodule * (length(modulenames))
@@ -104,7 +100,6 @@ modulenet_to_modules <- function(modulenet, modulenodes, ngenespermodule=4, gene
 }
 
 # generate gene network
-#' @import dplyr
 modulenet_to_genenet <- function(modulenet, modulenodes, genestart_id=0) {
   convertedmodulenet <- modulenet_to_modules(modulenet, modulenodes, genestart_id=genestart_id)
   net <- convertedmodulenet$net
@@ -127,7 +122,6 @@ modulenet_to_genenet <- function(modulenet, modulenodes, genestart_id=0) {
 }
 
 # list genes
-#' @import dplyr
 list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
   allgenes <- geneinfo$gene
   gene2module <- unlist(lapply(names(modulemembership), function(module_id) setNames(rep(module_id, length(modulemembership[[module_id]])), modulemembership[[module_id]])))

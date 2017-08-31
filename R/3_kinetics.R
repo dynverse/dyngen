@@ -1,4 +1,3 @@
-#' @import dplyr
 #' @import stringr
 generate_kinetics = function(vargroups, variables, nus.changes) {
   ## generating the (initial) parameters of the system
@@ -42,12 +41,10 @@ generate_kinetics = function(vargroups, variables, nus.changes) {
   
   if(any(is.na(params))) stop("Some parameters are NA!")
   
-  tibble::lst(formulae.nus, params, initial.state)
+  lst(formulae.nus, params, initial.state)
 }
 
 ## determine start state genes (active during burn-in)
-#' @import dplyr
-#' @importFrom purrr %>% map map_int
 determine_burngenes = function(model) {
   variables_genes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist()
   (variables_genes %in% (model$geneinfo %>% filter(as.logical(burn)) %>% .$gene)) %>% variables_genes[.]

@@ -1,5 +1,3 @@
-#' @import dplyr
-#' @importFrom purrr %>% map map_int
 get_piecenet = function(statenet) {
   piecenet = statenet %>% select(from, to) %>% mutate(contains = map(seq_len(nrow(statenet)), ~integer()))
   for (node in unique(c(statenet$from, statenet$to))) {
@@ -23,12 +21,10 @@ get_piecenet = function(statenet) {
   piecenet
 }
 
-#' @import dplyr
 get_statenet = function(piecenet) {
   piecenet %>% igraph::graph_from_data_frame() %>% igraph::make_line_graph() %>% igraph::as_data_frame()
 }
 
-#' @import dplyr
 get_states = function(piecenet) {
   states <- lapply(seq_len(nrow(piecenet)), function(rowid){
     piece = c()
@@ -48,7 +44,6 @@ get_states = function(piecenet) {
 
 
 # first get the smoothed module expression of all simulations
-#' @import dplyr
 smoothe_simulations = function(simulations, model) {
   newdata = lapply(simulations, function(simulation) {
     #expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(simulation$expression))
@@ -66,7 +61,6 @@ smoothe_simulations = function(simulations, model) {
 
 # the linear state ordering of every piece
 # based on the state progression, divide the expression data into linear pieces
-#' @import dplyr
 divide_simulation = function(progressioninfo, states, expression_smooth) {
   statesunique = integer()
   statesunique_windows = list()
@@ -116,8 +110,6 @@ divide_simulation = function(progressioninfo, states, expression_smooth) {
 
 
 # now use this to scale all simulations
-#' @import dplyr
-#' @importFrom purrr %>% map
 #' @import ggplot2
 divide_simulations = function(simulations, states, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
@@ -157,8 +149,6 @@ divide_simulations = function(simulations, states, model) {
 }
 
 # determine average expression, mapped to the first piece
-#' @import dplyr
-#' @importFrom purrr %>% map map_int
 average_pieces = function(piecesoi, model) {
   total = tibble()
   piece1id = piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
@@ -186,8 +176,6 @@ average_pieces = function(piecesoi, model) {
 }
 
 # determine average expression, mapped to an average piece
-#' @import dplyr
-#' @importFrom purrr %>% map map_int
 average_pieces = function(piecesoi, model, bw=0.05) {
   expressions = piecesoi$expression
   xs = map(expressions, ~seq(0, 1, length.out=nrow(.))) %>% unlist()
@@ -200,8 +188,6 @@ average_pieces = function(piecesoi, model, bw=0.05) {
   meanexpression
 }
 
-#' @import dplyr
-#' @importFrom purrr %>% map
 get_reference_expression = function(pieces, model) {
   reference_list = lapply(unique(pieces$stateid) %>% sort, function(stateidoi) {
     piecesoi = pieces %>% filter(stateid == stateidoi)
@@ -223,7 +209,6 @@ get_reference_expression = function(pieces, model) {
   list(expression=reference_expression, cellinfo=reference_cellinfo)
 }
 
-#' @import dplyr
 assign_progression = function(expression, reference) {
   expression = expression[, colnames(reference$expression)] # filter on genes not present in the reference (eg. housekeeping)
   
@@ -236,7 +221,6 @@ assign_progression = function(expression, reference) {
   )
 }
 
-#' @import dplyr
 #' @import ggplot2
 plot_state_changes = function(dataset) {
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")
@@ -276,7 +260,6 @@ plot_state_changes = function(dataset) {
   gganimate::gg_animate(p)
 }
 
-#' @import dplyr
 #' @import ggplot2
 plot_state_progression = function(dataset) {
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")

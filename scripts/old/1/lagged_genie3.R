@@ -266,7 +266,6 @@ evaluate.ranking.direct <- function(value, trues, perf.measures=c("acc", "rec", 
 #' @param perf.measures the ROCR performance measures (See \code{\link[ROCR]{performance}}). Must at least contain \code{"fpr"}, \code{"rec"}, \code{"spec"}, and \code{"prec"}.
 #'
 #' @return a list containing 2 items, the ranked evaluation and the area under the curve scores
-#' @import dplyr
 #' @export
 #'
 #' @seealso \code{\link{genie3}}
