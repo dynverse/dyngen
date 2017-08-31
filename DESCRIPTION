@@ -1,18 +1,20 @@
 Package: dyngen
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Synthetic single cell data
 Version: 0.1
 Date: 2016-04-06
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Authors@R: c(
+  person("Wouter", "Saelens", email = "wouter.saelens@ugent.be", role = c("aut", "cre")),
+  person("Robrecht", "Cannoodt", email = "robrecht.cannoodt@ugent.be", role = c("aut")))
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: TDB
 LazyData: TRUE
 RoxygenNote: 6.0.1
 Depends:
   R (>= 3.0.0)
 Imports: 
   dplyr,
+  dynutils,
   fastgssa,
   ggplot2,
   igraph,
@@ -24,4 +26,5 @@ Imports:
   stringr,
   tibble
 Remotes:
-  rcannood/fastgssa
+  rcannood/fastgssa,
+  rcannood/dynutils

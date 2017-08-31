@@ -1,4 +1,5 @@
 #' Generate toy expression based on a milestone_network and cell progression information
+#' @importFrom dynutils extract_row_to_list
 #' @export
 generate_expression <- function(milestone_network, progressions, ngenes=100, noise_std=0.05) {
   nedges <- nrow(milestone_network)
@@ -6,7 +7,7 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
   milestone_network <- milestone_network %>% mutate(splinefuns=map(seq_len(n()), ~NULL))
   
   for (edge_id in seq_len(nedges)) {
-    edge <- dyneval:::extract_row_to_list(milestone_network, edge_id)
+    edge <- extract_row_to_list(milestone_network, edge_id)
     
     # check whether the starting and ending milestones have already been visited, otherwise the start and end are random
     start <- if (edge$from %in% names(milestone_expressions)) milestone_expressions[[edge$from]] else runif(ngenes)
