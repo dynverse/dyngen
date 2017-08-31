@@ -27,8 +27,9 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, ver
   model
 }
 
+#' @importFrom dynutils random_time_string
 generate_model_info <- function() {
-  list(date=date(), id=paste0(.version, "/", dambiutils:::random_time_string()))
+  list(date=date(), id=paste0(.version, "/", dynutils::random_time_string()))
 }
 
 run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
@@ -65,6 +66,7 @@ run_scrnaseq = function(experiment, platform) {
   dataset
 }
 
+#' @importFrom dynutils random_time_string
 extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(is.null(experiment$simulations)) stop("requires multiple individual simulations to align to gold standard")
   gs = list()
@@ -96,7 +98,7 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(verbose) print(">> extracting milestones")
   #gs <- c(get_milestones(experiment, gs), gs)
   
-  gs$info = list(experiment_id=experiment$info$id, id=paste0(.version, "/", dambiutils:::random_time_string()))
+  gs$info = list(experiment_id=experiment$info$id, id=paste0(.version, "/", dambiutils::random_time_string()))
   
   gs
 }
