@@ -1,4 +1,3 @@
-#' @import tidyverse
 generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, verbose=F) {
   if(!is.null(modulenetname)) {
     model = load_modulenet(modulenetname)
@@ -32,13 +31,11 @@ generate_model_info <- function() {
   list(date=date(), id=paste0(.version, "/", dambiutils:::random_time_string()))
 }
 
-#' @import tidyverse
 run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
   simulations <- simulate_multiple(model, burntime, totaltime, nsimulations, local, ssa.algorithm=fastgssa::ssa.em(noise_strength=2))
-  tibble::lst(simulations, model)
+  lst(simulations, model)
 }
 
-#' @import tidyverse
 run_experiment <- function(simulation, takesettings, add_housekeeping=TRUE) {
   experiment = take_experiment_cells(simulation$simulations, takesettings)
   
@@ -57,7 +54,6 @@ plot_experiment <- function(experiment) {
   experiment$expression_modules %>% reshape2::melt(varnames=c("cell", "module"), value.name="expression") %>% ggplot() + geom_histogram(aes(expression)) + facet_wrap(~module) + geom_vline(xintercept = 2)
 }
 
-#' @import tidyverse
 run_scrnaseq = function(experiment, platform) {
   dataset = list()
   class(dataset) = "dyngen::dataset"
@@ -69,7 +65,6 @@ run_scrnaseq = function(experiment, platform) {
   dataset
 }
 
-#' @import tidyverse
 extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(is.null(experiment$simulations)) stop("requires multiple individual simulations to align to gold standard")
   gs = list()

@@ -17,7 +17,7 @@ for (simulationid in seq_along(experiment$simulations)) {
 expression <- do.call(rbind, expressions)
 cellinfo <- cellinfo %>% mutate(simulationid=factor(simulationid))
 
-space <- dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, num.landmarks=100, landmark.method="naive")$S
+space <- SCORPIUS::reduce.dimensionality.landmarked(expression, SCORPIUS::correlation.distance, num.landmarks=100, landmark.method="naive")$S
 #space <- SCORPIUS::reduce.dimensionality(SCORPIUS::correlation.distance(expression))
 space2 <- bind_cols(cellinfo, space %>% as.data.frame())
 ggplot(space2) + geom_path(aes(V1, V2, group=simulationid, color=simulationid))

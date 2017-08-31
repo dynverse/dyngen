@@ -355,7 +355,7 @@ plot_goldstandard <- function(gs,experiment=NULL, simulations=NULL, plot_what="p
   map(dimred_methods, function(space_func) {
     space = space_func(expression, ndim = 2)
     #space = mds_smacof(expression, ndim = 2)
-    #space = dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+    #space = SCORPIUS::reduce.dimensionality.landmarked(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
     
     
     if(plot_what=="progression") {
@@ -392,7 +392,7 @@ plot_goldstandard_percentages <- function(experiment, gs) {
   map(c(ica, tsne, mds, mds_smacof), function(space_func) {
     space = space_func(expression, ndim = 2)
     #space = mds_smacof(expression, ndim = 2)
-    #space = dambiutils::mds_withlandmarks(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+    #space = SCORPIUS::reduce.dimensionality.landmarked(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
     
     plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cell_id=rownames(.)) %>% left_join(gs$cellinfo, by="cell_id") %>% right_join(gs$percentages, by="cell_id")
     

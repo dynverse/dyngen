@@ -28,7 +28,7 @@ combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
 combined = combined[simulationstepinfo$simulationstepid, ]
 space = ica(combined, ndim = 2)
 space = tsne(combined, ndim = 2)
-space = dambiutils::mds_withlandmarks(combined, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
+space = SCORPIUS::reduce.dimensionality.landmarked(combined, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
 
 plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% bind_cols(simulationstepinfo) %>% filter(simulationid == 1)
 ggplot(plotdata %>% mutate(piecestateid=factor(piecestateid))) + geom_point(aes(Comp2, Comp1, color=piecestateid, group=simulationid))

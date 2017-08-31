@@ -1,6 +1,5 @@
 #' @import dplyr
 #' @import stringr
-#' @import dambiutils
 generate_kinetics = function(vargroups, variables, nus.changes) {
   ## generating the (initial) parameters of the system
   

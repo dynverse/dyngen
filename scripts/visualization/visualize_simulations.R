@@ -11,7 +11,7 @@ simulation_expressions = invoke(rbind, simulation_expressions)
 simulation_expressions_modules = get_module_counts(simulation_expressions, experiment$model$modulemembership)
 
 
-space = dambiutils::mds_withlandmarks(simulation_expressions, SCORPIUS::correlation.distance, landmark.method = "naive", num.landmarks = 20)$S
+space = SCORPIUS::reduce.dimensionality.landmarked(simulation_expressions, SCORPIUS::correlation.distance, landmark.method = "naive", num.landmarks = 20)$S
 space = space %>% as_tibble() %>% set_colnames(c("Comp1", "Comp2")) %>% bind_cols(cellinfo) %>% bind_cols(simulation_expressions_modules %>% as_tibble())
 
 ggplot(space) + geom_point(aes(Comp1, Comp2))

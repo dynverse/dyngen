@@ -28,7 +28,7 @@ mds_isomds = function(x, ndim=3) {
 }
 
 lmds = function(x, ndim=3) {
-  mds.out <- dambiutils::mds_withlandmarks(x %>% as.data.frame, SCORPIUS::correlation.distance, k = ndim, landmark.method = "naive", num.landmarks = min(1000, round(nrow(x)*0.1)), num.seed.landmarks = 10, pca.normalisation = F)
+  mds.out <- SCORPIUS::reduce.dimensionality.landmarked(x %>% as.data.frame, SCORPIUS::correlation.distance, k = ndim, landmark.method = "naive", num.landmarks = min(1000, round(nrow(x)*0.1)), num.seed.landmarks = 10, pca.normalisation = F)
   process_dimred(mds.out$S)
 }
 
