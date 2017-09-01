@@ -47,6 +47,8 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
   
   expression <- expression[unique(progressions$cell_id), ]
   
+  colnames(expression) <- paste0("G", seq_len(ncol(expression)))
+  
   expression
 }
 
