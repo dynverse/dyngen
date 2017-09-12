@@ -3,10 +3,10 @@ generate_toy_milestone_network <- function(ti_type=c("linear", "bifurcating", "c
   if(!(ti_type %in% c("linear", "bifurcating", "cycle"))) stop("invalid ti_type")
   
   if(identical(ti_type, "linear")) {
-    tibble(from=c("M1"), to=c("M2"), length=1)
+    tibble(from=c("M1"), to=c("M2"), length=1, directed=TRUE)
   } else if (identical(ti_type, "bifurcating")) {
-    tibble(from=c("M1", "M2", "M2", "M3", "M4"), to=c("M2", "M3", "M4", "M5", "M6"), length=1)
+    tibble(from=c("M1", "M2", "M2", "M3", "M4"), to=c("M2", "M3", "M4", "M5", "M6"), length=1, directed=TRUE)
   } else if (identical(ti_type, "cycle")) {
-    tibble(from=c("M1", "M2", "M3"), to=c("M2", "M3", "M1"), length=1)
+    tibble(from=c("M1", "M2", "M3"), to=c("M2", "M3", "M1"), length=1, directed=TRUE)
   }
 }

@@ -66,7 +66,7 @@ saver(simulations, "simulations")
 ## Extract gold standards-------------------
 # only retain smoothed module data, as this is the only data needed for gold standards
 # this makes it easier to transfer data to the cluster
-x <- overviewer("simulations")$id[[7]]
+#x <- overviewer("simulations")$id[[7]]
 goldstandards <- pbapply::pblapply(overviewer("simulations")$id, function(x){
   simulation <- loader(x, "simulations")[[1]]
   simulation$simulations = map(simulation$simulations, ~list(expression_modules = .$expression_modules))
@@ -88,7 +88,18 @@ goldstandards <- pbapply::pblapply(overviewer("simulations")$id, function(x){
 })#, mc.cores=8)#, qsub_environment = list2env(list()))
 
 # check for sum of percentages (should be one for every cell)
-map_dbl(goldstandards, function(gs) gs$milestone_percentages %>% group_by(cell_id) %>% summarise(sum(percentage)) %>% pull(2) %>% max())
+goldstandards <- loader(overviewer("goldstandards")$id, "goldstandards")
+map(goldstandards, function(gs) gs$milestone_percentages %>% group_by(cell_id) %>% summarise(p=sum(percentage)) %>% {tibble(min=min(.$p), max=max(.$p))}) %>% bind_rows() %>% mutate(datasetid = map_chr(goldstandards, ~.$info$id)) %>% View
+
+goldstandards <- map(goldstandards, function(gs) {
+  gs$milestone_percentages <- gs$milestone_percentages %>% group_by(cell_id) %>% mutate(percentage=percentage/sum(percentage))
+  gs
+})
+
+goldstandards <- map(goldstandards, function(gs) {
+  gs$milestone_network <- gs$milestone_network %>% mutate(directed=TRUE)
+  gs
+})
 
 saver(goldstandards, "goldstandards")
 
