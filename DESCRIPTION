@@ -26,5 +26,5 @@ Imports:
   stringr,
   tibble
 Remotes:
-  rcannood/fastgssa,
+  dynverse/fastgssa,
   rcannood/dynutils
