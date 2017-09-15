@@ -4,27 +4,16 @@
 \name{+,AbstractFormula,AbstractFormula-method}
 \alias{+,AbstractFormula,AbstractFormula-method}
 \alias{-,AbstractFormula,AbstractFormula-method}
-\alias{common-operators,-,AbstractFormula,AbstractFormula}
 \alias{*,AbstractFormula,AbstractFormula-method}
-\alias{common-operators,*,AbstractFormula,AbstractFormula}
 \alias{/,AbstractFormula,AbstractFormula-method}
-\alias{common-operators,/,AbstractFormula,AbstractFormula}
 \alias{+,AbstractFormula,numeric-method}
-\alias{common-operators,+,AbstractFormula,numeric}
 \alias{-,AbstractFormula,numeric-method}
-\alias{common-operators,-,AbstractFormula,numeric}
 \alias{*,AbstractFormula,numeric-method}
-\alias{common-operators,*,AbstractFormula,numeric}
 \alias{/,AbstractFormula,numeric-method}
-\alias{common-operators,/,AbstractFormula,numeric}
 \alias{+,numeric,AbstractFormula-method}
-\alias{common-operators,+,numeric,AbstractFormula}
 \alias{-,numeric,AbstractFormula-method}
-\alias{common-operators,-,numeric,AbstractFormula}
 \alias{*,numeric,AbstractFormula-method}
-\alias{common-operators,*,numeric,AbstractFormula}
 \alias{/,numeric,AbstractFormula-method}
-\alias{common-operators,/,numeric,AbstractFormula}
 \title{Short hand notations for generating new formulae}
 \usage{
 \S4method{+}{AbstractFormula,AbstractFormula}(e1, e2)
