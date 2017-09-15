@@ -151,6 +151,7 @@ lagpad <- function(x, k=1) {
 
 #' @importFrom pdist pdist
 #' @importFrom pbapply pblapply
+#' @importFrom stats wilcox.test
 divide_pieces <- function(simulations, tobecomes, states) {
   quant_scale_combined = get_combined_quant_scale(simulations)
   
@@ -190,7 +191,7 @@ divide_pieces <- function(simulations, tobecomes, states) {
             current_expression = expression_modules_scaled[i, ,drop=FALSE]
             distances = pdist::pdist(current_expression[, curstate$modules], reference$expression[, curstate$modules])@dist %>% tapply(reference$piece_id, min)
             
-            result = wilcox.test(distances[reference$nextstate_ids == row$nextstate_id], distances[reference$nextstate_ids != row$nextstate_id], alternative="greater")
+            result = stats::wilcox.test(distances[reference$nextstate_ids == row$nextstate_id], distances[reference$nextstate_ids != row$nextstate_id], alternative="greater")
             result$p.value = ifelse(is.na(result$p.value), 1, result$p.value)
             
             if(result$p.value > 0.05) {
@@ -209,7 +210,7 @@ divide_pieces <- function(simulations, tobecomes, states) {
             current_expression = expression_modules_scaled[i, ,drop=FALSE]
             distances = pdist::pdist(current_expression, reference$expression)@dist %>% tapply(reference$piece_id, min)
             
-            result = wilcox.test(distances[!(reference$prevstate_ids %in% curstate$cross)], distances[reference$prevstate_ids %in% curstate$cross])
+            result = stats::wilcox.test(distances[!(reference$prevstate_ids %in% curstate$cross)], distances[reference$prevstate_ids %in% curstate$cross])
             
             result$p.value = ifelse(is.na(result$p.value), 1, result$p.value)
             
@@ -408,6 +409,7 @@ plot_goldstandard_percentages <- function(experiment, gs) {
 
 
 # needs: model$states, gs$cellinfo
+#' @importFrom stats setNames
 get_milestones <- function(simulations, model, gs, pieces) {
   # construct the milestone_network
   # similar to statenet, but with deduplication of circular edges
@@ -417,7 +419,7 @@ get_milestones <- function(simulations, model, gs, pieces) {
   milestone_network <- statenet
   cellinfo <- gs$cellinfo %>% mutate(state_id = as.numeric(state_id))
   
-  state2milestone <- unique(c(statenet$from, statenet$to)) %>% {setNames(., .)}
+  state2milestone <- unique(c(statenet$from, statenet$to)) %>% {stats::setNames(., .)}
   
   maxtimes <- gs$cellinfo %>% group_by(state_id) %>% summarise(maxtime=max(time)) %>% {set_names(.$maxtime, .$state_id)}
   

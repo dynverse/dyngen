@@ -14,12 +14,13 @@ add.variable = function(variable, ..., system) {
   variable
 }
 
+#' @importFrom stats setNames
 generate_formulae = function(net, genes, celltypes=tibble(celltype=1, dies=F)) {
   ## generating reaction formulas (the probability that a reaction occurs in [t, t+dt])
   
   system = list(formulae=list(), nus.changes=list(), variables=list(), vargroups=list())
   
-  get.nu = function(higher=NULL, lower=NULL) {setNames(c(rep(1, length(higher)), rep(-1, length(lower))), lapply(c(higher, lower), function(x) {x@string}))}
+  get.nu = function(higher=NULL, lower=NULL) {stats::setNames(c(rep(1, length(higher)), rep(-1, length(lower))), lapply(c(higher, lower), function(x) {x@string}))}
   
   kg = add.variable(fvar("kg"), system=system) # global tf binding speed (influences burstiness of transcriptional regulation)
   rgs = c()

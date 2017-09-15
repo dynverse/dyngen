@@ -190,7 +190,7 @@ freduce <- function(collapse.fun, lapply.args, lapply.fun) {
 
 #' Sum of AbstractFormula objects
 #'
-#' @param arguments the S4 class \code{AbstractFormula} objects to be summed
+#' @param ... the S4 class \code{AbstractFormula} objects to be summed
 #'
 #' @return an S4 class \code{AbstractFormula} object
 #' @export

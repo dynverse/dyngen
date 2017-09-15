@@ -122,9 +122,10 @@ modulenet_to_genenet <- function(modulenet, modulenodes, genestart_id=0) {
 }
 
 # list genes
+#' @importFrom stats setNames
 list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
   allgenes <- geneinfo$gene
-  gene2module <- unlist(lapply(names(modulemembership), function(module_id) setNames(rep(module_id, length(modulemembership[[module_id]])), modulemembership[[module_id]])))
+  gene2module <- unlist(lapply(names(modulemembership), function(module_id) stats::setNames(rep(module_id, length(modulemembership[[module_id]])), modulemembership[[module_id]])))
   gene2module <- c( # assign genes to its first parent module
     gene2module, 
     net %>%
@@ -133,7 +134,7 @@ list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
       mutate(module=gene2module[as.character(firstf)]) %>% 
       select(-firstf) %>% dplyr::rename(gene=to) %>%
       filter(!(gene %in% names(gene2module))) %>% 
-      {setNames(.$module, .$gene)}
+      {stats::setNames(.$module, .$gene)}
   ) 
   geneinfo$module <- gene2module[as.character(geneinfo$gene)]
   geneinfo <- geneinfo %>% bind_rows(tibble(gene=allgenes[!(allgenes %in% geneinfo$gene)])) %>% # add genes not in one of the modules

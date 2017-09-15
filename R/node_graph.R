@@ -1,3 +1,4 @@
+#' @importFrom stats setNames
 make_node_graph <- function(linegraph_dataframe, prefix="S") {
   # maak een lijst van alle edges
   edges <- c(linegraph_dataframe$from, linegraph_dataframe$to) %>% unique %>% sort
@@ -14,7 +15,7 @@ make_node_graph <- function(linegraph_dataframe, prefix="S") {
   edge_to_node <- igraph::components(gr)$membership
   
   # geef elke node een unieke naam
-  edge_to_node <- setNames(paste0(prefix, edge_to_node), names(edge_to_node))
+  edge_to_node <- stats::setNames(paste0(prefix, edge_to_node), names(edge_to_node))
   
   # vertaal elke edge naar zijn bijhorende from en to node
   edge_df <- bind_rows(lapply(edges, function(i) {

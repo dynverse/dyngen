@@ -1,4 +1,5 @@
 #' @import fastgssa
+#' @importFrom utils tail
 simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
   variables_burngenes = c(variables_burngenes, model$vargroups$rg)
@@ -36,14 +37,15 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
     rownames(molecules) = c(1:nrow(molecules))
     return(list(molecules=molecules, times=times))
   } else {
-    return(tail(molecules, n=1)[1,])
+    return(utils::tail(molecules, n=1)[1,])
   }
 }
 
+#' @importFrom utils tail
 process_ssa <- function(out, starttime=0) {
   final.time <- out$args$final.time
   data <- out$timeseries
-  lastrow <- tail(data, n=1)
+  lastrow <- utils::tail(data, n=1)
   lastrow$t <- final.time
   data[nrow(data)+1,] <- lastrow
   data <- data[data$t<=final.time,]
@@ -214,8 +216,9 @@ plot_simulations = function(simulations, samplingrate=0.1) {
 #' @param overallaverage TODO: Zouter/wouters help?
 #' 
 #' @export
+#' @importFrom utils data
 add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallaverage = mean(expression)) {
-  data(ginhoux, envir = environment())
+  utils::data(ginhoux, envir = environment())
   reference_expression <- (2^ginhoux$expression)-1
   meanpoissons <- colMeans(reference_expression) %>% {./mean(reference_expression)*overallaverage}
   
