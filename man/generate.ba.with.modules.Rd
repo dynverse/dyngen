@@ -2,7 +2,7 @@
 % Please edit documentation in R/barabasi_albert_with_modules.R
 \name{generate.ba.with.modules}
 \alias{generate.ba.with.modules}
-\title{Generate a Barabási–Albert graph}
+\title{Generate a Barabasi-Albert graph}
 \usage{
 generate.ba.with.modules(amnt.nodes, amnt.edges, exp1, exp2,
   reverse.edges = TRUE, trace = FALSE)
@@ -34,7 +34,7 @@ a list containing several elements:
 }
 }
 \description{
-Generate a Barabási–Albert graph
+Generate a Barabasi-Albert graph
 }
 \examples{
 generate.ba.with.modules(

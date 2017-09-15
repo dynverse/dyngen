@@ -1,3 +1,11 @@
+#' Abstracto formula
+#'
+#' @slot type character. 
+#' @slot name character. 
+#' @slot arguments list. 
+#' @slot string character. 
+#'
+#' @export
 AbstractFormula <- setClass(
   "AbstractFormula",
   slots = c(
@@ -158,19 +166,60 @@ fprefix <- function(fun) {
 #' fvar("total") %f-% fcon(10)
 `%f-%` <- finfix("-")
 
+#' Short hand notations for generating new formulae
+#'
+#' @param e1 Argument 1
+#' @param e2 Argument 2
+#'
+#' @return A new formula
+#' 
+#' @export
+#' @docType methods
+#' @rdname common-operators
 setMethod("+", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,-,AbstractFormula,AbstractFormula
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,*,AbstractFormula,AbstractFormula
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,/,AbstractFormula,AbstractFormula
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
+#' @rdname common-operators
+#' @aliases common-operators,+,AbstractFormula,numeric
 setMethod("+", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f+% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,-,AbstractFormula,numeric
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f-% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,*,AbstractFormula,numeric
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f*% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,/,AbstractFormula,numeric
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f/% e2)
 
+#' @rdname common-operators
+#' @aliases common-operators,+,numeric,AbstractFormula
 setMethod("+", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,-,numeric,AbstractFormula
 setMethod("-", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,*,numeric,AbstractFormula
 setMethod("*", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
+
+#' @rdname common-operators
+#' @aliases common-operators,/,numeric,AbstractFormula
 setMethod("/", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
 #' Apply a function over all arguments, then collapse it with another function
