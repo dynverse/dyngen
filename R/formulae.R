@@ -94,7 +94,8 @@ finfix <- function(fun) {
 #' @examples
 #' fsum <- fprefix("sum")
 fprefix <- function(fun) {
-  function(arguments) {
+  function(...) {
+    arguments <- unlist(list(...))
     for (i in seq_along(arguments)) {
       if (class(arguments[[i]]) != "AbstractFormula") {
         arguments[[i]] <- fcon(arguments[[i]])
@@ -182,7 +183,7 @@ setMethod("/", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e
 #' @export
 #'
 #' @examples
-#' freduce(`f+`, c(1,2,3), fcon)
+#' freduce(`%f+%`, c(1,2,3), fcon)
 freduce <- function(collapse.fun, lapply.args, lapply.fun) {
   Reduce(collapse.fun, lapply(lapply.args, lapply.fun))
 }
@@ -201,7 +202,7 @@ fsum <- fprefix("sum")
 
 #' Product of AbstractFormula objects
 #'
-#' @param arguments the S4 class \code{AbstractFormula} objects to be multiplied
+#' @param ... the S4 class \code{AbstractFormula} objects to be multiplied
 #'
 #' @return an S4 class \code{AbstractFormula} object
 #' @export
