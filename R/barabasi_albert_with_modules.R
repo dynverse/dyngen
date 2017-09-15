@@ -90,7 +90,14 @@ in.common <- function(seta, setb) sum(seta %in% setb)
 #'
 #' @examples
 #' generate.ba.with.modules(amnt.nodes = 100, amnt.edges = 1000, reverse.edges = T, exp1 = 1.5, exp2 = 1.5, trace = T)
-generate.ba.with.modules <- function(amnt.nodes, amnt.edges, exp1, exp2, reverse.edges = T, trace = F) {
+generate.ba.with.modules <- function(
+  amnt.nodes, 
+  amnt.edges,
+  exp1,
+  exp2, 
+  reverse.edges = T, 
+  trace = F
+) {
   if (amnt.edges > amnt.nodes * (amnt.nodes - 1) / 2) 
     stop(sQuote("amnt.edges"), " is too large, as a graph with N nodes can only contain N*(N-1)/2 edges")
   

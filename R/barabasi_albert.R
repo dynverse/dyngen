@@ -126,7 +126,13 @@
 #'
 #' @examples
 #' generate.ba(amnt.nodes = 100, amnt.edges = 1000, reverse.edges = T, offset.exponent = 1.5, trace = T)
-generate.ba <- function(amnt.nodes, amnt.edges, reverse.edges = T, offset.exponent = 1, trace = F) {
+generate.ba <- function(
+  amnt.nodes, 
+  amnt.edges, 
+  reverse.edges = T,
+  offset.exponent = 1, 
+  trace = F
+) {
   if (amnt.edges > amnt.nodes * (amnt.nodes - 1) / 2) 
     stop(sQuote("amnt.edges"), " is too large, as a graph with N nodes can only contain N*(N-1)/2 edges")
   
@@ -144,7 +150,7 @@ generate.ba <- function(amnt.nodes, amnt.edges, reverse.edges = T, offset.expone
   }
   
   # add network as data frame
-  df <- dplyr::bind_rows(lapply(seq_len(net$amnt.nodes), function(i) {
+  df <- bind_rows(lapply(seq_len(net$amnt.nodes), function(i) {
     bns <- net$outgoing.edges[[i]]
     data.frame(i = rep(i, length(bns)), j = bns)
   }))
