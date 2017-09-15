@@ -6,3 +6,6 @@
 ^scripts$
 ^\.travis\.yml$
 ^dyngen.xmind$
+^data/networks/*$
+^data/platforms\.tsv$
+^data/statenetworks/*$

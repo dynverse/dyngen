@@ -194,9 +194,16 @@ plot_simulations = function(simulations, samplingrate=0.1) {
 
 
 #' Add housekeeping genes
+#' 
+#' @param expression The original expression data.
+#' @param geneinfo The original gene info
+#' @param ngenes The number of genes to add
+#' @param overallaverage TODO: Zouter/wouters help?
+#' 
 #' @export
 add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallaverage = mean(expression)) {
-  reference_expression <- (2^SCORPIUS::ginhoux$expression)-1
+  data(ginhoux, envir = environment())
+  reference_expression <- (2^ginhoux$expression)-1
   meanpoissons <- colMeans(reference_expression) %>% {./mean(reference_expression)*overallaverage}
   
   additional_expression <- purrr::map(sample(meanpoissons, ngenes), ~rpois(nrow(expression), .)) %>% 

@@ -18,5 +18,6 @@ packrat/src/
 
 
 
-
-data/*
+data/networks/*
+data/platforms.tsv
+data/statenetworks/*

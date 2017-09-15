@@ -7,6 +7,15 @@
 add_housekeeping_poisson(expression, geneinfo, ngenes = 200,
   overallaverage = mean(expression))
 }
+\arguments{
+\item{expression}{The original expression data.}
+
+\item{geneinfo}{The original gene info}
+
+\item{ngenes}{The number of genes to add}
+
+\item{overallaverage}{TODO: Zouter/wouters help?}
+}
 \description{
 Add housekeeping genes
 }

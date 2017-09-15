@@ -21,6 +21,8 @@ platform = list(
 )
 
 ## fluidigm
+# warning from robrecht to wouter: do not use SCORPIUS::ginhoux anymore! See ?SCORPIUS::ginhoux for more details.
+# I placed the ginhoux dataset in your data folder.
 reference_expression = SCORPIUS::ginhoux$expression %>% t
 reference_expression = reference_expression[reference_expression %>% rowMeans() %>% order(decreasing = T) %>% .[1:2000],]
 platform = list(
