@@ -7,6 +7,15 @@
 generate_expression(milestone_network, progressions, ngenes = 100,
   noise_std = 0.05)
 }
+\arguments{
+\item{milestone_network}{The milestone network}
+
+\item{progressions}{The progressions}
+
+\item{ngenes}{The number of genes to generate}
+
+\item{noise_std}{Noise parameter}
+}
 \description{
 Generate toy expression based on a milestone_network and cell progression information
 }

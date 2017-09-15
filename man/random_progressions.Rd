@@ -6,6 +6,11 @@
 \usage{
 random_progressions(milestone_network, ncells = 100)
 }
+\arguments{
+\item{milestone_network}{The milestone network}
+
+\item{ncells}{The number of cells to generate}
+}
 \description{
 Assign random progressions without tenting
 }

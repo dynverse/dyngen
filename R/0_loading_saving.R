@@ -3,6 +3,11 @@
 list_datasets = function() overviewer("datasets")
 
 #' Save a dataset of a particular type
+#' 
+#' @param x ?? TODO
+#' @param type ?? TODO
+#' @param overview_only ?? TODO
+#' 
 #' @export
 saver <- function(x, type, overview_only=FALSE) {
   newoverview <- map(x, ~.$info) %>% bind_rows()
@@ -25,6 +30,9 @@ saver <- function(x, type, overview_only=FALSE) {
 }
 
 #' Generate an overview data.frame for a particular type of data
+#' 
+#' @param type The type of data
+#' 
 #' @export
 overviewer <- function(type) {
   overview_location <- paste0(.datasets_location, "/", type, ".rds")
@@ -32,6 +40,10 @@ overviewer <- function(type) {
 }
 
 #' Load multiple datasets of one type
+#' 
+#' @param x Different datasets
+#' @param type Data type
+#' 
 #' @export
 loader <- function(x, type) {
   overview <- overviewer(type)
@@ -50,6 +62,10 @@ contents_dataset <- function(simulation=FALSE, goldstandard=TRUE, model=TRUE, ex
 }
 
 #' Load a dataset
+#' 
+#' @param datasetid The id of the dataset
+#' @param contents What to load
+#' 
 #' @export
 load_dataset <- function(datasetid, contents=contents_dataset()) {
   overview <- overviewer("datasets") %>% filter(id==datasetid) %>% as.list()

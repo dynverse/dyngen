@@ -64,7 +64,7 @@ in.common <- function(seta, setb) sum(seta %in% setb)
   net
 }
 
-#' Generate a Barabási–Albert graph
+#' Generate a Barabasi-Albert graph
 #'
 #' @param amnt.nodes number of nodes in the generated graph
 #' @param amnt.edges number of edges in the generated graph

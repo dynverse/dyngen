@@ -213,7 +213,7 @@ fsum <- fprefix("sum")
 fprod <- fprefix("prod")
 
 
-#' @title Generate production formulae 
+#' Generate production formulae 
 #'
 #' @param g the gene in question
 #' @param regs the regulators of the gene
@@ -236,7 +236,7 @@ generate.production.formula <- function(g, regs, amnt.genes) {
   list(formula = formula, nu = nu)
 }
 
-#' @title Generate decay formulae
+#' Generate decay formulae
 #'
 #' @param g the gene in question
 #' @param amnt.genes the total number of genes

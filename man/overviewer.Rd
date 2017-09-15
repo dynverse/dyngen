@@ -6,6 +6,9 @@
 \usage{
 overviewer(type)
 }
+\arguments{
+\item{type}{The type of data}
+}
 \description{
 Generate an overview data.frame for a particular type of data
 }

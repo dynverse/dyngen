@@ -148,7 +148,10 @@ list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
 
 
 
-#' # Plotting
+#' Plotting
+#' 
+#' @param model The model to plot
+#' 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
 plot_modulenet <- function(model) {
   graph <- igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)

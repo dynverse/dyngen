@@ -7,7 +7,7 @@
 fsum(...)
 }
 \arguments{
-\item{arguments}{the S4 class \code{AbstractFormula} objects to be summed}
+\item{...}{the S4 class \code{AbstractFormula} objects to be summed}
 }
 \value{
 an S4 class \code{AbstractFormula} object

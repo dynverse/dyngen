@@ -1,4 +1,8 @@
 #' Assign random progressions without tenting
+#' 
+#' @param milestone_network The milestone network
+#' @param ncells The number of cells to generate
+#' 
 #' @export
 random_progressions <- function(milestone_network, ncells=100) {
   cell_ids <- paste0("C", seq_len(ncells))

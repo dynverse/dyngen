@@ -1,4 +1,10 @@
 #' Generate toy expression based on a milestone_network and cell progression information
+#' 
+#' @param milestone_network The milestone network
+#' @param progressions The progressions
+#' @param ngenes The number of genes to generate
+#' @param noise_std Noise parameter
+#' 
 #' @importFrom dynutils extract_row_to_list
 #' @importFrom stats approxfun rnorm
 #' @export

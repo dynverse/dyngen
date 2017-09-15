@@ -6,6 +6,11 @@
 \usage{
 loader(x, type)
 }
+\arguments{
+\item{x}{Different datasets}
+
+\item{type}{Data type}
+}
 \description{
 Load multiple datasets of one type
 }
