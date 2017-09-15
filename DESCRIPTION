@@ -7,7 +7,7 @@ Authors@R: c(
   person("Wouter", "Saelens", email = "wouter.saelens@ugent.be", role = c("aut", "cre")),
   person("Robrecht", "Cannoodt", email = "robrecht.cannoodt@ugent.be", role = c("aut")))
 Description: More about what it does (maybe more than one line)
-License: TDB
+License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
 Depends:

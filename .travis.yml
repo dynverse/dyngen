@@ -1,0 +1,15 @@
+language: r
+sudo: required
+dist: trusty
+bioc_required: true
+cache: packages
+warnings_are_errors: true
+addons:
+  apt:
+    packages:
+      - libgsl-dev
+      - libsdl1.2-dev
+      - libreadline-dev
+install:
+ - R -e 'devtools::install(dependencies = TRUE, upgrade_dependencies = TRUE)'
+ - R -e 'dyneval::check_dependencies()'

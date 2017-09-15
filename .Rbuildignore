@@ -2,3 +2,7 @@
 ^\.Rproj\.user$
 ^packrat/
 ^\.Rprofile$
+^wip$
+^scripts$
+^\.travis\.yml$
+^dyngen.xmind$
