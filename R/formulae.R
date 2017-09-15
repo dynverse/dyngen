@@ -180,46 +180,57 @@ setMethod("+", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), functi
 
 #' @rdname common-operators
 #' @aliases common-operators,-,AbstractFormula,AbstractFormula
+#' @export
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,*,AbstractFormula,AbstractFormula
+#' @export
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,/,AbstractFormula,AbstractFormula
+#' @export
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,+,AbstractFormula,numeric
+#' @export
 setMethod("+", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f+% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,-,AbstractFormula,numeric
+#' @export
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f-% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,*,AbstractFormula,numeric
+#' @export
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f*% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,/,AbstractFormula,numeric
+#' @export
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f/% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,+,numeric,AbstractFormula
+#' @export
 setMethod("+", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,-,numeric,AbstractFormula
+#' @export
 setMethod("-", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,*,numeric,AbstractFormula
+#' @export
 setMethod("*", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
 
 #' @rdname common-operators
 #' @aliases common-operators,/,numeric,AbstractFormula
+#' @export
 setMethod("/", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
 #' Apply a function over all arguments, then collapse it with another function
