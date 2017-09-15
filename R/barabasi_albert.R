@@ -64,8 +64,9 @@
 }
 
 # adapted from http://stackoverflow.com/questions/24845909/generate-n-random-integers-that-sum-to-m-in-r
+#' @importFrom stats rnorm
 .ba.num.edges <- function(amnt.nodes, amnt.edges, sd = 1, pos.only = TRUE, redistribute.start = T) {
-  vec <- rnorm(amnt.nodes, amnt.edges/amnt.nodes, sd)
+  vec <- stats::rnorm(amnt.nodes, amnt.edges/amnt.nodes, sd)
   if (abs(sum(vec)) < 0.01) vec <- vec + 1
   vec <- round(vec / sum(vec) * amnt.edges)
   deviation <- amnt.edges - sum(vec)
@@ -125,13 +126,19 @@
 #' @importFrom dplyr bind_rows
 #'
 #' @examples
-#' generate.ba(amnt.nodes = 100, amnt.edges = 1000, reverse.edges = T, offset.exponent = 1.5, trace = T)
+#' generate.ba(
+#'   amnt.nodes = 100,
+#'   amnt.edges = 1000, 
+#'   reverse.edges = TRUE, 
+#'   offset.exponent = 1.5, 
+#'   trace = TRUE
+#' )
 generate.ba <- function(
   amnt.nodes, 
   amnt.edges, 
-  reverse.edges = T,
+  reverse.edges = TRUE,
   offset.exponent = 1, 
-  trace = F
+  trace = FALSE
 ) {
   if (amnt.edges > amnt.nodes * (amnt.nodes - 1) / 2) 
     stop(sQuote("amnt.edges"), " is too large, as a graph with N nodes can only contain N*(N-1)/2 edges")

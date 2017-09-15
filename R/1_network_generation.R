@@ -189,6 +189,7 @@ plot_net <- function(model) {
   )
 }
 
+#' @importFrom pheatmap pheatmap
 plot_net_overlaps <- function(model) {
   jaccard <- function(x, y) {length(intersect(x, y))/length(union(x,y))}
   pheatmap::pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
@@ -207,7 +208,7 @@ plot_net <- function(model) {
   #V(graph)$label <- model$geneinfo$gene
   V(graph)$label <- ""
   E(graph)$color <- subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
-  plot(graph, vertex.size=6, edge.arrow.size=0.5)
+  igraph::plot.igraph(graph, vertex.size=6, edge.arrow.size=0.5)
 }
 
 #' @importFrom igraph graph_from_data_frame V E plot.igraph
@@ -221,6 +222,6 @@ plot_net_tfs <- function(model) {
   colors <- rainbow(length(modulenames))
   V(graph)$color <- colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
   E(graph)$color <- subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
-  plot(graph)
+  igraph::plot.igraph(graph)
 }
 

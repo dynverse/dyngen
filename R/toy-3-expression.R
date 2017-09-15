@@ -1,5 +1,6 @@
 #' Generate toy expression based on a milestone_network and cell progression information
 #' @importFrom dynutils extract_row_to_list
+#' @importFrom stats approxfun rnorm
 #' @export
 generate_expression <- function(milestone_network, progressions, ngenes=100, noise_std=0.05) {
   nedges <- nrow(milestone_network)
@@ -20,7 +21,7 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
     ys <- pmap(list(x=xs, start=start, end=end), function(x, start, end) c(start, start, runif(length(x) - 4), end, end))
     
     milestone_network$splinefuns[edge_id] <- map2(xs, ys, function(x, y) {
-      approxfun(x, y)
+      stats::approxfun(x, y)
     }) %>% list()
   }
   
@@ -43,7 +44,7 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
       magrittr::set_colnames(invoke(cbind, .$expression), unlist(.$cell_id))
     } %>% t
   
-  expression <- expression + rnorm(length(expression), 0, noise_std)
+  expression <- expression + stats::rnorm(length(expression), 0, noise_std)
   
   expression <- expression[unique(progressions$cell_id), ]
   

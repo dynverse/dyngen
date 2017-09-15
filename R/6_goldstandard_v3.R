@@ -149,12 +149,14 @@ lagpad <- function(x, k=1) {
   }
 }
 
+#' @importFrom pdist pdist
+#' @importFrom pbapply pblapply
 divide_pieces <- function(simulations, tobecomes, states) {
   quant_scale_combined = get_combined_quant_scale(simulations)
   
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
-  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
+  combined_scaled = combined %>% dynutils::scale_quantile(outlier.cutoff=0.05)
+  quant_scale_combined = function(x) dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
   
   tobecomes_combined = tobecomes %>% bind_rows() %>% mutate(piece_ids=map2(expression, piece_id, ~rep(.y, nrow(.x)))) %>% group_by(state_id) %>% summarise(expression=list(invoke(rbind, expression)), nextstate_ids=list(nextstate_id), prevstate_ids=list(prevstate_id), piece_ids=list(unlist(piece_ids))) # to becomes for each state_id
   #subsamples = map(tobecomes_combined$nextstate_ids, ~sample(seq_along(.), size=length(.) * 0.1))
@@ -261,7 +263,8 @@ divide_pieces <- function(simulations, tobecomes, states) {
     )
 }
 
-
+#' @importFrom stats approx
+#' @importFrom princurve principal.curve
 extract_piece_times <- function(pieces, states) {
   map(unique(pieces$state_id), function(state_idoi) {
     state <- states %>% keep(~.$state_id == state_idoi) 
@@ -289,7 +292,7 @@ extract_piece_times <- function(pieces, states) {
       
       #linear interpolation, only if we estimated time of a subsample of all steps
       if(length(timesoi) < nrow(expressionoi)) {
-        approx(which(rownames(expressionoi) %in% rownames(expressionoi_filtered)), timesoi, seq_len(nrow(expressionoi)))$y %>% tibble(time=., cell_id=rownames(expressionoi), scaletime = time/max(time))
+        stats::approx(which(rownames(expressionoi) %in% rownames(expressionoi_filtered)), timesoi, seq_len(nrow(expressionoi)))$y %>% tibble(time=., cell_id=rownames(expressionoi), scaletime = time/max(time))
       } else {
         tibble(time=timesoi, cell_id=rownames(expressionoi), scaletime = timesoi/max(timesoi))
       }
@@ -330,8 +333,8 @@ extract_goldstandard <- function(simulation, verbose=FALSE, smooth=FALSE) {
 
 get_combined_quant_scale <- function(simulations) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
-  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
+  combined_scaled = combined %>% dynutils::scale_quantile(outlier.cutoff=0.05)
+  quant_scale_combined = function(x) dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
   quant_scale_combined
 }
 
@@ -494,8 +497,7 @@ get_milestones <- function(simulations, model, gs, pieces) {
 
 
 
-
-
+#' @importFrom FNN knnx.index
 get_bias <- function(bifurcation, pieces, cellinfo) {
   
   subpieces <- pieces %>% filter(state_id == bifurcation$start_milestone_id)
@@ -550,12 +552,13 @@ check_division_quality <- function(pieces, max_mean_dist) {
   #summarise(any(check))
 }
 
+#' @importFrom stats quantile
 check_pieces_quality <- function(expressions, max_mean_dist=0.5) {
   start_dists <- map(expressions, ~.[1, ]) %>% invoke(rbind, .) %>% dist %>% as.matrix() %>% rowMeans()
   end_dists <- map(expressions, ~.[nrow(.), ]) %>% invoke(rbind, .) %>% dist %>% as.matrix() %>% rowMeans()
   
-  max_mean_start_dist <- start_dists %>% quantile(0.8) * 2
-  max_mean_end_dist <- end_dists %>% quantile(0.8) * 2
+  max_mean_start_dist <- start_dists %>% stats::quantile(0.8) * 2
+  max_mean_end_dist <- end_dists %>% stats::quantile(0.8) * 2
   
   problem_pieces <- (start_dists >max_mean_start_dist) | (end_dists > max_mean_end_dist)
   

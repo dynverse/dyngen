@@ -103,8 +103,8 @@ divide_simulation = function(progressioninfo, piecestates, expression_smooth) {
 # now use this to scale all simulations
 divide_simulations = function(simulations, piecestates, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.01)
-  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
+  combined_scaled = combined %>% dynutils::scale_quantile(outlier.cutoff=0.01)
+  quant_scale_combined = function(x) dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
   
   pieces = list()
   for (simulationid in seq_len(length(simulations))) {
@@ -133,6 +133,7 @@ divide_simulations = function(simulations, piecestates, model) {
 }
 
 # determine average expression, mapped to the first piece
+#' @importFrom SCORPIUS euclidean_distance
 average_pieces = function(piecesoi, model) {
   total = tibble()
   piece1id = piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
@@ -141,7 +142,7 @@ average_pieces = function(piecesoi, model) {
   for (i in seq_len(nrow(piecesoi)-1)+1) {
     piece2 = piecesoi[i, ]$expression[[1]]
     
-    celldistances = SCORPIUS::euclidean.distance(piece1, piece2)
+    celldistances = SCORPIUS::euclidean_distance(piece1, piece2)
     
     total = data.frame(pieceid = i, time=piece1_times[apply(celldistances, 2, which.min)], piece2 %>% reshape2::melt(varnames=c("cell", "gene"), value.name="expression")) %>% as_tibble() %>% bind_rows(total)
   }
@@ -195,7 +196,7 @@ reference = get_reference_expression(pieces, model)
 
 
 for (i in seq_len(length(simulations))) {
-  cellcors = SCORPIUS::euclidean.distance(reference_expression, simulations[[i]]$expression)
+  cellcors = SCORPIUS::euclidean_distance(reference_expression, simulations[[i]]$expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
   simulations[[i]]$cellinfo$progression = reference_cellinfo$progression[bestreferencecell]
   simulations[[i]]$cellinfo$piecestateid = reference_cellinfo$piecestateid[bestreferencecell]
@@ -246,7 +247,7 @@ space = readRDS(file="space.rds")
 #####
 
 assign_progression = function(expression, reference) {
-  cellcors = SCORPIUS::correlation.distance(reference$expression, expression)
+  cellcors = SCORPIUS::correlation_distance(reference$expression, expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
   tibble(
     cell = colnames(cellcors),
@@ -259,5 +260,5 @@ assign_progression = function(expression, reference) {
 mat1 = matrix(runif(9), ncol=3)
 mat2 = matrix(runif(12), ncol=3)
 
-SCORPIUS::euclidean.distance(mat1, mat2) %>% mean
-SCORPIUS::euclidean.distance(mat1[,3:1], mat2[, 3:1]) %>% mean
+SCORPIUS::euclidean_distance(mat1, mat2) %>% mean
+SCORPIUS::euclidean_distance(mat1[,3:1], mat2[, 3:1]) %>% mean
