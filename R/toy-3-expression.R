@@ -52,6 +52,10 @@ generate_expression <- function(milestone_network, progressions, ngenes=100, noi
   expression
 }
 
+#' Generate counts from expression data
+#' 
+#' @param expression The original expression data
+#' 
 #' @export
 generate_counts <- function(expression) {
   counts <- round(expression * 100)

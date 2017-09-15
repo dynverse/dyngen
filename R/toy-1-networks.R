@@ -1,3 +1,7 @@
+#' Generate a toy milestone network
+#' 
+#' @param ti_type The type of network to generate. Accepted: linear, bifurcating, cycle.
+#' 
 #' @export
 generate_toy_milestone_network <- function(ti_type=c("linear", "bifurcating", "cycle")) {
   if(!(ti_type %in% c("linear", "bifurcating", "cycle"))) stop("invalid ti_type")
