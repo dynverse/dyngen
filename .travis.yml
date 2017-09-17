@@ -11,5 +11,5 @@ addons:
       - libsdl1.2-dev
       - libreadline-dev
 install:
+ - R -e 'install.packages("devtools")'
  - R -e 'devtools::install(dependencies = TRUE, upgrade_dependencies = TRUE)'
- - R -e 'dyneval::check_dependencies()'
