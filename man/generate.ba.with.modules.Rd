@@ -2,10 +2,10 @@
 % Please edit documentation in R/barabasi_albert_with_modules.R
 \name{generate.ba.with.modules}
 \alias{generate.ba.with.modules}
-\title{Generate a Barabási–Albert graph}
+\title{Generate a Barabasi-Albert graph}
 \usage{
 generate.ba.with.modules(amnt.nodes, amnt.edges, exp1, exp2,
-  reverse.edges = T, trace = F)
+  reverse.edges = TRUE, trace = FALSE)
 }
 \arguments{
 \item{amnt.nodes}{number of nodes in the generated graph}
@@ -34,8 +34,15 @@ a list containing several elements:
 }
 }
 \description{
-Generate a Barabási–Albert graph
+Generate a Barabasi-Albert graph
 }
 \examples{
-generate.ba.with.modules(amnt.nodes = 100, amnt.edges = 1000, reverse.edges = T, exp1 = 1.5, exp2 = 1.5, trace = T)
+generate.ba.with.modules(
+  amnt.nodes = 100, 
+  amnt.edges = 1000, 
+  reverse.edges = TRUE, 
+  exp1 = 1.5, 
+  exp2 = 1.5, 
+  trace = TRUE
+)
 }

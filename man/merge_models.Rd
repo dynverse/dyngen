@@ -6,6 +6,11 @@
 \usage{
 merge_models(model1, model2)
 }
+\arguments{
+\item{model1}{The first model}
+
+\item{model2}{The second model}
+}
 \description{
 Merge different models
 }

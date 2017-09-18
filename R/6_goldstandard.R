@@ -7,10 +7,11 @@ get_module_counts = function(counts, modulemembership) {
   lapply(modulemembership, function(module) apply(counts[,as.character(module),drop=F], 1, mean)) %>% do.call(cbind, .)
 }
 
+#' @importFrom stats quantile
 get_states_and_progression = function(expression_modules, modulenodes, expression_cutoff=2, expression_max=4) {
   modulesoi = modulenodes %>% filter(!is.na(state))
   
-  expression_maxs = apply(expression_modules[, modulesoi$module], 2, quantile, probs=0.95)
+  expression_maxs = apply(expression_modules[, modulesoi$module], 2, stats::quantile, probs=0.95)
   
   expression_modules[, modulesoi$module] %>% apply(1, function(x) {
     maxmodule = (1:length(x))[x>expression_cutoff] %>% last
@@ -73,7 +74,8 @@ get_line_graph = function(net) {
   g %>% igraph::as_data_frame()
 }
 
-
+#' @importFrom gtools combinations
+#' @importFrom igraph graph_from_data_frame plot.igraph
 get_branchconnected_statenet = function(statenet, statenodes) {
   # network between states
   # at bifurcation points, the two states after a bifurcation are connected through a head2head edge
@@ -83,7 +85,7 @@ get_branchconnected_statenet = function(statenet, statenodes) {
     gtools::combinations(length(statesoi), r=2, v=statesoi) %>% as.data.frame() %>% rename(from=V1, to=V2)
   }) %>% bind_rows() %>% mutate(type="head2head") %>% bind_rows(statenet)
   print(statenet$type)
-  if(nrow(statenet) > 1) igraph::graph_from_data_frame(statenet[,c("from", "to")]) %>% plot(edge.color=factor(statenet$type))
+  if(nrow(statenet) > 1) igraph::graph_from_data_frame(statenet[,c("from", "to")]) %>% igraph::plot.igraph(edge.color=factor(statenet$type))
   snet = statenet[,c("from", "to")] %>% igraph::graph_from_data_frame(vertices=unique(c(statenet$from, statenet$to)) %>% sort)
   list(snet=snet, statenet=statenet, statenodes=statenodes)
 }
@@ -160,6 +162,7 @@ get_cell_distance_func = function(snet, state1, state2) {
 #func(0.9, 0.1)
 #func(0.2, 0.3)
 
+#' @importFrom pheatmap pheatmap
 get_cell_distances = function(cellinfo, snet) {
   cellinfo$state = factor(cellinfo$state) # make sure this is a factor, because if some states are missing this will mess up the indexing
   allstates = unique(cellinfo$state) %>% sort

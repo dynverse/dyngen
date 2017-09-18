@@ -4,10 +4,10 @@
 \alias{fsum}
 \title{Sum of AbstractFormula objects}
 \usage{
-fsum(arguments)
+fsum(...)
 }
 \arguments{
-\item{arguments}{the S4 class \code{AbstractFormula} objects to be summed}
+\item{...}{the S4 class \code{AbstractFormula} objects to be summed}
 }
 \value{
 an S4 class \code{AbstractFormula} object

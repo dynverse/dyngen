@@ -1,4 +1,5 @@
 #' @import fastgssa
+#' @importFrom utils tail
 simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
   variables_burngenes = c(variables_burngenes, model$vargroups$rg)
@@ -36,14 +37,15 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
     rownames(molecules) = c(1:nrow(molecules))
     return(list(molecules=molecules, times=times))
   } else {
-    return(tail(molecules, n=1)[1,])
+    return(utils::tail(molecules, n=1)[1,])
   }
 }
 
+#' @importFrom utils tail
 process_ssa <- function(out, starttime=0) {
   final.time <- out$args$final.time
   data <- out$timeseries
-  lastrow <- tail(data, n=1)
+  lastrow <- utils::tail(data, n=1)
   lastrow$t <- final.time
   data[nrow(data)+1,] <- lastrow
   data <- data[data$t<=final.time,]
@@ -59,29 +61,39 @@ process_ssa <- function(out, starttime=0) {
 
 
 # Emrna doesnt get updated, this function does not work
+#' @importFrom zoo rollapply
+#' @importFrom stats quantile sd
 estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
   convergences = parallel::mclapply(1:nruns, function(i) {
     E = expression_one_cell(burntime, totaltime)
     Emrna = E[str_detect(featureNames(E), "x_")]
     
-    exprs(Emrna) %>% t %>% zoo::rollmean(10) %>% zoo::rollapply(100, sd, fill=0) %>% t %>% apply(2, quantile, probs=0.9)
+    exprs(Emrna) %>% t %>% zoo::rollmean(10) %>% zoo::rollapply(100, stats::sd, fill=0) %>% t %>% apply(2, stats::quantile, probs=0.9)
   }, mc.cores=8) %>% do.call(rbind, .)
   
   timepoints = convergences %>% apply(1, function(convergences) {convergences %>% {.>=cutoff} %>% rev %>% cumsum %>% {. == 0} %>% rev %>% which() %>% first() %>% phenoData(Emrna)$time[.]}) # the first timepoint at which all following timepoints are below cutoff
   
   if (verbose) {
-    plot = convergences %>% reshape2::melt(varnames=c("run", "time"), value.name="convergence") %>% mutate(run=factor(run)) %>% mutate(time=as(phenoData(Emrna), "data.frame")[,"time"][time]) %>% qplot(time, convergence, data=., group=run, color=run, geom="line") + geom_hline(aes(yintercept=cutoff)) + geom_vline(aes(xintercept = timepoint, color=run), data=tibble(timepoint=timepoints, run=factor(1:nruns)))
+    plot = convergences %>%
+      reshape2::melt(varnames=c("run", "time"), value.name="convergence") %>% 
+      mutate(run=factor(run)) %>% 
+      mutate(time=as(phenoData(Emrna), "data.frame")[,"time"][time]) %>%
+      qplot(time, convergence, data=., group=run, color=run, geom="line") + 
+      geom_hline(aes(yintercept=cutoff)) + 
+      geom_vline(aes(xintercept = timepoint, color=run), data=tibble(timepoint=timepoints, run=factor(1:nruns)))
     print(plot)
   }
   timepoints
 }
 
+#' @importFrom PRISM qsub_lapply
+#' @importFrom pbapply pblapply
 simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
   force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
   } else {
-    multilapply = function(x, fun) {parallel::mclapply(x, fun, mc.cores = 8)}
+    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = 8)}
   }
   
   simulations = multilapply(seq_len(nsimulations), function(i) {
@@ -93,7 +105,7 @@ simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, loc
     colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
     stepinfo = tibble(step_id = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times)
     
-    tibble::lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
+    lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
   })
   
   simulations
@@ -153,7 +165,9 @@ process_simulation = function(molecules, celltimes, simulation_ids=1, step_ids=1
   tibble::lst(molecules, cellinfo, expression, simulations)
 }
 
-#' @import ggplot2
+#' @importFrom rgl lines3d
+#' @importFrom grDevices rainbow
+#' @importFrom stats sd
 plot_simulations = function(simulations, samplingrate=0.1) {
   for (i in seq_len(length(simulations))) {
     sample = sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))
@@ -165,8 +179,8 @@ plot_simulations = function(simulations, samplingrate=0.1) {
     simulations[[i]]$subcellinfo = simulations[[i]]$cellinfo[sample,]
     simulations[[i]]$subexpression = simulations[[i]]$expression[sample,]
     
-    simulations[[i]]$expression[sample,] %>% apply(1, sd) %>% {. == 0} %>% sum %>% print
-    simulations[[i]]$subexpression %>% {apply(., 1, sd) == 0} %>% sum %>% print
+    simulations[[i]]$expression[sample,] %>% apply(1, stats::sd) %>% {. == 0} %>% sum %>% print
+    simulations[[i]]$subexpression %>% {apply(., 1, stats::sd) == 0} %>% sum %>% print
     
     print("---")
   }
@@ -186,7 +200,8 @@ plot_simulations = function(simulations, samplingrate=0.1) {
   space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3) + viridis::scale_color_viridis(option="A")
   space %>% filter(observed) %>% ggplot() + geom_path(aes(V1, V2, group=simulation_id, color=state_id)) + geom_path(aes(V1, V2), data=space %>% filter(!observed), size=3)
   
-  for (i in unique(as.numeric(space$simulation_id))) rgl::lines3d(space %>% filter(simulation_id == i), col = rainbow(length(unique(space$simulation_id)))[[i]])
+  for (i in unique(as.numeric(space$simulation_id))) 
+    rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
   
 }
 
@@ -194,9 +209,17 @@ plot_simulations = function(simulations, samplingrate=0.1) {
 
 
 #' Add housekeeping genes
+#' 
+#' @param expression The original expression data.
+#' @param geneinfo The original gene info
+#' @param ngenes The number of genes to add
+#' @param overallaverage TODO: Zouter/wouters help?
+#' 
 #' @export
+#' @importFrom utils data
 add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallaverage = mean(expression)) {
-  reference_expression <- (2^SCORPIUS::ginhoux$expression)-1
+  utils::data(ginhoux, envir = environment())
+  reference_expression <- (2^ginhoux$expression)-1
   meanpoissons <- colMeans(reference_expression) %>% {./mean(reference_expression)*overallaverage}
   
   additional_expression <- purrr::map(sample(meanpoissons, ngenes), ~rpois(nrow(expression), .)) %>% 

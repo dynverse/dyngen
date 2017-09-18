@@ -44,6 +44,7 @@ get_states = function(piecenet) {
 
 
 # first get the smoothed module expression of all simulations
+#' @importFrom zoo rollmean
 smoothe_simulations = function(simulations, model) {
   newdata = lapply(simulations, function(simulation) {
     #expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(simulation$expression))
@@ -113,8 +114,8 @@ divide_simulation = function(progressioninfo, states, expression_smooth) {
 #' @import ggplot2
 divide_simulations = function(simulations, states, model) {
   combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% SCORPIUS::quant.scale(outlier.cutoff=0.05)
-  quant_scale_combined = function(x) SCORPIUS::apply.quant.scale(x, attributes(combined_scaled)$center, attributes(combined_scaled)$scale)
+  combined_scaled = combined %>% dynutils::scale_quantile(outlier.cutoff=0.05)
+  quant_scale_combined = function(x) dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
   
   pieces = list()
   for (simulationid in seq_len(length(simulations))) {
@@ -149,6 +150,9 @@ divide_simulations = function(simulations, states, model) {
 }
 
 # determine average expression, mapped to the first piece
+#' @importFrom pheatmap pheatmap
+#' @importFrom SCORPIUS euclidean_distance
+#' @importFrom zoo rollmean
 average_pieces = function(piecesoi, model) {
   total = tibble()
   piece1id = piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
@@ -157,7 +161,7 @@ average_pieces = function(piecesoi, model) {
   for (i in seq_len(nrow(piecesoi)-1)+1) {
     piece2 = piecesoi[i, ]$expression[[1]]
     
-    celldistances = SCORPIUS::euclidean.distance(piece1, piece2)
+    celldistances = SCORPIUS::euclidean_distance(piece1, piece2)
     
     total = data.frame(pieceid = i, time=piece1_times[apply(celldistances, 2, which.min)], piece2 %>% reshape2::melt(varnames=c("cell", "gene"), value.name="expression")) %>% as_tibble() %>% bind_rows(total)
   }
@@ -176,11 +180,12 @@ average_pieces = function(piecesoi, model) {
 }
 
 # determine average expression, mapped to an average piece
+#' @importFrom stats ksmooth
 average_pieces = function(piecesoi, model, bw=0.05) {
   expressions = piecesoi$expression
   xs = map(expressions, ~seq(0, 1, length.out=nrow(.))) %>% unlist()
   meanlength = (map_int(piecesoi$expression, nrow) %>% mean)
-  result = map(seq_len(ncol(expressions[[1]])), function(colid) {ksmooth(xs, map(expressions, ~.[, colid]) %>% unlist(), x.points=seq(0, 1, length.out=round(meanlength)), kernel="normal", bandwidth=bw)})
+  result = map(seq_len(ncol(expressions[[1]])), function(colid) {stats::ksmooth(xs, map(expressions, ~.[, colid]) %>% unlist(), x.points=seq(0, 1, length.out=round(meanlength)), kernel="normal", bandwidth=bw)})
   meanexpression = map(result, "y") %>% do.call(cbind, .) %>% set_colnames(colnames(expressions[[1]]))
   
   rownames(meanexpression) = seq_len(nrow(meanexpression))/nrow(meanexpression) * meanlength
@@ -188,6 +193,7 @@ average_pieces = function(piecesoi, model, bw=0.05) {
   meanexpression
 }
 
+#' @importFrom pheatmap pheatmap
 get_reference_expression = function(pieces, model) {
   reference_list = lapply(unique(pieces$stateid) %>% sort, function(stateidoi) {
     piecesoi = pieces %>% filter(stateid == stateidoi)
@@ -209,10 +215,11 @@ get_reference_expression = function(pieces, model) {
   list(expression=reference_expression, cellinfo=reference_cellinfo)
 }
 
+#' @importFrom SCORPIUS euclidean_distance
 assign_progression = function(expression, reference) {
   expression = expression[, colnames(reference$expression)] # filter on genes not present in the reference (eg. housekeeping)
   
-  cellcors = SCORPIUS::euclidean.distance(reference$expression, expression)
+  cellcors = SCORPIUS::euclidean_distance(reference$expression, expression)
   bestreferencecell = cellcors %>% apply(2, which.min)
   tibble(
     cell = colnames(cellcors),
@@ -221,8 +228,10 @@ assign_progression = function(expression, reference) {
   )
 }
 
-#' @import ggplot2
+#' @importFrom ggnetwork geom_edges geom_nodes geom_nodetext
+#' @importFrom gganimate gganimate
 plot_state_changes = function(dataset) {
+  requireNamespace("ggnetwork")
   cellinfo = left_join(dataset$gs$cellinfo, dataset$cellinfo, by="cell")
   
   window = 1
@@ -257,7 +266,7 @@ plot_state_changes = function(dataset) {
     scale_size_continuous(range=c(1, 15)) +
     ggnetwork::geom_nodes(aes(color=factor(piece)), size=15, alpha=0.2) +
     ggnetwork::theme_blank()
-  gganimate::gg_animate(p)
+  gganimate::gganimate(p)
 }
 
 #' @import ggplot2

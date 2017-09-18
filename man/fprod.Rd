@@ -4,10 +4,10 @@
 \alias{fprod}
 \title{Product of AbstractFormula objects}
 \usage{
-fprod(arguments)
+fprod(...)
 }
 \arguments{
-\item{arguments}{the S4 class \code{AbstractFormula} objects to be multiplied}
+\item{...}{the S4 class \code{AbstractFormula} objects to be multiplied}
 }
 \value{
 an S4 class \code{AbstractFormula} object

@@ -68,6 +68,10 @@ nus_to_matrix <- function(nus.changes, allmolecules) {
 
 
 #' Merge different models
+#' 
+#' @param model1 The first model
+#' @param model2 The second model
+#' 
 #' @export
 merge_models <- function(model1, model2) {
   model <- list()

@@ -6,8 +6,8 @@ Date: 2016-04-06
 Authors@R: c(
   person("Wouter", "Saelens", email = "wouter.saelens@ugent.be", role = c("aut", "cre")),
   person("Robrecht", "Cannoodt", email = "robrecht.cannoodt@ugent.be", role = c("aut")))
-Description: More about what it does (maybe more than one line)
-License: TDB
+Description: A toolkit for generating synthetic single cell data.
+License: GPL-3
 LazyData: TRUE
 RoxygenNote: 6.0.1
 Depends:
@@ -16,15 +16,34 @@ Imports:
   dplyr,
   dynutils,
   fastgssa,
+  FNN,
+  gganimate,
+  ggnetwork,
   ggplot2,
+  gtools,
   igraph,
   jsonlite,
   magrittr,
   methods,
+  pbapply,
+  pdist,
+  pheatmap,
+  princurve,
+  PRISM,
   purrr,
   readr,
+  reshape2,
+  rgl,
+  SCORPIUS,
+  stats,
   stringr,
-  tibble
+  tibble,
+  utils,
+  viridis,
+  zoo
 Remotes:
   dynverse/fastgssa,
-  rcannood/dynutils
+  rcannood/dynutils,
+  rcannood/PRISM,
+  dgrtwo/gganimate,
+  rcannood/SCORPIUS

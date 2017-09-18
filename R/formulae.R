@@ -1,3 +1,11 @@
+#' Abstracto formula
+#'
+#' @slot type character. 
+#' @slot name character. 
+#' @slot arguments list. 
+#' @slot string character. 
+#'
+#' @export
 AbstractFormula <- setClass(
   "AbstractFormula",
   slots = c(
@@ -94,7 +102,8 @@ finfix <- function(fun) {
 #' @examples
 #' fsum <- fprefix("sum")
 fprefix <- function(fun) {
-  function(arguments) {
+  function(...) {
+    arguments <- unlist(list(...))
     for (i in seq_along(arguments)) {
       if (class(arguments[[i]]) != "AbstractFormula") {
         arguments[[i]] <- fcon(arguments[[i]])
@@ -157,19 +166,40 @@ fprefix <- function(fun) {
 #' fvar("total") %f-% fcon(10)
 `%f-%` <- finfix("-")
 
+#' Short hand notations for generating new formulae
+#'
+#' @param e1 Argument 1
+#' @param e2 Argument 2
+#'
+#' @return A new formula
+#' 
+#' @exportMethod "+" "-" "*" "/"
+#' @docType methods
+#' @rdname common-operators
 setMethod("+", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
+#' @rdname common-operators
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
+#' @rdname common-operators
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
+#' @rdname common-operators
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
+#' @rdname common-operators
 setMethod("+", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f+% e2)
+#' @rdname common-operators
 setMethod("-", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f-% e2)
+#' @rdname common-operators
 setMethod("*", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f*% e2)
+#' @rdname common-operators
 setMethod("/", signature(e1 = "AbstractFormula", e2 = "numeric"), function(e1, e2) e1 %f/% e2)
 
+#' @rdname common-operators
 setMethod("+", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f+% e2)
+#' @rdname common-operators
 setMethod("-", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f-% e2)
+#' @rdname common-operators
 setMethod("*", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f*% e2)
+#' @rdname common-operators
 setMethod("/", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e2) e1 %f/% e2)
 
 #' Apply a function over all arguments, then collapse it with another function
@@ -182,14 +212,14 @@ setMethod("/", signature(e1 = "numeric", e2 = "AbstractFormula"), function(e1, e
 #' @export
 #'
 #' @examples
-#' freduce(`f+`, c(1,2,3), fcon)
+#' freduce(`%f+%`, c(1,2,3), fcon)
 freduce <- function(collapse.fun, lapply.args, lapply.fun) {
   Reduce(collapse.fun, lapply(lapply.args, lapply.fun))
 }
 
 #' Sum of AbstractFormula objects
 #'
-#' @param arguments the S4 class \code{AbstractFormula} objects to be summed
+#' @param ... the S4 class \code{AbstractFormula} objects to be summed
 #'
 #' @return an S4 class \code{AbstractFormula} object
 #' @export
@@ -201,7 +231,7 @@ fsum <- fprefix("sum")
 
 #' Product of AbstractFormula objects
 #'
-#' @param arguments the S4 class \code{AbstractFormula} objects to be multiplied
+#' @param ... the S4 class \code{AbstractFormula} objects to be multiplied
 #'
 #' @return an S4 class \code{AbstractFormula} object
 #' @export
@@ -212,7 +242,7 @@ fsum <- fprefix("sum")
 fprod <- fprefix("prod")
 
 
-#' @title Generate production formulae 
+#' Generate production formulae 
 #'
 #' @param g the gene in question
 #' @param regs the regulators of the gene
@@ -235,7 +265,7 @@ generate.production.formula <- function(g, regs, amnt.genes) {
   list(formula = formula, nu = nu)
 }
 
-#' @title Generate decay formulae
+#' Generate decay formulae
 #'
 #' @param g the gene in question
 #' @param amnt.genes the total number of genes

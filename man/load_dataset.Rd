@@ -6,6 +6,11 @@
 \usage{
 load_dataset(datasetid, contents = contents_dataset())
 }
+\arguments{
+\item{datasetid}{The id of the dataset}
+
+\item{contents}{What to load}
+}
 \description{
 Load a dataset
 }

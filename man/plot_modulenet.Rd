@@ -2,10 +2,13 @@
 % Please edit documentation in R/1_network_generation.R
 \name{plot_modulenet}
 \alias{plot_modulenet}
-\title{# Plotting}
+\title{Plotting}
 \usage{
 plot_modulenet(model)
 }
+\arguments{
+\item{model}{The model to plot}
+}
 \description{
-# Plotting
+Plotting
 }

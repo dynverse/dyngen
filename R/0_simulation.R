@@ -47,11 +47,13 @@ run_experiment <- function(simulation, takesettings, add_housekeeping=TRUE) {
   experiment
 }
 
+#' @importFrom pheatmap pheatmap
+#' @importFrom pheatmap pheatmap
 plot_experiment <- function(experiment) {
   experiment$expression_modules = get_module_counts(experiment$expression, experiment$model$modulemembership)
   
-  pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules) %>% t, cluster_cols=F)
-  pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression) %>% t, cluster_cols=F, labels_row=experiment$model$geneinfo$name)
+  pheatmap::pheatmap(dynutils::scale_quantile(experiment$expression_modules) %>% t, cluster_cols=F)
+  pheatmap::pheatmap(dynutils::scale_quantile(experiment$expression) %>% t, cluster_cols=F, labels_row=experiment$model$geneinfo$name)
   experiment$expression_modules %>% reshape2::melt(varnames=c("cell", "module"), value.name="expression") %>% ggplot() + geom_histogram(aes(expression)) + facet_wrap(~module) + geom_vline(xintercept = 2)
 }
 
@@ -61,12 +63,14 @@ run_scrnaseq = function(experiment, platform) {
   dataset$counts = simulate_scrnaseq(experiment$expression, platform)
   dataset$platform = platform
   
-  #pheatmap::pheatmap(SCORPIUS::quant.scale(dataset$counts) %>% t, cluster_cols=F)
+  #pheatmap::pheatmap(dynutils::scale_quantile(dataset$counts) %>% t, cluster_cols=F)
   
   dataset
 }
 
+#' @importFrom pheatmap pheatmap
 #' @importFrom dynutils random_time_string
+#' @importFrom stats sd
 extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(is.null(experiment$simulations)) stop("requires multiple individual simulations to align to gold standard")
   gs = list()
@@ -79,7 +83,12 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   
   if(verbose) print(">> dividing")
   gs$pieces = divide_simulations(experiment$simulations, gs$states, experiment$model)
-  gs$pieces = gs$pieces %>% mutate(ncells=map_int(cells, length)) %>% group_by(state_id) %>% mutate(outlierness = abs((ncells - mean(ncells))/sd(ncells))) %>% filter(is.na(outlierness) | outlierness < 2) %>% ungroup # remove long pieces (probably skipped a state)
+  gs$pieces = gs$pieces %>%
+    mutate(ncells=map_int(cells, length)) %>% 
+    group_by(state_id) %>%
+    mutate(outlierness = abs((ncells - mean(ncells))/stats::sd(ncells))) %>% 
+    filter(is.na(outlierness) | outlierness < 2) %>%
+    ungroup # remove long pieces (probably skipped a state)
   
   if(verbose) print(">> generating reference")
   gs$reference = get_reference_expression(gs$pieces, experiment$model)
@@ -87,7 +96,7 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(verbose) print(">> assigning")
   gs$cellinfo = assign_progression(experiment$expression, gs$reference)
   
- pheatmap::pheatmap(SCORPIUS::quant.scale(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(state_id) %>% mutate(state_id=factor(state_id)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
+ pheatmap::pheatmap(dynutils::scale_quantile(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(state_id) %>% mutate(state_id=factor(state_id)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
   ggplot(gs$cellinfo %>% left_join(experiment$cellinfo, by="cell")) + geom_area(aes(simulationtime, group=state_id, fill=factor(state_id)), position="fill", stat="bin", bins=10)
   
   # if(verbose) print(">> calculating cell distances")

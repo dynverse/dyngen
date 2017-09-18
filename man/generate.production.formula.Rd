@@ -13,3 +13,6 @@ generate.production.formula(g, regs, amnt.genes)
 
 \item{amnt.genes}{the total number of genes}
 }
+\description{
+Generate production formulae
+}

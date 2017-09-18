@@ -19,6 +19,7 @@ generate_random_tree = function(seed=NULL) {
   states
 }
 
+#' @importFrom utils combn
 from_states_to_modulenet = function(states) {
   dig_deeper = function(states, curstate=1, visitedstates=c(), modules=list(modulenet=tibble(), modulenodes=tibble(module=1, state=1)), connecting_module=1) {
     modulenet = modules$modulenet
@@ -30,7 +31,7 @@ from_states_to_modulenet = function(states) {
       receiving_modules = seq(curmodule+1, length.out=length(to)) %>% set_names(to)
       submodulenet = tibble(from=connecting_module, to=receiving_modules, strength=1, effect=1) %>% 
         bind_rows(
-          combn(receiving_modules, 2) %>% cbind2(combn(receiving_modules %>% rev, 2)) %>% t %>% as.data.frame %>% rename(from=V1, to=V2) %>% mutate(strength=100, effect=-1)
+          combn(receiving_modules, 2) %>% cbind2(utils::combn(receiving_modules %>% rev, 2)) %>% t %>% as.data.frame %>% rename(from=V1, to=V2) %>% mutate(strength=100, effect=-1)
         )
       submodulenodes = tibble(module=receiving_modules, state=to)
     } else {

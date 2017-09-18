@@ -4,13 +4,15 @@
 
 
 ## scRNAseq functions
+#' @importFrom stats rbinom
 amplify = function(a=0, steps=100, rate=0.05) {
   for (i in 1:steps) {
-    a = a + rbinom(length(a), a, rate)
+    a = a + stats::rbinom(length(a), a, rate)
   }
   a
 }
 
+#' @importFrom stats rmultinom
 libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, amplifysteps = 100, amplifyrate = c(0.0001, 0.03), sequencerate=0.1, cellcapturerate = 1, celldoubletrate = 0, verbose=F, verbose_plot_cell=50, verbose_follow_gene="x_1") {
   curcounts = counts
   curcounts = counts_cellcaptured = counts[runif(nrow(counts)) <= cellcapturerate, ]
@@ -19,9 +21,9 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
   
   print(curcounts %>% dim)
   
-  curcounts = counts_lysed = apply(curcounts, 1, function(col) rmultinom(1, sum(col)*lysisrate, col)[,1]) %>% t
+  curcounts = counts_lysed = apply(curcounts, 1, function(col) stats::rmultinom(1, sum(col)*lysisrate, col)[,1]) %>% t
   dimnames(curcounts) = dimnames(counts_lysed) = dimnames(counts_cellcaptured)
-  curcounts = counts_captured = apply(curcounts, 1, function(col) rmultinom(1, sum(col)*capturerate, col)[,1]) %>% t
+  curcounts = counts_captured = apply(curcounts, 1, function(col) stats::rmultinom(1, sum(col)*capturerate, col)[,1]) %>% t
   dimnames(curcounts) = dimnames(counts_captured) = dimnames(counts_cellcaptured)
   
   # different rates per cell and per gene
@@ -36,7 +38,7 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
     dimnames(curcounts) = dimnames(counts_amplified) = dimnames(counts_cellcaptured)
   }
   
-  curcounts = counts_sequences = apply(curcounts, 1, function(col) rmultinom(1, sum(col)*sequencerate, col+0.000001)[,1]) %>% t # pseudocounts added because sum of probs cannot be zero
+  curcounts = counts_sequences = apply(curcounts, 1, function(col) stats::rmultinom(1, sum(col)*sequencerate, col+0.000001)[,1]) %>% t # pseudocounts added because sum of probs cannot be zero
   dimnames(curcounts) = dimnames(counts_sequences) = dimnames(counts_cellcaptured)
   
   if(verbose) {
@@ -48,8 +50,12 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
       tibble(gene=colnames(counts_cellcaptured), count = counts_amplified[verbose_plot_cell, ], step="amplified"),
       tibble(gene=colnames(counts_cellcaptured), count = counts_sequences[verbose_plot_cell, ], step="sequenced")
     ) %>% mutate(step=factor(step, levels=unique(step)))
-    plot = overview %>% ggplot() + geom_histogram(aes(count), bins=50) + facet_wrap(~step, ncol=1) + geom_vline(aes(xintercept=count, color=gene), data=overview %>% filter(gene %in% verbose_follow_gene))
-    plot(plot)
+    plot = overview %>% 
+      ggplot() +
+      geom_histogram(aes(count), bins=50) + 
+      facet_wrap(~step, ncol=1) + 
+      geom_vline(aes(xintercept=count, color=gene), data=overview %>% filter(gene %in% verbose_follow_gene))
+    print(plot)
   }
   curcounts
 }

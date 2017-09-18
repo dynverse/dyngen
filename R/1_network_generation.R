@@ -122,9 +122,10 @@ modulenet_to_genenet <- function(modulenet, modulenodes, genestart_id=0) {
 }
 
 # list genes
+#' @importFrom stats setNames
 list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
   allgenes <- geneinfo$gene
-  gene2module <- unlist(lapply(names(modulemembership), function(module_id) setNames(rep(module_id, length(modulemembership[[module_id]])), modulemembership[[module_id]])))
+  gene2module <- unlist(lapply(names(modulemembership), function(module_id) stats::setNames(rep(module_id, length(modulemembership[[module_id]])), modulemembership[[module_id]])))
   gene2module <- c( # assign genes to its first parent module
     gene2module, 
     net %>%
@@ -133,7 +134,7 @@ list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
       mutate(module=gene2module[as.character(firstf)]) %>% 
       select(-firstf) %>% dplyr::rename(gene=to) %>%
       filter(!(gene %in% names(gene2module))) %>% 
-      {setNames(.$module, .$gene)}
+      {stats::setNames(.$module, .$gene)}
   ) 
   geneinfo$module <- gene2module[as.character(geneinfo$gene)]
   geneinfo <- geneinfo %>% bind_rows(tibble(gene=allgenes[!(allgenes %in% geneinfo$gene)])) %>% # add genes not in one of the modules
@@ -147,7 +148,10 @@ list_genes <- function(geneinfo, modulemembership, net, modulenodes) {
 
 
 
-#' # Plotting
+#' Plotting
+#' 
+#' @param model The model to plot
+#' 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
 plot_modulenet <- function(model) {
   graph <- igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
@@ -189,6 +193,7 @@ plot_net <- function(model) {
   )
 }
 
+#' @importFrom pheatmap pheatmap
 plot_net_overlaps <- function(model) {
   jaccard <- function(x, y) {length(intersect(x, y))/length(union(x,y))}
   pheatmap::pheatmap(sapply(model$geneinfo$gene, function(i) sapply(model$geneinfo$gene, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
@@ -207,7 +212,7 @@ plot_net <- function(model) {
   #V(graph)$label <- model$geneinfo$gene
   V(graph)$label <- ""
   E(graph)$color <- subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
-  plot(graph, vertex.size=6, edge.arrow.size=0.5)
+  igraph::plot.igraph(graph, vertex.size=6, edge.arrow.size=0.5)
 }
 
 #' @importFrom igraph graph_from_data_frame V E plot.igraph
@@ -221,6 +226,6 @@ plot_net_tfs <- function(model) {
   colors <- rainbow(length(modulenames))
   V(graph)$color <- colors[match(model$geneinfo$module[match(names(V(graph)), model$geneinfo$gene)], modulenames)]
   E(graph)$color <- subnet$effect %>% factor(levels=c(1, -1)) %>% as.numeric() %>% c("blue", "red")[.]
-  plot(graph)
+  igraph::plot.igraph(graph)
 }
 
