@@ -41,6 +41,8 @@ Imports:
   utils,
   viridis,
   zoo
+Suggests:
+  rgl
 Remotes:
   dynverse/fastgssa,
   rcannood/dynutils,

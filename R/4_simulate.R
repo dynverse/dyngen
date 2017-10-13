@@ -165,10 +165,10 @@ process_simulation = function(molecules, celltimes, simulation_ids=1, step_ids=1
   tibble::lst(molecules, cellinfo, expression, simulations)
 }
 
-#' @importFrom rgl lines3d
 #' @importFrom grDevices rainbow
 #' @importFrom stats sd
 plot_simulations = function(simulations, samplingrate=0.1) {
+  requireNamespace("rgl")
   for (i in seq_len(length(simulations))) {
     sample = sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))
     
