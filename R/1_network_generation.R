@@ -2,18 +2,18 @@
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
 load_modulenet <- function(modulenetname) {
-  modulenodes <- read_tsv(paste0("data/networks/", modulenetname, "/modulenodes.tsv"), col_types=cols()) %>% 
+  modulenodes <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/modulenodes.tsv"), col_types=cols()) %>% 
     mutate(module=paste0("M", module))
   if(!("celltype" %in% colnames(modulenodes))) {
     modulenodes$celltype <- 1
   }
-  modulenet <- read_tsv(paste0("data/networks/", modulenetname, "/modulenet.tsv"), col_types=cols()) %>% 
+  modulenet <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/modulenet.tsv"), col_types=cols()) %>% 
     mutate(from=paste0("M", from), to=paste0("M", to))
-  celltypes <- read_tsv(paste0("data/networks/", modulenetname, "/celltypes.tsv"), col_types=cols())
+  celltypes <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/celltypes.tsv"), col_types=cols())
   
   #statenet <- read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
   
-  states <- jsonlite::read_json(paste0("data/networks/", modulenetname, "/states.json"), simplifyVector=TRUE)
+  states <- jsonlite::read_json(paste0("data/modulenetworks/", modulenetname, "/states.json"), simplifyVector=TRUE)
   
   lst(modulenodes, modulenet, celltypes, modulenetname, states)
 }
@@ -75,7 +75,7 @@ add_targets_shared <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], 
   }
 }
 
-# convert modulenet to modules including lineage determining transcription factors (tfs)
+# convert modulenet to modules
 modulenet_to_modules <- function(modulenet, modulenodes, ngenespermodule=4, genestart_id=0) {
   modulenames <- c(modulenet$from, modulenet$to) %>% unique
   nmodules <- ngenespermodule * (length(modulenames))
@@ -96,7 +96,7 @@ modulenet_to_modules <- function(modulenet, modulenodes, ngenespermodule=4, gene
     net
   }) %>% bind_rows
   
-  tibble::lst(modulemembership, net)
+  lst(modulemembership, net)
 }
 
 # generate gene network

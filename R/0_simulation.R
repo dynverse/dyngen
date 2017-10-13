@@ -1,3 +1,23 @@
+#' Model initializations
+#' @export
+generate_model_from_modulenet <- function(model) {
+  if(!(c("modulenodes", "modulenet", "celltypes", "states") %in% names(model))) stop("Invalid model")
+  
+  # convert module network to gene network
+  model = modulenet_to_genenet(model$modulenet, model$modulenodes, 0) %>% c(model)
+  
+  # list information of the genes, such as their module relationships
+  model$geneinfo = list_genes(model$geneinfo, model$modulemembership, model$net, model$modulenodes)
+  
+  # generate thermodynamics formulae & kinetics
+  model = generate_formulae(model$net, model$geneinfo, model$celltypes) %>% c(model)
+  model = generate_kinetics(model$vargroups, model$variables, model$nus.changes) %>% c(model)
+  
+  # determine which genes will be burn in genes
+}
+
+
+
 generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, verbose=F) {
   if(!is.null(modulenetname)) {
     model = load_modulenet(modulenetname)
@@ -7,7 +27,6 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, ver
   } else {
     stop("Can't generate model if you don't tell me how!")
   }
-  class(model) = "dyngen::model"
   
   model = modulenet_to_genenet(model$modulenet, model$modulenodes, genestart_id) %>% c(model)
   #mnet_wanted = model$modulenet
@@ -21,15 +40,10 @@ generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, ver
   
   model$burngenes = determine_burngenes(model)
   
-  model$info = generate_model_info()
+  model$info = list(date=date())
   model$ti = list(type=modulenetname, generator="modulenet_barabasi", generatorinfo = list())
   
   model
-}
-
-#' @importFrom dynutils random_time_string
-generate_model_info <- function() {
-  list(date=date(), id=paste0(.version, "/", dynutils::random_time_string()))
 }
 
 run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
