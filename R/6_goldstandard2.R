@@ -151,7 +151,7 @@ divide_simulations = function(simulations, states, model) {
 
 # determine average expression, mapped to the first piece
 #' @importFrom pheatmap pheatmap
-#' @importFrom SCORPIUS euclidean_distance
+#' @importFrom pdist pdist
 #' @importFrom zoo rollmean
 average_pieces = function(piecesoi, model) {
   total = tibble()
@@ -161,6 +161,7 @@ average_pieces = function(piecesoi, model) {
   for (i in seq_len(nrow(piecesoi)-1)+1) {
     piece2 = piecesoi[i, ]$expression[[1]]
     
+    celldistances <- as.matrix(pdist::pdist(piece1, piece2))
     celldistances = SCORPIUS::euclidean_distance(piece1, piece2)
     
     total = data.frame(pieceid = i, time=piece1_times[apply(celldistances, 2, which.min)], piece2 %>% reshape2::melt(varnames=c("cell", "gene"), value.name="expression")) %>% as_tibble() %>% bind_rows(total)
@@ -215,11 +216,10 @@ get_reference_expression = function(pieces, model) {
   list(expression=reference_expression, cellinfo=reference_cellinfo)
 }
 
-#' @importFrom SCORPIUS euclidean_distance
+#' @importFrom pdist pdist
 assign_progression = function(expression, reference) {
   expression = expression[, colnames(reference$expression)] # filter on genes not present in the reference (eg. housekeeping)
-  
-  cellcors = SCORPIUS::euclidean_distance(reference$expression, expression)
+  cellcors <- as.matrix(pdist::pdist(reference$expression, expression))  
   bestreferencecell = cellcors %>% apply(2, which.min)
   tibble(
     cell = colnames(cellcors),
