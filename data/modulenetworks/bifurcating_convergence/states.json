@@ -1,0 +1,5 @@
+{
+  "1":{"state_id":1, "modules":["M4", "M5"], "to":[2, 3], "type":"bifurcation"},
+  "2":{"state_id":2, "modules":["M4", "M5"], "to":5, "cross":3, "type":"convergence"},
+  "3":{"state_id":3, "modules":["M4", "M5"], "to":5, "cross":2, "type":"convergence"}
+}

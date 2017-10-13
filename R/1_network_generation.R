@@ -2,18 +2,16 @@
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
 load_modulenet <- function(modulenetname) {
-  modulenodes <- read_tsv(paste0("data/networks/", modulenetname, "/modulenodes.tsv"), col_types=cols()) %>% 
-    mutate(module=paste0("M", module))
+  modulenodes <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/modulenodes.tsv"), col_types=cols())
   if(!("celltype" %in% colnames(modulenodes))) {
     modulenodes$celltype <- 1
   }
-  modulenet <- read_tsv(paste0("data/networks/", modulenetname, "/modulenet.tsv"), col_types=cols()) %>% 
-    mutate(from=paste0("M", from), to=paste0("M", to))
-  celltypes <- read_tsv(paste0("data/networks/", modulenetname, "/celltypes.tsv"), col_types=cols())
+  modulenet <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/modulenet.tsv"), col_types=cols())
+  celltypes <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/celltypes.tsv"), col_types=cols())
   
   #statenet <- read_tsv(paste0("data/networks/", modulenetname, "/statenet.tsv"), col_types=cols())
   
-  states <- jsonlite::read_json(paste0("data/networks/", modulenetname, "/states.json"), simplifyVector=TRUE)
+  states <- jsonlite::read_json(paste0("data/modulenetworks/", modulenetname, "/states.json"), simplifyVector=TRUE)
   
   lst(modulenodes, modulenet, celltypes, modulenetname, states)
 }
@@ -75,28 +73,40 @@ add_targets_shared <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], 
   }
 }
 
-# convert modulenet to modules including lineage determining transcription factors (tfs)
-modulenet_to_modules <- function(modulenet, modulenodes, ngenespermodule=4, genestart_id=0) {
-  modulenames <- c(modulenet$from, modulenet$to) %>% unique
-  nmodules <- ngenespermodule * (length(modulenames))
-  modulemembership <- split(seq_len(nmodules)+genestart_id, ceiling(seq_len(nmodules)/ngenespermodule)) %>% set_names(modulenames)
+# convert modulenet to modules
+#' @param edge_retainment Function returning probabilities for the retainment of an edge (i ranging from 1 to `n`). Given `n` possible edges, what is the (relative) probability the i edges will be chosen? Choosing the default will retain on average half of the edges, taking into acount that always one edge should be chosen.
+modulenet_to_modules <- function(
+  modulenet, 
+  modulenodes, 
+  ngenes_per_module= function(n) sample(1:10, n, replace=TRUE), 
+  gene_name_generator = function(i) paste0("G", i),
+  edge_retainment = function(n) rep(1, n)
+) {
+  # generate tfs for each module, add to geneinfo
+  geneinfo <- modulenodes %>% 
+    mutate(
+      ngenes = ngenes_per_module(n()),
+      startgeneid = c(0, cumsum(ngenes)[-n()]),
+      genes = map2(startgeneid, ngenes, ~gene_name_generator(seq(.x, .x+.y-1)))
+    ) %>% 
+    unnest(genes) %>% 
+    rename(gene_id = genes) %>% 
+    select(gene_id, module_id, a0, burn)
   
-  net <- lapply(seq_len(nrow(modulenet)), function(i) {
-    from_module <- modulenet[i,]$from
-    to_module <- modulenet[i,]$to
-    from <- modulemembership[[from_module]]
-    to <- modulemembership[[to_module]]
-    nedges <- length(to) * 0.5
-    
-    effect <- modulenet[i,]$effect
-    strength <- modulenet[i, ]$strength
-    
-    net <- expand.grid(from=from, to=to) %>% as_tibble() %>% group_by(to) %>% sample_n(nedges) %>% mutate(effect=effect, strength=strength, cooperativity=2)
-    #tibble(from=sample(from, nedges, T), to=sample(to, nedges, T), effect=modulenet[i,]$effect, strength=modulenet[i, ]$strength, cooperativity=2)
-    net
-  }) %>% bind_rows
+  # generate network between tfs
+  # first generate the complete network for every from to every to
+  completenet <- modulenet %>% 
+    mutate(modulenet_edge_id=row_number()) %>% 
+    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(from_gene=gene_id), by=c("from"="module_id")) %>%
+    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(to_gene=gene_id), by=c("to"="module_id")) %>% 
+    rename(from_module_id = from, to_module_id = to, from = from_gene, to = to_gene)
   
-  tibble::lst(modulemembership, net)
+  # now subsample, making sure every "to" gene is regulated by at least one "from" gene for every module edge
+  net <- completenet %>% 
+    group_by(to, modulenet_edge_id) %>% 
+    filter(row_number() %in% sample(seq_len(n()), sample(1:n(), prob=edge_retainment(n()))))
+  
+  lst(geneinfo, net)
 }
 
 # generate gene network
