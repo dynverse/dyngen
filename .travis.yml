@@ -3,6 +3,7 @@ sudo: required
 dist: trusty
 bioc_required: true
 warnings_are_errors: true
+cache: packages
 addons:
   apt:
     packages:
