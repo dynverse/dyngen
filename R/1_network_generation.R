@@ -73,8 +73,10 @@ add_targets_shared <- function(net, geneinfo, tfs = geneinfo$gene[geneinfo$tf], 
   }
 }
 
-# convert modulenet to modules
-#' @param edge_retainment Function returning probabilities for the retainment of an edge (i ranging from 1 to `n`). Given `n` possible edges, what is the (relative) probability the i edges will be chosen? Choosing the default will retain on average half of the edges, taking into acount that always one edge should be chosen.
+# #' convert modulenet to modules
+# #' @param edge_retainment Function returning probabilities for the retainment of an edge (i ranging from 1 to `n`). 
+# #' Given `n` possible edges, what is the (relative) probability the i edges will be chosen? Choosing the default
+# #' will retain on average half of the edges, taking into acount that always one edge should be chosen.
 modulenet_to_modules <- function(
   modulenet, 
   modulenodes, 
