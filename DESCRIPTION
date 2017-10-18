@@ -33,8 +33,6 @@ Imports:
   purrr,
   readr,
   reshape2,
-  rgl,
-  SCORPIUS,
   stats,
   stringr,
   tibble,
@@ -47,5 +45,4 @@ Remotes:
   dynverse/fastgssa,
   rcannood/dynutils,
   rcannood/PRISM,
-  dgrtwo/gganimate,
-  rcannood/SCORPIUS
+  dgrtwo/gganimate

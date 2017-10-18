@@ -1,4 +1,6 @@
-#' Generate model from module network
+#' Model initializations
+#' 
+#' @param model the module model -- is a list which must contain modulenodes, modulenet, celltypes and states
 #' 
 #' @export
 generate_model_from_modulenet <- function(model, params) {
