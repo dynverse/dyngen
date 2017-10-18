@@ -1,21 +1,22 @@
-#' Model initializations
+#' Generate model from module network
+#' 
 #' @export
-generate_model_from_modulenet <- function(model) {
-  if(!(c("modulenodes", "modulenet", "celltypes", "states") %in% names(model))) stop("Invalid model")
+generate_model_from_modulenet <- function(model, params) {
+  if(!(all(c("modulenodes", "modulenet", "celltypes", "states") %in% names(model)))) stop("Invalid model")
   
-  # convert module network to gene network
-  model = modulenet_to_genenet(model$modulenet, model$modulenodes, 0) %>% c(model)
+  # convert module network to gene network between modules
+  model = modulenet_to_genenet(model$modulenet, model$modulenodes, ngenes_per_module=params$ngenes_per_module, edge_retainment=ârams$edge_retainment) %>% c(model)
   
-  # list information of the genes, such as their module relationships
-  model$geneinfo = list_genes(model$geneinfo, model$modulemembership, model$net, model$modulenodes)
+  # add some targets
+  
   
   # generate thermodynamics formulae & kinetics
   model = generate_formulae(model$net, model$geneinfo, model$celltypes) %>% c(model)
   model = generate_kinetics(model$vargroups, model$variables, model$nus.changes) %>% c(model)
   
   # determine which genes will be burn in genes
+  
 }
-
 
 
 generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, verbose=F) {
