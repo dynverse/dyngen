@@ -1,4 +1,4 @@
-
+# 
 #' scRNA-seq data of dendritic cell progenitors.
 #'
 #' @description This dataset contains the expression values for 248 dendritic cell progenitors.
@@ -14,4 +14,5 @@
 #' @source \url{http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE60783}
 #'
 #' @docType data
-"ginhoux"
+# "ginhoux"
+# 

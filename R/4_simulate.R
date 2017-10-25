@@ -1,20 +1,21 @@
+#' Simulation one individual cells
+#' @param model The model to simulation
+#' @param timeofsampling `NULL` to return expression at all time steps, a double to return expression at a particular time step
 #' @import fastgssa
 #' @importFrom utils tail
-simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=10, burntime=2, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  variables_burngenes = map(model$variables, "gene") %>% keep(~!is.null(.)) %>% unlist() %>% keep(~. %in% model$burngenes) %>% names
-  variables_burngenes = c(variables_burngenes, model$vargroups$rg)
-  formulae.nus.burn = model$formulae.nus
-  formulae.nus.burn[setdiff(rownames(formulae.nus.burn), variables_burngenes),] = 0
-  
-  # burn in
-  if (!deterministic) {
-    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=fastgssa::ssa.direct(), recalculate.all = TRUE, stop.on.negstate = TRUE)
+simulate_cell = function(model, timeofsampling=NULL, totaltime=10, burntime=2, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
+  if (burntime > 0) {
+    nus_burn <- model$nus
+    nus_burn[setdiff(rownames(nus_burn), model$burn_variables),] <- 0
+    
+    # burn in
+    out <- fastgssa::ssa(model$initial_state, model$formulae_strings, nus_burn, burntime, model$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    output <- process_ssa(out)
+    initial_state_after_burn <- output$molecules[nrow(output$molecules), names(model$initial_state)]
   } else {
-    out <- fastgssa::ssa(model$initial.state, model$formulae.strings, formulae.nus.burn, burntime, model$params, method=ssa.algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    initial_state_after_burn <- model$initial_state
   }
-  output = process_ssa(out)
-  initial.state.burn = output$molecules[nrow(output$molecules), names(model$initial.state)]
-  
+
   # determine total time to simulate
   if (!is.null(timeofsampling)) {
     time = timeofsampling
@@ -23,11 +24,7 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
   }
   
   # actual simulation
-  if (!deterministic) {
-    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=fastgssa::ssa.direct(), recalculate.all = TRUE, stop.on.negstate = TRUE)
-  } else {
-    out <- fastgssa::ssa(initial.state.burn, model$formulae.strings, model$formulae.nus, time, model$params, method=ssa.algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
-  }
+  out <- fastgssa::ssa(initial_state_after_burn, model$formulae_strings, model$nus, time, model$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   output = process_ssa(out)
   molecules = output$molecules
   times = output$times
@@ -37,7 +34,7 @@ simulate_cell = function(model, timeofsampling=NULL, deterministic=F, totaltime=
     rownames(molecules) = c(1:nrow(molecules))
     return(list(molecules=molecules, times=times))
   } else {
-    return(utils::tail(molecules, n=1)[1,])
+    return(utils::tail(molecules, n=1))
   }
 }
 
@@ -54,6 +51,46 @@ process_ssa <- function(out, starttime=0) {
   
   return(list(times=times, molecules=data))
 }
+
+#' @importFrom PRISM qsub_lapply
+#' @importFrom pbapply pblapply
+#' @export
+simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
+  force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
+  if(!local) {
+    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
+  } else {
+    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = 8)}
+  }
+  
+  simulations = multilapply(seq_len(nsimulations), function(i) {
+    cell = simulate_cell(model, totaltime=totaltime, burntime=burntime, ssa_algorithm=ssa_algorithm)
+    
+    rownames(cell$molecules) = paste0(i, "_", seq_len(nrow(cell$molecules)))
+    
+    expression = cell$molecules[,str_detect(colnames(cell$molecules), "x_")]
+    colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
+    stepinfo = tibble(step_id = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times, simulation_id=i)
+    
+    lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
+  })
+  
+  molecules <- map(simulations, "molecules") %>% do.call(rbind, .)
+  expression <- map(simulations, "expression") %>% do.call(rbind, .)
+  stepinfo <- map(simulations, "stepinfo") %>% do.call(bind_rows, .)
+  
+  lst(molecules, expression, stepinfo)
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -84,149 +121,4 @@ estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
     print(plot)
   }
   timepoints
-}
-
-#' @importFrom PRISM qsub_lapply
-#' @importFrom pbapply pblapply
-simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa.algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
-  if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
-  } else {
-    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = 8)}
-  }
-  
-  simulations = multilapply(seq_len(nsimulations), function(i) {
-    cell = simulate_cell(model, deterministic = T, totaltime=totaltime, burntime=burntime, ssa.algorithm=ssa.algorithm)
-    
-    rownames(cell$molecules) = paste0(i, "_", seq_len(nrow(cell$molecules)))
-    
-    expression = cell$molecules[,str_detect(colnames(cell$molecules), "x_")]
-    colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
-    stepinfo = tibble(step_id = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times)
-    
-    lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
-  })
-  
-  simulations
-}
-
-take_experiment_cells <- function(simulations, takesettings = list(type="snapshot", ncells=500)) {
-  #takesettings = list(type="snapshot", ncells=500)
-  #takesettings = list(type="synchronized", ntimepoints=10)
-  
-  if(takesettings$type == "snapshot"){
-    ncellspersimulation <- ceiling(takesettings$ncells/length(simulations))
-    samples <- map(simulations, function(simulation) {
-      sample_ids <- sample(seq_len(nrow(simulation$expression)), ncellspersimulation)
-      list(
-        expression=simulation$expression[sample_ids, ],
-        cellinfo=simulation$stepinfo[sample_ids, ]
-      )
-    })
-  } else if(takesettings$type == "synchronized") {
-    totaltime <- max(simulations[[1]]$stepinfo$simulationtime)
-    timepoints <- seq(0, totaltime, length.out=takesettings$ntimepoints)
-    
-    samples <- map(simulations, function(simulation) {
-      sample_ids <- map_int(timepoints, ~which.min(abs(simulation$stepinfo$simulationtime - .)))
-      list(
-        expression=simulation$expression[sample_ids, ],
-        cellinfo=simulation$stepinfo[sample_ids, ] %>% mutate(timepoint=factor(timepoints))
-      )
-    })
-  }
-  expression <- map(samples, "expression") %>% purrr::invoke(rbind, .)
-  #rownames(expression) <- paste0("C", seq_len(nrow(expression)))
-  cellinfo <- map(samples, "cellinfo") %>% bind_rows() %>% mutate(cell_id=rownames(expression))
-  
-  tibble::lst(cellinfo, expression)
-}
-
-#' @import ggplot2
-process_simulation = function(molecules, celltimes, simulation_ids=1, step_ids=1, simulations=NULL) {
-  rownames(molecules) = paste0("C", seq_len(nrow(molecules)))
-  cellinfo = tibble(cell=rownames(molecules), simulationtime=celltimes, simulation_id=simulation_ids, step_id=step_ids, simulationstep_id = paste0(simulation_ids, "_", step_ids))
-  
-  molecules = molecules[order(cellinfo$simulationtime),]
-  cellinfo = cellinfo[order(cellinfo$simulationtime),]
-  expression = molecules[,str_detect(colnames(molecules), "x_")]
-  expression[expression < 0] = 0
-  expression = round(expression * 100)
-  colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
-  
-  simulations = map2(simulations, seq_along(simulations), function(molecules, simulation_id) {
-    rownames(molecules) = paste0(simulation_id, "_", seq_len(nrow(molecules)))
-    expression = molecules[,str_detect(colnames(molecules), "x_")]
-    colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
-    list(molecules = molecules,expression = expression)
-  })
-  
-  tibble::lst(molecules, cellinfo, expression, simulations)
-}
-
-#' @importFrom grDevices rainbow
-#' @importFrom stats sd
-plot_simulations = function(simulations, samplingrate=0.1) {
-  requireNamespace("rgl")
-  for (i in seq_len(length(simulations))) {
-    sample = sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))
-    
-    sample[simulations[[i]]$expression[sample,] %>% apply(1, mean) %>% {. == 0}] = FALSE
-    
-    print(sum(sample))
-    
-    simulations[[i]]$subcellinfo = simulations[[i]]$cellinfo[sample,]
-    simulations[[i]]$subexpression = simulations[[i]]$expression[sample,]
-    
-    simulations[[i]]$expression[sample,] %>% apply(1, stats::sd) %>% {. == 0} %>% sum %>% print
-    simulations[[i]]$subexpression %>% {apply(., 1, stats::sd) == 0} %>% sum %>% print
-    
-    print("---")
-  }
-  
-  overallexpression = map(simulations, "subexpression") %>% do.call(rbind, .)
-  overallexpression = overallexpression %>% set_rownames(1:nrow(overallexpression))
-  #overallcellinfo = map(simulations, ~.$subcellinfo) %>% bind_rows()
-  overallcellinfo = assign_progression(overallexpression, reference)
-  overallcellinfo$simulation_id = map(seq_len(length(simulations)), ~rep(., nrow(simulations[[.]]$expression))) %>% unlist %>% factor()
-  overallcellinfo$observed = T
-  
-  #overallexpression = rbind(overallexpression, reference_expression)
-  #overallcellinfo = bind_rows(overallcellinfo, tibble(simulation_id=rep(NA, nrow(reference_cellinfo)), observed=FALSE))
-  
-  space =  lmds(overallexpression, 3) %>% as.data.frame() %>% bind_cols(overallcellinfo)
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3)
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3) + viridis::scale_color_viridis(option="A")
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(V1, V2, group=simulation_id, color=state_id)) + geom_path(aes(V1, V2), data=space %>% filter(!observed), size=3)
-  
-  for (i in unique(as.numeric(space$simulation_id))) 
-    rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
-  
-}
-
-
-
-
-#' Add housekeeping genes
-#' 
-#' @param expression The original expression data.
-#' @param geneinfo The original gene info
-#' @param ngenes The number of genes to add
-#' @param overallaverage TODO: Zouter/wouters help?
-#' 
-#' @export
-#' @importFrom utils data
-add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallaverage = mean(expression)) {
-  utils::data(ginhoux, envir = environment())
-  reference_expression <- (2^ginhoux$expression)-1
-  meanpoissons <- colMeans(reference_expression) %>% {./mean(reference_expression)*overallaverage}
-  
-  additional_expression <- purrr::map(sample(meanpoissons, ngenes), ~rpois(nrow(expression), .)) %>% 
-    invoke(cbind, .) %>% 
-    magrittr::set_colnames(seq_len(ngenes)+ncol(expression))
-  
-  geneinfo <- dplyr::bind_rows(geneinfo %>% dplyr::mutate(housekeeping=F), tibble(gene=colnames(additional_expression) %>% as.numeric(), housekeeping=T))
-  
-  list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
 }

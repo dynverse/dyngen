@@ -1,54 +1,72 @@
-#' Model initializations
+#' Model generation from modulenet
+#' Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 #' 
 #' @param model the module model -- is a list which must contain modulenodes, modulenet, celltypes and states
 #' 
+#' @inheritParams add_targets_realnet
+#' @inheritParams modulenet_to_genenet
 #' @export
-generate_model_from_modulenet <- function(model, params) {
-  if(!(all(c("modulenodes", "modulenet", "celltypes", "states") %in% names(model)))) stop("Invalid model")
+generate_model_from_modulenet <- function(
+  # module net ---------------
+  modulenet_name, 
   
-  # convert module network to gene network between modules
-  model = modulenet_to_genenet(model$modulenet, model$modulenodes, ngenes_per_module=params$ngenes_per_module, edge_retainment=ârams$edge_retainment) %>% c(model)
+  # params for modulenet_name == "tree"
+  treeseed,
+  decay,
   
-  # add some targets
+  # module net to net ------------
+  ngenes_per_module,
+  edge_retainment,
+  ntargets_sampler,
   
+  # add targets -----------------------
+  target_adder_name, 
   
-  # generate thermodynamics formulae & kinetics
-  model = generate_formulae(model$net, model$geneinfo, model$celltypes) %>% c(model)
-  model = generate_kinetics(model$vargroups, model$variables, model$nus.changes) %>% c(model)
-  
-  # determine which genes will be burn in genes
-  
-}
-
-
-generate_model = function(modulenetname=NULL, treeseed=NULL, genestart_id=0, verbose=F) {
-  if(!is.null(modulenetname)) {
-    model = load_modulenet(modulenetname)
-  } else if(!is.null(treeseed)) {
-    statenet = generate_random_tree(treeseed)
-    model = from_states_to_modulenet(statenet)
+  # params for target_adder_name == "realnet_name"
+  realnet_name,
+  damping
+) {
+  # load modulenet
+  if (modulenet_name == "tree") {
+    stagenet = generate_random_tree(treeseed)
+    model = from_stages_to_modulenet(stagenet)
   } else {
-    stop("Can't generate model if you don't tell me how!")
+    model <- load_modulenet(modulenet_name)
   }
   
-  model = modulenet_to_genenet(model$modulenet, model$modulenodes, genestart_id) %>% c(model)
-  #mnet_wanted = model$modulenet
-  #model = extract_network_from_modulenet(real_modulenet, mnet_wanted) %>% c(model)
+  # convert module network to gene network between modules
+  model <- modulenet_to_genenet(
+    model$modulenet, 
+    model$modulenodes, 
+    ngenes_per_module=ngenes_per_module, 
+    edge_retainment=edge_retainment
+  ) %>% c(model)
   
-  model$geneinfo = list_genes(model$geneinfo, model$modulemembership, model$net, model$modulenodes)
-  if(verbose) plot_net_tfs(model)
+  # add some targets
+  if (target_adder_name == "realnet") {
+    model <- add_targets_realnet(
+      model$net, model$geneinfo, 
+      realnet_name = realnet_name, 
+      damping=damping,
+      ntargets_sampler = ntargets_sampler
+    ) %>% dynutils::merge_lists(model, .)
+  } else {
+    print("not supported")
+  }
   
-  model = generate_formulae(model$net, model$geneinfo, model$celltypes) %>% c(model)
-  model = generate_kinetics(model$vargroups, model$variables, model$nus.changes) %>% c(model)
+  # randomize parameters 
+  model$net <- randomize_network_parameters(model$net)
   
-  model$burngenes = determine_burngenes(model)
-  
-  model$info = list(date=date())
-  model$ti = list(type=modulenetname, generator="modulenet_barabasi", generatorinfo = list())
+  # generate thermodynamics formulae & kinetics
+  model <- generate_formulae(model$net, model$geneinfo, model$cells) %>% c(model)
+  model <- generate_kinetics(model$vargroups, model$variables, model$nus_df, model$formulae) %>% c(model)
+  model$burn_variables <- determine_burn_variables(model)
   
   model
 }
 
+
+#' Simulate a model
 run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
   simulations <- simulate_multiple(model, burntime, totaltime, nsimulations, local, ssa.algorithm=fastgssa::ssa.em(noise_strength=2))
   lst(simulations, model)
