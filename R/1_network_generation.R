@@ -144,7 +144,7 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
   if(!("igraph" %in% class(net))) net <- igraph::graph_from_data_frame(net)
   tfs <- net %>% igraph::degree(mode="out") %>% {which(.>0)} %>% names
   
-  personalized <- rep(0, length(V(net))) %>% set_names(names(V(net)))
+  personalized <- rep(0, length(igraph::V(net))) %>% set_names(names(igraph::V(net)))
   
   if (is.null(tf_of_interest)) tf_of_interest <- sample(tfs, 1)
   personalized[tf_of_interest] <- 1
