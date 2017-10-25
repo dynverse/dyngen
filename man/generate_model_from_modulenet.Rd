@@ -2,13 +2,25 @@
 % Please edit documentation in R/0_simulation.R
 \name{generate_model_from_modulenet}
 \alias{generate_model_from_modulenet}
-\title{Model initializations}
+\title{Model generation from modulenet
+Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`}
 \usage{
-generate_model_from_modulenet(model)
+generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
+  ngenes_per_module = function(n) sample(1:10, n, replace = TRUE),
+  edge_retainment = function(n) max(c(round(n/2), 1)),
+  ntargets_sampler = function() {     sample(20:100, 1) }, target_adder_name,
+  realnet_name = "regulatorycircuits", damping = 0.05)
 }
 \arguments{
+\item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
+
+\item{realnet_name}{Name of the real network}
+
+\item{damping}{Damping factor for personalized pagerank}
+
 \item{model}{the module model -- is a list which must contain modulenodes, modulenet, celltypes and states}
 }
 \description{
-Model initializations
+Model generation from modulenet
+Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 }
