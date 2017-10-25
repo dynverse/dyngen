@@ -25,7 +25,7 @@ take_experiment_cells <- function(simulation, takesettings = list(type="snapshot
     )
   }
   rownames(experiment$expression) <- paste0("C", seq_len(nrow(experiment$expression)))
-  cellinfo <- experiment$cellinfo %>% mutate(cell_id=rownames(expression))
+  cellinfo <- experiment$cellinfo %>% mutate(cell_id=rownames(experiment$expression))
   
   tibble::lst(cellinfo, expression)
 }
