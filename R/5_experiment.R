@@ -5,10 +5,8 @@
 take_experiment_cells <- function(simulation, takesettings = list(type="snapshot", ncells=500)) {
   if(takesettings$type == "snapshot"){
     sample_ids <- sample(seq_len(nrow(simulation$expression)), takesettings$ncells)
-    experiment <- list(
-      expression=simulation$expression[sample_ids, ],
-      cellinfo=simulation$stepinfo[sample_ids, ]
-    )
+    expression <- simulation$expression[sample_ids, ]
+    cellinfo <- simulation$stepinfo[sample_ids, ]
   } else if(takesettings$type == "synchronized") {
     totaltime <- max(simulation$stepinfo$simulationtime)
     timepoints <- seq(0, totaltime, length.out=takesettings$ntimepoints)
@@ -19,16 +17,46 @@ take_experiment_cells <- function(simulation, takesettings = list(type="snapshot
         mutate(timepoint=timepoint)
     }) %>% bind_rows()
     
-    experiment <- list(
-      expression=simulation$expression[sample_steps$step_id, ],
-      cellinfo=sample_steps %>% left_join(simulation$stepinfo, by="step_id")
-    )
+    expression <- simulation$expression[sample_steps$step_id, ]
+    cellinfo <- sample_steps %>% left_join(simulation$stepinfo, by="step_id")
   }
-  rownames(experiment$expression) <- paste0("C", seq_len(nrow(experiment$expression)))
-  experiment$cellinfo <- experiment$cellinfo %>% mutate(cell_id=rownames(experiment$expression))
+  rownames(expression) <- paste0("C", seq_len(nrow(expression)))
+  cellinfo <- cellinfo %>% mutate(cell_id=rownames(expression))
   
+  experiment <- filter_expression(expression, cellinfo)
   experiment
 }
+
+#' Checks the expression for certain properties
+#' 
+#' @param expression Expression matrix
+#' @export
+check_expression <- function(expression) {
+  checks <- list(
+    contains_na = any(is.na(expression)),
+    contains_zero_cells = any(apply(expression, 1, max) == 0),
+    contains_zero_genes = any(apply(expression, 2, max) == 0),
+    contains_nonchanging_cells = any(is.na(apply(expression, 1, sd))),
+    contains_nonchanging_genes = any(is.na(apply(expression, 2, sd)))
+  )
+  
+  checks
+}
+
+#' Filter expression
+#' 
+#' @param expression Expression matrix
+#' @param cellinfo Cell info dataframe
+#' 
+#' @export
+filter_expression <- function(expression, cellinfo) {
+  remove_cells <- (apply(expression, 1, max) == 0) | is.na(apply(expression, 1, sd))
+  
+  expression <- expression[!remove_cells, ]
+  cellinfo <- cellinfo %>% slice(match(rownames(expression), cell_id))
+  lst(expression, cellinfo)
+}
+
 
 #' Add housekeeping genes
 #' 
