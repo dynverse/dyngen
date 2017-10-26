@@ -65,19 +65,14 @@ generate_model_from_modulenet <- function(
   model
 }
 
-
-#' Simulate a model
-run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
-  simulations <- simulate_multiple(model, burntime, totaltime, nsimulations, local, ssa.algorithm=fastgssa::ssa.em(noise_strength=2))
-  lst(simulations, model)
-}
-
-run_experiment <- function(simulation, takesettings, add_housekeeping=TRUE) {
-  experiment = take_experiment_cells(simulation$simulations, takesettings)
+run_experiment <- function(simulation, model, takesettings, n_housekeeping_genes, housekeeping_reference_means, add_housekeeping=TRUE) {
+  experiment <- take_experiment_cells(simulation, model, takesettings)
   
-  additional_data = add_housekeeping_poisson(experiment$expression, simulation$model$geneinfo)
-  experiment$expression = additional_data$expression
-  experiment$geneinfo = additional_data$geneinfo
+  if (add_housekeeping) {
+    additional_data <- add_housekeeping_poisson(experiment$expression, model$geneinfo, housekeeping_reference_means, n_housekeeping_genes)
+    experiment$expression <- additional_data$expression
+    experiment$geneinfo <- additional_data$geneinfo
+  }
   
   experiment
 }

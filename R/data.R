@@ -15,4 +15,3 @@
 #'
 #' @docType data
 # "ginhoux"
-# 

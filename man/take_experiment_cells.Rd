@@ -4,8 +4,8 @@
 \alias{take_experiment_cells}
 \title{Extract cells from a simulation, either simulating a snapshot experiment or a synchronized experiment}
 \usage{
-take_experiment_cells(simulation, takesettings = list(type = "snapshot",
-  ncells = 500))
+take_experiment_cells(simulation, model, takesettings = list(type =
+  "snapshot", ncells = 500))
 }
 \arguments{
 \item{simulation}{List containing the expression of simulation(s)}

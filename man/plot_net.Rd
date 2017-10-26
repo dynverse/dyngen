@@ -4,7 +4,8 @@
 \alias{plot_net}
 \title{Plot a gene network}
 \usage{
-plot_net(model, colorby = c("module", "main"), main_only = TRUE)
+plot_net(model, colorby = c("module", "main"), main_only = TRUE,
+  label = FALSE)
 }
 \arguments{
 \item{model}{The model}
@@ -12,6 +13,8 @@ plot_net(model, colorby = c("module", "main"), main_only = TRUE)
 \item{colorby}{By what to color}
 
 \item{main_only}{Whether to only draw the main network}
+
+\item{label}{Whether to label genes}
 }
 \description{
 Plot a gene network

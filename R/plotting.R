@@ -10,7 +10,7 @@ plot_modulenet <- function(model) {
   modulenames <- unique(model$geneinfo$module_id)
   colors <- rainbow(length(modulenames))
   igraph::V(graph)$color <- colors
-  igraph::E(graph)$color <- c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(-1,1, 0)))]
+  igraph::E(graph)$color <- c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(1,-1, 0)))]
   
   layout <- igraph::layout.graphopt(graph, charge=0.01, niter=10000)
   
@@ -29,8 +29,9 @@ plot_modulenet <- function(model) {
 #' @param model The model
 #' @param colorby By what to color
 #' @param main_only Whether to only draw the main network
+#' @param label Whether to label genes
 #' @export
-plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE) {
+plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=FALSE) {
   colorby <- match.arg(colorby)
   
   geneinfo  <- model$geneinfo
@@ -46,7 +47,10 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE) {
   
   # change vertex/edge colors and sizes
   igraph::V(graph)$size <- c(1, 4, 1)[main_filter]
-  igraph::V(graph)$label <- rep("", length(igraph::V(graph)))
+  
+  if (!label) {
+    igraph::V(graph)$label <- rep("", length(igraph::V(graph)))
+  }
   
   if (colorby == "main") {
     igraph::V(graph)$color <- c("black", "white", "grey")[main_filter]
