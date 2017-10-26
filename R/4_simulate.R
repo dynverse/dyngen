@@ -82,21 +82,6 @@ simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, loc
   lst(molecules, expression, stepinfo)
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Emrna doesnt get updated, this function does not work
 #' @importFrom zoo rollapply
 #' @importFrom stats quantile sd
