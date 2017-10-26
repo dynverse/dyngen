@@ -65,13 +65,6 @@ generate_model_from_modulenet <- function(
   model
 }
 
-
-#' Simulate a model
-run_simulations <- function(model, totaltime, burntime = 2, nsimulations = 40, local = F) {
-  simulations <- simulate_multiple(model, burntime, totaltime, nsimulations, local, ssa.algorithm=fastgssa::ssa.em(noise_strength=2))
-  lst(simulations, model)
-}
-
 run_experiment <- function(simulation, takesettings, add_housekeeping=TRUE) {
   experiment = take_experiment_cells(simulation$simulations, takesettings)
   
