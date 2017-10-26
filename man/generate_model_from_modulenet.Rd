@@ -14,9 +14,11 @@ generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
 \arguments{
 \item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
 
-\item{realnet_name}{Name of the real network}
+\item{ntargets_sampler}{A sample function for the number of targets}
 
-\item{damping}{Damping factor for personalized pagerank}
+\item{realnet_name}{Name of the real network.}
+
+\item{damping}{A daping factor for personalized pagerank}
 
 \item{model}{the module model -- is a list which must contain modulenodes, modulenet, celltypes and states}
 }

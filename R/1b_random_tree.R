@@ -35,6 +35,11 @@ generate_tree_states <- function(stagenet) {
 }
 
 #' Convert a stage network to a module network which will 
+#' 
+#' Edit: Will what, Wouter?!
+#' 
+#' @param stagenet A network of stages
+#' 
 #' @importFrom utils combn
 from_stages_to_modulenet <- function(stagenet) {
   statesinfo <- generate_tree_states(stagenet)

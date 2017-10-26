@@ -13,9 +13,13 @@ add_targets_realnet(net, geneinfo, realnet_name = "regulatorycircuits",
 
 \item{geneinfo}{Geneinfo dataframe}
 
-\item{realnet_name}{Name of the real network}
+\item{realnet_name}{Name of the real network.}
 
-\item{damping}{Damping factor for personalized pagerank}
+\item{damping}{A daping factor for personalized pagerank}
+
+\item{ntargets_sampler}{A sample function for the number of targets}
+
+\item{gene_name_generator}{A function for determining the name of a gene}
 }
 \description{
 Add targets based on a real network

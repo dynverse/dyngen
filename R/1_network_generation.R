@@ -73,7 +73,10 @@ modulenet_to_genenet <- function(
 #' 
 #' @param net Network dataframe
 #' @param geneinfo Geneinfo dataframe
-#' @param realnet_name Name of the real network
+#' @param realnet_name Name of the real network.
+#' @param damping A daping factor for personalized pagerank
+#' @param ntargets_sampler A sample function for the number of targets
+#' @param gene_name_generator A function for determining the name of a gene
 #' 
 #' @inheritParams extract_induced_subgraph_from_tf
 #' 
@@ -139,6 +142,7 @@ add_targets_realnet <- function(
 #' Given a network, extract an induced subgraph from from a central TF to (indirect) targets using Personalized PageRank
 #' 
 #' @param net Network as a data.frame or igraph object
+#' @param tf_of_interest Specify a TF of interest
 #' @param damping Damping factor for personalized pagerank
 #' @param ngenesampler Function for sampling the number of genes
 #' 

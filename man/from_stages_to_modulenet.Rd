@@ -6,6 +6,9 @@
 \usage{
 from_stages_to_modulenet(stagenet)
 }
+\arguments{
+\item{stagenet}{A network of stages}
+}
 \description{
-Convert a stage network to a module network which will
+Edit: Will what, Wouter?!
 }

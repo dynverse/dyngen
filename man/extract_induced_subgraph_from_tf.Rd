@@ -11,6 +11,8 @@ extract_induced_subgraph_from_tf(net, tf_of_interest = NULL, damping = 0.05,
 \arguments{
 \item{net}{Network as a data.frame or igraph object}
 
+\item{tf_of_interest}{Specify a TF of interest}
+
 \item{damping}{Damping factor for personalized pagerank}
 
 \item{ngenesampler}{Function for sampling the number of genes}
