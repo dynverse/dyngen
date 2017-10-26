@@ -1,10 +1,8 @@
-get_module_counts = function(counts, modulemembership) {
-  found = lapply(modulemembership, function(module) {all(module %in% colnames(counts))}) %>% unlist
-  if(any(!found)) {
-    stop(list(modulemembership, found, colnames(counts)) %>% str)
-  }
-  
-  lapply(modulemembership, function(module) apply(counts[,as.character(module),drop=F], 1, mean)) %>% do.call(cbind, .)
+get_module_counts = function(counts, geneinfo, average=FALSE, main_only=TRUE) {
+  # TODO IMPLEMENT: average
+  if (main_only) {geneinfo <- geneinfo %>% filter(main)}
+  counts <- counts[, geneinfo$gene_id]
+  counts %>% t %>% rowsum(geneinfo$module_id) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
 }
 
 #' @importFrom stats quantile
