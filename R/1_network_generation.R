@@ -145,7 +145,7 @@ add_targets_realnet <- function(
 #' @param damping Damping factor for personalized pagerank
 #' @param ngenesampler Function for sampling the number of genes
 #' 
-#' @value Network as a data.frame
+#' @return Network as a data.frame
 extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0.05, ngenesampler=function() {sample(20:100, 1)}) {
   if(!("igraph" %in% class(net))) net <- igraph::graph_from_data_frame(net)
   tfs <- net %>% igraph::degree(mode="out") %>% {which(.>0)} %>% names

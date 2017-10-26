@@ -15,6 +15,9 @@ extract_induced_subgraph_from_tf(net, tf_of_interest = NULL, damping = 0.05,
 
 \item{ngenesampler}{Function for sampling the number of genes}
 }
+\value{
+Network as a data.frame
+}
 \description{
 Extract subnetwork
 Given a network, extract an induced subgraph from from a central TF to (indirect) targets using Personalized PageRank
