@@ -1,10 +1,10 @@
 #' load module net
-#' @param modulenetname A modulenetname as defined in data/modulenetworks or `tree` to generate a random tree
+#' @param modulenet_name A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
-load_modulenet <- function(modulenetname) {
-  modulenodes <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/modulenodes.tsv"), col_types=cols(module_id=col_character()))
-  modulenet <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/modulenet.tsv"), col_types=cols(from=col_character(), to=col_character()))
+load_modulenet <- function(modulenet_name) {
+  modulenodes <- read_tsv(paste0("data/modulenetworks/", modulenet_name, "/modulenodes.tsv"), col_types=cols(module_id=col_character()))
+  modulenet <- read_tsv(paste0("data/modulenetworks/", modulenet_name, "/modulenet.tsv"), col_types=cols(from=col_character(), to=col_character()))
   if (!("randomize" %in% colnames(modulenet))) {
     modulenet$randomize <- TRUE
   }
@@ -12,14 +12,14 @@ load_modulenet <- function(modulenetname) {
   # checks
   if (!all(modulenet$from %in% modulenodes$module_id) | !all(modulenet$to %in% modulenodes$module_id)) stop("Not all nodes in modulenodes")
   
-  if(file.exists(paste0("data/modulenetworks/", modulenetname, "/cells.tsv"))) {
-    cells <- read_tsv(paste0("data/modulenetworks/", modulenetname, "/cells.tsv"), col_types=cols())
+  if(file.exists(paste0("data/modulenetworks/", modulenet_name, "/cells.tsv"))) {
+    cells <- read_tsv(paste0("data/modulenetworks/", modulenet_name, "/cells.tsv"), col_types=cols())
   } else {
     cells <- tibble(cell_id = 1, dies=FALSE)
     modulenodes$cell_id <- 1
   }
   
-  states <- jsonlite::read_json(paste0("data/modulenetworks/", modulenetname, "/states.json"), simplifyVector=TRUE)
+  states <- jsonlite::read_json(paste0("data/modulenetworks/", modulenet_name, "/states.json"), simplifyVector=TRUE)
   
   lst(modulenodes, modulenet, cells, states)
 }
@@ -92,7 +92,7 @@ add_targets_realnet <- function(
   
   tfs <- realnet$from %>% unique
   
-  # map existing genes to real tfs
+  # map existing tfs in network to real tfs, by randomly sampling real tfs for each gene
   oldtf_to_newtf_mapper <- geneinfo$gene_id %>% set_names(sample(tfs, nrow(geneinfo)), .)
   
   geneinfo$gene_id <- oldtf_to_newtf_mapper[geneinfo$gene_id]
@@ -117,17 +117,23 @@ add_targets_realnet <- function(
     ungroup() %>% 
     mutate(
       isgene=TRUE,
-      main=FALSE
+      main=FALSE,
+      a0 = NA, # a0 is decided later based on regulation
+      burn=0 # extra genes should be available during burn in
     )
   
   # also combine the subnetworks
   added_net <- geneinfo$target_net %>% bind_rows() %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
   
+  # remove connections between main tfs (to avoid ruining the given differentiation)
+  added_net <- added_net %>% filter(!(from %in% geneinfo$gene_id & to %in% geneinfo$gene_id))
+  
   # combine
   geneinfo = bind_rows(geneinfo, added_geneinfo) %>% group_by(gene_id) %>% filter(row_number() == 1) %>% ungroup()
   net = bind_rows(net, added_net) %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
   
-  list(
+  lst(
+    geneinfo, net
   )
 }
 
