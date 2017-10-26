@@ -74,7 +74,10 @@ modulenet_to_genenet <- function(
 #' @param net Network dataframe
 #' @param geneinfo Geneinfo dataframe
 #' @param realnet_name Name of the real network
+#' 
 #' @inheritParams extract_induced_subgraph_from_tf
+#' 
+#' @importFrom glue glue
 add_targets_realnet <- function(
   net, 
   geneinfo, 

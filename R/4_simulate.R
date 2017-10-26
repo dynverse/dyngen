@@ -52,6 +52,15 @@ process_ssa <- function(out, starttime=0) {
   return(list(times=times, molecules=data))
 }
 
+#' Simulate multiple cells
+#' 
+#' @param model The model to simulate
+#' @param burntime The burn-in time before sampling
+#' @param totaltime The total simulation time
+#' @param nsimulations The number of simulations
+#' @param local Whether or not to use \code{\link[PRISM]{qsub_lapply}}
+#' @param ssa_algorithm Which GSSA algorithm to use
+#' 
 #' @importFrom PRISM qsub_lapply
 #' @importFrom pbapply pblapply
 #' @export

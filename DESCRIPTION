@@ -20,6 +20,7 @@ Imports:
   gganimate,
   ggnetwork,
   ggplot2,
+  glue,
   gtools,
   igraph,
   jsonlite,
