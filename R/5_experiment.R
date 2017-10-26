@@ -86,6 +86,7 @@ get_housekeeping_reference_means <- function(counts) colMeans(counts)
 #' 
 #' @export
 #' @importFrom utils data
+#' @importFrom magrittr set_colnames
 add_housekeeping_poisson <- function(expression, geneinfo, housekeeping_reference_means, n_housekeeping_genes=200, overallaverage = mean(expression)) {
   if(is.null(housekeeping_reference_means)) stop("Reference means required!!")
   

@@ -84,6 +84,7 @@ plot_net_overlaps <- function(model) {
 #' Plot the simulations
 #' @importFrom grDevices rainbow
 #' @importFrom stats sd
+#' @importFrom magrittr set_rownames
 plot_simulations = function(simulations, samplingrate=0.1) {
   requireNamespace("rgl")
   for (i in seq_len(length(simulations))) {
@@ -99,7 +100,7 @@ plot_simulations = function(simulations, samplingrate=0.1) {
   }
   
   overallexpression = map(simulations, "subexpression") %>% do.call(rbind, .)
-  overallexpression = overallexpression %>% set_rownames(1:nrow(overallexpression))
+  overallexpression = overallexpression %>% magrittr::set_rownames(1:nrow(overallexpression))
   overallcellinfo = assign_progression(overallexpression, reference)
   overallcellinfo$simulation_id = map(seq_len(length(simulations)), ~rep(., nrow(simulations[[.]]$expression))) %>% unlist %>% factor()
   overallcellinfo$observed = T

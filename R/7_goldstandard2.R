@@ -45,15 +45,18 @@ get_states = function(piecenet) {
 
 # first get the smoothed module expression of all simulations
 #' @importFrom zoo rollmean
-smoothe_simulations = function(simulations, model) {
+#' @importFrom magrittr set_rownames
+smoothe_simulations <- function(simulations, model) {
   newdata = lapply(simulations, function(simulation) {
     #expression_smooth = simulation$expression %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(simulation$expression))
-    expression_modules = get_module_counts(simulation$expression, model$modulemembership)
-    expression_smooth = expression_modules %>% zoo::rollmean(50, c("extend", "extend", "extend")) %>% magrittr::set_rownames(rownames(expression_modules))
+    expression_modules <- get_module_counts(simulation$expression, model$modulemembership)
+    expression_smooth <- expression_modules %>% 
+      zoo::rollmean(50, c("extend", "extend", "extend")) %>%
+      magrittr::set_rownames(rownames(expression_modules))
     list(expression_modules=expression_modules)
   })
   for (simulationid in seq_len(length(simulations))) {
-    simulations[[simulationid]] = c(simulations[[simulationid]], newdata[[simulationid]])
+    simulations[[simulationid]] <- c(simulations[[simulationid]], newdata[[simulationid]])
   }
   simulations
 }
@@ -111,22 +114,26 @@ divide_simulation = function(progressioninfo, states, expression_smooth) {
 
 
 # now use this to scale all simulations
-#' @import ggplot2
-divide_simulations = function(simulations, states, model) {
-  combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
-  combined_scaled = combined %>% dynutils::scale_quantile(outlier.cutoff=0.05)
-  quant_scale_combined = function(x) dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
+#' @importFrom magrittr set_rownames
+divide_simulations <- function(simulations, states, model) {
+  combined <- map(simulations, "expression_modules") %>% do.call(rbind, .)
+  combined_scaled <- combined %>% dynutils::scale_quantile(outlier.cutoff=0.05)
+  quant_scale_combined <- function(x) {
+    dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
+  }
   
   pieces = list()
   for (simulationid in seq_len(length(simulations))) {
-    expression_modules_scaled = quant_scale_combined(simulations[[simulationid]]$expression_modules)
+    expression_modules_scaled <- quant_scale_combined(simulations[[simulationid]]$expression_modules)
     #expression_modules_scaled = simulations[[simulationid]]$expression_modules
     
-    progressioninfo = get_states(expression_modules_scaled, model, minexpression = 0.6, minratio = 2) %>% select(-cell) %>% bind_cols(simulations[[simulationid]]$cellinfo)
+    progressioninfo <- get_states(expression_modules_scaled, model, minexpression = 0.6, minratio = 2) %>%
+      select(-cell) %>%
+      bind_cols(simulations[[simulationid]]$cellinfo)
     #ggplot(progressioninfo) + geom_area(aes(simulationtime, group=state, fill=factor(state)), position="fill", stat="bin", bins=50)
     #ggplot(progressioninfo) + geom_point(aes(simulationtime, state))
     
-    expression_pieces = divide_simulation(progressioninfo, states, simulations[[simulationid]]$expression_smooth)
+    expression_pieces <- divide_simulation(progressioninfo, states, simulations[[simulationid]]$expression_smooth)
     
     #pheatmap::pheatmap(expression_modules_scaled %>% t, cluster_cols=F, cluster_rows=F, annotation_col = progressioninfo %>% mutate(state=factor(state)) %>% as.data.frame() %>% {set_rownames(., .$cell)} %>% select(state, stateid))
     #expression_pieces[[2]] %>% t %>% pheatmap::pheatmap(cluster_cols=F, scale="row", cluster_rows=T)
@@ -153,41 +160,47 @@ divide_simulations = function(simulations, states, model) {
 #' @importFrom pheatmap pheatmap
 #' @importFrom pdist pdist
 #' @importFrom zoo rollmean
-average_pieces = function(piecesoi, model) {
-  total = tibble()
-  piece1id = piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
-  piece1 = piecesoi$expression[[piece1id]]
-  piece1_times = seq_len(nrow(piece1))
+#' @importFrom magrittr set_rownames
+average_pieces <- function(piecesoi, model) {
+  total <- tibble()
+  piece1id <- piecesoi$expression %>% map_int(nrow) %>% order() %>% {.[round(length(.)/2)]}
+  piece1 <- piecesoi$expression[[piece1id]]
+  piece1_times <- seq_len(nrow(piece1))
   for (i in seq_len(nrow(piecesoi)-1)+1) {
     piece2 = piecesoi[i, ]$expression[[1]]
     
     celldistances <- as.matrix(pdist::pdist(piece1, piece2))
-    celldistances = SCORPIUS::euclidean_distance(piece1, piece2)
+    #celldistances <- SCORPIUS::euclidean_distance(piece1, piece2)
     
-    total = data.frame(pieceid = i, time=piece1_times[apply(celldistances, 2, which.min)], piece2 %>% reshape2::melt(varnames=c("cell", "gene"), value.name="expression")) %>% as_tibble() %>% bind_rows(total)
+    total <- data.frame(pieceid = i, time=piece1_times[apply(celldistances, 2, which.min)], piece2 %>% reshape2::melt(varnames=c("cell", "gene"), value.name="expression")) %>% as_tibble() %>% bind_rows(total)
   }
-  meanexpression = total %>% reshape2::acast(time~gene, mean, value.var = "expression")
-  meanexpression_times = as.numeric(rownames(meanexpression))
+  meanexpression <- total %>% reshape2::acast(time~gene, mean, value.var = "expression")
+  meanexpression_times <- as.numeric(rownames(meanexpression))
   
-  window = 30
-  meanexpression = meanexpression %>% zoo::rollmean(window, c("extend", "extend", "extend")) %>% set_rownames(rownames(meanexpression))
+  window <- 30
+  meanexpression <- meanexpression %>% 
+    zoo::rollmean(window, c("extend", "extend", "extend")) %>% 
+    magrittr::set_rownames(rownames(meanexpression))
   
   #meanexpression %>% t %>% pheatmap::pheatmap(cluster_rows=T, cluster_cols=F, scale="row")
-  get_module_counts(meanexpression, model$modulemembership) %>% t %>% pheatmap::pheatmap(cluster_rows=F, cluster_cols=F)
+  get_module_counts(meanexpression, model$modulemembership) %>% 
+    t %>%
+    pheatmap::pheatmap(cluster_rows=F, cluster_cols=F)
   
-  rownames(meanexpression) = seq_len(nrow(meanexpression))/nrow(meanexpression) * map_int(piecesoi$expression, nrow) %>% mean # get realtime estimate based on average number of cells in each piece
+  rownames(meanexpression) <- seq_len(nrow(meanexpression)) / nrow(meanexpression) * map_int(piecesoi$expression, nrow) %>% mean # get realtime estimate based on average number of cells in each piece
   
   meanexpression
 }
 
 # determine average expression, mapped to an average piece
 #' @importFrom stats ksmooth
+#' @importFrom magrittr set_colnames
 average_pieces = function(piecesoi, model, bw=0.05) {
   expressions = piecesoi$expression
   xs = map(expressions, ~seq(0, 1, length.out=nrow(.))) %>% unlist()
   meanlength = (map_int(piecesoi$expression, nrow) %>% mean)
   result = map(seq_len(ncol(expressions[[1]])), function(colid) {stats::ksmooth(xs, map(expressions, ~.[, colid]) %>% unlist(), x.points=seq(0, 1, length.out=round(meanlength)), kernel="normal", bandwidth=bw)})
-  meanexpression = map(result, "y") %>% do.call(cbind, .) %>% set_colnames(colnames(expressions[[1]]))
+  meanexpression = map(result, "y") %>% do.call(cbind, .) %>% magrittr::set_colnames(colnames(expressions[[1]]))
   
   rownames(meanexpression) = seq_len(nrow(meanexpression))/nrow(meanexpression) * meanlength
   
