@@ -153,6 +153,8 @@ add_targets_realnet <- function(
 #' @param ngenesampler Function for sampling the number of genes
 #' 
 #' @return Network as a data.frame
+#' 
+#' @importFrom stats runif
 extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0.05, ngenesampler=function() {sample(20:100, 1)}) {
   if(!("igraph" %in% class(net))) net <- igraph::graph_from_data_frame(net)
   tfs <- net %>% igraph::degree(mode="out") %>% {which(.>0)} %>% names
@@ -165,7 +167,7 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
   
   n_genes <- ngenesampler()
   genes_of_interest <- tibble(score=p$vector, gene_id=names(p$vector)) %>% 
-    mutate(score = score + runif(n(), 0, 1e-15)) %>%  # avoid ties
+    mutate(score = score + stats::runif(n(), 0, 1e-15)) %>%  # avoid ties
     sample_n(n_genes, weight = score) %>% 
     pull(gene_id) %>% c(tf_of_interest) %>% unique()
   
@@ -178,10 +180,12 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
 #' Randomize network parameters: cooperativity, strengths and effect
 #' 
 #' @param net Network dataframe
+#' 
+#' @importFrom stats runif
 randomize_network_parameters <- function(net) {
   net %>% mutate(
     effect = ifelse(!is.na(effect), effect, sample(c(-1, 1), n(), TRUE)),
-    cooperativity = ifelse(!is.na(cooperativity), cooperativity, runif(n(), 0.5, 2)),
+    cooperativity = ifelse(!is.na(cooperativity), cooperativity, stats::runif(n(), 0.5, 2)),
     strength = ifelse(!is.na(strength), strength, 1)
   )
 }

@@ -1,10 +1,11 @@
+#' @importFrom stats runif
 generate_random_tree <- function(treeseed=NULL, decay=1.4) {
   if(!is.null(treeseed)) set.seed(treeseed)
   dig_deeper <- function(net=tibble(from=c(1), to=c(2)), level=0, parentstage=2, decay=1.4, parentstate = "S1") {
     if(decay <= 1) stop("decay has to be > 1")
     for (i in c(1,2)) {
       maxstage <- ifelse(nrow(net), max(net$to), 0)
-      if(runif(1) < decay^(-level)) {
+      if(stats::runif(1) < decay^(-level)) {
         net <- net %>% bind_rows(tibble(from=parentstage, to=maxstage+1))
         net <- dig_deeper(net, level+1, maxstage+1, decay)
       }
