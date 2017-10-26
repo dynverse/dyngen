@@ -2,12 +2,16 @@
 #' @param simulation List containing the expression of simulation(s)
 #' @param takesettings List containing the information of how the cells should be taken
 #' @export
-take_experiment_cells <- function(simulation, takesettings = list(type="snapshot", ncells=500)) {
-  if(takesettings$type == "snapshot"){
+take_experiment_cells <- function(simulation, model, takesettings = list(type="snapshot", ncells=500)) {
+  # sample
+  if (takesettings$type == "snapshot"){
+    
     sample_ids <- sample(seq_len(nrow(simulation$expression)), takesettings$ncells)
     expression <- simulation$expression[sample_ids, ]
     cellinfo <- simulation$stepinfo[sample_ids, ]
-  } else if(takesettings$type == "synchronized") {
+    
+  } else if (takesettings$type == "synchronized") {
+    
     totaltime <- max(simulation$stepinfo$simulationtime)
     timepoints <- seq(0, totaltime, length.out=takesettings$ntimepoints)
     
@@ -19,11 +23,18 @@ take_experiment_cells <- function(simulation, takesettings = list(type="snapshot
     
     expression <- simulation$expression[sample_steps$step_id, ]
     cellinfo <- sample_steps %>% left_join(simulation$stepinfo, by="step_id")
+    
   }
+  # get cellinfo
   rownames(expression) <- paste0("C", seq_len(nrow(expression)))
   cellinfo <- cellinfo %>% mutate(cell_id=rownames(expression))
   
-  experiment <- filter_expression(expression, cellinfo)
+  # get geneinfo
+  geneinfo <- model$geneinfo
+  
+  # filter
+  experiment <- filter_expression(expression, cellinfo, geneinfo)
+  
   experiment
 }
 
@@ -49,34 +60,45 @@ check_expression <- function(expression) {
 #' @param cellinfo Cell info dataframe
 #' 
 #' @export
-filter_expression <- function(expression, cellinfo) {
+filter_expression <- function(expression, cellinfo, geneinfo) {
   remove_cells <- (apply(expression, 1, max) == 0) | is.na(apply(expression, 1, sd))
   
   expression <- expression[!remove_cells, ]
   cellinfo <- cellinfo %>% slice(match(rownames(expression), cell_id))
-  lst(expression, cellinfo)
+  lst(expression, cellinfo, geneinfo)
 }
 
+
+
+#' Get housekeeping reference means
+#' 
+#' @param counts Expression matrix containing counts
+#' @export
+get_housekeeping_reference_means <- function(counts) colMeans(counts)
 
 #' Add housekeeping genes
 #' 
 #' @param expression The original expression data.
 #' @param geneinfo The original gene info
 #' @param ngenes The number of genes to add
-#' @param overallaverage TODO: Zouter/wouters help?
+#' @param overallaverage Overall average expression of the original dataset, this keeps the overall average expression the same even with housekeeping genes
+#' @param meanpoissons The mean expression of a set of genes in the reference dataset
 #' 
 #' @export
 #' @importFrom utils data
-add_housekeeping_poisson <- function(expression, geneinfo, ngenes=200, overallaverage = mean(expression)) {
-  utils::data(ginhoux, envir = environment())
-  reference_expression <- (2^ginhoux$expression)-1
-  meanpoissons <- colMeans(reference_expression) %>% {./mean(reference_expression)*overallaverage}
+add_housekeeping_poisson <- function(expression, geneinfo, housekeeping_reference_means, n_housekeeping_genes=200, overallaverage = mean(expression)) {
+  if(is.null(housekeeping_reference_means)) stop("Reference means required!!")
   
-  additional_expression <- purrr::map(sample(meanpoissons, ngenes), ~rpois(nrow(expression), .)) %>% 
+  meanpoissons <- overallaverage * housekeeping_reference_means/mean(housekeeping_reference_means)
+  
+  additional_expression <- purrr::map(sample(meanpoissons, n_housekeeping_genes), ~rpois(nrow(expression), .)) %>%
     invoke(cbind, .) %>% 
-    magrittr::set_colnames(seq_len(ngenes)+ncol(expression))
+    magrittr::set_colnames(seq_len(n_housekeeping_genes)+ncol(expression))
   
-  geneinfo <- dplyr::bind_rows(geneinfo %>% dplyr::mutate(housekeeping=F), tibble(gene=colnames(additional_expression) %>% as.numeric(), housekeeping=T))
+  geneinfo <- dplyr::bind_rows(
+    geneinfo %>% dplyr::mutate(housekeeping=F), 
+    tibble(gene=colnames(additional_expression) %>% as.numeric(), housekeeping=T)
+  )
   
   list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
 }
