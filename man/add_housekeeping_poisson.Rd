@@ -4,17 +4,19 @@
 \alias{add_housekeeping_poisson}
 \title{Add housekeeping genes}
 \usage{
-add_housekeeping_poisson(expression, geneinfo, ngenes = 200,
-  overallaverage = mean(expression))
+add_housekeeping_poisson(expression, geneinfo, housekeeping_reference_means,
+  n_housekeeping_genes = 200, overallaverage = mean(expression))
 }
 \arguments{
 \item{expression}{The original expression data.}
 
 \item{geneinfo}{The original gene info}
 
+\item{overallaverage}{Overall average expression of the original dataset, this keeps the overall average expression the same even with housekeeping genes}
+
 \item{ngenes}{The number of genes to add}
 
-\item{overallaverage}{TODO: Zouter/wouters help?}
+\item{meanpoissons}{The mean expression of a set of genes in the reference dataset}
 }
 \description{
 Add housekeeping genes

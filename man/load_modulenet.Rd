@@ -4,10 +4,10 @@
 \alias{load_modulenet}
 \title{load module net}
 \usage{
-load_modulenet(modulenetname)
+load_modulenet(modulenet_name)
 }
 \arguments{
-\item{modulenetname}{A modulenetname as defined in data/modulenetworks or `tree` to generate a random tree}
+\item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
 }
 \description{
 load module net
