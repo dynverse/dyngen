@@ -92,7 +92,7 @@ simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, lo
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
   } else {
-    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = 8)}
+    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = local)}
   }
   
   simulations = multilapply(seq_len(nsimulations), function(i) {
