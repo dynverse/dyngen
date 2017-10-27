@@ -27,13 +27,13 @@ load_modulenet <- function(modulenet_name) {
 #' Convert modulenet to modules regulating each other
 #' @param modulenet Module network
 #' @param modulenodes Module nodes
-#' @param ngenes_per_modules Functions for sampling the number of genes per module
-#' @param gene_name_generate FUnction for generating the name of a gene
+#' @param ngenes_per_module Functions for sampling the number of genes per module
+#' @param gene_name_generator Function for generating the name of a gene
 #' @param edge_retainment Function for sampling the number of edges retained between tfs of module nodes
 modulenet_to_genenet <- function(
   modulenet, 
   modulenodes, 
-  ngenes_per_module= function(n) sample(1:10, n, replace=TRUE), 
+  ngenes_per_module = function(n) sample(1:10, n, replace=TRUE), 
   gene_name_generator = function(i) paste0("GM", i),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {

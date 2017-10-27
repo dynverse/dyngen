@@ -158,7 +158,18 @@ extra_func <- function(x, xprev) {
 
 initial.state <- runif(length(molecules)) %>% set_names(molecules)
 final.time = 240
-out <- fastgssa::ssa(system$initial.state, system$formulae.strings, system$nus, final.time, system$params, method=fastgssa::ssa.em(h=final.time/10000, noise_strength=0), recalculate.all = TRUE, stop.on.negstate =FALSE, stop.on.propensity=FALSE, extra_functions=list(extra_func))
+out <- fastgssa::ssa(
+  system$initial.state, 
+  system$formulae.strings,
+  system$nus,
+  final.time, 
+  system$params, 
+  method=fastgssa::ssa.em(h=final.time/10000, noise_strength=0), 
+  recalculate.all = TRUE, 
+  stop.on.negstate =FALSE, 
+  stop.on.propensity=FALSE,
+  extra.functions=list(extra_func)
+)
 plot(out$timeseries[, "mass"], type="l")
 
 plot(out$timeseries[, "actcycb"], type="l")

@@ -82,35 +82,49 @@ plot_net_overlaps <- function(model) {
 
 
 #' Plot the simulations
+#' 
+#' @param simulations A list of simulations
+#' @param samplingrate A sampling rate for sampling which cells to plot
+#' 
 #' @importFrom grDevices rainbow
 #' @importFrom stats sd
 #' @importFrom magrittr set_rownames
-plot_simulations = function(simulations, samplingrate=0.1) {
+plot_simulations <- function(simulations, samplingrate=0.1) {
   requireNamespace("rgl")
   for (i in seq_len(length(simulations))) {
-    sample = sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))
+    sample <- sample(c(T, F), size=nrow(simulations[[i]]$expression), T, c(samplingrate, 1-samplingrate))
     
-    sample[simulations[[i]]$expression[sample,] %>% apply(1, mean) %>% {. == 0}] = FALSE
+    ix <- simulations[[i]]$expression[sample,] %>% apply(1, mean) %>% {. == 0}
+    sample[ix] <- FALSE
     
-    simulations[[i]]$subcellinfo = simulations[[i]]$cellinfo[sample,]
-    simulations[[i]]$subexpression = simulations[[i]]$expression[sample,]
+    simulations[[i]]$subcellinfo <- simulations[[i]]$cellinfo[sample,]
+    simulations[[i]]$subexpression <- simulations[[i]]$expression[sample,]
     
-    simulations[[i]]$expression[sample,] %>% apply(1, stats::sd) %>% {. == 0} %>% sum %>% print
-    simulations[[i]]$subexpression %>% {apply(., 1, stats::sd) == 0} %>% sum %>% print
+    # simulations[[i]]$expression[sample,] %>% apply(1, stats::sd) %>% {. == 0} %>% sum %>% print
+    # simulations[[i]]$subexpression %>% {apply(., 1, stats::sd) == 0} %>% sum %>% print
   }
   
-  overallexpression = map(simulations, "subexpression") %>% do.call(rbind, .)
-  overallexpression = overallexpression %>% magrittr::set_rownames(1:nrow(overallexpression))
-  overallcellinfo = assign_progression(overallexpression, reference)
-  overallcellinfo$simulation_id = map(seq_len(length(simulations)), ~rep(., nrow(simulations[[.]]$expression))) %>% unlist %>% factor()
-  overallcellinfo$observed = T
+  overallexpression <- map(simulations, "subexpression") %>% do.call(rbind, .)
+  overallexpression <- overallexpression %>% magrittr::set_rownames(1:nrow(overallexpression))
+  overallcellinfo <- assign_progression(overallexpression, reference)
+  overallcellinfo$simulation_id <- map(seq_len(length(simulations)), ~rep(., nrow(simulations[[.]]$expression))) %>% unlist %>% factor()
+  overallcellinfo$observed <- T
   
-  space =  lmds(overallexpression, 3) %>% as.data.frame() %>% bind_cols(overallcellinfo)
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3)
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression)) + geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3) + viridis::scale_color_viridis(option="A")
-  space %>% filter(observed) %>% ggplot() + geom_path(aes(V1, V2, group=simulation_id, color=state_id)) + geom_path(aes(V1, V2), data=space %>% filter(!observed), size=3)
+  space <- lmds(overallexpression, 3) %>% as.data.frame() %>% bind_cols(overallcellinfo)
   
-  for (i in unique(as.numeric(space$simulation_id))) 
+  ggplot() + 
+    geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression), space %>% filter(observed)) +
+    geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3)
+  ggplot() + 
+    geom_path(aes(Comp1, Comp2, group=simulation_id, color=progression), space %>% filter(observed)) + 
+    geom_path(aes(Comp1, Comp2), data=space %>% filter(!observed), size=3) + 
+    viridis::scale_color_viridis(option="A")
+  ggplot() + 
+    geom_path(aes(V1, V2, group=simulation_id, color=state_id), space %>% filter(observed)) + 
+    geom_path(aes(V1, V2), data=space %>% filter(!observed), size=3)
+  
+  for (i in unique(as.numeric(space$simulation_id))) {
     rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
+  }
   
 }

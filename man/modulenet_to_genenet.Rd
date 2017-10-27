@@ -13,11 +13,11 @@ modulenet_to_genenet(modulenet, modulenodes, ngenes_per_module = function(n)
 
 \item{modulenodes}{Module nodes}
 
+\item{ngenes_per_module}{Functions for sampling the number of genes per module}
+
+\item{gene_name_generator}{Function for generating the name of a gene}
+
 \item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
-
-\item{ngenes_per_modules}{Functions for sampling the number of genes per module}
-
-\item{gene_name_generate}{FUnction for generating the name of a gene}
 }
 \description{
 Convert modulenet to modules regulating each other

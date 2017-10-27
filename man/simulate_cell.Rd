@@ -11,6 +11,12 @@ simulate_cell(model, timeofsampling = NULL, totaltime = 10, burntime = 2,
 \item{model}{The model to simulation}
 
 \item{timeofsampling}{`NULL` to return expression at all time steps, a double to return expression at a particular time step}
+
+\item{totaltime}{The total simulation time}
+
+\item{burntime}{A burnin time}
+
+\item{ssa_algorithm}{Which SSA algorithm to use}
 }
 \description{
 Simulation one individual cells

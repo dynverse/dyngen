@@ -10,6 +10,8 @@ filter_expression(expression, cellinfo, geneinfo)
 \item{expression}{Expression matrix}
 
 \item{cellinfo}{Cell info dataframe}
+
+\item{geneinfo}{Gene info dataframe}
 }
 \description{
 Filter expression

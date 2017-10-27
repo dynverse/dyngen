@@ -1,10 +1,12 @@
 #' Model generation from modulenet
 #' Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 #' 
-#' @param model the module model -- is a list which must contain modulenodes, modulenet, celltypes and states
-#' 
+#' @param target_adder_name The method for adding targets. Only "realnet" is currently supported.
+#' @inheritParams load_modulenet
 #' @inheritParams add_targets_realnet
 #' @inheritParams modulenet_to_genenet 
+#' @inheritParams generate_random_tree
+#' 
 #' @export
 generate_model_from_modulenet <- function(
   # module net ---------------
@@ -28,8 +30,8 @@ generate_model_from_modulenet <- function(
 ) {
   # load modulenet
   if (modulenet_name == "tree") {
-    stagenet = generate_random_tree(treeseed)
-    model = from_stages_to_modulenet(stagenet)
+    stagenet <- generate_random_tree(treeseed)
+    model <- from_stages_to_modulenet(stagenet)
   } else {
     model <- load_modulenet(modulenet_name)
   }
@@ -38,8 +40,8 @@ generate_model_from_modulenet <- function(
   model <- modulenet_to_genenet(
     model$modulenet, 
     model$modulenodes, 
-    ngenes_per_module=ngenes_per_module, 
-    edge_retainment=edge_retainment
+    ngenes_per_module = ngenes_per_module, 
+    edge_retainment = edge_retainment
   ) %>% c(model)
   
   # add some targets
@@ -47,7 +49,7 @@ generate_model_from_modulenet <- function(
     model <- add_targets_realnet(
       model$net, model$geneinfo, 
       realnet_name = realnet_name, 
-      damping=damping,
+      damping = damping,
       ntargets_sampler = ntargets_sampler
     ) %>% dynutils::merge_lists(model, .)
   } else {

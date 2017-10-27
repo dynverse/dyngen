@@ -12,15 +12,23 @@ generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
   realnet_name = "regulatorycircuits", damping = 0.05)
 }
 \arguments{
+\item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
+
+\item{treeseed}{A seed to set}
+
+\item{decay}{The decay rate}
+
+\item{ngenes_per_module}{Functions for sampling the number of genes per module}
+
 \item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
 
 \item{ntargets_sampler}{A sample function for the number of targets}
 
+\item{target_adder_name}{The method for adding targets. Only "realnet" is currently supported.}
+
 \item{realnet_name}{Name of the real network.}
 
 \item{damping}{A daping factor for personalized pagerank}
-
-\item{model}{the module model -- is a list which must contain modulenodes, modulenet, celltypes and states}
 }
 \description{
 Model generation from modulenet

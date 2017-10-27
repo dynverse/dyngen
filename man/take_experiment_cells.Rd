@@ -10,6 +10,8 @@ take_experiment_cells(simulation, model, takesettings = list(type =
 \arguments{
 \item{simulation}{List containing the expression of simulation(s)}
 
+\item{model}{The model of the simulation}
+
 \item{takesettings}{List containing the information of how the cells should be taken}
 }
 \description{
