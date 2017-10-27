@@ -6,6 +6,11 @@
 \usage{
 randomize_gene_kinetics(geneinfo, net)
 }
+\arguments{
+\item{geneinfo}{Geneinfo dataframe}
+
+\item{net}{Regulatory network dataframe}
+}
 \description{
 Randomize kinetics of genes
 }

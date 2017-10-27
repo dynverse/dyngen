@@ -6,6 +6,9 @@
 \usage{
 randomize_cell_kinetics(cells)
 }
+\arguments{
+\item{cells}{Cells dataframe}
+}
 \description{
 Randomize kinetics of cells
 }

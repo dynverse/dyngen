@@ -27,13 +27,13 @@ load_modulenet <- function(modulenet_name) {
 #' Convert modulenet to modules regulating each other
 #' @param modulenet Module network
 #' @param modulenodes Module nodes
-#' @param ngenes_per_modules Functions for sampling the number of genes per module
-#' @param gene_name_generate FUnction for generating the name of a gene
+#' @param ngenes_per_module Functions for sampling the number of genes per module
+#' @param gene_name_generator Function for generating the name of a gene
 #' @param edge_retainment Function for sampling the number of edges retained between tfs of module nodes
 modulenet_to_genenet <- function(
   modulenet, 
   modulenodes, 
-  ngenes_per_module= function(n) sample(1:10, n, replace=TRUE), 
+  ngenes_per_module = function(n) sample(1:10, n, replace=TRUE), 
   gene_name_generator = function(i) paste0("GM", i),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {
@@ -153,6 +153,8 @@ add_targets_realnet <- function(
 #' @param ngenesampler Function for sampling the number of genes
 #' 
 #' @return Network as a data.frame
+#' 
+#' @importFrom stats runif
 extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0.05, ngenesampler=function() {sample(20:100, 1)}) {
   if(!("igraph" %in% class(net))) net <- igraph::graph_from_data_frame(net)
   tfs <- net %>% igraph::degree(mode="out") %>% {which(.>0)} %>% names
@@ -165,7 +167,7 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
   
   n_genes <- ngenesampler()
   genes_of_interest <- tibble(score=p$vector, gene_id=names(p$vector)) %>% 
-    mutate(score = score + runif(n(), 0, 1e-15)) %>%  # avoid ties
+    mutate(score = score + stats::runif(n(), 0, 1e-15)) %>%  # avoid ties
     sample_n(n_genes, weight = score) %>% 
     pull(gene_id) %>% c(tf_of_interest) %>% unique()
   
@@ -178,10 +180,12 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
 #' Randomize network parameters: cooperativity, strengths and effect
 #' 
 #' @param net Network dataframe
+#' 
+#' @importFrom stats runif
 randomize_network_parameters <- function(net) {
   net %>% mutate(
     effect = ifelse(!is.na(effect), effect, sample(c(-1, 1), n(), TRUE)),
-    cooperativity = ifelse(!is.na(cooperativity), cooperativity, runif(n(), 0.5, 2)),
+    cooperativity = ifelse(!is.na(cooperativity), cooperativity, stats::runif(n(), 0.5, 2)),
     strength = ifelse(!is.na(strength), strength, 1)
   )
 }

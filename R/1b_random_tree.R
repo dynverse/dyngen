@@ -1,26 +1,38 @@
+#' Generate a random tree
+#' 
+#' @param treeseed A seed to set
+#' @param decay The decay rate
+#' 
+#' @importFrom stats runif
 generate_random_tree <- function(treeseed=NULL, decay=1.4) {
   if(!is.null(treeseed)) set.seed(treeseed)
-  dig_deeper <- function(net=tibble(from=c(1), to=c(2)), level=0, parentstage=2, decay=1.4, parentstate = "S1") {
-    if(decay <= 1) stop("decay has to be > 1")
+  
+  recurse <- function(net, level=0, parentstage=2, decay=1.4, parentstate = "S1") {
+    if (decay <= 1) stop("decay has to be > 1")
     for (i in c(1,2)) {
       maxstage <- ifelse(nrow(net), max(net$to), 0)
-      if(runif(1) < decay^(-level)) {
-        net <- net %>% bind_rows(tibble(from=parentstage, to=maxstage+1))
-        net <- dig_deeper(net, level+1, maxstage+1, decay)
+      if (stats::runif(1) < decay^(-level)) {
+        net <- net %>% 
+          add_row(from = parentstage, to = maxstage+1) %>% 
+          recurse(level + 1, maxstage+1, decay)
       }
     }
     return(net)
   }
   
-  stages <- dig_deeper()
-  stages <- stages %>% group_by(from) %>% summarize(singular=n() == 1) %>% right_join(stages, by="from") %>% 
-    mutate(from=as.character(from), to=as.character(to))
+  initial_net <- data_frame(from = 1, to = 2)
   
-  stages
+  recurse(initial_net) %>% 
+    group_by(from) %>% 
+    summarize(singular=n() == 1) %>% 
+    right_join(stages, by="from") %>% 
+    mutate(from=as.character(from), to=as.character(to))
 }
 
 #' Convert tree to states list, used later by the gold standard to determine where there are bifurcations
 #' The modules of each bifurcation will be added later by `from_stages_to_modulenet`
+#' 
+#' @param stagenet The state network to be converted.
 generate_tree_states <- function(stagenet) {
   bifurcating_froms <- table(stagenet$from) %>% keep(~.>1) %>% names
   stage2state <- paste0("S", seq_along(bifurcating_froms)) %>% set_names(bifurcating_froms)

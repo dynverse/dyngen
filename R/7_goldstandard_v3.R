@@ -339,54 +339,71 @@ get_combined_quant_scale <- function(simulations) {
   quant_scale_combined
 }
 
+#' @importFrom magrittr set_colnames set_rownames
 plot_goldstandard <- function(gs,experiment=NULL, simulations=NULL, plot_what="progression") {
   ##
   source("scripts/evaluation/methods/dimred.R")
   if(!is.null(simulations)) {
-    combined = map(simulations, ~.$expression) %>% do.call(rbind, .)
-    expression = combined[gs$cellinfo$cell_id, ]
+    combined <- map(simulations, ~.$expression) %>% do.call(rbind, .)
+    expression <- combined[gs$cellinfo$cell_id, ]
     
     dimred_methods <- c(ica)
   } else {
-    expression = experiment$expression %>% set_rownames(experiment$cellinfo$step_id)
+    expression <- experiment$expression %>% magrittr::set_rownames(experiment$cellinfo$step_id)
     
     dimred_methods <- c(ica)#, tsne, mds, mds_smacof)
   }
   
-  expression = log2(expression + 1)
+  expression <- log2(expression + 1)
   
   
   map(dimred_methods, function(space_func) {
-    space = space_func(expression, ndim = 2)
+    space <- space_func(expression, ndim = 2)
     #space = mds_smacof(expression, ndim = 2)
     #space = SCORPIUS::reduce.dimensionality.landmarked(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
     
     
     if(plot_what=="progression") {
-      plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cell_id=rownames(.)) %>% left_join(gs$cellinfo, by="cell_id")
+      plotdata <- space %>%
+        as.data.frame() %>% 
+        magrittr::set_colnames(c("Comp1", "Comp2")) %>%
+        mutate(cell_id=rownames(.)) %>%
+        left_join(gs$cellinfo, by="cell_id")
       
       list(
-        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=state_id, group=simulation_id)) + coord_equal()
-        ,
-        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=time, group=simulation_id)) + viridis::scale_color_viridis() + coord_equal()
+        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + 
+          geom_point(aes(Comp1, Comp2, color=state_id, group=simulation_id)) +
+          coord_equal(),
+        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + 
+          geom_point(aes(Comp1, Comp2, color=time, group=simulation_id)) +
+          viridis::scale_color_viridis() + coord_equal()
       )
     } else if (plot_what == "percentages") {
-      plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cell_id=rownames(.)) %>% left_join(gs$cellinfo, by="cell_id") %>% right_join(gs$milestone_percentages, by="cell_id")
+      plotdata <- space %>% 
+        as.data.frame() %>% 
+        magrittr::set_colnames(c("Comp1", "Comp2")) %>% 
+        mutate(cell_id=rownames(.)) %>% 
+        left_join(gs$cellinfo, by="cell_id") %>% 
+        right_join(gs$milestone_percentages, by="cell_id")
       
       list(
-        ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=percentage)) + facet_wrap(~milestone) + viridis::scale_color_viridis(option="B", direction = -1) + coord_equal()
+        ggplot(plotdata %>% mutate(state_id=factor(state_id))) +
+          geom_point(aes(Comp1, Comp2, color=percentage)) +
+          facet_wrap(~milestone) + 
+          viridis::scale_color_viridis(option="B", direction = -1) + 
+          coord_equal()
       )
     }
   })
 }
 
-
+#' @importFrom magrittr set_rownames
 plot_goldstandard_percentages <- function(experiment, gs) {
   ##
   combined = map(experiment$simulations, ~.$expression) %>% do.call(rbind, .)
   expression = combined[gs$cellinfo$cell_id, ]
   
-  expression = experiment$expression %>% set_rownames(experiment$cellinfo$simulationstep_id)
+  expression = experiment$expression %>% magrittr::set_rownames(experiment$cellinfo$simulationstep_id)
   ##
   
   expression = log2(expression + 1)
@@ -398,10 +415,17 @@ plot_goldstandard_percentages <- function(experiment, gs) {
     #space = mds_smacof(expression, ndim = 2)
     #space = SCORPIUS::reduce.dimensionality.landmarked(expression, SCORPIUS::correlation.distance, landmark.method = "naive", k = 2, num.landmarks = 200)$S
     
-    plotdata = space %>% as.data.frame() %>% set_colnames(c("Comp1", "Comp2")) %>% mutate(cell_id=rownames(.)) %>% left_join(gs$cellinfo, by="cell_id") %>% right_join(gs$percentages, by="cell_id")
+    plotdata = space %>%
+      as.data.frame() %>%
+      magrittr::set_colnames(c("Comp1", "Comp2")) %>% 
+      mutate(cell_id=rownames(.)) %>% 
+      left_join(gs$cellinfo, by="cell_id") %>% right_join(gs$percentages, by="cell_id")
     
     list(
-      ggplot(plotdata %>% mutate(state_id=factor(state_id))) + geom_point(aes(Comp1, Comp2, color=percentage)) + facet_wrap(~milestone) + viridis::scale_color_viridis(option="B", direction = -1)
+      ggplot(plotdata %>% mutate(state_id=factor(state_id))) + 
+        geom_point(aes(Comp1, Comp2, color=percentage)) +
+        facet_wrap(~milestone) + 
+        viridis::scale_color_viridis(option="B", direction = -1)
     )
   })
 }

@@ -7,6 +7,9 @@ The modules of each bifurcation will be added later by `from_stages_to_modulenet
 \usage{
 generate_tree_states(stagenet)
 }
+\arguments{
+\item{stagenet}{The state network to be converted.}
+}
 \description{
 Convert tree to states list, used later by the gold standard to determine where there are bifurcations
 The modules of each bifurcation will be added later by `from_stages_to_modulenet`

@@ -13,11 +13,13 @@ add_housekeeping_poisson(expression, geneinfo, housekeeping_reference_means,
 
 \item{geneinfo}{The original gene info}
 
+\item{housekeeping_reference_means}{The mean expression of a set of genes in the reference dataset}
+
+\item{n_housekeeping_genes}{The number of genes to add}
+
 \item{overallaverage}{Overall average expression of the original dataset, this keeps the overall average expression the same even with housekeeping genes}
 
-\item{ngenes}{The number of genes to add}
-
-\item{meanpoissons}{The mean expression of a set of genes in the reference dataset}
+\item{gene_id_generator}{Function to generate gene_ids}
 }
 \description{
 Add housekeeping genes

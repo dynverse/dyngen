@@ -1,10 +1,12 @@
 #' Model generation from modulenet
 #' Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 #' 
-#' @param model the module model -- is a list which must contain modulenodes, modulenet, celltypes and states
-#' 
+#' @param target_adder_name The method for adding targets. Only "realnet" is currently supported.
+#' @inheritParams load_modulenet
 #' @inheritParams add_targets_realnet
 #' @inheritParams modulenet_to_genenet 
+#' @inheritParams generate_random_tree
+#' 
 #' @export
 generate_model_from_modulenet <- function(
   # module net ---------------
@@ -28,8 +30,8 @@ generate_model_from_modulenet <- function(
 ) {
   # load modulenet
   if (modulenet_name == "tree") {
-    stagenet = generate_random_tree(treeseed)
-    model = from_stages_to_modulenet(stagenet)
+    stagenet <- generate_random_tree(treeseed)
+    model <- from_stages_to_modulenet(stagenet)
   } else {
     model <- load_modulenet(modulenet_name)
   }
@@ -38,8 +40,8 @@ generate_model_from_modulenet <- function(
   model <- modulenet_to_genenet(
     model$modulenet, 
     model$modulenodes, 
-    ngenes_per_module=ngenes_per_module, 
-    edge_retainment=edge_retainment
+    ngenes_per_module = ngenes_per_module, 
+    edge_retainment = edge_retainment
   ) %>% c(model)
   
   # add some targets
@@ -47,7 +49,7 @@ generate_model_from_modulenet <- function(
     model <- add_targets_realnet(
       model$net, model$geneinfo, 
       realnet_name = realnet_name, 
-      damping=damping,
+      damping = damping,
       ntargets_sampler = ntargets_sampler
     ) %>% dynutils::merge_lists(model, .)
   } else {
@@ -99,6 +101,7 @@ run_scrnaseq = function(experiment, platform) {
 #' @importFrom pheatmap pheatmap
 #' @importFrom dynutils random_time_string
 #' @importFrom stats sd
+#' @importFrom magrittr set_rownames
 extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(is.null(experiment$simulations)) stop("requires multiple individual simulations to align to gold standard")
   gs = list()
@@ -124,8 +127,20 @@ extract_goldstandard = function(experiment, verbose=F, seed=get.seed()) {
   if(verbose) print(">> assigning")
   gs$cellinfo = assign_progression(experiment$expression, gs$reference)
   
- pheatmap::pheatmap(dynutils::scale_quantile(experiment$expression_modules, 0.05) %>% t, cluster_cols = F, scale="none", cluster_rows=F, annotation_col=gs$cellinfo %>% select(state_id) %>% mutate(state_id=factor(state_id)) %>% as.data.frame %>% set_rownames(gs$cellinfo$cell))
-  ggplot(gs$cellinfo %>% left_join(experiment$cellinfo, by="cell")) + geom_area(aes(simulationtime, group=state_id, fill=factor(state_id)), position="fill", stat="bin", bins=10)
+  ann_col <- gs$cellinfo %>%
+    select(state_id) %>%
+    mutate(state_id=factor(state_id)) %>%
+    as.data.frame %>%
+    magrittr::set_rownames(gs$cellinfo$cell)
+  pheatmap::pheatmap(
+    dynutils::scale_quantile(experiment$expression_modules, 0.05) %>% t,
+    cluster_cols = F,
+    scale="none", 
+    cluster_rows=F, 
+    annotation_col=ann_col
+  )
+  ggplot(gs$cellinfo %>% left_join(experiment$cellinfo, by="cell")) + 
+    geom_area(aes(simulationtime, group=state_id, fill=factor(state_id)), position="fill", stat="bin", bins=10)
   
   # if(verbose) print(">> calculating cell distances")
   # statenodes = gs$piecenet %>% rename(state=piece) %>% left_join(gs$reference$cellinfo %>% group_by(stateid) %>% summarise(maxprogression=max(progression)) %>% mutate(state=as.integer(state_id)), by="state")

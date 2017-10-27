@@ -6,6 +6,11 @@
 \usage{
 plot_simulations(simulations, samplingrate = 0.1)
 }
+\arguments{
+\item{simulations}{A list of simulations}
+
+\item{samplingrate}{A sampling rate for sampling which cells to plot}
+}
 \description{
 Plot the simulations
 }

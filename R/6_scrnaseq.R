@@ -12,10 +12,10 @@ amplify = function(a=0, steps=100, rate=0.05) {
   a
 }
 
-#' @importFrom stats rmultinom
+#' @importFrom stats rmultinom runif
 libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, amplifysteps = 100, amplifyrate = c(0.0001, 0.03), sequencerate=0.1, cellcapturerate = 1, celldoubletrate = 0, verbose=F, verbose_plot_cell=50, verbose_follow_gene="x_1") {
   curcounts = counts
-  curcounts = counts_cellcaptured = counts[runif(nrow(counts)) <= cellcapturerate, ]
+  curcounts = counts_cellcaptured = counts[stats::runif(nrow(counts)) <= cellcapturerate, ]
   
   if (verbose && !(verbose_plot_cell %in% rownames(curcounts))) {verbose_plot_cell = rownames(curcounts)[[1]]}
   
@@ -27,8 +27,8 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
   dimnames(curcounts) = dimnames(counts_captured) = dimnames(counts_cellcaptured)
   
   # different rates per cell and per gene
-  amplifyrates_cells = runif(nrow(curcounts), min = amplifyrate[1], max=amplifyrate[2])
-  amplifyrates_genes = runif(ncol(curcounts), min = amplifyrate[1], max=amplifyrate[2])
+  amplifyrates_cells = stats::runif(nrow(curcounts), min = amplifyrate[1], max=amplifyrate[2])
+  amplifyrates_genes = stats::runif(ncol(curcounts), min = amplifyrate[1], max=amplifyrate[2])
   amplifyrates = sqrt(amplifyrates_cells %o% amplifyrates_genes)
   
   if(amplify) {

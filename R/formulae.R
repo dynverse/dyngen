@@ -34,12 +34,12 @@ setMethod("show", "AbstractFormula", function(object) cat("Formula: ", slot(obje
 #' @export
 #'
 #' @examples
-#' extract.variables(fvar("c", 1) %f*% (fcon(1) - fvar("c", 2)))
-extract.variables <- function(formula) {
+#' extract_variables(fvar("c", 1) %f*% (fcon(1) - fvar("c", 2)))
+extract_variables <- function(formula) {
   if (formula@type == "var") {
     formula
   } else if (formula@type %in% c("infix.fun", "prefix.fun")) {
-    unique(unlist(lapply(formula@arguments, extract.variables), recursive = F))
+    unique(unlist(lapply(formula@arguments, extract_variables), recursive = F))
   } else {
     c()
   }

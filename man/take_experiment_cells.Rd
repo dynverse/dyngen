@@ -10,7 +10,9 @@ take_experiment_cells(simulation, model, samplesettings = list(type =
 \arguments{
 \item{simulation}{List containing the expression of simulation(s)}
 
-\item{samplesettingss}{List containing the information of how the cells should be taken}
+\item{model}{The model of the simulation}
+
+\item{samplesettings}{List containing the information of how the cells should be sampled}
 }
 \description{
 Extract cells from a simulation, either simulating a snapshot experiment or a synchronized experiment

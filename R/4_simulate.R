@@ -1,15 +1,28 @@
 #' Simulation one individual cells
-#' @param system The system to simulation
+#' @param system The system to simulate
 #' @param timeofsampling `NULL` to return expression at all time steps, a double to return expression at a particular time step
+#' @param totaltime The total simulation time
+#' @param burntime A burnin time
+#' @param ssa_algorithm Which SSA algorithm to use
+#' 
 #' @import fastgssa
-#' @importFrom utils tail
 simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
   if (burntime > 0) {
     nus_burn <- system$nus
     nus_burn[setdiff(rownames(nus_burn), system$burn_variables),] <- 0
     
     # burn in
-    out <- fastgssa::ssa(system$initial_state, system$formulae, nus_burn, burntime, system$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    out <- fastgssa::ssa(
+      system$initial_state, 
+      system$formulae_strings,
+      nus_burn,
+      burntime, 
+      system$params, 
+      method = ssa_algorithm,
+      recalculate.all = TRUE, 
+      stop.on.negstate = FALSE,
+      stop.on.propensity = FALSE
+    )
     output <- process_ssa(out)
     initial_state_after_burn <- output$molecules[nrow(output$molecules), system$molecule_ids]
   } else {
@@ -18,23 +31,33 @@ simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, 
 
   # determine total time to simulate
   if (!is.null(timeofsampling)) {
-    time = timeofsampling
+    time <- timeofsampling
   } else {
-    time = totaltime
+    time <- totaltime
   }
   
   # actual simulation
-  out <- fastgssa::ssa(initial_state_after_burn, system$formulae, system$nus, time, system$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
-  output = process_ssa(out)
-  molecules = output$molecules
-  times = output$times
+  out <- fastgssa::ssa(
+    initial_state_after_burn, 
+    system$formulae_strings, 
+    system$nus, 
+    time,
+    system$params, 
+    method = ssa_algorithm,
+    recalculate.all = TRUE, 
+    stop.on.negstate = FALSE,
+    stop.on.propensity = FALSE
+  )
+  output <- process_ssa(out)
+  molecules <- output$molecules
+  times <- output$times
   
   # return either the full molecules matrix, or the molecules at timeofsampling
-  if(is.null(timeofsampling)) {
-    rownames(molecules) = c(1:nrow(molecules))
-    return(list(molecules=molecules, times=times))
+  if (is.null(timeofsampling)) {
+    rownames(molecules) <- 1:nrow(molecules)
+    list(molecules = molecules, times = times)
   } else {
-    return(utils::tail(molecules, n=1))
+    molecules %>% slice(n())
   }
 }
 

@@ -1,3 +1,4 @@
+#' @importFrom magrittr set_colnames
 get_module_counts = function(counts, geneinfo, average=FALSE, main_only=TRUE) {
   # TODO IMPLEMENT: average
   if (main_only) {geneinfo <- geneinfo %>% filter(main)}

@@ -22,8 +22,8 @@ get_configuration_ids <- function(n) {
 }
 
 #' Randomize kinetics of genes
-#' @param geneinfo
-#' @param net
+#' @param geneinfo Geneinfo dataframe
+#' @param net Regulatory network dataframe
 randomize_gene_kinetics <- function(geneinfo, net) {
   # sample r, d, p, q and k ----------------------
   
@@ -97,7 +97,7 @@ randomize_gene_kinetics <- function(geneinfo, net) {
 }
 
 #' Randomize kinetics of cells
-#' @param cells
+#' @param cells Cells dataframe
 randomize_cell_kinetics <- function(cells) {
   sample_kg <- function(n) 1
   sample_rg <- function(n) 1
