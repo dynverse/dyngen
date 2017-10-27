@@ -4,11 +4,11 @@
 \alias{simulate_cell}
 \title{Simulation one individual cells}
 \usage{
-simulate_cell(model, timeofsampling = NULL, totaltime = 10, burntime = 2,
+simulate_cell(system, timeofsampling = NULL, totaltime = 10, burntime = 2,
   ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
 }
 \arguments{
-\item{model}{The model to simulation}
+\item{system}{The system to simulation}
 
 \item{timeofsampling}{`NULL` to return expression at all time steps, a double to return expression at a particular time step}
 }

@@ -5,7 +5,8 @@
 \title{Add housekeeping genes}
 \usage{
 add_housekeeping_poisson(expression, geneinfo, housekeeping_reference_means,
-  n_housekeeping_genes = 200, overallaverage = mean(expression))
+  n_housekeeping_genes = 200, overallaverage = mean(expression),
+  gene_id_generator = function(n) {     paste0("GH", seq_len(n)) })
 }
 \arguments{
 \item{expression}{The original expression data.}

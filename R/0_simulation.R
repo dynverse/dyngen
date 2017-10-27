@@ -58,9 +58,7 @@ generate_model_from_modulenet <- function(
   model$net <- randomize_network_parameters(model$net)
   
   # generate thermodynamics formulae & kinetics
-  model <- generate_formulae(model$net, model$geneinfo, model$cells) %>% c(model)
-  model <- generate_kinetics(model$vargroups, model$variables, model$nus_df, model$formulae) %>% c(model)
-  model$burn_variables <- determine_burn_variables(model)
+  model$system <- generate_system(model$net, model$geneinfo, model$cells)
   
   model
 }

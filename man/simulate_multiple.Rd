@@ -4,11 +4,11 @@
 \alias{simulate_multiple}
 \title{Simulate multiple cells}
 \usage{
-simulate_multiple(model, burntime, totaltime, nsimulations = 16,
+simulate_multiple(system, burntime, totaltime, nsimulations = 16,
   local = FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
 }
 \arguments{
-\item{model}{The model to simulate}
+\item{system}{The system to simulate}
 
 \item{burntime}{The burn-in time before sampling}
 

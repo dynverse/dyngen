@@ -1,19 +1,19 @@
 #' Simulation one individual cells
-#' @param model The model to simulation
+#' @param system The system to simulation
 #' @param timeofsampling `NULL` to return expression at all time steps, a double to return expression at a particular time step
 #' @import fastgssa
 #' @importFrom utils tail
-simulate_cell = function(model, timeofsampling=NULL, totaltime=10, burntime=2, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
+simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
   if (burntime > 0) {
-    nus_burn <- model$nus
-    nus_burn[setdiff(rownames(nus_burn), model$burn_variables),] <- 0
+    nus_burn <- system$nus
+    nus_burn[setdiff(rownames(nus_burn), system$burn_variables),] <- 0
     
     # burn in
-    out <- fastgssa::ssa(model$initial_state, model$formulae_strings, nus_burn, burntime, model$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+    out <- fastgssa::ssa(system$initial_state, system$formulae, nus_burn, burntime, system$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
     output <- process_ssa(out)
-    initial_state_after_burn <- output$molecules[nrow(output$molecules), names(model$initial_state)]
+    initial_state_after_burn <- output$molecules[nrow(output$molecules), system$molecule_ids]
   } else {
-    initial_state_after_burn <- model$initial_state
+    initial_state_after_burn <- system$initial_state
   }
 
   # determine total time to simulate
@@ -24,7 +24,7 @@ simulate_cell = function(model, timeofsampling=NULL, totaltime=10, burntime=2, s
   }
   
   # actual simulation
-  out <- fastgssa::ssa(initial_state_after_burn, model$formulae_strings, model$nus, time, model$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
+  out <- fastgssa::ssa(initial_state_after_burn, system$formulae, system$nus, time, system$params, method=ssa_algorithm, recalculate.all = TRUE, stop.on.negstate = FALSE, stop.on.propensity=FALSE)
   output = process_ssa(out)
   molecules = output$molecules
   times = output$times
@@ -54,7 +54,7 @@ process_ssa <- function(out, starttime=0) {
 
 #' Simulate multiple cells
 #' 
-#' @param model The model to simulate
+#' @param system The system to simulate
 #' @param burntime The burn-in time before sampling
 #' @param totaltime The total simulation time
 #' @param nsimulations The number of simulations
@@ -64,8 +64,8 @@ process_ssa <- function(out, starttime=0) {
 #' @importFrom PRISM qsub_lapply
 #' @importFrom pbapply pblapply
 #' @export
-simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  force(model) # force the evaluation of the model argument, as the qsub environment will be empty except for existing function arguments
+simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
+  force(system) # force the evaluation of the system argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
   } else {
@@ -73,11 +73,11 @@ simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, loc
   }
   
   simulations = multilapply(seq_len(nsimulations), function(i) {
-    cell = simulate_cell(model, totaltime=totaltime, burntime=burntime, ssa_algorithm=ssa_algorithm)
+    cell = simulate_cell(system, totaltime=totaltime, burntime=burntime, ssa_algorithm=ssa_algorithm)
     
     rownames(cell$molecules) = paste0(i, "_", seq_len(nrow(cell$molecules)))
     
-    expression = cell$molecules[,str_detect(colnames(cell$molecules), "x_")]
+    expression = cell$molecules[,stringr::str_detect(colnames(cell$molecules), "x_")]
     colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
     stepinfo = tibble(step_id = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times, simulation_id=i)
     
@@ -97,7 +97,7 @@ simulate_multiple <- function(model, burntime, totaltime, nsimulations = 16, loc
 estimate_convergence = function(nruns=8, cutoff=0.15, verbose=F, totaltime=15) {
   convergences = parallel::mclapply(1:nruns, function(i) {
     E = expression_one_cell(burntime, totaltime)
-    Emrna = E[str_detect(featureNames(E), "x_")]
+    Emrna = E[stringr::str_detect(featureNames(E), "x_")]
     
     exprs(Emrna) %>% t %>% zoo::rollmean(10) %>% zoo::rollapply(100, stats::sd, fill=0) %>% t %>% apply(2, stats::quantile, probs=0.9)
   }, mc.cores=8) %>% do.call(rbind, .)

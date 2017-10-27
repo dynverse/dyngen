@@ -1,50 +1,172 @@
-#' @import stringr
-generate_kinetics = function(vargroups, variables, nus_df, formulae) {
-  ## generating the (initial) parameters of the system
+# helper functions to get configuration ids (of TF binding)
+# get the configuration of a binding based on the configuration_id
+get_binding_configuration <- function(configuration_id, n_regulators) {
+  number2binary <- function(number, noBits) {
+    binary_vector = rev(as.numeric(intToBits(number)))
+    if(missing(noBits)) {
+      return(binary_vector)
+    } else {
+      binary_vector[-(1:(length(binary_vector) - noBits))]
+    }
+  }
+  rev(number2binary(configuration_id, n_regulators))
+}
+
+# get all configuration ids, eg. with 2 regulators -> 1,2,3, with one regulator -> 1, with no regulators -> numeric()
+get_configuration_ids <- function(n) {
+  if(n == 0) {
+    numeric()
+  } else {
+    seq(1, 2**(n)-1)
+  }
+}
+
+#' Randomize kinetics of genes
+#' @param geneinfo
+#' @param net
+randomize_gene_kinetics <- function(geneinfo, net) {
+  # sample r, d, p, q and k ----------------------
   
-  # parameters
-  R = map_dbl(vargroups$r, ~20) %>% set_names(vargroups$r)
-  D = map_dbl(vargroups$d, ~5) %>% set_names(vargroups$d)
+  sample_r <- function(n) runif(n, 10, 20)
+  sample_d <- function(n) runif(n, 2, 8)
+  sample_p <- function(n) runif(n, 2, 8)
+  sample_q <- function(n) runif(n, 1, 5)
+  sample_c <- function(n) runif(n, 1, 2)
   
-  P = map_dbl(vargroups$p, ~2) %>% set_names(vargroups$p)
-  Q = map_dbl(vargroups$q, function(q) 2*ifelse(!is.null(variables[[q]]$strength) && !is.na(variables[[q]]$strength), variables[[q]]$strength, 1)) %>% set_names(vargroups$q)
+  sample_k <- function(n, r, d, p, q) r/d * p/q / (runif(n, 2, 3))
   
-  K = map_dbl(vargroups$k, function(k) ifelse(is.na(variables[[k]]$strength),2, 2/variables[[k]]$strength)) %>% set_names(vargroups$k)
+  geneinfo <- geneinfo %>% mutate(
+    r = sample_r(n()),
+    d = sample_d(n()),
+    p = sample_p(n()),
+    q = sample_q(n()),
+    c = sample_c(n()),
+    k = sample_k(n(), r, d, p, q)
+  )
   
-  RG = map_dbl(vargroups$rg, ~1) %>% set_names(vargroups$rg)
-  DG = map_dbl(vargroups$dg, ~1) %>% set_names(vargroups$dg)
-  KG = map_dbl(vargroups$kg, ~1) %>% set_names(vargroups$kg)
-  PG = map_dbl(vargroups$pg, ~1) %>% set_names(vargroups$pg)
-  QG = map_dbl(vargroups$qg, ~1) %>% set_names(vargroups$qg)
+  # sample a0 and a ---------------------------------------
+  # include a list of effects in the geneinfo
+  geneinfo <- geneinfo %>% 
+    select(-matches("effects"), -matches("regulator_ids")) %>% # remove previously added effects
+    left_join(
+    net %>% group_by(to) %>% 
+      summarise(effects = list(effect), regulator_ids = list(from))
+    , by=c("gene_id"="to")
+  )
   
-  A0 = map_dbl(variables[vargroups$a0], ~ifelse(is.null(.$value), 0, .$value)) %>% set_names(vargroups$a0)
+  # for a0
+  calculate_a0 <- function(effects) {
+    if(length(effects) == 0) {
+      1
+    } else if(sum(effects == -1) == 0) {
+      0.0001
+    } else if(sum(effects == 1) == 0) {
+      1
+    } else {
+      0.5
+    }
+  }
   
-  A = map_dbl(vargroups$a, function(a) ifelse(variables[[a]]$effect==1, 1, 0)) %>% set_names(vargroups$a)
+  # for calculating a
+  # calculate a of a configuration based on the incoming active effects
+  calculate_a <- function(configuration_id, effects) {
+    bound <- get_binding_configuration(configuration_id, length(effects))
+    
+    if(any(effects[bound] == -1)) {
+      0
+    } else {
+      1
+    }
+  }
   
-  params = c(RG, DG, KG, PG, QG, R, D, K, P, Q, A0, A)
+  # calculate all a based on effects
+  calculate_all_a <- function(effects) {
+    # for every binding configuration
+    configuration_ids <- get_configuration_ids(length(effects))
+    map_dbl(configuration_ids, calculate_a, effects=effects) %>% set_names(configuration_ids)
+  }
   
-  # molecules
-  initial_state = numeric()
-  initial_state[vargroups$x] = 0
-  initial_state[vargroups$y] = 0
-  # initial_state[vargroups$u] = 1
-  # initial_state[vargroups$b] = 0
+  geneinfo <- geneinfo %>% 
+    mutate(
+      a0 = ifelse(!is.na(a0), a0, map_dbl(effects, calculate_a0)),
+      configuration_ids = map(effects, ~get_configuration_ids(length(.))),
+      as = map(effects, calculate_all_a)
+    )
   
-  # fix order, to match initial state and formulae
-  nus_df$molecule <- factor(nus_df$molecule, levels=names(initial_state))
-  nus_df$formula_id <- factor(nus_df$formula_id, levels=names(formulae))
+  lst(geneinfo, net)
+}
+
+#' Randomize kinetics of cells
+#' @param cells
+randomize_cell_kinetics <- function(cells) {
+  sample_kg <- function(n) 1
+  sample_rg <- function(n) 1
+  sample_pg <- function(n) 1
+  sample_qg <- function(n) 1
+  sample_dg <- function(n) 1
   
-  nus <- nus_df %>% reshape2::acast(molecule~formula_id, fill=0, fun.aggregate = mean, value.var = "effect", drop=FALSE)
+  cells %>% 
+    mutate(
+      kg = sample_kg(n()),
+      rg = sample_kg(n()),
+      pg = sample_kg(n()),
+      qg = sample_kg(n()),
+      dg = sample_kg(n())
+    )
+}
+
+extract_params <- function(geneinfo, net, cells) {
+  params <- c()
+  # extract r, d, p, q, a0, k
+  params <- geneinfo %>% select(r, d, p, q, a0, k, c, gene_id) %>% 
+    gather("param_type", "param_value", -gene_id) %>% 
+    mutate(param_id = glue::glue("{param_type}_{gene_id}")) %>% 
+    {set_names(.$param_value, .$param_id)} %>% 
+    c(params)
   
-  if (any((nus %>% abs %>% apply(2, sum))==0)) {warning("Some molecules never change")}
+  params <- geneinfo %>% 
+    unnest(as, configuration_ids) %>% 
+    mutate(param_id=glue::glue("a_{.$gene_id}_{.$configuration_ids}"), param_value=as) %>% 
+    {set_names(.$param_value, .$param_id)} %>% 
+    c(params)
   
-  if(!is.null(vargroups$assoc)) {params = c(params, sapply(vargroups$assoc, function(assoc) 1 * ifelse(!is.null(variables[[assoc]]$strength) && !is.na(variables[[assoc]]$strength), variables[[assoc]]$strength, 1)))}
-  if(!is.null(vargroups$deassoc)) {params = c(params, sapply(vargroups$deassoc, function(x) 1))}
+  params <- cells %>% select(kg, rg, pg, qg, dg, cell_id) %>% 
+    gather("param_type", "param_value", -cell_id) %>% 
+    mutate(param_id = glue::glue("{param_type}_{cell_id}")) %>% 
+    {set_names(.$param_value, .$param_id)} %>% 
+    c(params)
   
-  params = params[unique(names(params))] # remove duplicates, retain first
-  if(any(is.na(params))) stop("Some parameters are NA!")
+  params
+}
+
+generate_system <- function(net, geneinfo, cells) {
+  # Randomize
+  randomized_gene_kinetics <- randomize_gene_kinetics(model$geneinfo, model$net)
+  geneinfo <- randomized_gene_kinetics$geneinfo
+  net <- randomized_gene_kinetics$net
   
-  lst(nus, params, initial_state)
+  cells <- randomize_cell_kinetics(cells)
+  
+  # Create variables
+  geneinfo$x <- glue("x_{geneinfo$gene_id}")
+  geneinfo$y <- glue("y_{geneinfo$gene_id}")
+  molecule_ids <- c(geneinfo$x, geneinfo$y)
+  
+  # Extract formulae & kinetics
+  formulae_changes <- generate_formulae(net, geneinfo, cells)
+  initial_state <- rep(0, length(molecule_ids)) %>% setNames(molecule_ids)
+  params <- extract_params(geneinfo, net, cells)
+  
+  # Extract nus
+  formulae <- formulae_changes$formula %>% set_names(formulae_changes$formula_id)
+  formulae_changes$molecule <- factor(formulae_changes$molecule, levels=molecule_ids) # fix order
+  formulae_changes$formula_id <- factor(formulae_changes$formula_id, levels=names(formulae)) # fix order
+  nus <- reshape2::acast(formulae_changes, molecule~formula_id, value.var="effect", fun.aggregate = first, fill = 0, drop = F)
+  
+  # Burn in
+  burn_variables <- geneinfo %>% filter(as.logical(burn)) %>% select(x, y) %>% unlist() %>% unname()
+  
+  lst(formulae, initial_state, params, nus, burn_variables, molecule_ids)
 }
 
 ## determine start state genes (active during burn-in)
@@ -53,47 +175,4 @@ determine_burn_variables = function(model) {
   variables_burn_genes <- names(variables_burn)[variables_burn %in% (model$geneinfo %>% filter(as.logical(burn)) %>% pull(gene_id))]
   # add other variables?
   intersect(variables_burn_genes, names(model$initial_state)) # only retain variables that change
-}
-
-
-
-nus_to_matrix <- function(nus.changes, allmolecules) {
-  formulae.nus = sapply(nus.changes, function(nu.changes) {
-    nu = sapply(allmolecules, function(r) 0)
-    nu[names(nu.changes)] = nu.changes
-    nu
-  })
-  if(class(formulae.nus) != "matrix") stop("formulae.nus shoudl become matrix")
-  
-  formulae.nus
-}
-
-
-
-
-# -------------------------- DELETE
-#' Merge different models
-#' 
-#' @param model1 The first model
-#' @param model2 The second model
-#' 
-#' @export
-merge_models <- function(model1, model2) {
-  model <- list()
-  for(element in c("formulae.nus", "formulae", "formulae.strings", "params", "variables", "initial_state", "nus.changes")) {
-    model[[element]] = model[[element]] <- c(model1[[element]], model2[[element]][setdiff(names(model2[[element]]), names(model1[[element]]))])
-  }
-  
-  model$net <- bind_rows(model1$net, model2$net)
-  model$geneinfo <- bind_rows(model2$geneinfo, model1$geneinfo) %>% group_by(gene) %>% filter(duplicated(gene) | n()==1) %>% ungroup()
-  model$celltypes <- model1$celltypes
-  model$modulemembership <- map(unique(names(model1$modulemembership), names(model2$modulemembership)), ~unique(c(model1$modulemembership[[.]], model2$modulemembership[[.]]))) %>% set_names(unique(names(model1$modulemembership), names(model2$modulemembership)))
-  model$vargroups <- map(unique(names(model1$vargroups), names(model2$vargroups)), ~unique(c(model1$vargroups[[.]], model2$vargroups[[.]]))) %>% set_names(unique(names(model1$vargroups), names(model2$vargroups)))
-  model$statenet <- bind_rows(model1$statenet, model2$statenet)
-  model$net <- bind_rows(model1$net, model2$net)
-  model$formulae.nus <- nus_to_matrix(model$nus.changes, names(model$initial_state))
-  
-  model$burngenes = determine_burngenes(model)
-  
-  model
 }

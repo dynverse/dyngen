@@ -1,19 +1,19 @@
 #' Extract cells from a simulation, either simulating a snapshot experiment or a synchronized experiment
 #' @param simulation List containing the expression of simulation(s)
-#' @param takesettings List containing the information of how the cells should be taken
+#' @param samplesettingss List containing the information of how the cells should be taken
 #' @export
-take_experiment_cells <- function(simulation, model, takesettings = list(type="snapshot", ncells=500)) {
+take_experiment_cells <- function(simulation, model, samplesettings = list(type="snapshot", ncells=500)) {
   # sample
-  if (takesettings$type == "snapshot"){
+  if (samplesettings$type == "snapshot"){
     
-    sample_ids <- sample(seq_len(nrow(simulation$expression)), takesettings$ncells)
+    sample_ids <- sample(seq_len(nrow(simulation$expression)), samplesettings$ncells)
     expression <- simulation$expression[sample_ids, ]
     cellinfo <- simulation$stepinfo[sample_ids, ]
     
-  } else if (takesettings$type == "synchronized") {
+  } else if (samplesettingss$type == "synchronized") {
     
     totaltime <- max(simulation$stepinfo$simulationtime)
-    timepoints <- seq(0, totaltime, length.out=takesettings$ntimepoints)
+    timepoints <- seq(0, totaltime, length.out=samplesettingss$ntimepoints)
     
     sample_steps <- map(timepoints, function(timepoint) {
       simulation$stepinfo %>% group_by(simulation_id) %>% 
@@ -58,6 +58,7 @@ check_expression <- function(expression) {
 #' 
 #' @param expression Expression matrix
 #' @param cellinfo Cell info dataframe
+#' @param geneinfo Gene info dataframe
 #' 
 #' @export
 filter_expression <- function(expression, cellinfo, geneinfo) {
@@ -86,14 +87,21 @@ get_housekeeping_reference_means <- function(counts) colMeans(counts)
 #' 
 #' @export
 #' @importFrom utils data
-add_housekeeping_poisson <- function(expression, geneinfo, housekeeping_reference_means, n_housekeeping_genes=200, overallaverage = mean(expression)) {
+add_housekeeping_poisson <- function(
+  expression, 
+  geneinfo, 
+  housekeeping_reference_means, 
+  n_housekeeping_genes=200, 
+  overallaverage = mean(expression),
+  gene_id_generator = function(n) {paste0("GH", seq_len(n))}
+) {
   if(is.null(housekeeping_reference_means)) stop("Reference means required!!")
   
   meanpoissons <- overallaverage * housekeeping_reference_means/mean(housekeeping_reference_means)
   
   additional_expression <- purrr::map(sample(meanpoissons, n_housekeeping_genes), ~rpois(nrow(expression), .)) %>%
     invoke(cbind, .) %>% 
-    magrittr::set_colnames(seq_len(n_housekeeping_genes)+ncol(expression))
+    magrittr::set_colnames(gene_id_generator(n_housekeeping_genes))
   
   geneinfo <- dplyr::bind_rows(
     geneinfo %>% dplyr::mutate(housekeeping=F), 

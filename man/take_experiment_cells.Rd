@@ -4,13 +4,13 @@
 \alias{take_experiment_cells}
 \title{Extract cells from a simulation, either simulating a snapshot experiment or a synchronized experiment}
 \usage{
-take_experiment_cells(simulation, model, takesettings = list(type =
+take_experiment_cells(simulation, model, samplesettings = list(type =
   "snapshot", ncells = 500))
 }
 \arguments{
 \item{simulation}{List containing the expression of simulation(s)}
 
-\item{takesettings}{List containing the information of how the cells should be taken}
+\item{samplesettingss}{List containing the information of how the cells should be taken}
 }
 \description{
 Extract cells from a simulation, either simulating a snapshot experiment or a synchronized experiment

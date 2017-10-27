@@ -125,7 +125,7 @@ add_targets_realnet <- function(
       isgene=TRUE,
       main=FALSE,
       a0 = NA, # a0 is decided later based on regulation
-      burn=0 # extra genes should be available during burn in
+      burn=FALSE # extra genes should be available during burn in
     )
   
   # also combine the subnetworks

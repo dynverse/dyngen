@@ -4,7 +4,7 @@ library(dyngen)
 params = list(
   model = list(
     # modulenet
-    modulenet_name = "bifurcating",
+    modulenet_name = "linear",
     # treeseed = 1,
     
     # network between tfs
@@ -15,7 +15,7 @@ params = list(
     target_adder_name = "realnet",
     realnet_name = "regulatorycircuits",
     damping = 0.05,
-    ntargets_sampler = function() {sample(1:20, 1)}
+    ntargets_sampler = function() {sample(0, 1)}
   ),
   simulation = list(
     totaltime = 10,
@@ -24,7 +24,7 @@ params = list(
   ),
   experiment = list(
     # experiment setting
-    takesettings = list(type = "snapshot", ncells = 500),
+    samplesettings = list(type = "snapshot", ncells = 500),
     add_housekeeping = TRUE,
     n_housekeeping_genes = 100
   )
@@ -35,14 +35,14 @@ model <- invoke(generate_model_from_modulenet, params$model)
 plot_net(model, label=TRUE, main_only = FALSE)
 plot_modulenet(model)
 
-simulation <- invoke(simulate_multiple, params$simulation, model)
+simulation <- invoke(simulate_multiple, params$simulation, model$system)
 
 housekeeping_reference_dataset <- readRDS("../dynalysis/analysis/data/datasets/real/cortical_interneuron_differentiation_frazer.rds")
 params$experiment$housekeeping_reference_means <- get_housekeeping_reference_means(housekeeping_reference_dataset$counts)
 
 experiment <- invoke(run_experiment, params$experiment, simulation, model)
 
-module_counts <- get_module_counts(experiment$expression, model$geneinfo)
+module_counts <- get_module_counts(experiment$expression, experiment$geneinfo)
 
 source("../dynmodular/dimred_wrappers.R")
 space <- dimred_ica(experiment$expression, ndim = 2)
