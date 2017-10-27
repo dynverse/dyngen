@@ -7,52 +7,52 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
     info <- dynutils::extract_row_to_list(geneinfo, which(geneinfo$gene_id == target_id))
     cell_id <- info$cell_id
     
-    rg <- glue("rg_{cell_id}")
-    kg <- glue("kg_{cell_id}")
-    pg <- glue("pg_{cell_id}")
-    qg <- glue("qg_{cell_id}")
-    dg <- glue("dg_{cell_id}")
+    rg <- pritt("rg_{cell_id}")
+    kg <- pritt("kg_{cell_id}")
+    pg <- pritt("pg_{cell_id}")
+    qg <- pritt("qg_{cell_id}")
+    dg <- pritt("dg_{cell_id}")
     
-    y <- glue("y_{target_id}")
-    q <- glue("q_{target_id}")
+    y <- pritt("y_{target_id}")
+    q <- pritt("q_{target_id}")
     
     # only add gene regulation if this is a gene
     if(info$isgene) {
-      x <- glue("x_{target_id}")
-      r <- glue("r_{target_id}")
-      d <- glue("d_{target_id}")
-      p <- glue("p_{target_id}")
+      x <- pritt("x_{target_id}")
+      r <- pritt("r_{target_id}")
+      d <- pritt("d_{target_id}")
+      p <- pritt("p_{target_id}")
       
-      a0 <- glue("a0_{target_id}")
+      a0 <- pritt("a0_{target_id}")
       
       regulator_ids <- net %>% filter(net$to == target_id) %>% pull(from)
       
       # regulator binding sites
       if (length(regulator_ids) > 0) {
-        regulator_ys <- map(regulator_ids, ~glue("y_{.}"))
-        regulator_ks <- map(regulator_ids, ~glue("k_{.}"))
-        regulator_cs <- map(regulator_ids, ~glue("c_{.}"))
+        regulator_ys <- map(regulator_ids, ~pritt("y_{.}"))
+        regulator_ks <- map(regulator_ids, ~pritt("k_{.}"))
+        regulator_cs <- map(regulator_ids, ~pritt("c_{.}"))
         
         # calculate the formulae for binding
-        regulator_affinities <- pmap(list(regulator_ys, regulator_ks, regulator_cs), function(y, k, c) glue("(({y}/{k})**{c})"))
+        regulator_affinities <- pmap(list(regulator_ys, regulator_ks, regulator_cs), function(y, k, c) pritt("(({y}/{k})**{c})"))
       
         # now combine the binding combinations
         binding_configurations <- map(get_configuration_ids(length(regulator_ids)), get_binding_configuration, length(regulator_ids))
         configuration_affinities <- map(binding_configurations, ~paste0(regulator_affinities[.], collapse="*"))
-        configuration_as <- map(get_configuration_ids(length(regulator_ids)), ~glue("a_{target_id}_{.}"))
+        configuration_as <- map(get_configuration_ids(length(regulator_ids)), ~pritt("a_{target_id}_{.}"))
         
-        activations <- map2(configuration_affinities, configuration_as, function(affinity, a) glue("{a} * {affinity}"))
+        activations <- map2(configuration_affinities, configuration_as, function(affinity, a) pritt("{a} * {affinity}"))
         activation <- paste0(activations, collapse = "+")
         
         # now make the activation function, by summing the activations
-        activation_function <- glue("({a0} + {activation})/(1 + {activation})")
+        activation_function <- pritt("({a0} + {activation})/(1 + {activation})")
       } else {
         activation_function <- "a0"
       }
       
       # mRNA production
       formula_id <- paste0("mrna_production_", target_id)
-      formula <- glue("{rg} * {r} * {activation_function}")
+      formula <- pritt("{rg} * {r} * {activation_function}")
       formulae[[formula_id]] <- list(
         formula_id = formula_id,
         formula = formula,
@@ -62,7 +62,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
       
       # mRNA degradation
       formula_id <- paste0("mrna_degradation_", target_id)
-      formula = glue("{dg} * {d} * {x}")
+      formula = pritt("{dg} * {d} * {x}")
       formulae[[formula_id]] <- list(
         formula_id = formula_id,
         formula = formula,
@@ -76,7 +76,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
       if(info$isgene) {
         # protein production
         formula_id <- paste0("protein_production", target_id)
-        formula = glue("{pg} * {p} * {x}")
+        formula = pritt("{pg} * {p} * {x}")
         formulae[[formula_id]] <- list(
           formula_id = formula_id,
           formula = formula,
@@ -87,7 +87,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
       
       # protein degradation
       formula_id <- paste0("protein_degradation", target_id)
-      formula = glue("{qg} * {q} * {y}")
+      formula = pritt("{qg} * {q} * {y}")
       formulae[[formula_id]] <- list(
         formula_id = formula_id,
         formula = formula,
