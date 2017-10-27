@@ -141,7 +141,7 @@ extract_params <- function(geneinfo, net, cells) {
 
 generate_system <- function(net, geneinfo, cells) {
   # Randomize
-  randomized_gene_kinetics <- randomize_gene_kinetics(model$geneinfo, model$net)
+  randomized_gene_kinetics <- randomize_gene_kinetics(geneinfo, net)
   geneinfo <- randomized_gene_kinetics$geneinfo
   net <- randomized_gene_kinetics$net
   
