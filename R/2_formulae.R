@@ -29,12 +29,12 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
       
       # regulator binding sites
       if (length(regulator_ids) > 0) {
-        regulator_ys <- map(regulator_ids, ~pritt("y_{.}"))
-        regulator_ks <- map(regulator_ids, ~pritt("k_{.}"))
-        regulator_cs <- map(regulator_ids, ~pritt("c_{.}"))
+        regulator_ys <- pritt("y_{regulator_ids}")
+        regulator_ks <- pritt("k_{target_id}_{regulator_ids}")
+        regulator_cs <- pritt("c_{target_id}_{regulator_ids}")
         
         # calculate the formulae for binding
-        regulator_affinities <- pmap(list(regulator_ys, regulator_ks, regulator_cs), function(y, k, c) pritt("(({y}/{k})**{c})"))
+        regulator_affinities <- pritt("(({regulator_ys}/{regulator_ks})**{regulator_cs})")
       
         # now combine the binding combinations
         binding_configurations <- map(get_configuration_ids(length(regulator_ids)), get_binding_configuration, length(regulator_ids))
@@ -43,11 +43,12 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
         
         activations <- map2(configuration_affinities, configuration_as, function(affinity, a) pritt("{a} * {affinity}"))
         activation <- paste0(activations, collapse = "+")
+        activation_denominator <- paste0(configuration_affinities, collapse = "+")
         
         # now make the activation function, by summing the activations
-        activation_function <- pritt("({a0} + {activation})/(1 + {activation})")
+        activation_function <- pritt("({a0} + {activation})/(1 + {activation_denominator})")
       } else {
-        activation_function <- "a0"
+        activation_function <- "{a0}"
       }
       
       # mRNA production
