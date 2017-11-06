@@ -91,12 +91,11 @@ load_datasets <- function(datasets_info = load_datasets_info(), mc_cores = 1) {
       modulenet_id = model$modulenetname,
       platform_id = platform$platform_id,
       takesetting_type = takesetting$type,
-      model_replicate = model$modelsetting$replicate,
-      special_cells = special_cells
+      model_replicate = model$modelsetting$replicate
     )
     
     # add cell grouping
-    task$prior_information <- with(task, generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentages))
+    task$prior_information <- with(task, dynutils::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentages))
     
     # add geodesic dist
     task$geodesic_dist <- dynutils::compute_emlike_dist(task)
