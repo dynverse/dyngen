@@ -1,5 +1,5 @@
-#' Preprocessing of simulation prior to gold standard determination
-#' 1. Smoothing of expression
+# Preprocessing of simulation prior to gold standard determination
+# 1. Smoothing of expression
 preprocess_simulation_for_gs <- function(simulation, model) {
   simulation$expression_normalized <- t(dynutils::scale_quantile(t(simulation$expression), outlier_cutoff=0.05))
   simulation$expression_modules <- simulation$expression_normalized %>% t %>% as.data.frame() %>% split(model$geneinfo$module_id) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t
@@ -153,8 +153,8 @@ extract_reference_from_rough_division <- function(simulation, states, rough) {
 }
 
 
-#' This function looks to make the rough estimates of splits and convergences more accurate
-#' A bifurcation will be moved forward, a convergence will be moved backward
+# This function looks to make the rough estimates of splits and convergences more accurate
+# A bifurcation will be moved forward, a convergence will be moved backward
 divide_simulation_precise <- function(simulation, states, rough) {
   pieces <- list()
   window <- 10

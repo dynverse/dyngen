@@ -1,4 +1,13 @@
-base_params = list(
+get_housekeeping_reference_means <- function() {
+  file <- paste0(find.package("dyngen"), "/ext_data/housekeeping_reference_means.rds")
+  
+  if (!file.exists(file)) {
+    file <- "inst/ext_data/housekeeping_reference_means.rds"
+  }
+  readRDS(file)[[1]]
+}
+
+base_params <- list(
   model = list(
     # modulenet
     modulenet_name = "linear",
@@ -59,13 +68,13 @@ base_params = list(
     samplesettings = list(type = "snapshot", ncells = 500),
     add_housekeeping = FALSE,
     n_housekeeping_genes = 20,
-    housekeeping_reference_means = readRDS("data/housekeeping_reference_means.rds")[[1]]
+    housekeeping_reference_means = get_housekeeping_reference_means()
   )
-)# %>% list2env(.GlobalEnv)
+)
 
 
 
-simple_params = list(
+simple_params <- list(
   model = list(
     # modulenet
     modulenet_name = "linear",
