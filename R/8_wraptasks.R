@@ -96,7 +96,7 @@ load_datasets <- function(datasets_info = load_datasets_info(), mc_cores = 1) {
     )
     
     # add cell grouping
-    task$cell_grouping <- dynutils::get_cell_grouping(task$milestone_percentages)
+    task$prior_information <- with(task, generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentages))
     
     # add geodesic dist
     task$geodesic_dist <- dynutils::compute_emlike_dist(task)
