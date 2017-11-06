@@ -1,4 +1,13 @@
-# 
+#' Sample housekeeping reference means
+#'
+#' @description 
+#' `readRDS("../dynalysis/analysis/data/datasets/real/cortical_interneuron_differentiation_frazer.rds") %>% .$counts %>% get_housekeeping_reference_means() %>% list(cortical_interneuron_differentiation_frazer = .) %>% saveRDS("data/housekeeping_reference_means.rds")`
+#' @docType data
+# "housekeeping_reference_means"
+
+
+
+
 #' scRNA-seq data of dendritic cell progenitors.
 #'
 #' @description This dataset contains the expression values for 248 dendritic cell progenitors.
@@ -15,3 +24,4 @@
 #'
 #' @docType data
 # "ginhoux"
+

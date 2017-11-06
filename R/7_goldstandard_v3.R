@@ -1,5 +1,5 @@
-extract_tobecomes <- function(simulations, states) {
-  quant_scale_combined = get_combined_quant_scale(simulations)
+extract_tobecomes <- function(simulation, states) {
+  quant_scale_combined = get_combined_quant_scale(simulation)
   
   ############################################
   ### This analysis is split in two parts:
@@ -13,9 +13,9 @@ extract_tobecomes <- function(simulations, states) {
   
   max_before_breakpoint_expression = 0.1
   min_after_breakpoint_expression = 0.5
-  for (simulation_id in seq_along(simulations)) {
+  for (simulation_id in seq_along(simulation)) {
     
-    expression_modules_scaled = quant_scale_combined(simulations[[simulation_id]]$expression_modules)
+    expression_modules_scaled = quant_scale_combined(simulation[[simulation_id]]$expression_modules)
     
     curstate = states[[1]]
     
@@ -152,10 +152,10 @@ lagpad <- function(x, k=1) {
 #' @importFrom pdist pdist
 #' @importFrom pbapply pblapply
 #' @importFrom stats wilcox.test
-divide_pieces <- function(simulations, tobecomes, states) {
-  quant_scale_combined = get_combined_quant_scale(simulations)
+divide_pieces <- function(simulation, tobecomes, states) {
+  quant_scale_combined = get_combined_quant_scale(simulation)
   
-  combined = map(simulations, "expression_modules") %>% do.call(rbind, .)
+  combined = map(simulation, "expression_modules") %>% do.call(rbind, .)
   combined_scaled = combined %>% dynutils::scale_quantile(outlier.cutoff=0.05)
   quant_scale_combined = function(x) dynutils::apply_quantile_scale(x, attributes(combined_scaled)$addend, attributes(combined_scaled)$multiplier)
   
@@ -166,10 +166,10 @@ divide_pieces <- function(simulations, tobecomes, states) {
   
   references = split(tobecomes_combined, seq_len(nrow(tobecomes_combined))) %>% map(function(x) map(x, ~.[[1]])) %>% {set_names(., map(., "state_id"))} # contains for each state associated expression values for which it is known to which next state this cell will progress
   
-  pieces <- pbapply::pblapply(seq_along(simulations), function(simulation_idoi) {
+  pieces <- pbapply::pblapply(seq_along(simulation), function(simulation_idoi) {
     subpieces <- list()
     
-    expression_modules_scaled <- quant_scale_combined(simulations[[simulation_idoi]]$expression_modules)
+    expression_modules_scaled <- quant_scale_combined(simulation[[simulation_idoi]]$expression_modules)
     subtobecomes <- tobecomes %>% keep(~.$simulation_id == simulation_idoi)
     
     prevsplit <- 1

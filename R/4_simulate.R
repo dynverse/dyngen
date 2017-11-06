@@ -14,7 +14,7 @@ simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, 
     # burn in
     out <- fastgssa::ssa(
       system$initial_state, 
-      system$formulae_strings,
+      system$formulae,
       nus_burn,
       burntime, 
       system$params, 
@@ -39,7 +39,7 @@ simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, 
   # actual simulation
   out <- fastgssa::ssa(
     initial_state_after_burn, 
-    system$formulae_strings, 
+    system$formulae, 
     system$nus, 
     time,
     system$params, 

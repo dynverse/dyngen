@@ -106,8 +106,8 @@ add_housekeeping_poisson <- function(
     magrittr::set_colnames(gene_id_generator(n_housekeeping_genes))
   
   geneinfo <- dplyr::bind_rows(
-    geneinfo %>% dplyr::mutate(housekeeping=F), 
-    tibble(gene=colnames(additional_expression) %>% as.numeric(), housekeeping=T)
+    geneinfo %>% dplyr::mutate(housekeeping=FALSE), 
+    tibble(gene=colnames(additional_expression), housekeeping=TRUE)
   )
   
   list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)

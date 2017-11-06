@@ -59,7 +59,7 @@ base_params = list(
     samplesettings = list(type = "snapshot", ncells = 500),
     add_housekeeping = FALSE,
     n_housekeeping_genes = 20,
-    housekeeping_reference_means = readRDS("../dynalysis/analysis/data/datasets/real/cortical_interneuron_differentiation_frazer.rds") %>% .$counts %>% get_housekeeping_reference_means()
+    housekeeping_reference_means = readRDS("data/housekeeping_reference_means.rds")[[1]]
   )
 )# %>% list2env(.GlobalEnv)
 

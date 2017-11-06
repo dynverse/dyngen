@@ -7,4 +7,9 @@
 ^\.travis\.yml$
 ^dyngen.xmind$
 ^\.git$
-^data
+^data/genecircuits
+^data/modulenetworks
+^data/platforms
+^data/realnetworks
+^data/statenetworks
+^data/systems

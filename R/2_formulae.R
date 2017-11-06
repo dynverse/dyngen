@@ -48,7 +48,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
         # now make the activation function, by summing the activations
         activation_function <- pritt("({a0} + {activation})/(1 + {activation_denominator})")
       } else {
-        activation_function <- "{a0}"
+        activation_function <- a0
       }
       
       # mRNA production

@@ -26,7 +26,10 @@ generate_model_from_modulenet <- function(
   
   # params for target_adder_name == "realnet_name"
   realnet_name,
-  damping
+  damping,
+  
+  # params for system
+  samplers
 ) {
   # load modulenet
   if (modulenet_name == "tree") {
@@ -60,13 +63,13 @@ generate_model_from_modulenet <- function(
   model$net <- randomize_network_parameters(model$net)
   
   # generate thermodynamics formulae & kinetics
-  model$system <- generate_system(model$net, model$geneinfo, model$cells)
+  model$system <- generate_system(model$net, model$geneinfo, model$cells, samplers)
   
   model
 }
 
-run_experiment <- function(simulation, model, takesettings, n_housekeeping_genes, housekeeping_reference_means, add_housekeeping=TRUE) {
-  experiment <- take_experiment_cells(simulation, model, takesettings)
+run_experiment <- function(simulation, model, samplesettings, n_housekeeping_genes, housekeeping_reference_means, add_housekeeping=TRUE) {
+  experiment <- take_experiment_cells(simulation, model, samplesettings)
   
   if (add_housekeeping) {
     additional_data <- add_housekeeping_poisson(experiment$expression, model$geneinfo, housekeeping_reference_means, n_housekeeping_genes)
