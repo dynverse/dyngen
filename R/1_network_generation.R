@@ -3,7 +3,7 @@
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
 load_modulenet <- function(modulenet_name) {
-  folder <- paste0(path.package("dyngen"), "/data/modulenetworks/", modulenet_name)
+  folder <- paste0(find.package("dyngen"), "/data/modulenetworks/", modulenet_name)
   
   modulenodes <- read_tsv(paste0(folder, "/modulenodes.tsv"), col_types=cols(module_id=col_character()))
   modulenet <- read_tsv(paste0(folder, "/modulenet.tsv"), col_types=cols(from=col_character(), to=col_character()))

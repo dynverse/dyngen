@@ -59,7 +59,7 @@ base_params = list(
     samplesettings = list(type = "snapshot", ncells = 500),
     add_housekeeping = FALSE,
     n_housekeeping_genes = 20,
-    housekeeping_reference_means = readRDS("data/housekeeping_reference_means.rds")[[1]]
+    housekeeping_reference_means = readRDS(paste0(find.package("dyngen"), "/ext_data/housekeeping_reference_means.rds"))[[1]]
   ),
   gs = list(
     max_path_length = 10,
