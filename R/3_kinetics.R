@@ -21,13 +21,8 @@ get_configuration_ids <- function(n) {
   }
 }
 
-#' Randomize kinetics of genes
-#' @param geneinfo Geneinfo dataframe
-#' @param net Regulatory network dataframe
-randomize_gene_kinetics <- function(
-  geneinfo, 
-  net, 
-  samplers = list(
+get_default_kinetics_samplers <- function() {
+  list(
     sample_r = function(n) runif(n, 10, 200), 
     sample_d = function(n) runif(n, 2, 8), 
     sample_p = function(n) runif(n, 2, 8), 
@@ -56,7 +51,17 @@ randomize_gene_kinetics <- function(
       max_protein/2/strength
     },
     sample_cooperativity = function(n) runif(n, 1, 4)
-  )) {
+  )
+}
+
+#' Randomize kinetics of genes
+#' @param geneinfo Geneinfo dataframe
+#' @param net Regulatory network dataframe
+#' @param samplers The samplers for the kinetics parameters
+randomize_gene_kinetics <- function(
+  geneinfo, 
+  net, 
+  samplers = get_default_kinetics_samplers()) {
   # sample r, d, p, q and k ----------------------
   
   geneinfo <- geneinfo %>% mutate(
@@ -162,6 +167,9 @@ extract_params <- function(geneinfo, net, cells) {
   params
 }
 
+#' Generate the system
+#' @inheritParams randomize_cell_kinetics
+#' @inheritParams randomize_gene_kinetics
 generate_system <- function(net, geneinfo, cells, samplers) {
   # Randomize
   randomized_gene_kinetics <- randomize_gene_kinetics(geneinfo, net, samplers)

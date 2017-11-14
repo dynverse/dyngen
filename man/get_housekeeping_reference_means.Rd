@@ -4,7 +4,7 @@
 \alias{get_housekeeping_reference_means}
 \title{Get housekeeping reference means}
 \usage{
-get_housekeeping_reference_means()
+get_housekeeping_reference_means(counts)
 }
 \arguments{
 \item{counts}{Expression matrix containing counts}

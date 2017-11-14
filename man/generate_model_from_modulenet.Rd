@@ -2,25 +2,13 @@
 % Please edit documentation in R/0_simulation.R
 \name{generate_model_from_modulenet}
 \alias{generate_model_from_modulenet}
-\title{Model generation from modulenet
-Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`}
+\title{Model generation from modulenet}
 \usage{
 generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
   ngenes_per_module = function(n) sample(1:10, n, replace = TRUE),
   edge_retainment = function(n) max(c(round(n/2), 1)),
   ntargets_sampler = function() {     sample(20:100, 1) }, target_adder_name,
-  realnet_name = "regulatorycircuits", damping = 0.05,
-  samplers = list(sample_r = function(n) runif(n, 10, 200), sample_d =
-  function(n) runif(n, 2, 8), sample_p = function(n) runif(n, 2, 8), sample_q =
-  function(n) runif(n, 1, 5), calculate_a0 = function(effects) {     if
-  (length(effects) == 0) {         1     } else if (sum(effects == -1) == 0) {  
-        1e-04     } else if (sum(effects == 1) == 0) {         1     } else {   
-       0.5     } }, calculate_a = function(configuration_id, effects) {    
-  bound <- get_binding_configuration(configuration_id, length(effects))     if
-  (any(effects[bound] == -1)) {         0     } else {         1     } },
-  sample_strength = function(n) runif(n, 1, 20), calculate_k =
-  function(max_protein, strength) {     max_protein/2/strength },
-  sample_cooperativity = function(n) runif(n, 1, 4)))
+  realnet_name = "regulatorycircuits", damping = 0.05, samplers)
 }
 \arguments{
 \item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
@@ -40,8 +28,9 @@ generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
 \item{realnet_name}{Name of the real network.}
 
 \item{damping}{A daping factor for personalized pagerank}
+
+\item{samplers}{The samplers for the kinetics parameters}
 }
 \description{
-Model generation from modulenet
 Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 }

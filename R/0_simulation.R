@@ -1,8 +1,10 @@
 #' Model generation from modulenet
+#' 
 #' Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 #' 
 #' @param target_adder_name The method for adding targets. Only "realnet" is currently supported.
 #' @inheritParams load_modulenet
+#' @inheritParams generate_system
 #' @inheritParams add_targets_realnet
 #' @inheritParams modulenet_to_genenet 
 #' @inheritParams generate_random_tree
