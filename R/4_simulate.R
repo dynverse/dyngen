@@ -6,6 +6,7 @@
 #' @param ssa_algorithm Which SSA algorithm to use
 #' 
 #' @import fastgssa
+#' @importFrom plyr rbind.fill.matrix
 simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
   if (burntime > 0) {
     nus_burn <- system$nus
@@ -97,7 +98,7 @@ process_ssa <- function(out, starttime=0) {
 #' @importFrom PRISM qsub_lapply
 #' @importFrom pbapply pblapply
 #' @export
-simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4), seed = 1) {
+simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
   force(system) # force the evaluation of the system argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
@@ -105,8 +106,9 @@ simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, lo
     multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = local)}
   }
   
+  seeds <- sample.int(nsimulations * 10, nsimulations, replace = F)
   simulations = multilapply(seq_len(nsimulations), function(i) {
-    set.seed(i * seed) # set seed, to avoid the same seeds in multiple cells (the case when eg. using pblapply)
+    set.seed(seeds[[i]]) # set seed, to avoid the same seeds in multiple cells (the case when eg. using pblapply)
     
     cell = simulate_cell(system, totaltime=totaltime, burntime=burntime, ssa_algorithm=ssa_algorithm)
     

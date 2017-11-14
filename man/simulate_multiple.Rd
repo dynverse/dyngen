@@ -5,8 +5,7 @@
 \title{Simulate multiple cells}
 \usage{
 simulate_multiple(system, burntime, totaltime, nsimulations = 16,
-  local = FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength = 4),
-  seed = 1)
+  local = FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
 }
 \arguments{
 \item{system}{The system to simulate}

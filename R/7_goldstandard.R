@@ -125,6 +125,8 @@ extract_references <- function(path_operations, milestone_network, reference_len
 
 # pheatmap::pheatmap(samplexpression, cluster_cols=F, cluster_rows=F)
 
+#' @importFrom pdist pdist
+#' @importFrom dtw dtw
 map_to_reference <- function(simulation_expressions, references, ncores = 8) {
   times <- pbapply::pblapply(cl = ncores, simulation_expressions, function(simulation_expression) {
     dtws <- map(references, function(reference) {
@@ -209,7 +211,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   # 
 }
 
-
+#' @importFrom cowplot plot_grid
 plot_goldstandard <- function(simulation, model, gs) {
   source("../dynmodular/dimred_wrappers.R")
   samplexpression <- gs$expression_modules[gs$progressions$step_id[(gs$progressions$step)%%10 == 0], ]
