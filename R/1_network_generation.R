@@ -3,8 +3,10 @@
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
 load_modulenet <- function(modulenet_name) {
-  modulenodes <- read_tsv(paste0("data/modulenetworks/", modulenet_name, "/modulenodes.tsv"), col_types=cols(module_id=col_character()))
-  modulenet <- read_tsv(paste0("data/modulenetworks/", modulenet_name, "/modulenet.tsv"), col_types=cols(from=col_character(), to=col_character()))
+  folder <- paste0(path.package("dyngen"), "/data/modulenetworks/", modulenet_name)
+  
+  modulenodes <- read_tsv(paste0(folder, "/modulenodes.tsv"), col_types=cols(module_id=col_character()))
+  modulenet <- read_tsv(paste0(folder, "/modulenet.tsv"), col_types=cols(from=col_character(), to=col_character()))
   if (!("randomize" %in% colnames(modulenet))) {
     modulenet$randomize <- TRUE
   }
@@ -12,16 +14,16 @@ load_modulenet <- function(modulenet_name) {
   # checks
   if (!all(modulenet$from %in% modulenodes$module_id) | !all(modulenet$to %in% modulenodes$module_id)) stop("Not all nodes in modulenodes")
   
-  if(file.exists(paste0("data/modulenetworks/", modulenet_name, "/cells.tsv"))) {
-    cells <- read_tsv(paste0("data/modulenetworks/", modulenet_name, "/cells.tsv"), col_types=cols())
+  if(file.exists(paste0(folder, "/cells.tsv"))) {
+    cells <- read_tsv(paste0(folder, "/cells.tsv"), col_types=cols())
   } else {
     cells <- tibble(cell_id = 1, dies=FALSE)
     modulenodes$cell_id <- 1
   }
   
-  states <- jsonlite::read_json(paste0("data/modulenetworks/", modulenet_name, "/states.json"), simplifyVector=TRUE)
+  edge_operations <-  read_tsv(paste0(folder, "/edge_operations.tsv"), col_types=cols())
   
-  lst(modulenodes, modulenet, cells, states)
+  lst(modulenodes, modulenet, cells, edge_operations)
 }
 
 #' Convert modulenet to modules regulating each other

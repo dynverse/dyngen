@@ -2,3 +2,5 @@ generate_model_from_modulenet <- dynutils::inherit_default_params(c(add_targets_
 generate_system <- dynutils::inherit_default_params(c(randomize_gene_kinetics), generate_system)
 
 run_experiment <- dynutils::inherit_default_params(c(take_experiment_cells, filter_expression, add_housekeeping_poisson), run_experiment)
+
+extract_goldstandard <- dynutils::inherit_default_params(c(extract_references, get_milestone_paths, preprocess_simulation_for_gs), extract_goldstandard)

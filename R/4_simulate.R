@@ -23,8 +23,8 @@ simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, 
       stop.on.negstate = FALSE,
       stop.on.propensity = FALSE
     )
-    output <- process_ssa(out)
-    initial_state_after_burn <- output$molecules[nrow(output$molecules), system$molecule_ids]
+    output_burn <- process_ssa(out)
+    initial_state_after_burn <- output_burn$molecules[nrow(output_burn$molecules), system$molecule_ids]
   } else {
     initial_state_after_burn <- system$initial_state
   }
@@ -48,9 +48,19 @@ simulate_cell = function(system, timeofsampling=NULL, totaltime=10, burntime=2, 
     stop.on.negstate = FALSE,
     stop.on.propensity = FALSE
   )
-  output <- process_ssa(out)
-  molecules <- output$molecules
-  times <- output$times
+  
+  # if burnin, add both burnin as normal simulation together
+  if (burntime > 0) {
+    output <- process_ssa(out)
+    molecules <- plyr::rbind.fill.matrix(output_burn$molecules, output$molecules)
+    molecules[is.na(molecules)] <- 0
+    times <- c(output_burn$times - max(output_burn$times), output$times) %>% setNames(rownames(molecules))
+  } else {
+    output <- process_ssa(out)
+    molecules <- output$molecules
+    times <- output$times %>% setNames(rownames(molecules))
+  }
+
   
   # return either the full molecules matrix, or the molecules at timeofsampling
   if (is.null(timeofsampling)) {
@@ -72,7 +82,7 @@ process_ssa <- function(out, starttime=0) {
   times <- data$t + starttime
   data <- as.matrix(data[,-1])
   
-  return(list(times=times, molecules=data))
+  return(list(times=times[2:nrow(data)], molecules=data[2:nrow(data), ]))
 }
 
 #' Simulate multiple cells
@@ -87,7 +97,7 @@ process_ssa <- function(out, starttime=0) {
 #' @importFrom PRISM qsub_lapply
 #' @importFrom pbapply pblapply
 #' @export
-simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
+simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4), seed = 1) {
   force(system) # force the evaluation of the system argument, as the qsub environment will be empty except for existing function arguments
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
@@ -96,6 +106,8 @@ simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, lo
   }
   
   simulations = multilapply(seq_len(nsimulations), function(i) {
+    set.seed(i * seed) # set seed, to avoid the same seeds in multiple cells (the case when eg. using pblapply)
+    
     cell = simulate_cell(system, totaltime=totaltime, burntime=burntime, ssa_algorithm=ssa_algorithm)
     
     rownames(cell$molecules) = paste0(i, "_", seq_len(nrow(cell$molecules)))

@@ -5,7 +5,7 @@ base_params = list(
     # treeseed = 1,
     
     # network between tfs
-    ngenes_per_module= function(n) sample(1, n, replace=TRUE), 
+    ngenes_per_module= function(n) sample(2:5, n, replace=TRUE), 
     edge_retainment = function(n) max(c(round(n/10), 1)),
     # edge_retainment = function(n) 1,
     
@@ -13,7 +13,7 @@ base_params = list(
     target_adder_name = "realnet",
     realnet_name = "regulatorycircuits",
     damping = 0.05,
-    ntargets_sampler = function() {sample(0, 1)},
+    ntargets_sampler = function() {sample(4:6, 1)},
     
     #system
     samplers = list(
@@ -60,6 +60,11 @@ base_params = list(
     add_housekeeping = FALSE,
     n_housekeeping_genes = 20,
     housekeeping_reference_means = readRDS("data/housekeeping_reference_means.rds")[[1]]
+  ),
+  gs = list(
+    max_path_length = 10,
+    reference_length = 100,
+    smooth_window = 50
   )
 )# %>% list2env(.GlobalEnv)
 

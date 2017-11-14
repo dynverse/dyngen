@@ -85,6 +85,7 @@ plot_simulation_modules <- function(simulation, model) {
     reshape2::melt(varnames=c("step_id", "gene_id"), value.name="expression") %>% 
     left_join(model$geneinfo %>% rename(celltype_id = cell_id), by="gene_id") %>% 
     left_join(simulation$stepinfo, by="step_id") %>% 
+    filter((step %% 10) == 1) %>% 
     filter(!is.na(module_id)) %>% 
     filter(main)
   expression_df %>% ggplot() + geom_smooth(aes(simulationtime, expression, group=gene_id, color=factor(module_id))) + facet_wrap(~simulation_id)

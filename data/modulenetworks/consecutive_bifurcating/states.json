@@ -1,4 +1,0 @@
-{
-    "S1":{"state_id":"S1", "modules":["M3", "M4"], "to":["S2", "S5"], "type":"bifurcation"},
-    "S2":{"state_id":"S2", "modules":["M6", "M7"], "to":["S3", "S4"], "type":"bifurcation"}
-}

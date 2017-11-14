@@ -1,3 +1,0 @@
-{
-  "1":{"state_id":1, "modules":["M3", "M4", "M5"], "to":[2, 3, 4], "type":"bifurcation"}
-}

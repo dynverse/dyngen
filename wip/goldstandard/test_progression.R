@@ -1,25 +1,22 @@
 library(igraph)
 
-smooth_expression <- function(expression, smooth_window=50) {
+smooth_expression <- function(expression) {
   expression %>% 
-    zoo::rollmean(smooth_window, c("extend", "extend", "extend")) %>%
+    zoo::rollmean(50, c("extend", "extend", "extend")) %>%
     magrittr::set_rownames(rownames(expression))
 }
 
-preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
-  # print("smoothing...")
+preprocess_simulation_for_gs <- function(simulation, model) {
+  print("smoothing...")
   
-  geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
-  expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
+  simulation$expression_smooth <- simulation$expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% map(smooth_expression) %>% do.call(rbind, .)
+  dimnames(simulation$expression_smooth) <- dimnames(simulation$expression)
   
-  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% map(smooth_expression, smooth_window=smooth_window) %>% do.call(rbind, .)
-  dimnames(simulation$expression_smooth) <- dimnames(expression)
+  print("normalizing...")
+  simulation$expression_normalized <- t(dynutils::scale_quantile(t(simulation$expression_smooth), outlier_cutoff=0.05))
   
-  # print("normalizing...")
-  simulation$expression_normalized <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff=0.05)
-  
-  # print("calculating module expression...")
-  simulation$expression_modules <- simulation$expression_normalized %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels=model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
+  print("calculating module expression...")
+  simulation$expression_modules <- simulation$expression_normalized %>% t %>% as.data.frame() %>% split(factor(as.numeric(model$geneinfo$module_id), levels=model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(model$geneinfo$module_id))
   simulation$expression_modules <- simulation$expression_modules[, as.character(model$modulenodes$module_id)] # fix ordering
   
   simulation
@@ -72,7 +69,7 @@ extract_path_operations <- function(operations, paths) {
 }
 
 # extract reference expression for every edge
-extract_references <- function(path_operations, milestone_network, reference_length = 100) {
+extract_references <- function(path_operations) {
   references <- map(path_operations, function(operations) {
     # put every consecutive operation id in a separate run
     operations$operation_run <- rle(operations$operation_id) %>% {rep(seq_along(.$length), .$length)}
@@ -87,8 +84,6 @@ extract_references <- function(path_operations, milestone_network, reference_len
     # add start
     reference_expression <- rbind(rep(0, ncol(reference_expression)), reference_expression)
     
-    if (any(is.na(colnames(reference_expression)))) {stop("Check edge operations for wrong operations")}
-    
     # check for one operation
     if(class(reference_expression)== "numeric") {
       stop("Need at least two operations")
@@ -101,14 +96,16 @@ extract_references <- function(path_operations, milestone_network, reference_len
       stop("Inconsistent operations")
     }
     
+    length <- 100
+    
     reference_expression <- reference_expression %>% apply(2, function(x) {
-      reference_expression <- approx(1:length(x), x, seq(1, length(x), length.out=reference_length * length(x)))$y
+      reference_expression <- approx(1:length(x), x, seq(1, length(x), length.out=length * length(x)))$y
     })
     
     operations <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0), operations)
     reference_info <- operations %>% 
       select(from, to, edge_id) %>% 
-      {.[rep(seq_len(nrow(.)), each=reference_length), ]} %>% 
+      {.[rep(seq_len(nrow(.)), each=length), ]} %>% 
       mutate(reference_row_id = seq_len(n())) %>% 
       group_by(edge_id) %>% 
       mutate(percentage = seq(0, 1, length.out=n())) %>% 
@@ -141,8 +138,6 @@ map_to_reference <- function(simulation_expressions, references, ncores = 8) {
       dtw
     })
     
-    print(min(which.min(map_dbl(dtws, "normalizedDistance"))))
-    
     best_reference_id <- which.min(map_dbl(dtws, "normalizedDistance"))
     dtw <- dtws[[best_reference_id]]
     reference <- references[[best_reference_id]]
@@ -165,19 +160,17 @@ map_to_reference <- function(simulation_expressions, references, ncores = 8) {
 
 
 
-extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose=TRUE, preprocess=TRUE) {
+extract_gold_standard <- function(simulation, model, max_path_length) {
   plot_modulenet(model)
   
-  if(preprocess) {
-    if (verbose) print("Preprocessing")
-    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window=smooth_window)
-  }
+  if (verbose) print("Preprocessing")
+  simulation <- preprocess_simulation_for_gs(simulation, model)
   
   expression <- simulation$expression_modules
   stepinfo <- simulation$stepinfo
   
   start_milestones <- unique(model$edge_operations %>% filter(start) %>% pull(from))
-  milestone_network <- model$edge_operations %>% mutate(edge_id = seq_len(n())) %>% select(from, to, edge_id, burn)
+  milestone_network <- model$edge_operations %>% mutate(edge_id = seq_len(n())) %>% select(from, to, edge_id)
   
   if (verbose) print("Extracting milestone paths")
   paths <- get_milestone_paths(milestone_network, start_milestones, max_path_length)
@@ -188,34 +181,19 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   path_operations <- extract_path_operations(operations, paths)
   
   if (verbose) print("Extracting references")
-  references <- extract_references(path_operations, milestone_network)
+  references <- extract_references(path_operations)
   
   if (verbose) print("Mapping simulations onto reference")
   simulation_expressions <- expression %>% as.data.frame() %>% split(stepinfo$simulation_id)
   times <- map_to_reference(simulation_expressions, references)
   
-  if (verbose) print("Postprocessing")
   gs <- list()
-  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network) %>% filter(!burn)
-  gs$milestone_network <- milestone_network %>% filter(!burn)
-  gs$references <- references
-  gs$expression_modules <- simulation$expression_modules
+  gs$stepinfo <- stepinfo %>% left_join(times, by="step_id")
   
-  gs
-  
-  # when things go wrong:
-  # pheatmap::pheatmap(references[[8]]$reference_expression, cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
-  # pheatmap::pheatmap(simulation_expressions[[1]], cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
-  # 
-}
-
-
-plot_goldstandard <- function(simulation, model, gs) {
   source("../dynmodular/dimred_wrappers.R")
-  samplexpression <- gs$expression_modules[gs$progressions$step_id[(gs$progressions$step)%%10 == 0], ]
-  colnames(samplexpression) <- paste0("M", colnames(samplexpression))
-  sampleprogressions <- gs$progressions %>% slice(match(rownames(samplexpression), step_id))
-  spaces <- map(c(dimred_pca, dimred_ica, dimred_lmds), ~samplexpression %>% {. + runif(length(.), 0, 0.01)} %>% .(ndim=2) %>% as.data.frame() %>% bind_cols(sampleprogressions) %>% bind_cols(samplexpression %>% as.data.frame()))
+  samplexpression <- simulation$expression_modules[((gs$stepinfo$step)%%10) == 0, ]
+  samplestepinfo <- gs$stepinfo %>% slice(match(rownames(samplexpression), step_id))
+  spaces <- map(c(dimred_pca, dimred_ica), ~samplexpression %>% {. + runif(length(.), 0, 0.01)} %>% .(ndim=2) %>% as.data.frame() %>% bind_cols(samplestepinfo))
   map(spaces, function(space) {
     space <- space %>% mutate_at(., vars(simulation_id, edge_id), funs(factor))
     
@@ -228,23 +206,18 @@ plot_goldstandard <- function(simulation, model, gs) {
       }
       ggplot(space, aes(Comp1, Comp2)) + geom_path(aes_string(color=colorize, group="simulation_id")) + geom_point(aes_string(color=colorize)) + color_scale + theme(legend.position = "none") + ggtitle(colorize)
     })
-  }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist=., nrow=length(spaces)) %>% print()
+  }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist=., nrow=length(spaces))
   
   samplexpression %>% pheatmap::pheatmap(
     cluster_cols=F, 
     cluster_rows=F, 
-    gaps_row = which(diff(sampleprogressions$simulation_id) != 0),
-    annotation_row = sampleprogressions %>% select(edge_id) %>% mutate(edge_id = factor(edge_id)) %>% as.data.frame() %>% magrittr::set_rownames(sampleprogressions$step_id)
+    gaps_row = which(diff(samplegs$simulation_id) != 0),
+    annotation_row = samplegs %>% select(edge_id) %>% mutate(edge_id = factor(edge_id)) %>% as.data.frame() %>% magrittr::set_rownames(samplegs$step_id)
   )
   
   
-  map(spaces, function(space) {
-    space <- space %>% mutate_at(., vars(simulation_id, edge_id), funs(factor))
-    map(colnames(samplexpression), function(colorize) {
-      space$color <- space[[colorize]]
-      color_scale <- viridis::scale_color_viridis(option="A")
-      ggplot(space, aes(Comp1, Comp2)) + geom_path(aes_string(color=colorize, group="simulation_id")) + geom_point(aes_string(color=colorize)) + color_scale + theme(legend.position = "none") + ggtitle(colorize)
-    })
-  }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist=., nrow=length(spaces)) %>% print()
-  
+  # when things go wrong:
+  # pheatmap::pheatmap(references[[8]]$reference_expression, cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
+  # pheatmap::pheatmap(simulation_expressions[[1]], cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
+  # 
 }

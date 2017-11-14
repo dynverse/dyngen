@@ -1,10 +1,14 @@
+devtools::load_all(".")
+
 library(tidyverse)
 library(dynutils)
 #library(dyngen)
 
 params <- simple_params
-params$model$modulenet_name <- "trifurcating"
+params$model$modulenet_name <- "bifurcating"
 params$simulation$local <- 8
+params$simulation$nsimulations <- 12
+params$simulation$totaltime <- 30
 
 # model
 model <- invoke(generate_model_from_modulenet, params$model)
@@ -14,6 +18,9 @@ plot_modulenet(model)
 # simulation
 simulation <- invoke(simulate_multiple, params$simulation, model$system)
 plot_simulation_modules(simulation, model)
+
+# gold standard
+gs <- invoke(extract_goldstandard, params$gs, model=model, simulation=simulation)
 
 # experiment
 experiment <- invoke(run_experiment, params$experiment, simulation, model)
