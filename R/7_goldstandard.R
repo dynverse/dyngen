@@ -127,8 +127,8 @@ extract_references <- function(path_operations, milestone_network, reference_len
 
 #' @importFrom pdist pdist
 #' @importFrom dtw dtw
-map_to_reference <- function(simulation_expressions, references, ncores = 8) {
-  times <- pbapply::pblapply(cl = ncores, simulation_expressions, function(simulation_expression) {
+map_to_reference <- function(simulation_expressions, references) {
+  times <- pbapply::pblapply(cl = getOption("ncores"), simulation_expressions, function(simulation_expression) {
     dtws <- map(references, function(reference) {
       if(ncol(simulation_expression) != ncol(reference$reference_expression)) {
         print(colnames(simulation_expression))

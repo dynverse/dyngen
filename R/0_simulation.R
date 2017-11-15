@@ -89,7 +89,7 @@ simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, lo
   if(!local) {
     multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
   } else {
-    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = local)}
+    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = getOption("ncores"))}
   }
   
   seeds <- sample.int(nsimulations * 10, nsimulations, replace = F)
@@ -151,8 +151,8 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   
   if (verbose) print("Postprocessing")
   gs <- list()
-  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network, by=c("from", "to", "edge_id")) %>% filter(!burn)
-  gs$milestone_network <- milestone_network %>% filter(!burn)
+  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network, by=c("from", "to", "edge_id"))
+  gs$milestone_network <- milestone_network
   gs$references <- references
   gs$expression_modules <- simulation$expression_modules
   
@@ -174,44 +174,111 @@ check_goldstandard <- function(gs) {
 
 #' @importFrom cowplot plot_grid
 plot_goldstandard <- function(simulation, model, gs) {
+  # Dimensionality reduction
   source("../dynmodular/dimred_wrappers.R")
   # samplexpression <- gs$expression_modules[gs$progressions$step_id[(gs$progressions$step)%%10 == 0], ]
-  samplexpression <- gs$expression_modules[sample(gs$progressions$step_id, 200), ]
+  samplexpression <- gs$expression_modules[sample(gs$progressions$step_id, 1000), ]
   colnames(samplexpression) <- paste0("M", colnames(samplexpression))
   sampleprogressions <- gs$progressions %>% slice(match(rownames(samplexpression), step_id)) %>% arrange(simulation_id, step)
   samplexpression <- samplexpression[sampleprogressions$step_id, ]
   spaces <- map(c(dimred_pca, dimred_ica, dimred_lmds), ~samplexpression %>% {. + runif(length(.), 0, 0.01)} %>% .(ndim=2) %>% as.data.frame() %>% bind_cols(sampleprogressions) %>% bind_cols(samplexpression %>% as.data.frame()))
+  
+  # Extract milestone grouping
+  milestone_ids <- unique(c(gs$milestone_network$from, gs$milestone_network$to))
+  grouping <- dynutils::convert_progressions_to_milestone_percentages(
+    space$step_id, 
+    milestone_ids, 
+    gs$milestone_network, 
+    gs$progressions %>% rename(cell_id = step_id) %>% slice(match(sampleprogressions$step_id, cell_id))
+  ) %>% 
+    group_by(cell_id) %>% filter(row_number() == which.max(percentage)) %>% rename(step_id = cell_id) %>% 
+    ungroup()
+  
+  generate_milestone_space <- function(space, grouping, milestone_network) {
+    space <- space %>% left_join(grouping, by="step_id")
+    space_milestone <- space %>% group_by(milestone_id) %>% summarise(Comp1=mean(Comp1), Comp2=mean(Comp2))
+    space_milestone_network <- milestone_network %>% 
+      left_join(space_milestone %>% rename_all(~paste0(., "_from")) %>% rename(from = milestone_id_from), by="from") %>% 
+      left_join(space_milestone %>% rename_all(~paste0(., "_to")) %>% rename(to = milestone_id_to), by="to")
+    
+    lst(space_milestone, space_milestone_network, space)
+  }
+  
+  # Plot gold standard
   map(spaces, function(space) {
     space <- space %>% mutate_at(., vars(simulation_id, edge_id), funs(factor))
     
-    map(c("percentage", "simulationtime", "simulation_id", "edge_id"), function(colorize) {
+    map(c("percentage", "simulationtime", "simulation_id", "edge_id", "milestones"), function(colorize) {
       space$color <- space[[colorize]]
       if(colorize %in% c("percentage", "simulationtime")) {
         color_scale <- viridis::scale_color_viridis(option="A")
       } else if(colorize %in% c("simulation_id", "edge_id")) {
         color_scale <- scale_color_discrete()
       }
-      ggplot(space, aes(Comp1, Comp2)) + geom_path(aes_string(color=colorize, group="simulation_id")) + geom_point(aes_string(color=colorize)) + color_scale + theme(legend.position = "none") + ggtitle(colorize)
+      
+      if (colorize != "milestones") {
+        ggplot(space, aes(Comp1, Comp2)) + geom_path(aes_string(color=colorize, group="simulation_id")) + geom_point(aes_string(color=colorize)) + color_scale + theme(legend.position = "none") + ggtitle(colorize)
+      } else {
+        milestone_space <- generate_milestone_space(space, grouping, gs$milestone_network)
+        
+        ggplot() + 
+          geom_point(aes(Comp1, Comp2, color=factor(milestone_id, levels=milestone_ids)), data=milestone_space$space, alpha=0.1) +
+          ggnetwork::geom_edges(aes(Comp1_from, Comp2_from, xend=Comp1_to, yend = Comp2_to), milestone_space$space_milestone_network, color = "grey50") +
+          ggnetwork::geom_edges(aes(Comp1_from+(Comp1_to - Comp1_from)/2.1, Comp2_from+(Comp2_to - Comp2_from)/2.1, xend=Comp1_from+(Comp1_to - Comp1_from)/1.9, yend = Comp2_from+(Comp2_to - Comp2_from)/1.9), milestone_space$space_milestone_network, color = "grey50", arrow=arrow(type="closed", length=unit(0.1, "inches"))) +
+          ggnetwork::geom_nodelabel(aes(Comp1, Comp2, color = factor(milestone_id, levels=milestone_ids), label=milestone_id), milestone_space$space_milestone, size=5) +
+          ggnetwork::theme_blank() + 
+          theme(legend.position = "none") + 
+          ggtitle(colorize)
+      }
     })
   }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist=., nrow=length(spaces)) %>% print()
   
-  samplexpression %>% pheatmap::pheatmap(
+  # Plot heatmap
+  sampleprogressions_ordered <- sampleprogressions %>% arrange(edge_id, percentage)
+  samplexpression_ordered <- samplexpression[sampleprogressions_ordered$step_id, ]
+  
+  samplexpression_ordered %>% t() %>% pheatmap::pheatmap(
     cluster_cols=F, 
     cluster_rows=F, 
-    gaps_row = which(diff(sampleprogressions$simulation_id) != 0),
-    annotation_row = sampleprogressions %>% select(edge_id) %>% mutate(edge_id = factor(edge_id)) %>% as.data.frame() %>% magrittr::set_rownames(sampleprogressions$step_id)
+    gaps_col = which(diff(sampleprogressions_ordered$edge_id) != 0),
+    annotation_col = sampleprogressions_ordered %>% 
+      select(edge_id, simulation_id, percentage) %>% 
+      mutate(edge_id = factor(edge_id), simulation_id = simulation_id) %>% 
+      as.data.frame() %>% 
+      magrittr::set_rownames(sampleprogressions_ordered$step_id)
   )
   
+  # Plot modules
+  space <- spaces[[1]]
+  space <- space %>% mutate_at(., vars(simulation_id, edge_id), funs(factor))
+  map(colnames(samplexpression), function(colorize) {
+    space$color <- space[[colorize]]
+    color_scale <- viridis::scale_color_viridis(option="A")
+    ggplot(space, aes(Comp1, Comp2)) + geom_path(aes_string(color=colorize, group="simulation_id")) + geom_point(aes_string(color=colorize)) + color_scale + theme(legend.position = "none") + ggtitle(colorize)
+  }) %>% cowplot::plot_grid(plotlist=.) %>% print()
   
-  map(spaces, function(space) {
-    space <- space %>% mutate_at(., vars(simulation_id, edge_id), funs(factor))
-    map(colnames(samplexpression), function(colorize) {
-      space$color <- space[[colorize]]
-      color_scale <- viridis::scale_color_viridis(option="A")
-      ggplot(space, aes(Comp1, Comp2)) + geom_path(aes_string(color=colorize, group="simulation_id")) + geom_point(aes_string(color=colorize)) + color_scale + theme(legend.position = "none") + ggtitle(colorize)
-    })
-  }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist=., nrow=length(spaces)) %>% print()
+  # reference and simulation expression changes
+  reference_data <- imap(gs$references, function(reference, i) {
+    reference$reference_expression %>% reshape2::melt(varnames=c("step", "module"), value.name="expression") %>% mutate(reference_id = i)
+  }) %>% bind_rows()
   
+  reference_data %>% 
+    ggplot() + 
+      geom_raster(aes(step, factor(module), fill=expression, group=module)) + 
+      facet_wrap(~reference_id) + 
+      scale_fill_distiller(palette="RdBu")
+  
+  samplexpression <- simulation$expression_modules[simulation$stepinfo$step_id[(simulation$stepinfo$step)%%10 == 1], ]
+  sampleprogressions <- simulation$stepinfo %>% slice(match(rownames(samplexpression), step_id)) %>% arrange(simulation_id, step)
+  samplexpression <- samplexpression[sampleprogressions$step_id, ]
+  
+  samplexpression %>% 
+    reshape2::melt(varnames=c("step_id", "module"), value.name="expression") %>% 
+    left_join(sampleprogressions, by="step_id") %>% 
+    ggplot() + 
+      geom_raster(aes(step, factor(module), fill=expression, group=module)) + 
+      facet_wrap(~simulation_id) + 
+      scale_fill_distiller(palette="RdBu")
 }
 
 

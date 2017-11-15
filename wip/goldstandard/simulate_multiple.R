@@ -23,18 +23,18 @@ settings <- pmap(
   }
 )
 
-params <- settings[[7]]
+ncores <- 8
 
-outputs <- PRISM::qsub_lapply(qsub_config=PRISM::override_qsub_config(num_cores = 8, memory="1G"), qsub_environment=list2env(list()), settings, function(params) {
+params <- settings[[4]]
+
+outputs <- PRISM::qsub_lapply(qsub_config=PRISM::override_qsub_config(num_cores = ncores, memory="4G"), qsub_environment=list2env(list()), settings, function(params) {
   library(tidyverse)
   
 # outputs <- pbapply::pblapply(settings, function(params) {
-  params$simulation$local <- 32
+  options(ncores = 8)
   
   # model
   model <- invoke(dyngen:::generate_model_from_modulenet, params$model)
-  dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
-  dyngen:::plot_modulenet(model)
   
   # simulation
   simulation <- invoke(dyngen:::simulate_multiple, params$simulation, model$system)
@@ -46,6 +46,18 @@ outputs <- PRISM::qsub_lapply(qsub_config=PRISM::override_qsub_config(num_cores 
   
   lst(simulation, model, gs)
 })
-names(outputs) <- modulenet_names
 
-list2env(outputs$consecutive_bifurcating, .GlobalEnv)
+
+list2env(outputs[[4]], .GlobalEnv)
+
+pdf("hi.pdf", width=12, height=12)
+walk(outputs, function(output) {
+  list2env(output, environment())
+  dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
+  dyngen:::plot_modulenet(model)
+  dyngen:::plot_goldstandard(simulation, model, gs)
+})
+dev.off()
+
+
+

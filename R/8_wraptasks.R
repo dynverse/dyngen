@@ -35,9 +35,9 @@ load_datasets_info <- function() {
 #' .dataset_location <- "path_to_dyngen_results"
 #' datasets <- load_datasets(mc_cores = 1, datasets_info = load_datasets_info())
 #' }
-load_datasets <- function(datasets_info = load_datasets_info(), mc_cores = 1) {
+load_datasets <- function(datasets_info = load_datasets_info()) {
   # load the datasets one by one
-  task_wrapped <- pbapply::pblapply(seq_len(nrow(datasets_info)), cl = mc_cores, function(dataset_num) {
+  task_wrapped <- pbapply::pblapply(seq_len(nrow(datasets_info)), cl = getOption("ncores"), function(dataset_num) {
     # load datasets
     dataset_id <- datasets_info$id[[dataset_num]]
     dataset <- load_dataset(dataset_id)
