@@ -14,6 +14,8 @@ updates <- tribble(
   "bifurcating_loop", 30
 )
 
+
+
 settings <- pmap(
   updates,
   function(modulenet_name, totaltime) {
@@ -24,12 +26,11 @@ settings <- pmap(
 params <- settings[[2]]
 
 outputs <- map(settings, function(params) {
-  params$simulation$local <- FALSE
-  params$simulation$nsimulations <- 32
+  params$simulation$local <- 8
   
   # model
   model <- invoke(dyngen:::generate_model_from_modulenet, params$model)
-  plot_net(model, label=TRUE, main_only = FALSE)
+  plot_net(model, label=FALSE, main_only = FALSE)
   plot_modulenet(model)
   
   # simulation
@@ -41,7 +42,7 @@ names(outputs) <- modulenet_names
 
 list2env(outputs$consecutive_bifurcating, .GlobalEnv)
 
-simulation <- preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window) # do preprocessing separate, otherwise zoo will keep error
+simulation <- preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window) # do preprocessing separate, otherwise zoo will stay in an infinite loop in case of later error
 gs <- invoke(extract_goldstandard, params$gs, simulation, model, preprocess=FALSE)
 plot_goldstandard(simulation, model, gs)
-
+check_goldstandard(gs)

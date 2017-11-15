@@ -86,48 +86,6 @@ process_ssa <- function(out, starttime=0) {
   return(list(times=times[2:nrow(data)], molecules=data[2:nrow(data), ]))
 }
 
-#' Simulate multiple cells
-#' 
-#' @param system The system to simulate
-#' @param burntime The burn-in time before sampling
-#' @param totaltime The total simulation time
-#' @param nsimulations The number of simulations
-#' @param local Whether or not to use \code{\link[PRISM]{qsub_lapply}}
-#' @param ssa_algorithm Which GSSA algorithm to use
-#' 
-#' @importFrom PRISM qsub_lapply
-#' @importFrom pbapply pblapply
-#' @export
-simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
-  force(system) # force the evaluation of the system argument, as the qsub environment will be empty except for existing function arguments
-  if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
-  } else {
-    multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = local)}
-  }
-  
-  seeds <- sample.int(nsimulations * 10, nsimulations, replace = F)
-  simulations = multilapply(seq_len(nsimulations), function(i) {
-    set.seed(seeds[[i]]) # set seed, to avoid the same seeds in multiple cells (the case when eg. using pblapply)
-    
-    cell = simulate_cell(system, totaltime=totaltime, burntime=burntime, ssa_algorithm=ssa_algorithm)
-    
-    rownames(cell$molecules) = paste0(i, "_", seq_len(nrow(cell$molecules)))
-    
-    expression = cell$molecules[,stringr::str_detect(colnames(cell$molecules), "x_")]
-    colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
-    stepinfo = tibble(step_id = rownames(cell$molecules), step=seq_along(cell$times), simulationtime=cell$times, simulation_id=i)
-    
-    lst(molecules=cell$molecules, stepinfo=stepinfo, expression=expression)
-  })
-  
-  molecules <- map(simulations, "molecules") %>% do.call(rbind, .)
-  expression <- map(simulations, "expression") %>% do.call(rbind, .)
-  stepinfo <- map(simulations, "stepinfo") %>% do.call(bind_rows, .)
-  
-  lst(molecules, expression, stepinfo)
-}
-
 # Emrna doesnt get updated, this function does not work
 #' @importFrom zoo rollapply
 #' @importFrom stats quantile sd

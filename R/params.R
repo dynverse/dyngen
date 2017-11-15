@@ -49,10 +49,10 @@ base_params = list(
   ),
   simulation = list(
     totaltime = 20,
-    burntime = 0,
-    local=8,
-    nsimulations = 16,
-    ssa_algorithm = fastgssa::ssa.em(noise_strength=4)
+    burntime = 2,
+    local = 8,
+    nsimulations = 32,
+    ssa_algorithm = fastgssa::ssa.em(noise_strength=8)
   ),
   experiment = list(
     # experiment setting

@@ -112,3 +112,13 @@ add_housekeeping_poisson <- function(
   
   list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
 }
+
+
+
+sample_snapshot <- function(simulation, gs) {
+  
+}
+
+sample_synchronized <- function(simulation, gs) {
+  
+}
