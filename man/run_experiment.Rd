@@ -5,8 +5,7 @@
 \title{Run an experiment from a simulation}
 \usage{
 run_experiment(simulation, model, samplesettings = list(type = "snapshot",
-  ncells = 500), n_housekeeping_genes = 200, housekeeping_reference_means,
-  add_housekeeping = TRUE)
+  ncells = 500), n_housekeeping_genes = 200, housekeeping_reference_means)
 }
 \arguments{
 \item{simulation}{The simulation}
@@ -14,6 +13,10 @@ run_experiment(simulation, model, samplesettings = list(type = "snapshot",
 \item{model}{The model}
 
 \item{samplesettings}{How the cells should be sampled}
+
+\item{n_housekeeping_genes}{Number of housekeeping genes to add}
+
+\item{housekeeping_reference_means}{Reference means for housekeeping genes}
 }
 \description{
 Run an experiment from a simulation
