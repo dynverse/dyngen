@@ -113,5 +113,8 @@ simple_params = list(
       },
       sample_cooperativity = function(n) 2
     )
+  ),
+  simulation = list(
+    nsimulations = 12
   )
 ) %>% modifyList(base_params, .)

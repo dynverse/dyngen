@@ -167,7 +167,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
 check_goldstandard <- function(gs) {
   gs$progressions$edge_id <- factor(gs$progressions$edge_id, levels=gs$milestone_network$edge_id)
   edge_counts <- table(gs$progressions$edge_id)
-  if (any(edge_counts == 0)) {warning("Some edges not represented!");print(edge_counts)}
+  if (any(edge_counts == 0)) {warning("Some edges not represented!")}
   
   lst(edge_counts)
 }
@@ -176,7 +176,7 @@ check_goldstandard <- function(gs) {
 plot_goldstandard <- function(simulation, model, gs) {
   source("../dynmodular/dimred_wrappers.R")
   # samplexpression <- gs$expression_modules[gs$progressions$step_id[(gs$progressions$step)%%10 == 0], ]
-  samplexpression <- gs$expression_modules[sample(gs$progressions$step_id, 1000), ]
+  samplexpression <- gs$expression_modules[sample(gs$progressions$step_id, 200), ]
   colnames(samplexpression) <- paste0("M", colnames(samplexpression))
   sampleprogressions <- gs$progressions %>% slice(match(rownames(samplexpression), step_id)) %>% arrange(simulation_id, step)
   samplexpression <- samplexpression[sampleprogressions$step_id, ]
