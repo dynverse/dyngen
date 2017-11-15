@@ -92,7 +92,7 @@ add_targets_realnet <- function(
   gene_name_generator = function(i) paste0("G", i)
 ) {
   # get the real network
-  realnet <- read_csv(glue::glue("data/realnetworks/{realnet_name}.csv"), col_types=cols(from=col_character(), to=col_character()))
+  realnet <- read_csv(glue::glue(find.package("dyngen"), "/ext_data/realnetworks/{realnet_name}.csv"), col_types=cols(from=col_character(), to=col_character()))
   allgenes <- unique(c(realnet$from, realnet$to))
   realgene2gene <- set_names(gene_name_generator(seq_along(allgenes)), allgenes)
   realnet$from <- realgene2gene[realnet$from]

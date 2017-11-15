@@ -30,8 +30,8 @@ outputs <- map(settings, function(params) {
   
   # model
   model <- invoke(dyngen:::generate_model_from_modulenet, params$model)
-  plot_net(model, label=FALSE, main_only = FALSE)
-  plot_modulenet(model)
+  dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
+  dyngen:::plot_modulenet(model)
   
   # simulation
   simulation <- invoke(simulate_multiple, params$simulation, model$system)

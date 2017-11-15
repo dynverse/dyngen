@@ -16,10 +16,4 @@ results/*
 packrat/lib*/
 packrat/src/
 
-data/networks/*
-data/platforms.tsv
-data/statenetworks/*
-data/genecircuits/*
-data/platforms/*
-data/realnetworks/*
-data/systems/*
+raw_data
