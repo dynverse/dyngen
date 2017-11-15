@@ -168,6 +168,8 @@ check_goldstandard <- function(gs) {
   gs$progressions$edge_id <- factor(gs$progressions$edge_id, levels=gs$milestone_network$edge_id)
   edge_counts <- table(gs$progressions$edge_id)
   if (any(edge_counts == 0)) {warning("Some edges not represented!");print(edge_counts)}
+  
+  lst(edge_counts)
 }
 
 #' @importFrom cowplot plot_grid

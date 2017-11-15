@@ -34,7 +34,7 @@ outputs <- map(settings, function(params) {
   dyngen:::plot_modulenet(model)
   
   # simulation
-  simulation <- invoke(simulate_multiple, params$simulation, model$system)
+  simulation <- invoke(dyngen:::simulate_multiple, params$simulation, model$system)
   
   list(simulation=simulation, model=model)
 })
@@ -42,7 +42,7 @@ names(outputs) <- modulenet_names
 
 list2env(outputs$consecutive_bifurcating, .GlobalEnv)
 
-simulation <- preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window) # do preprocessing separate, otherwise zoo will stay in an infinite loop in case of later error
-gs <- invoke(extract_goldstandard, params$gs, simulation, model, preprocess=FALSE)
-plot_goldstandard(simulation, model, gs)
-check_goldstandard(gs)
+simulation <- dyngen:::preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window) # do preprocessing separate, otherwise zoo will stay in an infinite loop in case of later error
+gs <- invoke(dyngen:::extract_goldstandard, params$gs, simulation, model, preprocess=FALSE)
+dyngen:::plot_goldstandard(simulation, model, gs)
+dyngen:::check_goldstandard(gs)
