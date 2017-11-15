@@ -8,10 +8,9 @@
 ^dyngen.xmind$
 ^\.git$
 ^data/genecircuits
-^data/modulenetworks
 ^data/platforms
-^data/realnetworks
 ^data/statenetworks
 ^data/systems
 ^data/housekeeping
 ^ext_data
+^raw_data

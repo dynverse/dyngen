@@ -4,12 +4,10 @@
 \alias{load_datasets}
 \title{Load dyngen datasets}
 \usage{
-load_datasets(datasets_info = load_datasets_info(), mc_cores = 1)
+load_datasets(datasets_info = load_datasets_info())
 }
 \arguments{
 \item{datasets_info}{The meta information of the datasets to read}
-
-\item{mc_cores}{The number of cores to use while loading in the datasets (default: 1)}
 }
 \value{
 A tibble of datasets
@@ -21,6 +19,6 @@ to work correctly.
 \examples{
 \dontrun{
 .dataset_location <- "path_to_dyngen_results"
-datasets <- load_datasets(mc_cores = 1, datasets_info = load_datasets_info())
+datasets <- load_datasets(datasets_info = load_datasets_info())
 }
 }

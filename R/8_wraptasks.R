@@ -22,7 +22,6 @@ load_datasets_info <- function() {
 #' to work correctly.
 #'
 #' @param datasets_info The meta information of the datasets to read
-#' @param mc_cores The number of cores to use while loading in the datasets (default: 1)
 #'
 #' @return A tibble of datasets
 #' @export
@@ -33,7 +32,7 @@ load_datasets_info <- function() {
 #' @examples
 #' \dontrun{
 #' .dataset_location <- "path_to_dyngen_results"
-#' datasets <- load_datasets(mc_cores = 1, datasets_info = load_datasets_info())
+#' datasets <- load_datasets(datasets_info = load_datasets_info())
 #' }
 load_datasets <- function(datasets_info = load_datasets_info()) {
   # load the datasets one by one
