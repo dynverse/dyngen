@@ -19,19 +19,19 @@ updates <- tribble(
 settings <- pmap(
   updates,
   function(modulenet_name, totaltime) {
-    modifyList(dyngen:::simple_params, list(model = list(modulenet_name = modulenet_name), simulation=list(totaltime = totaltime)))
+    modifyList(dyngen:::base_params, list(model = list(modulenet_name = modulenet_name), simulation=list(totaltime = totaltime)))
   }
 )
 
-ncores <- 8
+ncores <- 30
 
-params <- settings[[4]]
+params <- settings[[5]]
 
-outputs <- PRISM::qsub_lapply(qsub_config=PRISM::override_qsub_config(num_cores = ncores, memory="4G"), qsub_environment=list2env(list()), settings, function(params) {
+outputs <- PRISM::qsub_lapply(qsub_config=PRISM::override_qsub_config(num_cores = ncores, memory="4G"), qsub_environment=list2env(list()), settings[1], function(params) {
   library(tidyverse)
   
 # outputs <- pbapply::pblapply(settings, function(params) {
-  options(ncores = 8)
+  options(ncores = ncores)
   
   # model
   model <- invoke(dyngen:::generate_model_from_modulenet, params$model)

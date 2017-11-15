@@ -151,7 +151,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   
   if (verbose) print("Postprocessing")
   gs <- list()
-  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network, by=c("from", "to", "edge_id"))
+  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network, by=c("edge_id"))
   gs$milestone_network <- milestone_network
   gs$references <- references
   gs$expression_modules <- simulation$expression_modules
@@ -263,10 +263,11 @@ plot_goldstandard <- function(simulation, model, gs) {
   }) %>% bind_rows()
   
   reference_data %>% 
-    ggplot() + 
+    {ggplot(.) + 
       geom_raster(aes(step, factor(module), fill=expression, group=module)) + 
       facet_wrap(~reference_id) + 
-      scale_fill_distiller(palette="RdBu")
+      scale_fill_distiller(palette="RdBu")} %>% 
+    print()
   
   samplexpression <- simulation$expression_modules[simulation$stepinfo$step_id[(simulation$stepinfo$step)%%10 == 1], ]
   sampleprogressions <- simulation$stepinfo %>% slice(match(rownames(samplexpression), step_id)) %>% arrange(simulation_id, step)

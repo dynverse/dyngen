@@ -1,8 +1,12 @@
 library(igraph)
 
 smooth_expression <- function(expression, smooth_window=50) {
-  expression %>% 
-    zoo::rollmean(smooth_window, c("extend", "extend", "extend")) %>%
+  # expression %>% 
+  #   zoo::rollmean(smooth_window, partial=TRUE, c("extend", "extend", "extend")) %>%
+  #   magrittr::set_rownames(rownames(expression))
+  
+  expression %>%
+    zoo::rollapply(smooth_window, mean, partial=TRUE) %>%
     magrittr::set_rownames(rownames(expression))
 }
 
@@ -36,12 +40,12 @@ get_milestone_paths <- function(milestone_network, start_milestones, max_path_le
     tos <- milestone_network %>% filter(from == curnode) %>% pull(to)
     
     if (length(curpath) < max_path_length) {
-      c(list(curpath), unlist(map(tos, recursor, curpath=curpath), recursive=FALSE))
+      c(list(curpath), unlist(map(tos, recursor, curpath=curpath, max_path_length=max_path_length), recursive=FALSE))
     } else {
       curpath
     }
   }
-  paths <- map(start_milestones, recursor, max_path_length=max_path_length) %>% unlist(recursive=FALSE) %>% keep(~length(.) > 1)
+  paths <- map(start_milestones, recursor, curpath = c(), max_path_length=max_path_length) %>% unlist(recursive=FALSE) %>% keep(~length(.) > 1)
   paths
 }
 
@@ -105,14 +109,18 @@ extract_references <- function(path_operations, milestone_network, reference_len
       reference_expression <- approx(1:length(x), x, seq(1, length(x), length.out=reference_length * length(x)))$y
     })
     
-    operations <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0), operations)
-    reference_info <- operations %>% 
-      select(from, to, edge_id) %>% 
+    operations_start <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0, operation_run=0), operations)
+    reference_info <- operations_start %>% 
+      select(from, to, edge_id, operation_run) %>% 
+      group_by(operation_run, edge_id) %>% 
+      summarise() %>% 
+      ungroup() %>% 
       {.[rep(seq_len(nrow(.)), each=reference_length), ]} %>% 
       mutate(reference_row_id = seq_len(n())) %>% 
-      group_by(edge_id) %>% 
       mutate(percentage = seq(0, 1, length.out=n())) %>% 
       ungroup()
+    
+    if(nrow(reference_info) != nrow(reference_expression)) stop("Incompatible reference dimensions!")
     
     lst(
       reference_expression, 
@@ -139,13 +147,13 @@ map_to_reference <- function(simulation_expressions, references) {
       simulation_expression <- simulation_expression[, colnames(reference$reference_expression)]
       
       dist <- pdist::pdist(simulation_expression, reference$reference_expression) %>% as.matrix()
-      dtw <- dtw::dtw(dist, open.end = TRUE)
+      dtw <- dtw::dtw(dist, step.pattern = dtw::symmetric1)
       dtw
     })
     
-    normalizedDistance <- min(which.min(map_dbl(dtws, "normalizedDistance")))
+    normalizedDistance <- min(which.min(map_dbl(dtws, "distance")))
     
-    best_reference_id <- which.min(map_dbl(dtws, "normalizedDistance"))
+    best_reference_id <- which.min(map_dbl(dtws, "distance"))
     dtw <- dtws[[best_reference_id]]
     reference <- references[[best_reference_id]]
     
@@ -160,7 +168,8 @@ map_to_reference <- function(simulation_expressions, references) {
       left_join(reference$reference_info, by="reference_row_id") %>% 
       select(-reference_row_id) %>% 
       mutate(percentage = ifelse(is.na(percentage), 1, percentage)) %>% 
-      mutate(normalizedDistance = normalizedDistance)
+      mutate(normalizedDistance = normalizedDistance) %>% 
+      slice(match(rownames(simulation_expression), step_id))
     times
   }) %>% bind_rows()
   times
