@@ -295,8 +295,6 @@ plot_goldstandard <- function(simulation, model, gs) {
 #' @param simulation The simulation
 #' @param model The model
 #' @param samplesettings How the cells should be sampled
-#' @param n_housekeeping_genes Number of housekeeping genes to add
-#' @param housekeeping_reference_means Reference means for housekeeping genes
 run_experiment <- function(
   simulation, 
   model, 
@@ -305,12 +303,12 @@ run_experiment <- function(
   housekeeping_reference_means
 ) {
   experiment <- take_experiment_cells(simulation, model, samplesettings)
-  
-  if (n_housekeeping_genes > 0) {
-    additional_data <- add_housekeeping_poisson(experiment$expression, model$geneinfo, housekeeping_reference_means, n_housekeeping_genes)
-    experiment$expression <- additional_data$expression
-    experiment$geneinfo <- additional_data$geneinfo
-  }
+  # 
+  # if (n_housekeeping_genes > 0) {
+  #   additional_data <- add_housekeeping_poisson(experiment$expression, model$geneinfo, housekeeping_reference_means, n_housekeeping_genes)
+  #   experiment$expression <- additional_data$expression
+  #   experiment$geneinfo <- additional_data$geneinfo
+  # }
   
   experiment
 }

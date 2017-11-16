@@ -114,11 +114,10 @@ extract_references <- function(path_operations, milestone_network, reference_len
       select(from, to, edge_id, operation_run) %>% 
       group_by(operation_run, edge_id) %>% 
       summarise() %>% 
-      ungroup() %>% 
       {.[rep(seq_len(nrow(.)), each=reference_length), ]} %>% 
-      mutate(reference_row_id = seq_len(n())) %>% 
       mutate(percentage = seq(0, 1, length.out=n())) %>% 
-      ungroup()
+      ungroup() %>% 
+      mutate(reference_row_id = seq_len(n()))
     
     if(nrow(reference_info) != nrow(reference_expression)) stop("Incompatible reference dimensions!")
     
