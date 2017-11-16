@@ -80,6 +80,7 @@ extract_references <- function(path_operations, milestone_network, reference_len
   references <- map(path_operations, function(operations) {
     # put every consecutive operation id in a separate run
     operations$operation_run <- rle(operations$operation_id) %>% {rep(seq_along(.$length), .$length)}
+    operations$edge_run <- rle(operations$edge_id) %>% {rep(seq_along(.$length), .$length)}
     
     # first calculate the changes during every operation (run), than do a cumsum to get the actual reference
     reference_expression <- reshape2::acast(operations, module_id~operation_run, value.var="operation", fill=0, drop=FALSE) %>% apply(1, cumsum)
@@ -111,10 +112,12 @@ extract_references <- function(path_operations, milestone_network, reference_len
     
     operations_start <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0, operation_run=0), operations)
     reference_info <- operations_start %>% 
-      select(from, to, edge_id, operation_run) %>% 
-      group_by(operation_run, edge_id) %>% 
+      select(from, to, edge_id, operation_run, edge_run) %>% 
+      group_by(operation_run, edge_run, edge_id) %>% 
       summarise() %>% 
       {.[rep(seq_len(nrow(.)), each=reference_length), ]} %>% 
+      ungroup() %>% 
+      group_by(edge_run, edge_id) %>% 
       mutate(percentage = seq(0, 1, length.out=n())) %>% 
       ungroup() %>% 
       mutate(reference_row_id = seq_len(n()))
