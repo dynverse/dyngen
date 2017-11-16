@@ -29,9 +29,10 @@ run_experiment <- function(
   
   # we now extract the splatter estimates
   estimate <- platform$estimate
-  estimate@nGenes <- n_genes_housekeeping
+  attr(estimate, "nGenes") <- n_genes_housekeeping
+  attr(estimate, "nCells") <- n_cells;attr(estimate, "groupCells") <- n_cells
   
-  estimate@nCells <- n_cells;estimate@groupCells <- n_cells
+  class(estimate) <- "SplatParams" # trick splatter into thinking this is a splatparams class, avoiding it to load in a bunch of garbage functions in the global environment, most of them coming from scater -__-
   
   housekeeping_simulation <- splatter::splatSimulateSingle(estimate)
   

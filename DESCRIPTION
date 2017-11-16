@@ -45,7 +45,8 @@ Imports:
   viridis,
   zoo
 Suggests:
-  rgl
+  rgl,
+  splatter
 Remotes:
   dynverse/fastgssa,
   rcannood/dynutils,
