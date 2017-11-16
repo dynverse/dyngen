@@ -16,7 +16,7 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
   geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
   expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
   
-  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = 8, smooth_expression, smooth_window=smooth_window) %>% do.call(rbind, .)
+  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window=smooth_window) %>% do.call(rbind, .)
   dimnames(simulation$expression_smooth) <- dimnames(expression)
   
   # print("normalizing...")
