@@ -13,6 +13,7 @@ RoxygenNote: 6.0.1
 Depends:
   R (>= 3.0.0)
 Imports: 
+  Biobase,
   cowplot,
   dplyr,
   dtw,

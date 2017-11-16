@@ -144,8 +144,11 @@ plot_simulation_modules <- function(simulation, model) {
 
 
 
-
+#' Plot the gold standard
 #' @importFrom cowplot plot_grid
+#' @param simulation The simulation
+#' @param model The model
+#' @param gs The gold standard
 plot_goldstandard <- function(simulation, model, gs) {
   if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
   

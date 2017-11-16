@@ -48,9 +48,17 @@ plot_simulations <- function(simulations, samplingrate=0.1) {
     rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
   }
   
-}}
+}
+Plot the gold standard}
 \usage{
 plot_goldstandard(simulation, model, gs)
+}
+\arguments{
+\item{simulation}{The simulation}
+
+\item{model}{The model}
+
+\item{gs}{The gold standard}
 }
 \description{
 #' Plot the simulations
@@ -100,4 +108,5 @@ plot_simulations <- function(simulations, samplingrate=0.1) {
   }
   
 }
+Plot the gold standard
 }
