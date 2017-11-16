@@ -267,8 +267,9 @@ plot_goldstandard <- function(simulation, model, gs) {
 plot_experiment <- function(experiment) {
   plots <- map(c("expression_simulated", "expression", "true_counts", "counts"), function(expression_name) {
     expr <- experiment[[expression_name]]
-    space = SCORPIUS::reduce_dimensionality(SCORPIUS::correlation_distance(expr))
-    SCORPIUS::draw_trajectory_plot(space) + ggtitle(expression_name)
+    source("../dynmodular/dimred_wrappers.R")
+    space <- dimred_mds(expr)
+    space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()
 }

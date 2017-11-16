@@ -10,8 +10,6 @@ run_experiment <- function(
   sampler,
   platform
 ) {
-  require("scater")
-  
   # mutate <- dplyr::mutate
   # filter <- dplyr::filter
   
@@ -42,8 +40,8 @@ run_experiment <- function(
   # then use the libsizes from splatter to estimate the "true" expression from each cell, which will then be used to estimate the tre counts
   
   # see splatter:::splatSimSingleCellMeans
-  exp.lib.sizes <- pData(housekeeping_simulation)$ExpLibSize
-  cell.means.gene <- rep(fData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol=n_cells)
+  exp.lib.sizes <- Biobase::pData(housekeeping_simulation)$ExpLibSize
+  cell.means.gene <- rep(Biobase::fData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol=n_cells)
   cell.means.gene <- rbind(cell.means.gene, t(expression_simulated / mean(expression_simulated) * mean(cell.means.gene)))
   cell.props.gene <- t(t(cell.means.gene)/colSums(cell.means.gene))
   expression <- t(t(cell.props.gene) * exp.lib.sizes)
@@ -56,10 +54,11 @@ run_experiment <- function(
   
   # finally, if present, dropouts will be simulated
   # see splatter:::splatSimDropout
+  logistic <- function (x, x0, k) {1/(1 + exp(-k * (x - x0)))}
   if (estimate@dropout.present | TRUE) {
     drop.prob <- sapply(seq_len(n_cells), function(idx) {
       eta <- log(expression[, idx])
-      return(splatter:::logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
+      return(logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
     })
     keep <- matrix(rbinom(n_cells * n_genes, 1, 1 - drop.prob), 
                    nrow = n_genes, ncol = n_cells)
