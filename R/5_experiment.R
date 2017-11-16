@@ -9,25 +9,9 @@ take_experiment_cells <- function(simulation, model, samplesettings = list(type 
   # sample
   if (samplesettings$type == "snapshot"){
     
-    sample_ids <- sample(seq_len(nrow(simulation$expression)), samplesettings$ncells)
-    expression <- simulation$expression[sample_ids, ]
-    cellinfo <- simulation$stepinfo[sample_ids, ]
-    
   } else if (samplesettingss$type == "synchronized") {
-    
-    totaltime <- max(simulation$stepinfo$simulationtime)
-    timepoints <- seq(0, totaltime, length.out=samplesettingss$ntimepoints)
-    
-    sample_steps <- map_df(timepoints, function(timepoint) {
-      simulation$stepinfo %>% group_by(simulation_id) %>% 
-        summarise(step_id = step_id[which.min(abs(simulationtime - timepoint))]) %>% 
-        mutate(timepoint = timepoint)
-    })
-    
-    expression <- simulation$expression[sample_steps$step_id, ]
-    cellinfo <- sample_steps %>% left_join(simulation$stepinfo, by="step_id")
-    
   }
+  
   # get cellinfo
   rownames(expression) <- paste0("C", seq_len(nrow(expression)))
   cellinfo <- cellinfo %>% mutate(cell_id = rownames(expression))
@@ -37,6 +21,43 @@ take_experiment_cells <- function(simulation, model, samplesettings = list(type 
   
   experiment
 }
+
+sample_snapshot <- function(simulation, gs, ncells = 500) {
+  sample_ids <- gs$progressions %>% 
+    filter(!burn) %>% 
+    group_by(step_id) %>% 
+    summarise() %>% 
+    sample_n(ncells) %>% 
+    pull(step_id)
+  expression <- simulation$expression[sample_ids, ]
+  
+  lst(expression, cellinfo = tibble(step_id = sample_ids))
+}
+snapshot_sampler <- function(ncells=10) {function(simulation, gs) {sample_synchronized(simulation, gs, ncells=ncells)}}
+
+sample_synchronized <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$stepinfo$simulationtime), length.out=ntimepoints), ncells_per_timepoint = 12) {
+  ncells_per_timepoint <- min(ncells_per_timepoint, length(unique(simulation$stepinfo$simulation_id)))
+  
+  non_burn_step_ids <- gs$progressions %>% 
+    filter(!burn) %>% 
+    pull(step_id) %>% 
+    unique()
+  
+  stepinfo <- simulation$stepinfo %>% filter(step_id %in% non_burn_step_ids)
+  
+  sample_step_info <- map_dfr(timepoints, function(timepoint) {
+    stepinfo %>% group_by(simulation_id) %>% 
+      summarise(step_id = step_id[which.min(abs(simulationtime - timepoint))]) %>% 
+      mutate(timepoint = timepoint) %>% 
+      sample_n(ncells_per_timepoint)
+  })
+  
+  lst(
+    expression = simulation$expression[sample_step_info$step_id, ],
+    cellinfo = sample_step_info
+  )
+}
+ssynchronized_sampler <- function(ntimepoints=10) {function(simulation, gs) sample_synchronized(simulation, gs, ntimepoints=ntimepoints)}
 
 #' Checks the expression for certain properties
 #' 
@@ -111,14 +132,4 @@ add_housekeeping_poisson <- function(
   )
   
   list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
-}
-
-
-
-sample_snapshot <- function(simulation, gs) {
-  
-}
-
-sample_synchronized <- function(simulation, gs) {
-  
 }

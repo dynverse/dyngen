@@ -143,7 +143,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   path_operations <- extract_path_operations(operations, paths)
   
   if (verbose) print("Extracting references")
-  references <- extract_references(path_operations, milestone_network)
+  references <- extract_references(path_operations, milestone_network, reference_length=reference_length)
   
   if (verbose) print("Mapping simulations onto reference")
   simulation_expressions <- expression %>% as.data.frame() %>% split(stepinfo$simulation_id)
@@ -174,6 +174,8 @@ check_goldstandard <- function(gs) {
 
 #' @importFrom cowplot plot_grid
 plot_goldstandard <- function(simulation, model, gs) {
+  if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
+  
   # Dimensionality reduction
   source("../dynmodular/dimred_wrappers.R")
   # samplexpression <- gs$expression_modules[gs$progressions$step_id[(gs$progressions$step)%%10 == 0], ]
@@ -269,6 +271,7 @@ plot_goldstandard <- function(simulation, model, gs) {
       scale_fill_distiller(palette="RdBu")} %>% 
     print()
   
+  # 
   samplexpression <- simulation$expression_modules[simulation$stepinfo$step_id[(simulation$stepinfo$step)%%10 == 1], ]
   sampleprogressions <- simulation$stepinfo %>% slice(match(rownames(samplexpression), step_id)) %>% arrange(simulation_id, step)
   samplexpression <- samplexpression[sampleprogressions$step_id, ]

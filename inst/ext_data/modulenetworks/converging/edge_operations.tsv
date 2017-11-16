@@ -1,0 +1,8 @@
+from	to	module_progression	start	burn
+0	1	+1	TRUE	TRUE
+1	2	+2|+3	FALSE	TRUE
+2	3	+5|+7	FALSE	TRUE
+2	4	+4|+6	FALSE	TRUE
+3	5	+8|+9,-5|-7,+10	FALSE	FALSE
+4	5	+8|+9,-4|-6,+10	FALSE	FALSE
+5	6	+11,-1,-8|-9,-2|-10,-3	FALSE	FALSE

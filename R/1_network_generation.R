@@ -133,7 +133,7 @@ add_targets_realnet <- function(
   # also combine the subnetworks
   added_net <- geneinfo$target_net %>% bind_rows() %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
   
-  # remove connections between main tfs (to avoid ruining the given differentiation)
+  # remove connections between main tfs (to avoid ruining the given module network)
   added_net <- added_net %>% filter(!(from %in% geneinfo$gene_id & to %in% geneinfo$gene_id))
   
   # combine
