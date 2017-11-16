@@ -147,13 +147,13 @@ map_to_reference <- function(simulation_expressions, references) {
       simulation_expression <- simulation_expression[, colnames(reference$reference_expression)]
       
       dist <- pdist::pdist(simulation_expression, reference$reference_expression) %>% as.matrix()
-      dtw <- dtw::dtw(dist, step.pattern = dtw::symmetric1)
+      dtw <- dtw::dtw(dist, open.end=TRUE)
       dtw
     })
     
-    normalizedDistance <- min(which.min(map_dbl(dtws, "distance")))
+    normalizedDistance <- min(which.min(map_dbl(dtws, "normalizedDistance")))
     
-    best_reference_id <- which.min(map_dbl(dtws, "distance"))
+    best_reference_id <- which.min(map_dbl(dtws, "normalizedDistance"))
     dtw <- dtws[[best_reference_id]]
     reference <- references[[best_reference_id]]
     
