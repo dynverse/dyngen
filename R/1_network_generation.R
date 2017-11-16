@@ -1,3 +1,78 @@
+#' Model generation from modulenet
+#' 
+#' Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
+#' 
+#' @param target_adder_name The method for adding targets. Only "realnet" is currently supported.
+#' @inheritParams load_modulenet
+#' @inheritParams generate_system
+#' @inheritParams add_targets_realnet
+#' @inheritParams modulenet_to_genenet 
+#' @inheritParams generate_random_tree
+#' 
+#' @export
+generate_model_from_modulenet <- function(
+  # module net --
+  modulenet_name, 
+  
+  # params for modulenet_name == "tree"
+  treeseed,
+  decay,
+  
+  # module net to net --
+  ngenes_per_module,
+  edge_retainment,
+  ntargets_sampler,
+  
+  # add targets --
+  target_adder_name, 
+  
+  # params for target_adder_name == "realnet_name"
+  realnet_name,
+  damping,
+  
+  # params for system
+  samplers
+) {
+  # load modulenet
+  if (modulenet_name == "tree") {
+    stagenet <- generate_random_tree(treeseed)
+    model <- from_stages_to_modulenet(stagenet)
+  } else {
+    model <- load_modulenet(modulenet_name)
+  }
+  
+  # convert module network to gene network between modules
+  model <- modulenet_to_genenet(
+    model$modulenet, 
+    model$modulenodes, 
+    ngenes_per_module = ngenes_per_module, 
+    edge_retainment = edge_retainment
+  ) %>% c(model)
+  
+  # add some targets
+  if (target_adder_name == "realnet") {
+    model <- add_targets_realnet(
+      model$net, model$geneinfo, 
+      realnet_name = realnet_name, 
+      damping = damping,
+      ntargets_sampler = ntargets_sampler
+    ) %>% dynutils::merge_lists(model, .)
+  } else {
+    print("not supported")
+  }
+  
+  # randomize parameters 
+  model$net <- randomize_network_parameters(model$net)
+  
+  # generate thermodynamics formulae & kinetics
+  model$system <- generate_system(model$net, model$geneinfo, model$cells, samplers)
+  
+  model
+}
+
+
+
+
 #' load module net
 #' @param modulenet_name A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree
 #' @importFrom readr read_tsv

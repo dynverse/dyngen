@@ -1,26 +1,89 @@
-#' Extract cells from a simulation, either simulating a snapshot experiment or a synchronized experiment
-#' 
-#' @param simulation List containing the expression of simulation(s)
-#' @param model The model of the simulation
-#' @param samplesettings List containing the information of how the cells should be sampled
-#' 
-#' @export
-take_experiment_cells <- function(simulation, model, samplesettings = list(type = "snapshot", ncells = 500)) {
-  # sample
-  if (samplesettings$type == "snapshot"){
+# Experiment =====================================================
+#' Run an experiment from a simulation
+#' @param simulation The simulation
+#' @param gs The gold standard
+#' @param sampler Function telling how the cells should be sampled
+#' @param platform Platform
+run_experiment <- function(
+  simulation, 
+  gs,
+  sampler,
+  platform
+) {
+  require("scater")
+  
+  # mutate <- dplyr::mutate
+  # filter <- dplyr::filter
+  
+  # first sample the cells from the sample, using the given number of cells from the platform
+  n_cells <- platform$n_cells
+  sampled <- sampler(simulation, gs, n_cells)
+  expression_simulated <- sampled$expression
+  rownames(expression_simulated) <- paste0("C", seq_len(nrow(expression_simulated)))
+  cellinfo <- sampled$cellinfo %>% mutate(cell_id = rownames(expression_simulated))
+  
+  n_genes_simulated <- ncol(expression_simulated)
+  
+  # generate housekeeping expression
+  # number of genes housekeeping depends on the fraction in the reference
+  n_genes_housekeeping <- round((n_genes_simulated / platform$pct_changing) * (1 - platform$pct_changing))
+  n_genes <- n_genes_simulated + n_genes_housekeeping
+  
+  # we now extract the splatter estimates
+  estimate <- platform$estimate
+  estimate@nGenes <- n_genes_housekeeping
+  
+  estimate@nCells <- n_cells;estimate@groupCells <- n_cells
+  
+  housekeeping_simulation <- splatter::splatSimulateSingle(estimate)
+  
+  # we only use the earlier steps in the splatSImulateSingle, but then you need to dig deep into splat::: 's ...
+  # we now combine the genemeans from splatter with the simulated expression values
+  # then use the libsizes from splatter to estimate the "true" expression from each cell, which will then be used to estimate the tre counts
+  
+  # see splatter:::splatSimSingleCellMeans
+  exp.lib.sizes <- pData(housekeeping_simulation)$ExpLibSize
+  cell.means.gene <- rep(fData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol=n_cells)
+  cell.means.gene <- rbind(cell.means.gene, t(expression_simulated / mean(expression_simulated) * mean(cell.means.gene)))
+  cell.props.gene <- t(t(cell.means.gene)/colSums(cell.means.gene))
+  expression <- t(t(cell.props.gene) * exp.lib.sizes)
+  geneinfo <- tibble(gene_id = ifelse(rownames(expression) == "", paste0("H", seq_len(nrow(expression))), rownames(expression)), housekeeping = rownames(expression) == "")
+  rownames(expression) <- geneinfo$gene_id
+  
+  # see splatter:::splatSimTrueCounts
+  true_counts <- matrix(rpois(n_genes * n_cells, lambda = expression), nrow = n_genes, ncol = n_cells)
+  dimnames(true_counts) <- dimnames(expression)
+  
+  # finally, if present, dropouts will be simulated
+  # see splatter:::splatSimDropout
+  if (estimate@dropout.present | TRUE) {
+    drop.prob <- sapply(seq_len(n_cells), function(idx) {
+      eta <- log(expression[, idx])
+      return(splatter:::logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
+    })
+    keep <- matrix(rbinom(n_cells * n_genes, 1, 1 - drop.prob), 
+                   nrow = n_genes, ncol = n_cells)
     
-  } else if (samplesettingss$type == "synchronized") {
+    counts <- true_counts
+    counts[!keep] <- 0
+  } else {
+    counts <- true_counts
   }
+  dimnames(counts) <- dimnames(true_counts)
   
-  # get cellinfo
-  rownames(expression) <- paste0("C", seq_len(nrow(expression)))
-  cellinfo <- cellinfo %>% mutate(cell_id = rownames(expression))
-  
-  # filter
-  experiment <- filter_expression(expression, cellinfo, model$geneinfo)
-  
-  experiment
+  experiment <- lst(
+    cellinfo,
+    expression_simulated,
+    expression = t(expression),
+    true_counts = t(true_counts),
+    counts = t(counts),
+    geneinfo
+  )
 }
+
+
+
+
 
 sample_snapshot <- function(simulation, gs, ncells = 500) {
   sample_ids <- gs$progressions %>% 
@@ -75,61 +138,59 @@ check_expression <- function(expression) {
   checks
 }
 
-#' Filter expression
+#' Filter counts
 #' 
-#' @param expression Expression matrix
-#' @param cellinfo Cell info dataframe
-#' @param geneinfo Gene info dataframe
+#' @param experiment Experiment list, containing expression, cellinfo and geneinfo
 #' 
 #' @export
-filter_expression <- function(expression, cellinfo, geneinfo) {
-  remove_cells <- (apply(expression, 1, max) == 0) | is.na(apply(expression, 1, sd))
+filter_experiment <- function(experiment) {
+  remove_cells <- (apply(experiment$expression, 1, max) == 0) | is.na(apply(experiment$expression, 1, sd))
   
-  expression <- expression[!remove_cells, ]
-  cellinfo <- cellinfo %>% slice(match(rownames(expression), cell_id))
-  lst(expression, cellinfo, geneinfo)
+  experiment$expression <- experiment$expression[!remove_cells, ]
+  experiment$cellinfo <- experiment$cellinfo %>% slice(match(rownames(experiment$expression), cell_id))
+  experiment
 }
 
 
-
-#' Get housekeeping reference means
 #' 
-#' @param counts Expression matrix containing counts
-#' @export
-get_housekeeping_reference_means <- function(counts) colMeans(counts)
-
-#' Add housekeeping genes
+#' #' Get housekeeping reference means
+#' #' 
+#' #' @param counts Expression matrix containing counts
+#' #' @export
+#' get_housekeeping_reference_means <- function(counts) colMeans(counts)
 #' 
-#' @param expression The original expression data.
-#' @param geneinfo The original gene info
-#' @param housekeeping_reference_means The mean expression of a set of genes in the reference dataset
-#' @param n_housekeeping_genes The number of genes to add
-#' @param overallaverage Overall average expression of the original dataset, this keeps the overall average expression the same even with housekeeping genes
-#' @param gene_id_generator Function to generate gene_ids
-#' 
-#' @export
-#' @importFrom utils data
-#' @importFrom magrittr set_colnames
-add_housekeeping_poisson <- function(
-  expression, 
-  geneinfo, 
-  housekeeping_reference_means, 
-  n_housekeeping_genes=200, 
-  overallaverage = mean(expression),
-  gene_id_generator = function(n) {paste0("GH", seq_len(n))}
-) {
-  if(is.null(housekeeping_reference_means)) stop("Reference means required!!")
-  
-  meanpoissons <- overallaverage * housekeeping_reference_means/mean(housekeeping_reference_means)
-  
-  additional_expression <- purrr::map(sample(meanpoissons, n_housekeeping_genes), ~rpois(nrow(expression), .)) %>%
-    invoke(cbind, .) %>% 
-    magrittr::set_colnames(gene_id_generator(n_housekeeping_genes))
-  
-  geneinfo <- dplyr::bind_rows(
-    geneinfo %>% dplyr::mutate(housekeeping=FALSE), 
-    tibble(gene=colnames(additional_expression), housekeeping=TRUE)
-  )
-  
-  list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
-}
+#' #' Add housekeeping genes
+#' #' 
+#' #' @param expression The original expression data.
+#' #' @param geneinfo The original gene info
+#' #' @param housekeeping_reference_means The mean expression of a set of genes in the reference dataset
+#' #' @param n_housekeeping_genes The number of genes to add
+#' #' @param overallaverage Overall average expression of the original dataset, this keeps the overall average expression the same even with housekeeping genes
+#' #' @param gene_id_generator Function to generate gene_ids
+#' #' 
+#' #' @export
+#' #' @importFrom utils data
+#' #' @importFrom magrittr set_colnames
+#' add_housekeeping_poisson <- function(
+#'   expression, 
+#'   geneinfo, 
+#'   housekeeping_reference_means, 
+#'   n_housekeeping_genes=200, 
+#'   overallaverage = mean(expression),
+#'   gene_id_generator = function(n) {paste0("GH", seq_len(n))}
+#' ) {
+#'   if(is.null(housekeeping_reference_means)) stop("Reference means required!!")
+#'   
+#'   meanpoissons <- overallaverage * housekeeping_reference_means/mean(housekeeping_reference_means)
+#'   
+#'   additional_expression <- purrr::map(sample(meanpoissons, n_housekeeping_genes), ~rpois(nrow(expression), .)) %>%
+#'     invoke(cbind, .) %>% 
+#'     magrittr::set_colnames(gene_id_generator(n_housekeeping_genes))
+#'   
+#'   geneinfo <- dplyr::bind_rows(
+#'     geneinfo %>% dplyr::mutate(housekeeping=FALSE), 
+#'     tibble(gene=colnames(additional_expression), housekeeping=TRUE)
+#'   )
+#'   
+#'   list(expression=cbind(expression, additional_expression), geneinfo=geneinfo)
+#' }

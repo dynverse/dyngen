@@ -73,46 +73,57 @@ rlnorm(1000, params@lib.loc, params@lib.scale) %>% hist
 
 
 
-expression = readRDS("results/experiments/2017_04_25_10_52_376521865227/expression.rds") %>% t
-pheatmap(t(expression), cluster_cols=F, cluster_rows=T)
+expression <- t(experiment$expression)
+pheatmap::pheatmap(expression, cluster_cols=F, cluster_rows=T)
 
 
-nGenes = params@nGenes = nrow(expression)
-nCells = params@nCells = ncol(expression)
+nGenes = estimate@nGenes = nrow(expression)
+nCells = estimate@nCells = ncol(expression)
 gene.names = rownames(expression)
 cell.names = colnames(expression)
-dummy.counts <- matrix(1, ncol = nCells, nrow = nGenes)
-rownames(dummy.counts) <- gene.names
-colnames(dummy.counts) <- cell.names
+dummy.expression <- matrix(1, ncol = nCells, nrow = nGenes)
+rownames(dummy.expression) <- gene.names
+colnames(dummy.expression) <- cell.names
 phenos <- new("AnnotatedDataFrame", data = data.frame(Cell = cell.names))
 rownames(phenos) <- cell.names
 features <- new("AnnotatedDataFrame", data = data.frame(Gene = gene.names))
 rownames(features) <- gene.names
-sim <- newSCESet(countData = dummy.counts, phenoData = phenos, featureData = features)
-sim <- splatter:::splatSimLibSizes(sim, params)
-sim <- splatter:::splatSimGeneMeans(sim, params)
-sim <- splatter:::splatSimPathDE(sim, params)
-sim <- splatter:::splatSimSingleCellMeans(sim, params)
-sim <- splatter:::splatSimBCVMeans(sim, params)
-
+sim <- newSCESet(countData = dummy.expression, phenoData = phenos, featureData = features)
+sim <- splatter:::splatSimLibSizes(sim, estimate)
+sim <- splatter:::splatSimGeneMeans(sim, estimate)
+sim <- splatter:::splatSimPathDE(sim, estimate)
+sim <- splatter:::splatSimSingleCellMeans(sim, estimate)
+sim <- splatter:::splatSimBCVMeans(sim, estimate)
 
 phenoData(sim) %>% as("data.frame")
 fData(sim) %>% as("data.frame") %>% str
 
 libSizeScaler = nGenes
-exprs(sim) = expression
-expression2 = lapply(seq_len(ncol(expression)), function(celli) {
-  rmultinom(1, pData(sim)$ExpLibSize[[celli]]*libSizeScaler, fData(sim)$GeneMean * abs(expression[, celli]))
+counts2 = lapply(seq_len(ncol(counts)), function(celli) {
+  rmultinom(1, pData(sim)$ExpLibSize[[celli]]*libSizeScaler, abs(counts[, celli]))
 }) %>% do.call(cbind, .)
 
-pheatmap(expression2)
+# inspired by splatter:::splatSimDropout
+drop.prob <- sapply(seq_len(ncol(counts2)), function(idx) {
+  eta <- 
+  return(logistic(eta, x0 = dropout.mid, k = dropout.shape))
+})
+keep <- matrix(rbinom(nCells * nGenes, 1, 1 - drop.prob), 
+               nrow = nGenes, ncol = nCells)
 
 
-space = SCORPIUS::reduce.dimensionality(SCORPIUS::correlation.distance(t(expression2)))
-SCORPIUS::draw.trajectory.plot(space)
+
+pheatmap::pheatmap(counts2)
+pheatmap::pheatmap(counts)
 
 
-splatter::
+space = SCORPIUS::reduce_dimensionality(SCORPIUS::correlation_distance(t(counts2)))
+SCORPIUS::draw_trajectory_plot(space)
+space = SCORPIUS::reduce_dimensionality(SCORPIUS::correlation_distance(t(counts)))
+SCORPIUS::draw_trajectory_plot(space)
+
+
+
 
 
 

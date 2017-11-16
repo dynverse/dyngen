@@ -60,7 +60,6 @@ libprep = function(counts, lysisrate = 0.6, capturerate = 0.1, amplify = T, ampl
   curcounts
 }
 
-simulate_scrnaseq = function(expression, platform) {
-  cellcounts = expression %>% {.*100} %>% round() %>% abs()
-  libprep(cellcounts, amplifyrate = c(platform$amplifyrate_min, platform$amplifyrate_max), lysisrate=platform$lysisrate, capturerate=platform$capturerate, amplify=platform$amplify, cellcapturerate=platform$cellcapturerate, verbose=F, verbose_plot_cell= "C1", verbose_follow_gene=c("G3","G10", "G50"))
+simulate_scrnaseq = function(counts, platform) {
+  libprep(counts, amplifyrate = c(platform$amplifyrate_min, platform$amplifyrate_max), lysisrate=platform$lysisrate, capturerate=platform$capturerate, amplify=platform$amplify, cellcapturerate=platform$cellcapturerate, verbose=F, verbose_plot_cell= "C1", verbose_follow_gene=c("G3","G10", "G50"))
 }

@@ -15,5 +15,6 @@ README.html
 results/*
 packrat/lib*/
 packrat/src/
+^data/*
 
 raw_data

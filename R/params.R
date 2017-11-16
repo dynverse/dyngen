@@ -56,10 +56,11 @@ base_params = list(
   ),
   experiment = list(
     # experiment setting
-    samplesettings = sample_snapshot,
-    add_housekeeping = FALSE,
-    n_housekeeping_genes = 500,
-    housekeeping_reference_means = readRDS(paste0(find.package("dyngen"), "/ext_data/housekeeping_reference_means.rds"))[[1]]
+    sampler = sample_snapshot,
+    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/cell_cycle_leng.rds"))
+    # add_housekeeping = FALSE,
+    # n_housekeeping_genes = 500,
+    # housekeeping_reference_means = readRDS(paste0(find.package("dyngen"), "/ext_data/housekeeping_reference_means.rds"))[[1]]
   ),
   gs = list(
     max_path_length = 20,

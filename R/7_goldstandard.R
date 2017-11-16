@@ -1,4 +1,53 @@
-library(igraph)
+# Gold standard =============================================================
+extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose=TRUE, preprocess=TRUE) {
+  if(preprocess) {
+    if (verbose) print("Preprocessing")
+    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window=smooth_window)
+  }
+  
+  expression <- simulation$expression_modules
+  stepinfo <- simulation$stepinfo
+  
+  start_milestones <- unique(model$edge_operations %>% filter(start) %>% pull(from))
+  milestone_network <- model$edge_operations %>% mutate(edge_id = seq_len(n())) %>% select(from, to, edge_id, burn)
+  
+  if (verbose) print("Extracting milestone paths")
+  paths <- get_milestone_paths(milestone_network, start_milestones, max_path_length)
+  
+  if (verbose) print("Processing operations")
+  operations <- process_operations(model$edge_operations, model$modulenodes$module_id)
+  
+  path_operations <- extract_path_operations(operations, paths)
+  
+  if (verbose) print("Extracting references")
+  references <- extract_references(path_operations, milestone_network, reference_length=reference_length)
+  
+  if (verbose) print("Mapping simulations onto reference")
+  simulation_expressions <- expression %>% as.data.frame() %>% split(stepinfo$simulation_id)
+  times <- map_to_reference(simulation_expressions, references)
+  
+  if (verbose) print("Postprocessing")
+  gs <- list()
+  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network, by=c("edge_id"))
+  gs$milestone_network <- milestone_network
+  gs$references <- references
+  gs$expression_modules <- simulation$expression_modules
+  
+  gs
+  
+  # when things go wrong:
+  # pheatmap::pheatmap(references[[8]]$reference_expression, cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
+  # pheatmap::pheatmap(simulation_expressions[[1]], cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
+  # 
+}
+
+check_goldstandard <- function(gs) {
+  gs$progressions$edge_id <- factor(gs$progressions$edge_id, levels=gs$milestone_network$edge_id)
+  edge_counts <- table(gs$progressions$edge_id)
+  if (any(edge_counts == 0)) {warning("Some edges not represented!")}
+  
+  lst(edge_counts)
+}
 
 smooth_expression <- function(expression, smooth_window=50) {
   # expression %>% 
