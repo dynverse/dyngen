@@ -125,6 +125,7 @@ extract_path_operations <- function(operations, paths) {
 }
 
 # extract reference expression for every edge
+#' @importFrom stats approx
 extract_references <- function(path_operations, milestone_network, reference_length = 100) {
   references <- map(path_operations, function(operations) {
     # put every consecutive operation id in a separate run
@@ -156,7 +157,7 @@ extract_references <- function(path_operations, milestone_network, reference_len
     }
     
     reference_expression <- reference_expression %>% apply(2, function(x) {
-      reference_expression <- approx(1:length(x), x, seq(1, length(x), length.out=reference_length * length(x)))$y
+      reference_expression <- stats::approx(1:length(x), x, seq(1, length(x), length.out=reference_length * length(x)))$y
     })
     
     operations_start <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0, operation_run=0), operations)

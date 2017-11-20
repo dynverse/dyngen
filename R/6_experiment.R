@@ -4,6 +4,7 @@
 #' @param gs The gold standard
 #' @param sampler Function telling how the cells should be sampled
 #' @param platform Platform
+#' @importFrom stats rbinom rpois
 run_experiment <- function(
   simulation, 
   gs,
@@ -50,7 +51,7 @@ run_experiment <- function(
   rownames(expression) <- geneinfo$gene_id
   
   # see splatter:::splatSimTrueCounts
-  true_counts <- matrix(rpois(n_genes * n_cells, lambda = expression), nrow = n_genes, ncol = n_cells)
+  true_counts <- matrix(stats::rpois(n_genes * n_cells, lambda = expression), nrow = n_genes, ncol = n_cells)
   dimnames(true_counts) <- dimnames(expression)
   
   # finally, if present, dropouts will be simulated
@@ -61,7 +62,7 @@ run_experiment <- function(
       eta <- log(expression[, idx])
       return(logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
     })
-    keep <- matrix(rbinom(n_cells * n_genes, 1, 1 - drop.prob), 
+    keep <- matrix(stats::rbinom(n_cells * n_genes, 1, 1 - drop.prob), 
                    nrow = n_genes, ncol = n_cells)
     
     counts <- true_counts

@@ -3,6 +3,7 @@
 #' @param model The model
 #' 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
+#' @importFrom grDevices rainbow
 #' @export
 plot_modulenet <- function(model) {
   graph <- igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
@@ -30,6 +31,7 @@ plot_modulenet <- function(model) {
 #' @param colorby By what to color
 #' @param main_only Whether to only draw the main network
 #' @param label Whether to label genes
+#' @importFrom grDevices rainbow rgb
 #' @export
 plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=FALSE) {
   colorby <- match.arg(colorby)
@@ -65,7 +67,7 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
     colors <- rainbow(length(modulenames)) %>% set_names(modulenames)
     igraph::V(graph)$color <- colors[geneinfo$module_id]
   }
-  igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", rgb(0, 0, 0, alpha=0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
+  igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", grDevices::rgb(0, 0, 0, alpha=0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
   
   igraph::plot.igraph(
     graph,
