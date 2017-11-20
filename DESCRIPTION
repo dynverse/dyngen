@@ -49,8 +49,8 @@ Suggests:
   rgl,
   splatter
 Remotes:
-  dynverse/fastgssa,
-  rcannood/dynutils,
-  rcannood/PRISM,
   dgrtwo/gganimate,
-  dynverse/splatter
+  dynverse/fastgssa,
+  dynverse/splatter,
+  rcannood/dynutils,
+  rcannood/PRISM
