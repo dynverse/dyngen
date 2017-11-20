@@ -38,6 +38,12 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   if(main_only) geneinfo <- geneinfo %>% filter(main)
   net <- model$net %>% filter((from %in% geneinfo$gene_id) & (to %in% geneinfo$gene_id))
   
+  net <- bind_rows(
+    net, 
+    geneinfo %>% split(geneinfo$module_id) %>% map(~as.data.frame(t(combn(.$gene_id, 2)))) %>% bind_rows() %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
+  )
+  
+  
   graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices=geneinfo$gene_id)
   
   # layout
@@ -59,7 +65,7 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
     colors <- rainbow(length(modulenames)) %>% set_names(modulenames)
     igraph::V(graph)$color <- colors[geneinfo$module_id]
   }
-  igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637")[as.numeric(factor(net$effect, levels = c(1,-1, 0)))]
+  igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", rgb(0, 0, 0, alpha=0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
   
   igraph::plot.igraph(
     graph,

@@ -30,11 +30,6 @@ Stress test your methods against:
 * Noise
 * Contamination
 
-## Notes
-
-* :white_check_mark: Do we need to handle transcriptional burts? (eg. see last paragraph of online methods in http://www.nature.com/nmeth/journal/v11/n6/full/nmeth.2930.html). This would dramatically increase the stochasticity of gene expression.
-* :white_check_mark: Do we need to model individual binding events? I think we should, but this would greatly increase the number of reactions... (and not sure whether it will really have a big effect)
-
 ## Interesting studies
 
 * http://genome.cshlp.org/content/24/3/496.full Simulations of sources of noise in sc RNA-seq data
