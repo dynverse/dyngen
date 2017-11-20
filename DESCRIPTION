@@ -52,4 +52,5 @@ Remotes:
   dynverse/fastgssa,
   rcannood/dynutils,
   rcannood/PRISM,
-  dgrtwo/gganimate
+  dgrtwo/gganimate,
+  bioc::splatter
