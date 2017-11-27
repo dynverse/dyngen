@@ -66,6 +66,9 @@ base_params = list(
     max_path_length = 20,
     reference_length = 50,
     smooth_window = 50
+  ),
+  normalization = list(
+    nmads = 3
   )
 )# %>% list2env(.GlobalEnv)
 
