@@ -14,7 +14,8 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   
   # create sample info
   cell_info <- experiment$cellinfo %>%
-    slice(match(cell_ids, cell_id))
+    slice(match(cell_ids, cell_id)) %>% 
+    left_join(simulation$stepinfo, by="step_id")
   
   # get milestone network
   milestone_network <- gs$milestone_network %>% 
@@ -43,7 +44,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   feature_info <- experiment$geneinfo %>% slice(match(colnames(counts), gene_id)) %>% rename(feature_id = gene_id)
   
   # add prior information
-  prior_information <- dynutils::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage, counts, feature_info)
+  prior_information <- dynutils::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage, counts, feature_info, cell_info)
   
   # create task
   task <- dynutils::wrap_ti_task_data(
@@ -57,7 +58,8 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
     expression = expression,
     cell_info = cell_info,
     feature_info = feature_info,
-    info = params$updates
+    info = params$updates,
+    prior_information = prior_information
   )
   
   task$geodesic_dist <- dynutils::compute_emlike_dist(task)
