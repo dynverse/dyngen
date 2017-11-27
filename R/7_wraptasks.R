@@ -1,4 +1,4 @@
-# Wrap tasks
+#' Wrap tasks
 #' @param params Parameters of the dataset
 #' @param model Model
 #' @param simulation Simulation
@@ -39,11 +39,11 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   # milestone percentages
   milestone_percentage <- dynutils::convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
   
-  # add prior information
-  prior_information <- dynutils::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage)
-  
   # feature info
   feature_info <- experiment$geneinfo %>% slice(match(colnames(counts), gene_id)) %>% rename(feature_id = gene_id)
+  
+  # add prior information
+  prior_information <- dynutils::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage, counts, feature_info)
   
   # create task
   task <- dynutils::wrap_ti_task_data(
