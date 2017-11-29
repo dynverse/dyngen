@@ -11,6 +11,6 @@ addons:
       - libsdl1.2-dev
       - libreadline-dev
 install:
-  - R -e 'install.packages("devtools")'
-  - R -e 'devtools::install_github("dynverse/devtools", ref = "1.13.0")'
-  - R -e 'devtools::install(dependencies = TRUE, upgrade_dependencies = TRUE)'
+ - R -e 'install.packages("remotes")'
+ - R -e 'remotes::install_deps(dependencies = T, upgrade = T)'
+ - R -e 'remotes::install_local(".")'
