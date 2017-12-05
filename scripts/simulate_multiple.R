@@ -17,9 +17,10 @@ updates_model <- tribble(
 )
 updates_platform <- tribble(
   ~platform_name,
-  "cell_cycle_leng",
-  "psc_astrocyte_maturation_glia_sloan"
+  "psc-astrocyte-maturation-neuron_sloan",
+  "hematopoiesis-clusters_olsson"
 )
+
 updates_replicates <- tibble(replicate_id = 1)
 updates <- tidyr::crossing(updates_model, updates_platform, updates_replicates)
 updates <- updates %>% 
@@ -49,8 +50,8 @@ params <- paramsets[[1]]
 params$experiment %>% list2env(.GlobalEnv)
 
 # creating folder structure locally and remote
-folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/datasets/synthetic/v5/"
-remote_folder <- "/group/irc/personal/wouters/projects/dynverse/dynalysis/analysis/data/datasets/synthetic/v5/"
+folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v5/"
+remote_folder <- "/group/irc/personal/wouters/projects/dynverse/dynalysis/analysis/derived_data/datasets/datasets/synthetic/v5/"
 # unlink(folder);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
 # qsub_run(function(i) {unlink(remote_folder, recursive=TRUE);dir.create(remote_folder, recursive=TRUE, showWarnings = FALSE)}, qsub_environment=list2env(lst(remote_folder)))
 
@@ -118,6 +119,8 @@ PRISM:::rsync_remote("prism", remote_folder, "", folder)
 walk(seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
+  params$experiment %>% list2env(.GlobalEnv)
+  
   simulation <- readRDS(simulation_location(folder, params_i))
   gs <- readRDS(gs_location(folder, params_i))
   options(ncores = ncores)
@@ -135,7 +138,7 @@ walk(seq_along(paramsets), function(params_i) {
   experiment <- readRDS(experiment_location(folder, params_i))
   options(ncores = ncores)
   
-  normalization <- invoke(dynutils::normalise_filter_counts, params$normalization, experiment$counts)
+  normalization <- invoke(dynutils::normalise_filter_counts, params$normalization, experiment$counts, verbose = TRUE)
   saveRDS(normalization, normalization_location(folder, params_i))
   TRUE
 })
@@ -194,7 +197,6 @@ walk(seq_along(paramsets), function(params_i) {
 })
 
 
-
 # Wrap into tasks ----------------------------
 tasks <- map(seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
@@ -210,4 +212,5 @@ tasks <- map(seq_along(paramsets), function(params_i) {
 
 tasks <- dynutils::list_as_tibble(tasks)
 
-write_rds(tasks, "../dynalysis/analysis/data/datasets/synthetic/v5.rds")
+write_rds(tasks, "../dynalysis/analysis/data/derived_data/datasets/synthetic/v5.rds")
+tasks <- read_rds("../dynalysis/analysis/data/derived_data/datasets/synthetic/v5.rds")

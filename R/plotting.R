@@ -274,7 +274,15 @@ plot_experiment <- function(experiment) {
   plots <- map(c("expression_simulated", "expression", "true_counts", "counts"), function(expression_name) {
     expr <- experiment[[expression_name]]
     source("../dynmodular/dimred_wrappers.R")
-    space <- dimred_ica(expr)
+    
+    if(ncol(expr) > 500) {
+      expr <- expr[, sample(colnames(expr), 500)]
+    }    
+    if(nrow(expr) > 500) {
+      expr <- expr[sample(rownames(expr), 500), ]
+    }
+    
+    space <- dimred_ica(expr, ndim=2)
     space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()
@@ -284,7 +292,15 @@ plot_normalization <- function(experiment, normalization) {
   source("../dynmodular/dimred_wrappers.R")
   plots <- map(c("experiment$expression_simulated", "experiment$expression", "experiment$true_counts", "experiment$counts", "normalization$count", "normalization$expression"), function(expression_name) {
     expr <- eval(parse(text=expression_name))
-    space <- dimred_ica(expr)
+    
+    if(ncol(expr) > 500) {
+      expr <- expr[, sample(colnames(expr), 500)]
+    }    
+    if(nrow(expr) > 500) {
+      expr <- expr[sample(rownames(expr), 500), ]
+    }
+    
+    space <- dimred_ica(expr, ndim=2)
     space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()
