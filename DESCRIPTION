@@ -47,7 +47,8 @@ Imports:
   zoo
 Suggests:
   rgl,
-  splatter
+  splatter,
+  SingleCellExperiment
 Remotes:
   dgrtwo/gganimate,
   dynverse/fastgssa,
