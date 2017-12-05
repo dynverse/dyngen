@@ -4,6 +4,8 @@ dist: trusty
 bioc_required: true
 warnings_are_errors: true
 cache: packages
+env:
+  - R_MAX_NUM_DLLS=250
 addons:
   apt:
     packages:
@@ -11,5 +13,6 @@ addons:
       - libsdl1.2-dev
       - libreadline-dev
 install:
- - R -e 'install.packages("devtools")'
- - R -e 'devtools::install(dependencies = TRUE, upgrade_dependencies = TRUE)'
+ - R -e 'install.packages("remotes")'
+ - R -e 'remotes::install_deps(dependencies = T, upgrade = T)'
+ - R -e 'remotes::install_local(".")'
