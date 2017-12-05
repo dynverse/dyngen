@@ -42,9 +42,12 @@ run_experiment <- function(
   # then use the libsizes from splatter to estimate the "true" expression from each cell, which will then be used to estimate the tre counts
   
   # see splatter:::splatSimSingleCellMeans
-  exp.lib.sizes <- Biobase::pData(housekeeping_simulation)$ExpLibSize
-  cell.means.gene <- rep(Biobase::fData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol=n_cells)
-  cell.means.gene <- rbind(cell.means.gene, t(expression_simulated / mean(expression_simulated) * mean(cell.means.gene)))
+  exp.lib.sizes <- SingleCellExperiment::colData(housekeeping_simulation)$ExpLibSize
+  cell.means.gene <- rep(SingleCellExperiment::rowData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol=n_cells)
+  cell.means.gene <- rbind(
+    cell.means.gene, 
+    t(expression_simulated / mean(expression_simulated) * mean(cell.means.gene))
+  )
   cell.props.gene <- t(t(cell.means.gene)/colSums(cell.means.gene))
   expression <- t(t(cell.props.gene) * exp.lib.sizes)
   geneinfo <- tibble(gene_id = ifelse(rownames(expression) == "", paste0("H", seq_len(nrow(expression))), rownames(expression)), housekeeping = rownames(expression) == "")
@@ -54,10 +57,12 @@ run_experiment <- function(
   true_counts <- matrix(stats::rpois(n_genes * n_cells, lambda = expression), nrow = n_genes, ncol = n_cells)
   dimnames(true_counts) <- dimnames(expression)
   
+  true_counts %>% {log2(. + 1)} %>% apply(1, sd) %>% sort() %>% rev() %>% head(100) %>% names()
+  
   # finally, if present, dropouts will be simulated
   # see splatter:::splatSimDropout
   logistic <- function (x, x0, k) {1/(1 + exp(-k * (x - x0)))}
-  if (estimate@dropout.present | TRUE) {
+  if (estimate@dropout.present) {
     drop.prob <- sapply(seq_len(n_cells), function(idx) {
       eta <- log(expression[, idx])
       return(logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
@@ -81,7 +86,6 @@ run_experiment <- function(
     geneinfo
   )
 }
-
 
 
 
