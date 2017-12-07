@@ -14,6 +14,8 @@ generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
 \arguments{
 \item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
 
+\item{platform}{The platform}
+
 \item{treeseed}{A seed to set}
 
 \item{decay}{The decay rate}
@@ -33,6 +35,8 @@ generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
 \item{damping}{A daping factor for personalized pagerank}
 
 \item{samplers}{The samplers for the kinetics parameters}
+
+\item{verbose}{Whether or not to produce textual output}
 }
 \description{
 Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`

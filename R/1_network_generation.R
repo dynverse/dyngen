@@ -3,6 +3,7 @@
 #' Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
 #' 
 #' @param target_adder_name The method for adding targets. Only "realnet" is currently supported.
+#' @param platform The platform
 #' @inheritParams load_modulenet
 #' @inheritParams generate_system
 #' @inheritParams add_targets_realnet
@@ -11,6 +12,7 @@
 #' @param ngenes_per_module_generator Generator for number of genes per module
 #' @param ntargets_sampler_generator Generator for number of targets
 #' @param main_targets_ratio Ratio of targets versus main tfs
+#' @param verbose Whether or not to produce textual output
 #' 
 #' @export
 generate_model_from_modulenet <- function(
