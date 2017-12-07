@@ -45,7 +45,7 @@ paramsets <- map(seq_len(nrow(updates)), function(row_id) {
 
 # remote preparation
 ncores <- 3
-qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("4G"), wait=FALSE, r_module=NULL, execute_before="", name = "^_____^")
+qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("12G"), wait=FALSE, r_module=NULL, execute_before="", name = "^_____^", stop_on_error = F)
 qsub_config_single <- override_qsub_config(qsub_config, num_cores = 1)
 qsub_packages <- c("tidyverse", "dyngen")
 
@@ -107,6 +107,7 @@ qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environment, qsub_p
 }) %>% saveRDS("simulations_handle.rds")
 simulations <- qsub_retrieve(readRDS("simulations_handle.rds"))
 PRISM:::rsync_remote("prism", remote_folder, "", folder)
+
 
 # GOLD STANDARD ----------------------
 # walk(seq_along(paramsets), function(params_i) {
