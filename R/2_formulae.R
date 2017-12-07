@@ -25,7 +25,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
       
       a0 <- pritt("a0_{target_id}")
       
-      regulator_ids <- net %>% filter(net$to == target_id) %>% pull(from)
+      regulator_ids <- net %>% filter(to == target_id) %>% pull(from)
       
       # regulator binding sites
       if (length(regulator_ids) > 0) {

@@ -4,16 +4,26 @@ base_params = list(
     modulenet_name = "linear",
     # treeseed = 1,
     
+    # reference
+    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/cell-cycle_leng.rds")),
+    
     # network between tfs
-    ngenes_per_module= function(n) sample(1:4, n, replace=TRUE), 
-    edge_retainment = function(n) max(c(round(n/10), 1)),
+    ngenes_per_module_generator = function(ngenes_per_module_mean) {
+      function(n) {
+        sample(1:(ngenes_per_module_mean * 2), n, replace=TRUE)
+      }
+    },
+    edge_retainment = function(n) sample(seq(1, 5), 1),
+    main_vs_targets = 0.05,
     # edge_retainment = function(n) 1,
     
     # extra targets
     target_adder_name = "realnet",
     realnet_name = "regulatorycircuits",
     damping = 0.05,
-    ntargets_sampler = function() {sample(2:5, 1)},
+    ntargets_sampler_generator = function(ntargets_mean) {
+      function() {sample(1:(ntargets_mean*2), 1)}
+    },
     
     #system
     samplers = list(
@@ -56,8 +66,7 @@ base_params = list(
   ),
   experiment = list(
     # experiment setting
-    sampler = sample_snapshot,
-    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/cell-cycle_leng.rds"))
+    sampler = sample_snapshot
     # add_housekeeping = FALSE,
     # n_housekeeping_genes = 500,
     # housekeeping_reference_means = readRDS(paste0(find.package("dyngen"), "/ext_data/housekeeping_reference_means.rds"))[[1]]

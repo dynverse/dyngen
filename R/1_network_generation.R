@@ -14,14 +14,18 @@ generate_model_from_modulenet <- function(
   # module net --
   modulenet_name, 
   
+  # reference
+  platform,
+  
   # params for modulenet_name == "tree"
   treeseed,
   decay,
   
   # module net to net --
-  ngenes_per_module,
+  ngenes_per_module_generator,
   edge_retainment,
   ntargets_sampler,
+  main_vs_targets,
   
   # add targets --
   target_adder_name, 
@@ -42,6 +46,14 @@ generate_model_from_modulenet <- function(
   }
   
   # convert module network to gene network between modules
+  
+  # number of genes in main based on number of genes in platform
+  n_genes_total <- round(platform$n_genes * platform$pct_changing)
+  ngenes_in_main <- round(n_genes_total * main_vs_targets)
+  ngenes_in_targets <- n_genes_total - ngenes_in_main
+  ngenes_per_module_mean <- round(max(ngenes_in_main/nrow(model$modulenodes), 1))
+  ngenes_per_module <- ngenes_per_module_generator(ngenes_per_module_mean)
+  
   model <- modulenet_to_genenet(
     model$modulenet, 
     model$modulenodes, 
@@ -50,6 +62,8 @@ generate_model_from_modulenet <- function(
   ) %>% c(model)
   
   # add some targets
+  ntargets_mean <- max(round(ngenes_in_targets / nrow(model$geneinfo)), 1)
+  ntargets_sampler <- ntargets_sampler_generator(ntargets_mean)
   if (target_adder_name == "realnet") {
     model <- add_targets_realnet(
       model$net, model$geneinfo, 
@@ -58,7 +72,7 @@ generate_model_from_modulenet <- function(
       ntargets_sampler = ntargets_sampler
     ) %>% dynutils::merge_lists(model, .)
   } else {
-    print("not supported")
+    warning("Target sampler not supported")
   }
   
   # randomize parameters 
@@ -168,6 +182,7 @@ add_targets_realnet <- function(
 ) {
   # get the real network
   realnet <- read_csv(glue::glue(find.package("dyngen"), "/ext_data/realnetworks/{realnet_name}.csv"), col_types=cols(from=col_character(), to=col_character()))
+  realnet <- bind_rows(realnet, realnet %>% mutate(from=paste0("2_", from), to=paste0("2_", to)))
   allgenes <- unique(c(realnet$from, realnet$to))
   realgene2gene <- set_names(gene_name_generator(seq_along(allgenes)), allgenes)
   realnet$from <- realgene2gene[realnet$from]
@@ -214,6 +229,10 @@ add_targets_realnet <- function(
   # combine
   geneinfo = bind_rows(geneinfo, added_geneinfo) %>% group_by(gene_id) %>% filter(row_number() == 1) %>% ungroup()
   net = bind_rows(net, added_net) %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
+  
+  # prune connections, avoid too many regulations
+  net <- net %>% group_by(to) %>% filter(row_number() < 6)
+  geneinfo <- geneinfo %>% filter(gene_id %in% c(net$from, net$to))
   
   lst(
     geneinfo, net

@@ -15,11 +15,7 @@ updates_model <- tribble(
   "converging", 10,
   "bifurcating_loop", 30
 )
-updates_platform <- tribble(
-  ~platform_name,
-  "psc-astrocyte-maturation-neuron_sloan",
-  "hematopoiesis-clusters_olsson"
-)
+updates_platform <- tibble(platform_name = list.files("ext_data/platforms/") %>% gsub("(.*)\\.rds", "\\1", .)) %>% sample_n(10)
 
 updates_replicates <- tibble(replicate_id = 1)
 updates <- tidyr::crossing(updates_model, updates_platform, updates_replicates)
@@ -41,6 +37,7 @@ update_params <- function(base_params=dyngen:::base_params, ...) {
 }
 
 paramsets <- map(seq_len(nrow(updates)), function(row_id) {
+  print(row_id)
   row <- dynutils::extract_row_to_list(updates, row_id)
   invoke(update_params, row)
 })
@@ -50,8 +47,8 @@ params <- paramsets[[1]]
 params$experiment %>% list2env(.GlobalEnv)
 
 # creating folder structure locally and remote
-folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v5/"
-remote_folder <- "/group/irc/personal/wouters/projects/dynverse/dynalysis/analysis/derived_data/datasets/datasets/synthetic/v5/"
+folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
+remote_folder <- "/group/irc/personal/wouters/projects/dynverse/dynalysis/analysis/derived_data/datasets/datasets/synthetic/v6/"
 # unlink(folder);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
 # qsub_run(function(i) {unlink(remote_folder, recursive=TRUE);dir.create(remote_folder, recursive=TRUE, showWarnings = FALSE)}, qsub_environment=list2env(lst(remote_folder)))
 
@@ -71,6 +68,8 @@ normalization_plot_location <- function(folder, params_i) glue::glue("{folder}/{
 ncores <- 3
 qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("4G"), wait=FALSE)
 qsub_environment <- list2env(lst(paramsets, ncores, folder=remote_folder, model_location, simulation_location, gs_location, experiment_location))
+
+params_i <- 1
 
 #####################################
 ## Generate MODELS ------------------------
