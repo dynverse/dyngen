@@ -245,7 +245,7 @@ add_targets_realnet <- function(
   net = bind_rows(net, added_net) %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
   
   # prune connections, avoid too many regulations
-  net <- net %>% group_by(to) %>% filter(row_number() < 6)
+  net <- net %>% group_by(to) %>% filter(row_number() < 6) %>% ungroup()
   geneinfo <- geneinfo %>% filter(gene_id %in% c(net$from, net$to))
   
   lst(

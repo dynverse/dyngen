@@ -98,7 +98,9 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
         molecule = y
       )
     }
-  }) %>% unlist(recursive=FALSE)
+    
+    formulae
+  }) %>% unlist(recursive=F)
   
   # global transcription rates
   # for (i in 1:nrow(cells)) {
