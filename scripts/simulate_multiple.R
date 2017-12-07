@@ -15,7 +15,7 @@ updates_model <- tribble(
   "converging", 10,
   "bifurcating_loop", 30
 )
-updates_platform <- tibble(platform_name = list.files("ext_data/platforms/") %>% gsub("(.*)\\.rds", "\\1", .)) %>% sample_n(10)
+updates_platform <- tibble(platform_name = list.files("ext_data/platforms/") %>% gsub("(.*)\\.rds", "\\1", .)) %>% sample_n(10) %>% bind_rows(tibble(platform_name = "small"), .)
 
 updates_replicates <- tibble(replicate_id = 1)
 updates <- tidyr::crossing(updates_model, updates_platform, updates_replicates)
@@ -29,7 +29,7 @@ update_params <- function(base_params=dyngen:::base_params, ...) {
   
   if("modulenet_name" %in% names(dots)) base_params$model$modulenet_name <- dots$modulenet_name
   if("totaltime" %in% names(dots)) base_params$simulation$totaltime <- dots$totaltime
-  if("platform_name" %in% names(dots)) base_params$experiment$platform <- readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/", dots$platform_name, ".rds"))
+  if("platform_name" %in% names(dots)) base_params$model$platform <- readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/", dots$platform_name, ".rds"))
   
   base_params$updates <- dots
   
@@ -43,16 +43,20 @@ paramsets <- map(seq_len(nrow(updates)), function(row_id) {
 })
 # mutate <<- dplyr::mutate;filter <<- dplyr::filter
 
-params <- paramsets[[1]]
-params$experiment %>% list2env(.GlobalEnv)
+# remote preparation
+ncores <- 3
+qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("4G"), wait=FALSE, r_module=NULL, execute_before="")
+qsub_config_single <- override_qsub_config(qsub_config, num_cores = 1)
+qsub_packages <- c("tidyverse", "dyngen")
 
 # creating folder structure locally and remote
 folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
-remote_folder <- "/group/irc/personal/wouters/projects/dynverse/dynalysis/analysis/derived_data/datasets/datasets/synthetic/v6/"
+remote_folder <- "/group/irc/shared/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
 # unlink(folder);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
-# qsub_run(function(i) {unlink(remote_folder, recursive=TRUE);dir.create(remote_folder, recursive=TRUE, showWarnings = FALSE)}, qsub_environment=list2env(lst(remote_folder)))
+# qsub_run(function(i) {unlink(remote_folder, recursive=TRUE);dir.create(remote_folder, recursive=TRUE, showWarnings = FALSE)}, qsub_environment=list2env(lst(remote_folder)), qsub_config = qsub_config) %>% qsub_retrieve()
 
 saveRDS(paramsets, paste0(folder, "paramsets.rds"))
+# PRISM:::rsync_remote("", folder, "prism", remote_folder)
 
 # functions for get the folder for saving
 model_location <- function(folder, params_i) glue::glue("{folder}/{params_i}_model.rds")
@@ -64,16 +68,15 @@ experiment_plot_location <- function(folder, params_i) glue::glue("{folder}/{par
 normalization_location <- function(folder, params_i) glue::glue("{folder}/{params_i}_normalization.rds")
 normalization_plot_location <- function(folder, params_i) glue::glue("{folder}/{params_i}_normalization_plot.pdf")
 
-# remote preparation
-ncores <- 3
-qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("4G"), wait=FALSE)
+# create remote environment
 qsub_environment <- list2env(lst(paramsets, ncores, folder=remote_folder, model_location, simulation_location, gs_location, experiment_location))
 
 params_i <- 1
 
 #####################################
 ## Generate MODELS ------------------------
-models <- pbapply::pblapply(cl = 8, seq_along(paramsets), function(params_i) {
+handle <- qsub_lapply(qsub_config=qsub_config_single, qsub_environment=qsub_environment, qsub_packages=qsub_packages, seq_along(paramsets), function(params_i) {
+# models <- pbapply::pblapply(cl = 8, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
   options(ncores = ncores)
@@ -81,6 +84,7 @@ models <- pbapply::pblapply(cl = 8, seq_along(paramsets), function(params_i) {
   model <- invoke(dyngen:::generate_model_from_modulenet, params$model)
   saveRDS(model, model_location(folder, params_i))
 })
+models <- qsub_retrieve(handle)
 PRISM:::rsync_remote("", folder, "prism", remote_folder)
 
 ## SIMULATE CELLS ---------------------------

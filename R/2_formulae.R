@@ -3,7 +3,9 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
   formulae <- list()
   
   # generate the formulae for every target gene
-  for (target_id in geneinfo$gene_id) {
+  formulae <- pbapply::pblapply(cl=getOption("ncores"), geneinfo$gene_id, function(target_id) {
+    formulae <- list()
+    
     info <- dynutils::extract_row_to_list(geneinfo, which(geneinfo$gene_id == target_id))
     cell_id <- info$cell_id
     
@@ -96,7 +98,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
         molecule = y
       )
     }
-  }
+  }) %>% unlist(recursive=FALSE)
   
   # global transcription rates
   # for (i in 1:nrow(cells)) {

@@ -2,6 +2,21 @@ library(splatter)
 library(Seurat)
 library(tidyverse)
 
+splatEstDropout <- function(norm.counts, params) {
+  means <- rowMeans(norm.counts)
+  x <- log(means)
+  obs.zeros <- rowSums(norm.counts == 0)
+  y <- obs.zeros / ncol(norm.counts)
+  df <- data.frame(x, y)
+  fit <- nls(y ~ splatter:::logistic(x, x0 = x0, k = k), data = df,
+             start = list(x0 = 4, k = -1))
+  mid <- summary(fit)$coefficients["x0", "Estimate"]
+  shape <- summary(fit)$coefficients["k", "Estimate"]
+  params <- splatter::setParams(params, dropout.mid = mid, dropout.shape = shape)
+  return(params)
+}
+assignInNamespace("splatEstDropout", splatEstDropout, pos="package:splatter")
+
 mutate <- dplyr::mutate
 filter <- dplyr::filter
 slice <- dplyr::slice
@@ -45,3 +60,10 @@ walk(list.files("../dynalysis/analysis/data/derived_data/datasets/real/"), funct
   
   saveRDS(platform, glue::glue("inst/ext_data/platforms/{dataset_id}.rds"))
 })
+
+
+
+platform <- readRDS("inst/ext_data/platforms/developing-dendritic-cells_schlitzer.rds")
+platform$n_genes <- 100
+platform$n_cells <- 100
+saveRDS(platform, "inst/ext_data/platforms/small.rds")

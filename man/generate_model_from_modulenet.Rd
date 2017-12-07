@@ -4,11 +4,12 @@
 \alias{generate_model_from_modulenet}
 \title{Model generation from modulenet}
 \usage{
-generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
-  ngenes_per_module = function(n) sample(1:10, n, replace = TRUE),
-  edge_retainment = function(n) max(c(round(n/2), 1)),
-  ntargets_sampler = function() {     sample(20:100, 1) }, target_adder_name,
-  realnet_name = "regulatorycircuits", damping = 0.05, samplers)
+generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
+  decay = 1.4, ngenes_per_module_generator, edge_retainment = function(n)
+  max(c(round(n/2), 1)), ntargets_sampler_generator,
+  main_targets_ratio = 0.05, target_adder_name,
+  realnet_name = "regulatorycircuits", damping = 0.05, samplers,
+  verbose = TRUE)
 }
 \arguments{
 \item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
@@ -17,11 +18,13 @@ generate_model_from_modulenet(modulenet_name, treeseed = NULL, decay = 1.4,
 
 \item{decay}{The decay rate}
 
-\item{ngenes_per_module}{Functions for sampling the number of genes per module}
+\item{ngenes_per_module_generator}{Generator for number of genes per module}
 
 \item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
 
-\item{ntargets_sampler}{A sample function for the number of targets}
+\item{ntargets_sampler_generator}{Generator for number of targets}
+
+\item{main_targets_ratio}{Ratio of targets versus main tfs}
 
 \item{target_adder_name}{The method for adding targets. Only "realnet" is currently supported.}
 
