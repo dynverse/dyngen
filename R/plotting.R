@@ -42,7 +42,7 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   
   net <- bind_rows(
     net, 
-    geneinfo %>% split(geneinfo$module_id) %>% map(~as.data.frame(t(combn(.$gene_id, 2)))) %>% bind_rows() %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
+    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)))) %>% bind_rows() %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
   )
   
   
@@ -263,7 +263,7 @@ plot_goldstandard <- function(simulation, model, gs) {
   samplexpression %>% 
     reshape2::melt(varnames=c("step_id", "module"), value.name="expression") %>% 
     left_join(sampleprogressions, by="step_id") %>% 
-    {ggplot() + 
+    {ggplot(.) + 
     geom_raster(aes(step, factor(module), fill=expression, group=module)) + 
     facet_wrap(~simulation_id) + 
     scale_fill_distiller(palette="RdBu")} %>% 
