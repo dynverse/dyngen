@@ -24,7 +24,7 @@ generate_model_from_modulenet <- function(
   # module net to net --
   ngenes_per_module_generator,
   edge_retainment,
-  ntargets_sampler,
+  ntargets_sampler_generator,
   main_vs_targets,
   
   # add targets --
