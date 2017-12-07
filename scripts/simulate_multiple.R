@@ -30,6 +30,7 @@ update_params <- function(base_params=dyngen:::base_params, ...) {
   if("modulenet_name" %in% names(dots)) base_params$model$modulenet_name <- dots$modulenet_name
   if("totaltime" %in% names(dots)) base_params$simulation$totaltime <- dots$totaltime
   if("platform_name" %in% names(dots)) base_params$model$platform <- readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/", dots$platform_name, ".rds"))
+  if("platform_name" %in% names(dots)) base_params$experiment$platform <- readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/", dots$platform_name, ".rds"))
   
   base_params$updates <- dots
   
@@ -41,7 +42,6 @@ paramsets <- map(seq_len(nrow(updates)), function(row_id) {
   row <- dynutils::extract_row_to_list(updates, row_id)
   invoke(update_params, row)
 })
-paramsets <- paramsets[1]
 
 # remote preparation
 ncores <- 3
@@ -52,7 +52,7 @@ qsub_packages <- c("tidyverse", "dyngen")
 # creating folder structure locally and remote
 folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
 remote_folder <- "/group/irc/shared/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
-unlink(folder);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
+unlink(folder, recursive=TRUE);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
 PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
 PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
 
@@ -106,23 +106,27 @@ qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environment, qsub_p
   TRUE
 }) %>% saveRDS("simulations_handle.rds")
 simulations <- qsub_retrieve(readRDS("simulations_handle.rds"))
-qsub_retrieve()
+PRISM:::rsync_remote("prism", remote_folder, "", folder)
 
 # GOLD STANDARD ----------------------
 # walk(seq_along(paramsets), function(params_i) {
-handle <- qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environment, qsub_packages = c("tidyverse"), seq_along(paramsets), function(params_i) {
+handle <- qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
   model <- readRDS(model_location(folder, params_i))
   simulation <- readRDS(simulation_location(folder, params_i))
   options(ncores = ncores)
   
-  print("Preprocessing")
-  simulation <- dyngen:::preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window) # do preprocessing separate, otherwise zoo will stay in an infinite loop in case of later error
-  gs <- invoke(dyngen:::extract_goldstandard, params$gs, simulation, model, preprocess=FALSE)
-  gs$checks <- dyngen:::check_goldstandard(gs)
-  saveRDS(gs, gs_location(folder, params_i))
-  TRUE
+  if (!file.exists(gs_location(folder, params_i))) {
+    print("Preprocessing")
+    simulation <- dyngen:::preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window) # do preprocessing separate, otherwise zoo will stay in an infinite loop in case of later error
+    gs <- invoke(dyngen:::extract_goldstandard, params$gs, simulation, model, preprocess=FALSE)
+    gs$checks <- dyngen:::check_goldstandard(gs)
+    saveRDS(gs, gs_location(folder, params_i))
+    TRUE
+  } else {
+    FALSE
+  }
 })
 PRISM:::rsync_remote("prism", remote_folder, "", folder)
 
