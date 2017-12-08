@@ -161,7 +161,7 @@ plot_goldstandard <- function(simulation, model, gs) {
   if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
   
   # Dimensionality reduction
-  source("../dynmodular/dimred_wrappers.R")
+  source("scripts/dimred_wrappers.R")
   # samplexpression <- gs$expression_modules[gs$progressions$step_id[(gs$progressions$step)%%10 == 0], ]
   samplexpression <- gs$expression_modules[sample(gs$progressions$step_id, 1000), ]
   colnames(samplexpression) <- paste0("M", colnames(samplexpression))
