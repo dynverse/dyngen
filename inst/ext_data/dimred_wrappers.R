@@ -26,10 +26,10 @@ dimred_mds_isomds = function(x, ndim=3) {
   process_dimred(space)
 }
 
-dimred_lmds = function(x, ndim=3) {
-  mds.out <- dambiutils::mds_withlandmarks(x %>% as.data.frame, SCORPIUS::correlation_distance, k = ndim, landmark.method = "naive", num.landmarks = min(1000, round(nrow(x)*0.1)), num.seed.landmarks = 10, pca.normalisation = FALSE)
-  process_dimred(mds.out$S)
-}
+#dimred_lmds = function(x, ndim=3) {
+#  mds.out <- dambiutils::mds_withlandmarks(x %>% as.data.frame, SCORPIUS::correlation_distance, k = ndim, landmark.method = "naive", num.landmarks = min(1000, round(nrow(x)*0.1)), num.seed.landmarks = 10, pca.normalisation = FALSE)
+#  process_dimred(mds.out$S)
+#}
 
 dimred_mds_smacof = function(x, ndim=3) {
   dist = SCORPIUS::correlation_distance(x)

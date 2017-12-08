@@ -167,7 +167,7 @@ plot_goldstandard <- function(simulation, model, gs) {
   colnames(samplexpression) <- paste0("M", colnames(samplexpression))
   sampleprogressions <- gs$progressions %>% slice(match(rownames(samplexpression), step_id)) %>% arrange(simulation_id, step)
   samplexpression <- samplexpression[sampleprogressions$step_id, ]
-  spaces <- map(c(dimred_pca, dimred_ica, dimred_lmds), ~samplexpression %>% {. + runif(length(.), 0, 0.01)} %>% .(ndim=2) %>% as.data.frame() %>% bind_cols(sampleprogressions) %>% bind_cols(samplexpression %>% as.data.frame()))
+  spaces <- map(c(dimred_pca, dimred_ica, dimred_mds), ~samplexpression %>% {. + runif(length(.), 0, 0.01)} %>% .(ndim=2) %>% as.data.frame() %>% bind_cols(sampleprogressions) %>% bind_cols(samplexpression %>% as.data.frame()))
   
   # Extract milestone grouping
   milestone_ids <- unique(c(gs$milestone_network$from, gs$milestone_network$to))
