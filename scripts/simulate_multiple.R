@@ -50,8 +50,8 @@ qsub_config_single <- override_qsub_config(qsub_config, num_cores = 1)
 qsub_packages <- c("tidyverse", "dyngen")
 
 # creating folder structure locally and remote
+folder <- remote_folder <- "/group/irc/shared/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
 folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
-remote_folder <- "/group/irc/shared/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
 # unlink(folder, recursive=TRUE);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
 # PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
 # PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
