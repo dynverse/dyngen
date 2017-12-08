@@ -52,12 +52,12 @@ qsub_packages <- c("tidyverse", "dyngen")
 # creating folder structure locally and remote
 folder <- remote_folder <- "/group/irc/shared/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
 folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
-# unlink(folder, recursive=TRUE);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
-# PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
-# PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
+unlink(folder, recursive=TRUE);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
+PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
+PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
 
-paramsets <- readRDS(paste0(folder, "paramsets.rds"))
 # saveRDS(paramsets, paste0(folder, "paramsets.rds"))
+paramsets <- readRDS(paste0(folder, "paramsets.rds"))
 PRISM:::rsync_remote("", folder, "prism", remote_folder)
 
 # functions for get the folder for saving

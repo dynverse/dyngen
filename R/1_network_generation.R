@@ -74,8 +74,8 @@ generate_model_from_modulenet <- function(
   ntargets_sampler <- ntargets_sampler_generator(ntargets_mean)
   if (target_adder_name == "realnet") {
     model <- add_targets_realnet(
-      model$net, model$geneinfo, 
-      realnet_name = realnet_name, 
+      model$net, model$geneinfo,
+      realnet_name = realnet_name,
       damping = damping,
       ntargets_sampler = ntargets_sampler
     ) %>% dynutils::merge_lists(model, .)
@@ -245,10 +245,6 @@ add_targets_realnet <- function(
   # combine
   geneinfo = bind_rows(geneinfo, added_geneinfo) %>% group_by(gene_id) %>% filter(row_number() == 1) %>% ungroup()
   net = bind_rows(net, added_net) %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
-  
-  # prune connections, avoid too many regulations
-  net <- net %>% group_by(to) %>% filter(row_number() < 6) %>% ungroup()
-  geneinfo <- geneinfo %>% filter(gene_id %in% c(net$from, net$to))
   
   lst(
     geneinfo, net

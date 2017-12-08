@@ -13,7 +13,7 @@ base_params = list(
         sample(1:(ngenes_per_module_mean * 2), n, replace=TRUE)
       }
     },
-    edge_retainment = function(n) sample(seq(1, min(5, n)), 1),
+    edge_retainment = function(n) sample(seq(1, min(1, n)), 1),
     main_targets_ratio = 0.05,
     # edge_retainment = function(n) 1,
     
