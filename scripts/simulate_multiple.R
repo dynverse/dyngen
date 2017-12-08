@@ -44,20 +44,20 @@ paramsets <- map(seq_len(nrow(updates)), function(row_id) {
 })
 
 # remote preparation
-ncores <- 3
-qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("12G"), wait=FALSE, r_module=NULL, execute_before="", name = "^_____^", stop_on_error = F)
+ncores <- 6
+qsub_config <- override_qsub_config(num_cores = ncores, memory = paste0("5G"), wait=FALSE, r_module=NULL, execute_before="", name = "^_____^", stop_on_error = F, max_wall_time = "24:00:00")
 qsub_config_single <- override_qsub_config(qsub_config, num_cores = 1)
 qsub_packages <- c("tidyverse", "dyngen")
 
 # creating folder structure locally and remote
 folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
 remote_folder <- "/group/irc/shared/dynalysis/analysis/data/derived_data/datasets/synthetic/v6/"
-unlink(folder, recursive=TRUE);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
-PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
-PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
+# unlink(folder, recursive=TRUE);dir.create(folder, recursive=TRUE, showWarnings = FALSE)
+# PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
+# PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
 
-# paramsets <- readRDS(paste0(folder, "paramsets.rds"))
-saveRDS(paramsets, paste0(folder, "paramsets.rds"))
+paramsets <- readRDS(paste0(folder, "paramsets.rds"))
+# saveRDS(paramsets, paste0(folder, "paramsets.rds"))
 PRISM:::rsync_remote("", folder, "prism", remote_folder)
 
 # functions for get the folder for saving
@@ -73,11 +73,11 @@ normalization_plot_location <- function(folder, params_i) glue::glue("{folder}/{
 # create remote environment
 qsub_environment <- list2env(lst(paramsets, ncores, folder=remote_folder, model_location, simulation_location, gs_location, experiment_location))
 
-params_i <- 1
+params_i <- 2
 
 #####################################
 ## Generate MODELS -------------------------
-handle <- qsub_lapply(qsub_config=qsub_config_single, qsub_environment=qsub_environment, qsub_packages=qsub_packages, seq_along(paramsets), function(params_i) {
+handle <- qsub_lapply(qsub_config=qsub_config_single %>% list_modify(name = "model"), qsub_environment=qsub_environment, qsub_packages=qsub_packages, seq_along(paramsets), function(params_i) {
 # models <- pbapply::pblapply(cl = 8, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
@@ -93,7 +93,7 @@ PRISM:::rsync_remote("prism", remote_folder, "", folder)
 
 ## SIMULATE CELLS ---------------------------
 # walk(seq_along(paramsets), function(params_i) {
-qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environment, qsub_packages = c("tidyverse"), seq_along(paramsets), function(params_i) {
+qsub_lapply(qsub_config = qsub_config %>% list_modify(name = "simulate"), qsub_environment=qsub_environment, qsub_packages = c("tidyverse"), seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
   model <- readRDS(model_location(folder, params_i))
@@ -111,12 +111,12 @@ PRISM:::rsync_remote("prism", remote_folder, "", folder)
 
 # GOLD STANDARD ----------------------
 # walk(seq_along(paramsets), function(params_i) {
-handle <- qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
+handle <- qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "gs"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
   model <- readRDS(model_location(folder, params_i))
   simulation <- readRDS(simulation_location(folder, params_i))
-  options(ncores = ncores)
+  options(ncores = 1)
   
   if (!file.exists(gs_location(folder, params_i))) {
     print("Preprocessing")
@@ -128,7 +128,8 @@ handle <- qsub_lapply(qsub_config = qsub_config, qsub_environment=qsub_environme
   } else {
     FALSE
   }
-})
+}) %>% saveRDS("gs_handle.rds")
+gs <- qsub_retrieve(readRDS("gs_handle.rds"))
 PRISM:::rsync_remote("prism", remote_folder, "", folder)
 
 # EXPERIMENT ----------------------------------
@@ -160,9 +161,7 @@ walk(seq_along(paramsets), function(params_i) {
 })
 
 # Plot GOLD STANDARD ----------------------------------------
-options(ncores = 8)
-params_i <- 3
-walk(seq_along(paramsets), function(params_i) {
+qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "plot_gs"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   tryCatch({
     params <- paramsets[[params_i]]
@@ -177,8 +176,8 @@ walk(seq_along(paramsets), function(params_i) {
     dyngen:::plot_goldstandard(simulation, model, gs)
     graphics.off()
   }, error=function(e) {print(params_i)}, finally={graphics.off()})
-})
-
+}) %>% writeRDS("gs_plot_handle.rds")
+gs <- qsub_retrieve(readRDS("gs_plot_handle.rds"))
 
 # Plot EXPERIMENT ----------------------------------------
 params_i <- 3
