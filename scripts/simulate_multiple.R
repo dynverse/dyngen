@@ -93,7 +93,7 @@ PRISM:::rsync_remote("prism", remote_folder, "", folder)
 
 ## SIMULATE CELLS ---------------------------
 # walk(seq_along(paramsets), function(params_i) {
-qsub_lapply(qsub_config = qsub_config %>% list_modify(name = "simulate"), qsub_environment=qsub_environment, qsub_packages = c("tidyverse"), seq_along(paramsets), function(params_i) {
+qsub_lapply(qsub_config = qsub_config %>% list_modify(name = "simulation"), qsub_environment=qsub_environment, qsub_packages = c("tidyverse"), seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   params <- paramsets[[params_i]]
   model <- readRDS(model_location(folder, params_i))
@@ -161,7 +161,7 @@ walk(seq_along(paramsets), function(params_i) {
 })
 
 # Plot GOLD STANDARD ----------------------------------------
-qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "plot_gs"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
+qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "gs_plot"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   tryCatch({
     params <- paramsets[[params_i]]
@@ -176,7 +176,7 @@ qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "plot_gs"), 
     dyngen:::plot_goldstandard(simulation, model, gs)
     graphics.off()
   }, error=function(e) {print(params_i)}, finally={graphics.off()})
-}) %>% writeRDS("gs_plot_handle.rds")
+}) %>% saveRDS("gs_plot_handle.rds")
 gs <- qsub_retrieve(readRDS("gs_plot_handle.rds"))
 
 # Plot EXPERIMENT ----------------------------------------

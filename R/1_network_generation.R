@@ -192,7 +192,7 @@ add_targets_realnet <- function(
 ) {
   # get the real network
   realnet <- read_csv(glue::glue(find.package("dyngen"), "/ext_data/realnetworks/{realnet_name}.csv"), col_types=cols(from=col_character(), to=col_character()))
-  # realnet <- bind_rows(realnet, realnet %>% mutate(from=paste0("2_", from), to=paste0("2_", to)))
+  realnet <- bind_rows(realnet, realnet %>% mutate(from=paste0("2_", from), to=paste0("2_", to)) %>% saple_frac(0.5))
   allgenes <- unique(c(realnet$from, realnet$to))
   realgene2gene <- set_names(gene_name_generator(seq_along(allgenes)), allgenes)
   realnet$from <- realgene2gene[realnet$from]
