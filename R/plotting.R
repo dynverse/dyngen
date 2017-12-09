@@ -273,7 +273,7 @@ plot_goldstandard <- function(simulation, model, gs) {
 plot_experiment <- function(experiment) {
   plots <- map(c("expression_simulated", "expression", "true_counts", "counts"), function(expression_name) {
     expr <- experiment[[expression_name]]
-    source("../dynmodular/dimred_wrappers.R")
+    source(paste0(find.package("dyngen"), "/ext_data/dimred_wrappers.R"))
     
     if(ncol(expr) > 500) {
       expr <- expr[, sample(colnames(expr), 500)]
@@ -289,7 +289,7 @@ plot_experiment <- function(experiment) {
 }
 
 plot_normalization <- function(experiment, normalization) {
-  source("../dynmodular/dimred_wrappers.R")
+  source(paste0(find.package("dyngen"), "/ext_data/dimred_wrappers.R"))
   plots <- map(c("experiment$expression_simulated", "experiment$expression", "experiment$true_counts", "experiment$counts", "normalization$count", "normalization$expression"), function(expression_name) {
     expr <- eval(parse(text=expression_name))
     

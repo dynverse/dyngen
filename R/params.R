@@ -76,7 +76,7 @@ base_params = list(
     reference_length = 50,
     smooth_window = 50
   ),
-  normalization = list(
+  normalisation = list(
     nmads = 3
   )
 )# %>% list2env(.GlobalEnv)
