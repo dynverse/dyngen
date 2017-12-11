@@ -67,3 +67,18 @@ platform <- readRDS("inst/ext_data/platforms/developing-dendritic-cells_schlitze
 platform$n_genes <- 100
 platform$n_cells <- 100
 saveRDS(platform, "inst/ext_data/platforms/small.rds")
+
+
+
+
+
+
+walk(list.files("../dynalysis/analysis/data/derived_data/datasets/real/"), function(dataset_id) {
+  platform <- readRDS(glue::glue("inst/ext_data/platforms/{dataset_id}.rds"))
+  
+  platform$n_genes <- min(20000, platform$n_genes)
+  
+  saveRDS(platform, glue::glue("inst/ext_data/platforms/{dataset_id}.rds"))
+})
+
+saveRDS(platform, glue::glue("inst/ext_data/platforms/{dataset_id}.rds"))
