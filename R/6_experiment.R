@@ -62,7 +62,7 @@ run_experiment <- function(
   # finally, if present, dropouts will be simulated
   # see splatter:::splatSimDropout
   logistic <- function (x, x0, k) {1/(1 + exp(-k * (x - x0)))}
-  if (estimate@dropout.present) {
+  if (TRUE) {
     drop.prob <- sapply(seq_len(n_cells), function(idx) {
       eta <- log(expression[, idx])
       return(logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
