@@ -49,7 +49,6 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   
   # create task
   task <- dynutils::wrap_ti_task_data(
-    trajectory_type = params$updates$modulenet_name,
     id = params$updates$dataset_id,
     cell_ids = cell_ids,
     milestone_ids = milestone_ids,
