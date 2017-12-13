@@ -38,7 +38,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
     select(cell_id, from, to, percentage)
   
   # filter milestone_network for those edges present in the data
-  milestone_network <- progressions %>% select(from, to) %>% left_join(milestone_network)
+  milestone_network <- progressions %>% select(from, to) %>% distinct(from, to) %>% left_join(milestone_network)
   
   # milestone percentages
   milestone_percentage <- dynutils::convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
