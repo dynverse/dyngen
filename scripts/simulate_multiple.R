@@ -56,9 +56,7 @@ folder <- "~/thesis/projects/dynverse/dynalysis/analysis/data/derived_data/datas
 # PRISM:::run_remote(glue::glue("rm -r {remote_folder}"), "prism")
 # PRISM:::run_remote(glue::glue("mkdir {remote_folder}"), "prism")
 
-paramsets %>% map("model") %>% map("platform") %>% map("estimate") %>% map_dbl(~.@lib.loc)
-
-saveRDS(paramsets, paste0(folder, "paramsets.rds"))
+# saveRDS(paramsets, paste0(folder, "paramsets.rds"))
 paramsets <- readRDS(paste0(folder, "paramsets.rds"))
 PRISM:::rsync_remote("", folder, "prism", remote_folder)
 
@@ -196,7 +194,7 @@ handle <- qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "e
 }) %>% saveRDS("experiments_handle.rds")
 experiments <- qsub_retrieve(readRDS("experiments_handle.rds"))
 
-# NORMALIZE ----------------------------
+# NORMALISE ----------------------------
 qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "normalisat"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   if (!file.exists(normalisation_location(folder, params_i))) {
@@ -205,33 +203,36 @@ qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "normalisat"
     options(ncores = 1)
     
     graphics.off()
+    pdf(normalisation_plot_location(folder, params_i), width=12, height=12)
+    dev.control('enable')
     normalisation <- invoke(dynutils::normalise_filter_counts, params$normalisation, experiment$counts, verbose = TRUE)
     normalisation$uuids <- list(normalisation=uuid::UUIDgenerate()) %>% c(experiment$uuids)
     saveRDS(normalisation, normalisation_location(folder, params_i))
     
-    pdf(normalisation_plot_location(folder, params_i), width=12, height=12)
     walk(normalisation$normalisation_plots, print)
-    dyngen:::plot_normalization(experiment, normalisation) %>% print()
+    dyngen:::plot_normalisation(experiment, normalisation)
     graphics.off()
   }
-}) %>% saveRDS("normalization_handle.rds")
-normalizations <- qsub_retrieve(readRDS("normalization_handle.rds"))
+}) %>% saveRDS("normalisation_handle.rds")
+normalizations <- qsub_retrieve(readRDS("normalisation_handle.rds"))
 
 # Plot GOLD STANDARD ----------------------------------------
-qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "gs_plot"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
+qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "gs_plot", memory="15G"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   tryCatch({
-    params <- paramsets[[params_i]]
-    model <- readRDS(model_location(folder, params_i))
-    simulation <- readRDS(simulation_location(folder, params_i))
-    gs <- readRDS(gs_location(folder, params_i))
-    
-    graphics.off()
-    pdf(gs_plot_location(folder, params_i), width=12, height=12)
-    dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
-    dyngen:::plot_modulenet(model)
-    dyngen:::plot_goldstandard(simulation, model, gs)
-    graphics.off()
+    if (!file.exists(gs_plot_location(folder, params_i))) {
+      params <- paramsets[[params_i]]
+      model <- readRDS(model_location(folder, params_i))
+      simulation <- readRDS(simulation_location(folder, params_i))
+      gs <- readRDS(gs_location(folder, params_i))
+      
+      graphics.off()
+      pdf(gs_plot_location(folder, params_i), width=12, height=12)
+      dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
+      dyngen:::plot_modulenet(model)
+      dyngen:::plot_goldstandard(simulation, model, gs)
+      graphics.off()
+    }
   }, error=function(e) {print(params_i)}, finally={graphics.off()})
 }) %>% saveRDS("gs_plot_handle.rds")
 gs <- qsub_retrieve(readRDS("gs_plot_handle.rds"))
@@ -253,7 +254,7 @@ qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "exp_plot"),
 experiment_plot <- qsub_retrieve(readRDS("experiment_plot_handle.rds"))
 
 # Wrap into tasks ----------------------------
-qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "wrap"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
+qsub_lapply(qsub_config = qsub_config_single %>% list_modify(name = "wrap", memory="20G"), qsub_environment=qsub_environment, qsub_packages = qsub_packages, seq_along(paramsets), function(params_i) {
   print(glue::glue("{params_i} / {length(paramsets)} ======================================"))
   if (!file.exists(task_location(folder, params_i))) {
     params <- paramsets[[params_i]]
@@ -273,5 +274,10 @@ wrap <- qsub_retrieve(readRDS("wrap_handle.rds"))
 
 tasks <- dynutils::list_as_tibble(tasks)
 
-write_rds(tasks, "../dynalysis/analysis/data/derived_data/datasets/synthetic/v5.rds")
-tasks <- read_rds("../dynalysis/analysis/data/derived_data/datasets/synthetic/v5.rds")
+write_rds(tasks, "../dynalysis/analysis/data/derived_data/datasets/synthetic/v6.rds")
+tasks <- read_rds("../dynalysis/analysis/data/derived_data/datasets/synthetic/v6.rds")
+
+
+
+tasks <- list.files(folder, "*task.rds", full.names=T) %>% map(readRDS) %>% dynutils::list_as_tibble()
+tasks$trajectory_type %>% table()

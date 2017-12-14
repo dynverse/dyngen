@@ -288,9 +288,9 @@ plot_experiment <- function(experiment) {
   cowplot::plot_grid(plotlist = plots) %>% print()
 }
 
-plot_normalization <- function(experiment, normalization) {
+plot_normalisation <- function(experiment, normalisation) {
   source(paste0(find.package("dyngen"), "/ext_data/dimred_wrappers.R"))
-  plots <- map(c("experiment$expression_simulated", "experiment$expression", "experiment$true_counts", "experiment$counts", "normalization$count", "normalization$expression"), function(expression_name) {
+  plots <- map(c("experiment$expression_simulated", "experiment$expression", "experiment$true_counts", "experiment$counts", "normalisation$count", "normalisation$expression"), function(expression_name) {
     expr <- eval(parse(text=expression_name))
     
     if(ncol(expr) > 500) {

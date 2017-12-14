@@ -24,12 +24,6 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
     mutate_at(c("from", "to"), as.character) %>% 
     select(from, to, length, directed)
   
-  # get milestone ids
-  milestone_ids <- milestone_network %>% select(from, to) %>% 
-    unlist() %>% 
-    unique %>%
-    as.character
-  
   # progressions
   progressions <- cell_info %>%
     select(step_id, cell_id) %>%
@@ -39,6 +33,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   
   # filter milestone_network for those edges present in the data
   milestone_network <- progressions %>% select(from, to) %>% distinct(from, to) %>% left_join(milestone_network)
+  milestone_ids <- 
   
   # milestone percentages
   milestone_percentage <- dynutils::convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
