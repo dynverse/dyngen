@@ -33,7 +33,12 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   
   # filter milestone_network for those edges present in the data
   milestone_network <- progressions %>% select(from, to) %>% distinct(from, to) %>% left_join(milestone_network)
-  milestone_ids <- 
+  
+  # get milestone ids
+  milestone_ids <- milestone_network %>% select(from, to) %>% 
+    unlist() %>% 
+    unique %>%
+    as.character
   
   # milestone percentages
   milestone_percentage <- dynutils::convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
@@ -47,7 +52,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
   
   # create task
   task <- dynutils::wrap_ti_task_data(
-    id = params$updates$dataset_id,
+    id = params$settings$dataset_id,
     cell_ids = cell_ids,
     milestone_ids = milestone_ids,
     milestone_network = milestone_network,
@@ -56,7 +61,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalization) 
     expression = expression,
     cell_info = cell_info,
     feature_info = feature_info,
-    info = params$updates,
+    settings = params$settings,
     prior_information = prior_information
   )
   
