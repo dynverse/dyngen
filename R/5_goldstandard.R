@@ -6,6 +6,9 @@
 #' @inheritParams generate_system
 #' @inheritParams get_milestone_paths
 #' @inheritParams extract_references 
+#' @param verbose Whether to include progress information
+#' @param preprocess Whether to preprocess
+#' @export
 extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose=TRUE, preprocess=TRUE) {
   if(preprocess) {
     if (verbose) print("Preprocessing")
@@ -78,11 +81,11 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
   simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window=smooth_window) %>% do.call(rbind, .)
   dimnames(simulation$expression_smooth) <- dimnames(expression)
   
-  # print("normalizing...")
-  simulation$expression_normalized <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff=0.05)
+  # print("normalising...")
+  simulation$expression_normalised <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff=0.05)
   
   # print("calculating module expression...")
-  simulation$expression_modules <- simulation$expression_normalized %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels=model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
+  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels=model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
   simulation$expression_modules <- simulation$expression_modules[, as.character(model$modulenodes$module_id)] # fix ordering
   
   simulation
@@ -213,9 +216,9 @@ map_to_reference <- function(simulation_expressions, references) {
       dtw
     })
     
-    normalizedDistance <- min(which.min(map_dbl(dtws, "normalizedDistance")))
+    normalisedDistance <- min(which.min(map_dbl(dtws, "normalisedDistance")))
     
-    best_reference_id <- which.min(map_dbl(dtws, "normalizedDistance"))
+    best_reference_id <- which.min(map_dbl(dtws, "normalisedDistance"))
     dtw <- dtws[[best_reference_id]]
     reference <- references[[best_reference_id]]
     
@@ -230,7 +233,7 @@ map_to_reference <- function(simulation_expressions, references) {
       left_join(reference$reference_info, by="reference_row_id") %>% 
       select(-reference_row_id) %>% 
       mutate(percentage = ifelse(is.na(percentage), 1, percentage)) %>% 
-      mutate(normalizedDistance = normalizedDistance) %>% 
+      mutate(normalisedDistance = normalisedDistance) %>% 
       slice(match(rownames(simulation_expression), step_id))
     times
   }) %>% bind_rows()

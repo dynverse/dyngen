@@ -1,3 +1,6 @@
+#' Base params
+#' 
+#' @export
 base_params = list(
   model = list(
     # modulenet
@@ -5,7 +8,7 @@ base_params = list(
     # treeseed = 1,
     
     # reference
-    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/cell-cycle_leng.rds")),
+    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/small.rds")),
     
     # network between tfs
     ngenes_per_module_generator = function(ngenes_per_module_mean) {
@@ -65,11 +68,7 @@ base_params = list(
     local = TRUE
   ),
   experiment = list(
-    # experiment setting
     sampler = sample_snapshot
-    # add_housekeeping = FALSE,
-    # n_housekeeping_genes = 500,
-    # housekeeping_reference_means = readRDS(paste0(find.package("dyngen"), "/ext_data/housekeeping_reference_means.rds"))[[1]]
   ),
   gs = list(
     max_path_length = 20,
@@ -81,19 +80,12 @@ base_params = list(
   )
 )# %>% list2env(.GlobalEnv)
 
-
-
+#' @rdname base_params
+#' @export
 simple_params = list(
   model = list(
     # modulenet
     modulenet_name = "linear",
-    
-    # network between tfs
-    ngenes_per_module= function(n) 1, 
-    edge_retainment = function(n) 1,
-    
-    # extra targets
-    ntargets_sampler = function() 0,
     
     #system
     samplers = list(
