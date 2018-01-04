@@ -1,4 +1,10 @@
+#' Generate formulae from a given network
+#' 
+#' @param net Network dataframe
+#' @param geneinfo Gene info dataframe
+#' @param cells Cells dataframe
 #' @importFrom stats setNames
+#' @export
 generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)) {
   formulae <- list()
   
