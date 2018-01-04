@@ -2,7 +2,7 @@
 % Please edit documentation in R/1b_random_tree.R
 \name{from_stages_to_modulenet}
 \alias{from_stages_to_modulenet}
-\title{Convert a stage network to a module network which will}
+\title{Convert a stage network to a module network}
 \usage{
 from_stages_to_modulenet(stagenet)
 }
@@ -10,5 +10,5 @@ from_stages_to_modulenet(stagenet)
 \item{stagenet}{A network of stages}
 }
 \description{
-Edit: Will what, Wouter?!
+Convert a stage network to a module network
 }

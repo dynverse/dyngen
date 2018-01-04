@@ -2,8 +2,7 @@
 % Please edit documentation in R/1_network_generation.R
 \name{randomize_network_parameters}
 \alias{randomize_network_parameters}
-\title{Randomize network parameters
-Randomize network parameters: cooperativity, strengths and effect}
+\title{Randomize network parameters}
 \usage{
 randomize_network_parameters(net)
 }
@@ -12,5 +11,4 @@ randomize_network_parameters(net)
 }
 \description{
 Randomize network parameters
-Randomize network parameters: cooperativity, strengths and effect
 }

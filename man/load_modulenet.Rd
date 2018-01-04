@@ -2,7 +2,7 @@
 % Please edit documentation in R/1_network_generation.R
 \name{load_modulenet}
 \alias{load_modulenet}
-\title{load module net}
+\title{Load module network from extra data}
 \usage{
 load_modulenet(modulenet_name)
 }
@@ -10,5 +10,5 @@ load_modulenet(modulenet_name)
 \item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
 }
 \description{
-load module net
+Load module network from extra data
 }
