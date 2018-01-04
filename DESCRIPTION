@@ -48,7 +48,10 @@ Imports:
 Suggests:
   rgl,
   splatter,
-  SingleCellExperiment
+  SingleCellExperiment,
+  Rtsne, 
+  SCORPIUS, 
+  fastICA
 Remotes:
   dgrtwo/gganimate,
   dynverse/fastgssa,
