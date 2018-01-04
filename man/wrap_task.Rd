@@ -4,7 +4,7 @@
 \alias{wrap_task}
 \title{Wrap tasks}
 \usage{
-wrap_task(params, model, simulation, gs, experiment, normalization)
+wrap_task(params, model, simulation, gs, experiment, normalisation)
 }
 \arguments{
 \item{params}{Parameters of the dataset}
@@ -17,7 +17,7 @@ wrap_task(params, model, simulation, gs, experiment, normalization)
 
 \item{experiment}{Experiment}
 
-\item{normalization}{Normalization}
+\item{normalisation}{Normalisation}
 }
 \description{
 Wrap tasks

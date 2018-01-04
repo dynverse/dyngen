@@ -4,11 +4,11 @@
 #' @param simulation Simulation
 #' @param gs Gold standard
 #' @param experiment Experiment
-#' @param normalization Normalization
+#' @param normalisation Normalisation
 #' @export
-wrap_task <- function(params, model, simulation, gs, experiment, normalization) {
-  counts <- normalization$counts
-  expression <- normalization$expression[rownames(counts), colnames(counts)]
+wrap_task <- function(params, model, simulation, gs, experiment, normalisation) {
+  counts <- normalisation$counts
+  expression <- normalisation$expression[rownames(counts), colnames(counts)]
   
   cell_ids <- rownames(counts)
   

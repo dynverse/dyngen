@@ -14,7 +14,7 @@ Simulate different types of experiments:
   * Genotypes
   * Similar cell types in different environments
 * Integrating different data types prior or after trajectory inference
-* Synchronizing trajectories between interacting cells (physically and/or chemically)
+* Synchronising trajectories between interacting cells (physically and/or chemically)
 * Dynamics of the regulatory network
 * Monoallelic expression
 
