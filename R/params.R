@@ -68,7 +68,8 @@ base_params = list(
     local = TRUE
   ),
   experiment = list(
-    sampler = sample_snapshot
+    sampler = sample_snapshot,
+    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/small.rds"))
   ),
   gs = list(
     max_path_length = 20,
