@@ -42,6 +42,7 @@ Imports:
   stringr,
   tibble,
   tidyr,
+  testthat,
   utils,
   viridis,
   zoo
