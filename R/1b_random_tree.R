@@ -46,9 +46,7 @@ generate_tree_states <- function(stagenet) {
   lst(stage2state, states)
 }
 
-#' Convert a stage network to a module network which will 
-#' 
-#' Edit: Will what, Wouter?!
+#' Convert a stage network to a module network
 #' 
 #' @param stagenet A network of stages
 #' 
