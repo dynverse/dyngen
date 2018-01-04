@@ -19,4 +19,4 @@ install:
 r_github_packages:
   - r-lib/covr
 after_success:
-  - Rscript -e 'covr::codecov()'
+  - Rscript -e 'covr::codecov(function_exclusions = c("sample_snapshot", "snapshot_sampler", "sample_synchronised", "synchronised_sampler"))'

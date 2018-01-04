@@ -2,7 +2,7 @@ context("Test data generation")
 
 test_that("a full dataset can be generated", {
   params <- simple_params
-  options(ncores = 2)
+  options(ncores = 1)
   
   model <- invoke(generate_model_from_modulenet, params$model)
   
