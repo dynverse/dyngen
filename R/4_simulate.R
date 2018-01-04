@@ -5,19 +5,18 @@
 #' @param burntime The burn-in time before sampling
 #' @param totaltime The total simulation time
 #' @param nsimulations The number of simulations
-#' @param local Whether or not to use \code{\link[PRISM]{qsub_lapply}}
+#' @param local Whether or not to use \code{\link[PRISM]{qsub_lapply}}, not used right now
 #' @param ssa_algorithm Which GSSA algorithm to use
 #' 
-#' @importFrom PRISM qsub_lapply
 #' @importFrom pbapply pblapply
 #' @export
 simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16, local=FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength=4)) {
   force(system) # force the evaluation of the system argument, as the qsub environment will be empty except for existing function arguments
-  if(!local) {
-    multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
-  } else {
+  # if(!local) {
+  #   multilapply = function(x, fun) {PRISM::qsub_lapply(x, fun, qsub_environment = list2env(list()))}
+  # } else {
     multilapply = function(x, fun) {pbapply::pblapply(x, fun, cl = getOption("ncores"))}
-  }
+  # }
   
   seeds <- sample.int(nsimulations * 10, nsimulations, replace = F)
   simulations = multilapply(seq_len(nsimulations), function(i) {

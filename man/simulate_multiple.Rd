@@ -16,7 +16,7 @@ simulate_multiple(system, burntime, totaltime, nsimulations = 16,
 
 \item{nsimulations}{The number of simulations}
 
-\item{local}{Whether or not to use \code{\link[PRISM]{qsub_lapply}}}
+\item{local}{Whether or not to use \code{\link[PRISM]{qsub_lapply}}, not used right now}
 
 \item{ssa_algorithm}{Which GSSA algorithm to use}
 }
