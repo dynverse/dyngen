@@ -5,6 +5,7 @@
 #' @param sampler Function telling how the cells should be sampled
 #' @param platform Platform
 #' @importFrom stats rbinom rpois
+#' @export
 run_experiment <- function(
   simulation, 
   gs,
