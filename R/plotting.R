@@ -1,6 +1,19 @@
-#' Plot a modulenet
-#' 
+## Plotting models
+#' Model plotting
 #' @param model The model
+#' @param colorby By what to color
+#' @param main_only Whether to only draw the main network
+#' @param label Whether to label genes
+#' @export
+plot_model <- function(model) {
+  list(
+    plot_net(model, label=FALSE, main_only = FALSE),
+    plot_modulenet(model),
+    plot_net_overlaps(model)
+  )
+}
+
+#' @rdname plot_model
 #' 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
 #' @importFrom grDevices rainbow
@@ -25,11 +38,7 @@ plot_modulenet <- function(model) {
   )
 }
 
-#' Plot a gene network
-#' @param model The model
-#' @param colorby By what to color
-#' @param main_only Whether to only draw the main network
-#' @param label Whether to label genes
+#' @rdname plot_model
 #' @importFrom grDevices rainbow rgb
 #' @export
 plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=FALSE) {
@@ -76,16 +85,31 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   )
 }
 
-#' Plot the overlap in targets in a heatmap
-#' @param model The model
+#' @rdname plot_model
 #' @importFrom pheatmap pheatmap
+#' @export
 plot_net_overlaps <- function(model) {
   jaccard <- function(x, y) {length(intersect(x, y))/length(union(x,y))}
   pheatmap::pheatmap(sapply(model$geneinfo$gene_id, function(i) sapply(model$geneinfo$gene_id, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
 }
 
 
-## Simulation plotting ----------------
+## Plotting simulation
+#' Simulation plotting
+#' @param simulation The simulation
+#' @param spaces Spaces dataframe
+#' @param subsample Subsampled expression data
+#' @export
+plot_simulation <- function(simulation) {
+  list(
+    plot_simulation_space_individual(simulation),
+    plot_simulation_space_time(simulation),
+    plot_simulation_space_modules(simulation),
+    plot_simulation_simulations_lines(simulation),
+    plot_simulation_modules_heatmap(simulation)
+  )
+}
+
 subsample_simulation <- function(simulation) {
   if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
   
@@ -129,8 +153,6 @@ dimred <- function(x, dimred_name="pca", ndim=2) {
   get(paste0("dimred_", dimred_name))(x, ndim=ndim)
 }
 
-
-
 dimred_simulation <- function(simulation, subsample = subsample_simulation(simulation), dimred_names = c("pca", "ica", "mds"), expression_names=c("samplexpression", "samplexpression_modules")) {
   map(
     dimred_names, 
@@ -150,16 +172,6 @@ dimred_simulation <- function(simulation, subsample = subsample_simulation(simul
     }
   ) %>% bind_rows()
 }
-
-
-#' Plotting functions for simulations
-#'
-#' @param simulation The simulation
-#' @param spaces Spaces dataframe
-#' @param subsample Subsampled expression data
-#' @name plot_simulation
-NULL
-#> NULL
 
 #' @rdname plot_simulation
 #' @export
@@ -267,19 +279,25 @@ plot_simulation_3D <- function(simulation) {
 }
 
 
-
-## Gold standard plotting -------------------------
-#' Plotting functions for gold standard
-#'
+#' Gold standard plotting
 #' @param simulation The simulation
 #' @param gs The gold standard
 #' @param spaces Spaces dataframe
-#' @name plot_goldstandard
-NULL
-#> NULL
+#' @export
+plot_goldstandard <- function(simulation, gs) {
+  list(
+    plot_goldstandard_edges(simulation, gs),
+    plot_goldstandard_burn(simulation, gs),
+    plot_goldstandard_network(simulation, gs),
+    plot_goldstandard_heatmap(simulation, gs),
+    plot_goldstandard_references(gs)
+  )
+}
 
 dimred_goldstandard <- function(simulation, gs) {
-  step_ids <- spaces$space[[1]]$step_id
+  ############## TODO ------------------------------------
+  
+  #step_ids <- rownames(simulation$$space[[1]]$step_id
   
   spaces <- dimred_simulation(simulation, expression_names=c("samplexpression_modules"))
   
@@ -429,7 +447,7 @@ plot_goldstandard_references <- function(gs) {
 #'
 #' @param experiment The experiment
 #' @export
-plot_experiment_steps <- function(experiment) {
+plot_experiment <- function(experiment) {
   plots <- map(c("expression_simulated", "expression", "true_counts", "counts"), function(expression_name) {
     expr <- experiment[[expression_name]]
     
@@ -451,7 +469,7 @@ plot_experiment_steps <- function(experiment) {
 #' @param experiment The experiment
 #' @param normalisation The normalisation
 #' @export
-plot_normalisation_steps <- function(experiment, normalisation) {
+plot_normalisation <- function(experiment, normalisation) {
   plots <- map(c("experiment$expression_simulated", "experiment$expression", "experiment$true_counts", "experiment$counts", "normalisation$count", "normalisation$expression"), function(expression_name) {
     expr <- eval(parse(text=expression_name))
     

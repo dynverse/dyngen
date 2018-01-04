@@ -9,8 +9,10 @@
 \alias{plot_simulation_modules_lines}
 \alias{plot_simulation_modules_heatmap}
 \alias{plot_simulation_3D}
-\title{Plotting functions for simulations}
+\title{Simulation plotting}
 \usage{
+plot_simulation(simulation)
+
 plot_simulation_space_individual(simulation,
   spaces = dimred_simulation(simulation))
 
@@ -37,5 +39,5 @@ plot_simulation_3D(simulation)
 \item{subsample}{Subsampled expression data}
 }
 \description{
-Plotting functions for simulations
+Simulation plotting
 }

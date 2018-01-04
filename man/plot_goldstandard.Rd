@@ -7,8 +7,10 @@
 \alias{plot_goldstandard_network}
 \alias{plot_goldstandard_heatmap}
 \alias{plot_goldstandard_references}
-\title{Plotting functions for gold standard}
+\title{Gold standard plotting}
 \usage{
+plot_goldstandard(simulation, gs)
+
 plot_goldstandard_edges(simulation, gs,
   spaces = dimred_goldstandard(simulation, gs))
 
@@ -30,5 +32,5 @@ plot_goldstandard_references(gs)
 \item{spaces}{Spaces dataframe}
 }
 \description{
-Plotting functions for gold standard
+Gold standard plotting
 }
