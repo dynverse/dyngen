@@ -18,6 +18,10 @@ extract_goldstandard(simulation, model, reference_length = 100,
 \item{max_path_length}{Maximal number of milestones per path}
 
 \item{smooth_window}{The window (steps) to smooth over}
+
+\item{verbose}{Whether to include progress information}
+
+\item{preprocess}{Whether to preprocess}
 }
 \description{
 Extract the gold standard

@@ -89,7 +89,7 @@ run_experiment <- function(
 
 
 
-
+# Sample snapshet --------------
 sample_snapshot <- function(simulation, gs, ncells = 500) {
   sample_ids <- gs$progressions %>% 
     filter(!burn) %>% 
@@ -101,9 +101,16 @@ sample_snapshot <- function(simulation, gs, ncells = 500) {
   
   lst(expression, cellinfo = tibble(step_id = sample_ids))
 }
-snapshot_sampler <- function(ncells=10) {function(simulation, gs) {sample_synchronized(simulation, gs, ncells=ncells)}}
 
-sample_synchronized <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$stepinfo$simulationtime), length.out=ntimepoints), ncells_per_timepoint = 12) {
+#' Snapshot sampler
+#' @param ncells Number of cells to sample
+#' @export
+snapshot_sampler <- function(ncells=10) {
+  function(simulation, gs) {sample_snapshot(simulation, gs, ncells=ncells)}
+}
+
+# Sample synchronised ----------
+sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$stepinfo$simulationtime), length.out=ntimepoints), ncells_per_timepoint = 12) {
   ncells_per_timepoint <- min(ncells_per_timepoint, length(unique(simulation$stepinfo$simulation_id)))
   
   non_burn_step_ids <- gs$progressions %>% 
@@ -125,7 +132,12 @@ sample_synchronized <- function(simulation, gs, ntimepoints = 10, timepoints = s
     cellinfo = sample_step_info
   )
 }
-synchronized_sampler <- function(ntimepoints=10) {function(simulation, gs) sample_synchronized(simulation, gs, ntimepoints=ntimepoints)}
+#' Snapshot sampler
+#' @param ntimepoints Number of timepoints to sample
+#' @export
+synchronised_sampler <- function(ntimepoints=10) {
+  function(simulation, gs) sample_synchronised(simulation, gs, ntimepoints=ntimepoints)
+}
 
 #' Checks the expression for certain properties
 #' 
