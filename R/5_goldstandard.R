@@ -216,9 +216,9 @@ map_to_reference <- function(simulation_expressions, references) {
       dtw
     })
     
-    normalisedDistance <- min(which.min(map_dbl(dtws, "normalisedDistance")))
+    normalisedDistance <- min(which.min(map_dbl(dtws, "normalizedDistance")))
     
-    best_reference_id <- which.min(map_dbl(dtws, "normalisedDistance"))
+    best_reference_id <- which.min(map_dbl(dtws, "normalizedDistance"))
     dtw <- dtws[[best_reference_id]]
     reference <- references[[best_reference_id]]
     
