@@ -16,3 +16,7 @@ install:
  - R -e 'install.packages("remotes")'
  - R -e 'remotes::install_deps(dependencies = T, upgrade = T)'
  - R -e 'remotes::install_local(".")'
+r_github_packages:
+  - r-lib/covr
+after_success:
+  - Rscript -e 'covr::codecov()'

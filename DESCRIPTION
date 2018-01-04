@@ -45,13 +45,14 @@ Imports:
   utils,
   viridis,
   zoo
-Suggests:
-  rgl,
-  splatter,
-  SingleCellExperiment,
-  Rtsne, 
-  SCORPIUS, 
-  fastICA
+Suggests: 
+    rgl,
+    splatter,
+    SingleCellExperiment,
+    Rtsne,
+    SCORPIUS,
+    fastICA,
+    covr
 Remotes:
   dgrtwo/gganimate,
   dynverse/fastgssa,

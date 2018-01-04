@@ -1,36 +1,5 @@
-# dyngen: Synthetic single cell data
+[![Build Status](https://travis-ci.com/Zouter/dyngen.svg?token=pzNqJjk3yapU1Hk7sDg8&branch=master)](https://travis-ci.com/Zouter/dyngen) [![codecov](https://codecov.io/gh/Zouter/dyngen/branch/master/graph/badge.svg?token=IGVryyPFpI)](https://codecov.io/gh/Zouter/dyngen)
 
-![goalssss](goals.png "Goals =) \=D/")
+https://travis-ci.com/Zouter/dyngen.svg?token=pzNqJjk3yapU1Hk7sDg8&branch=master
 
-Simulate different types of experiments:
-
-* Cellular heterogeneity
-* Normal trajectories
-* Branched trajectories
-* Cycles
-* Multiple parallel dynamic processes and their interactions
-* Comparing trajectories between
-  * Patients
-  * Genotypes
-  * Similar cell types in different environments
-* Integrating different data types prior or after trajectory inference
-* Synchronising trajectories between interacting cells (physically and/or chemically)
-* Dynamics of the regulatory network
-* Monoallelic expression
-
-Get data both for individual cells as well as at the bulk level
-
-Get different data types:
-
-* Gene expression
-* Protein expression
-
-Stress test your methods against:
-
-* Noise
-* Contamination
-
-## Interesting studies
-
-* http://genome.cshlp.org/content/24/3/496.full Simulations of sources of noise in sc RNA-seq data
-* http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000935 Combinatorial regulation
+# dyngen: Generating synthetic single-cell data starting from regulatory networks
