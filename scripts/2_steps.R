@@ -68,7 +68,7 @@ normalise <- function(params) {
   saveRDS(normalisation, dataset_preproc_file(pritt("{params$settings$params_i}_normalisation.rds")))
   
   walk(normalisation$normalisation_plots, print)
-  dyngen:::plot_normalisation_steps(data$experiment, normalisation)
+  dyngen:::plot_normalisation(data$experiment, normalisation)
   graphics.off()
 }
 
@@ -79,9 +79,7 @@ plot_model <- function(params) {
   
   graphics.off()
   pdf(model_plot_location, width=12, height=12)
-  dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
-  dyngen:::plot_modulenet(data$model)
-  dyngen:::plot_net_overlaps(data$model)
+  dyngen::plot_model()
   graphics.off()
 }
 
@@ -93,11 +91,7 @@ plot_simulation <- function(params) {
   
   graphics.off()
   pdf(simulation_plot_location, width=12, height=12)
-  plot_simulation_space_individual(simulation)
-  plot_simulation_space_time(simulation)
-  plot_simulation_space_modules(simulation)
-  plot_simulation_simulations_lines(simulation)
-  plot_simulation_modules_heatmap(simulation)
+  dyngen::plot_simulation()
   graphics.off()
 }
 
@@ -110,9 +104,7 @@ plot_goldstandard <- function(params) {
   
   graphics.off()
   pdf(gs_plot_location, width=12, height=12)
-  dyngen:::plot_net(model, label=FALSE, main_only = FALSE)
-  dyngen:::plot_modulenet(data$model)
-  dyngen:::plot_goldstandard(data$simulation, data$model, data$gs)
+  dyngen::plot_goldstandard()
   graphics.off()
 }
 
