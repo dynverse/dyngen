@@ -97,7 +97,7 @@ generate_model_from_modulenet <- function(
 
 
 
-#' load module net
+#' Load module network from extra data
 #' @param modulenet_name A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
@@ -285,7 +285,6 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
 }
 
 #' Randomize network parameters
-#' Randomize network parameters: cooperativity, strengths and effect
 #' 
 #' @param net Network dataframe
 #' 
