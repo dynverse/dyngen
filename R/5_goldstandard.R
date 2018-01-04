@@ -1,4 +1,11 @@
 # Gold standard =============================================================
+#' Extract the gold standard
+#' @param simulation The simulation
+#' @param model The model
+#' @inheritParams preprocess_simulation_for_gs
+#' @inheritParams generate_system
+#' @inheritParams get_milestone_paths
+#' @inheritParams extract_references 
 extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose=TRUE, preprocess=TRUE) {
   if(preprocess) {
     if (verbose) print("Preprocessing")
@@ -59,9 +66,12 @@ smooth_expression <- function(expression, smooth_window=50) {
     magrittr::set_rownames(rownames(expression))
 }
 
+#' Preprocessing simulation data for gold standard generation
+#' Averaging over modules & smoothing expression
+#' @inheritParams extract_goldstandard
+#' @param smooth_window The window (steps) to smooth over
+#' @export
 preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
-  # print("smoothing...")
-  
   geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
   expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
   
@@ -78,11 +88,10 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
   simulation
 }
 
-# load in milestone network and edge_operations
-# model$edge_operations <- read_tsv(paste0("data/modulenetworks/", params$model$modulenet_name, "/edge_operations.tsv"), col_types=cols())
-
-# extract all possible milestone paths from the start_milestone
-# paths <- map(start_milestones, ~all_simple_paths(milestone_graph, as.character(.))) %>% unlist(recursive=FALSE) %>% map(~names(.) %>% as.numeric()) # this does not include cycles
+#' Extract all milestone paths
+#' @param milestone_network The milestone network
+#' @param start_milestones The starting milestones
+#' @param max_path_length Maximal number of milestones per path
 get_milestone_paths <- function(milestone_network, start_milestones, max_path_length = 10) {
   recursor <- function(curnode, curpath=c(), max_path_length = 10) {
     curpath <- c(curpath, curnode)
@@ -124,7 +133,10 @@ extract_path_operations <- function(operations, paths) {
   path_operations
 }
 
-# extract reference expression for every edge
+#' Extract reference expression for every edge
+#' @param path_operations The operations within each path
+#' @param milestone_network The milestone network
+#' @param reference_length The length in the reference of each population
 #' @importFrom stats approx
 extract_references <- function(path_operations, milestone_network, reference_length = 100) {
   references <- map(path_operations, function(operations) {
@@ -182,8 +194,6 @@ extract_references <- function(path_operations, milestone_network, reference_len
   })
   references
 }
-
-# pheatmap::pheatmap(samplexpression, cluster_cols=F, cluster_rows=F)
 
 #' @importFrom pdist pdist
 #' @importFrom dtw dtw
