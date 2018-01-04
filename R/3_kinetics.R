@@ -55,9 +55,8 @@ get_default_kinetics_samplers <- function() {
 }
 
 #' Randomize kinetics of genes
-#' @param geneinfo Geneinfo dataframe
-#' @param net Regulatory network dataframe
-#' @param samplers The samplers for the kinetics parameters
+#' @rdname generate_system
+#' @export
 randomize_gene_kinetics <- function(
   geneinfo, 
   net, 
@@ -116,7 +115,8 @@ randomize_gene_kinetics <- function(
 }
 
 #' Randomize kinetics of cells
-#' @param cells Cells dataframe
+#' @rdname generate_system
+#' @export
 randomize_cell_kinetics <- function(cells) {
   sample_kg <- function(n) 1
   sample_rg <- function(n) 1
@@ -167,9 +167,13 @@ extract_params <- function(geneinfo, net, cells) {
   params
 }
 
-#' Generate the system
-#' @inheritParams randomize_cell_kinetics
-#' @inheritParams randomize_gene_kinetics
+#' Generate a system from a network using 
+#' 
+#' @param net Regulatory network dataframe
+#' @param geneinfo Geneinfo dataframe
+#' @param cells Cells dataframe
+#' @param samplers The samplers for the kinetics parameters
+#' @export
 generate_system <- function(net, geneinfo, cells, samplers) {
   # Randomize
   randomized_gene_kinetics <- randomize_gene_kinetics(geneinfo, net, samplers)
@@ -198,12 +202,4 @@ generate_system <- function(net, geneinfo, cells, samplers) {
   burn_variables <- geneinfo %>% filter(as.logical(burn)) %>% select(x, y) %>% unlist() %>% unname()
   
   lst(formulae, initial_state, params, nus, burn_variables, molecule_ids, geneinfo, net, cells)
-}
-
-## determine start state genes (active during burn-in)
-determine_burn_variables = function(model) {
-  variables_burn <- map(model$variables, "gene_id") %>% keep(~!is.null(.)) %>% unlist()
-  variables_burn_genes <- names(variables_burn)[variables_burn %in% (model$geneinfo %>% filter(as.logical(burn)) %>% pull(gene_id))]
-  # add other variables?
-  intersect(variables_burn_genes, names(model$initial_state)) # only retain variables that change
 }
