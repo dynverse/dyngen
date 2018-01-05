@@ -9,7 +9,7 @@ splatEstDropout <- function(norm.counts, params) {
   y <- obs.zeros / ncol(norm.counts)
   df <- data.frame(x, y)
   fit <- nls(y ~ splatter:::logistic(x, x0 = x0, k = k), data = df,
-             start = list(x0 = 4, k = -1))
+             start = list(x0 = 4, k = -1)) # this initial condition has been changed, to avoid convergence errors
   mid <- summary(fit)$coefficients["x0", "Estimate"]
   shape <- summary(fit)$coefficients["k", "Estimate"]
   params <- splatter::setParams(params, dropout.mid = mid, dropout.shape = shape)
@@ -71,8 +71,6 @@ platform <- readRDS("inst/ext_data/platforms/developing-dendritic-cells_schlitze
 platform$n_genes <- 100
 platform$n_cells <- 100
 saveRDS(platform, "inst/ext_data/platforms/small.rds")
-
-
 
 walk(list.files("../dynalysis/analysis/data/derived_data/datasets/real/"), function(dataset_id) {
   platform <- readRDS(glue::glue("inst/ext_data/platforms/{dataset_id}.rds"))
