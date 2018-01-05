@@ -106,6 +106,7 @@ plot_simulation <- function(simulation) {
     plot_simulation_space_time(simulation),
     plot_simulation_space_modules(simulation),
     plot_simulation_simulations_lines(simulation),
+    plot_simulation_modules_lines(simulation),
     plot_simulation_modules_heatmap(simulation)
   )
 }
