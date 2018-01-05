@@ -23,10 +23,9 @@ generate_random_tree <- function(treeseed=NULL, decay=1.4) {
   initial_net <- data_frame(from = 1, to = 2)
   
   recurse(initial_net) %>% 
+    mutate_all(as.character) %>% 
     group_by(from) %>% 
-    summarize(singular=n() == 1) %>% 
-    right_join(stages, by="from") %>% 
-    mutate(from=as.character(from), to=as.character(to))
+    mutate(singular=n() == 1)
 }
 
 #' Convert tree to states list, used later by the gold standard to determine where there are bifurcations
