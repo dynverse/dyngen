@@ -50,7 +50,7 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   
   net <- bind_rows(
     net, 
-    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)))) %>% bind_rows() %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
+    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors=FALSE)) %>% bind_rows() %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
   )
   
   
@@ -206,7 +206,9 @@ plot_simulation_space_modules <- function(
   spaces=dimred_simulation(simulation, subsample, "ica", "samplexpression_modules")
 ) {
   module_ids <- colnames(simulation$expression_modules)
-  samplexpression_modules_df <- subsample$samplexpression_modules %>% reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression")
+  samplexpression_modules_df <- subsample$samplexpression_modules %>% 
+    reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    mutate_if(is.factor, as.character)
   
   spaces$space <- map(spaces$space, ~bind_cols(., ))
   
@@ -228,7 +230,9 @@ plot_simulation_simulations_lines <- function(simulation) {
   
   expression_df <- subsample$samplexpression_modules %>% 
     reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    mutate_if(is.factor, as.character) %>% 
     left_join(subsample$samplestepinfo, by="step_id")
+  
   expression_df %>% 
     ggplot() + 
       geom_line(aes(simulationtime, expression, group=module_id, color=factor(module_id))) + 
@@ -243,6 +247,7 @@ plot_simulation_modules_lines <- function(simulation) {
   
   expression_df <- subsample$samplexpression_modules %>% 
     reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    mutate_if(is.factor, as.character) %>% 
     left_join(subsample$samplestepinfo, by="step_id")
   
   expression_df %>% 
@@ -259,10 +264,11 @@ plot_simulation_modules_heatmap <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
   subsample$samplexpression_modules %>% 
-    reshape2::melt(varnames=c("step_id", "module"), value.name="expression") %>% 
+    reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    mutate_if(is.factor, as.character) %>% 
     left_join(subsample$samplestepinfo, by="step_id") %>% 
     ggplot() + 
-        geom_raster(aes(step, factor(module), fill=expression, group=module)) + 
+        geom_raster(aes(step, factor(module_id), fill=expression, group=module_id)) + 
         facet_wrap(~simulation_id) + 
         scale_fill_distiller(palette="RdBu")
 }
@@ -295,11 +301,9 @@ plot_goldstandard <- function(simulation, gs) {
 }
 
 dimred_goldstandard <- function(simulation, gs) {
-  ############## TODO ------------------------------------
-  
-  #step_ids <- rownames(simulation$$space[[1]]$step_id
-  
-  spaces <- dimred_simulation(simulation, expression_names=c("samplexpression_modules"))
+  subsample <- subsample_simulation(simulation)
+  spaces <- dimred_simulation(simulation, subsample = subsample, expression_names=c("samplexpression_modules"))
+  step_ids <- subsample$samplestepinfo$step_id
   
   sampleprogressions <- gs$progressions %>% 
     slice(match(step_ids, step_id))
@@ -334,12 +338,14 @@ plot_goldstandard_burn <- function(simulation, gs, spaces = dimred_goldstandard(
 #' @rdname plot_goldstandard
 #' @export
 plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstandard(simulation, gs)) {
+  space <- spaces$space[[1]]
+  
   milestone_ids <- unique(c(gs$milestone_network$from, gs$milestone_network$to))
   grouping <- dynutils::convert_progressions_to_milestone_percentages(
     space$step_id, 
     milestone_ids, 
     gs$milestone_network, 
-    gs$progressions %>% rename(cell_id = step_id) %>% slice(match(sampleprogressions$step_id, cell_id))
+    gs$progressions %>% rename(cell_id = step_id) %>% slice(match(space$step_id, cell_id))
   ) %>% 
     group_by(cell_id) %>% filter(row_number() == which.max(percentage)) %>% rename(step_id = cell_id) %>% 
     ungroup()

@@ -53,10 +53,12 @@ Suggests:
     Rtsne,
     SCORPIUS,
     fastICA,
-    covr
+    covr,
+    ggnetwork
 Remotes:
   dgrtwo/gganimate,
   dynverse/fastgssa,
   dynverse/splatter,
   rcannood/dynutils,
-  rcannood/PRISM
+  rcannood/PRISM,
+  briatte/ggnetwork

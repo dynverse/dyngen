@@ -121,6 +121,6 @@ simple_params = list(
     )
   ),
   simulation = list(
-    nsimulations = 12
+    nsimulations = 6
   )
 ) %>% modifyList(base_params, .)
