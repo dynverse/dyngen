@@ -86,18 +86,21 @@ simulate_handle <- run_cluster(simulate, "simulate.rds", ncores, paramsets, qsub
 check_simulation_handle <- run_cluster(check_simulation, "simulation_checks.rds", 1, paramsets, qsub_config_single %>% list_modify(memory="15G"))
 gs_handle <- run_cluster(extract_goldstandard, "gs.rds", 1, paramsets, qsub_config_single %>% list_modify(memory="30G"))
 run_cluster(generate_experiment, "experiment.rds", 1, paramsets, qsub_config_single %>% list_modify(memory="20G"))
-run_cluster(normalise, "normalisation.rds", ncores, paramsets, qsub_config)
+normalise_handle <- run_cluster(normalise, "normalisation.rds", 1, paramsets, qsub_config_single)
 run_cluster(plot_goldstandard, "gs_plot.rds", 1, paramsets, qsub_config_single %>% list_modify(memory="20G"))
 run_cluster(plot_experiment, "experiment_plot.pdf", 1, paramsets, qsub_config_single)
-run_cluster(wrap, "task.rds", 1, paramsets, qsub_config_single %>% list_modify(memory="20G"))
+wrap_handle <- run_cluster(wrap, "task.rds", 1, paramsets, qsub_config_single %>% list_modify(memory="20G"))
 
-qsub_retrieve(simulate_handle)
-
+result <- qsub_retrieve(normalise_handle)
+result
 
 ## Group tasks
 tasks <- list.files(dataset_preproc_file(), "*task.rds", full.names=T) %>% sort() %>% map(readRDS) %>% dynutils::list_as_tibble()
 tasks <- tasks %>% filter(map(settings, "platform_name") != "small")
 
 write_rds(tasks, dataset_file("tasks.rds"))
+
+
+PRISM:::rsync_remote("prism", paste0("/group/irc/shared/dynalysis", dataset_file(relative = T), "tasks.rds"), "", dataset_file())
 
 tasks$trajectory_type %>% table()
