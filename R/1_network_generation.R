@@ -27,15 +27,9 @@ generate_model_from_modulenet <- function(
   decay,
   
   # module net to net --
-  ngenes_per_module_generator=function(ngenes_per_module_mean) {
-    function(n) {
-      sample(1:(ngenes_per_module_mean * 2), n, replace=TRUE)
-    }
-  },
+  ngenes_per_module_generator,
   edge_retainment,
-  ntargets_sampler_generator=function(ntargets_mean) {
-    function() {sample(1:(ntargets_mean*2), 1)}
-  },
+  ntargets_sampler_generator=,
   main_targets_ratio = 0.05,
   
   # add targets --
