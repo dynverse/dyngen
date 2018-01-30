@@ -29,7 +29,7 @@ generate_model_from_modulenet <- function(
   # module net to net --
   ngenes_per_module_generator,
   edge_retainment,
-  ntargets_sampler_generator=,
+  ntargets_sampler_generator,
   main_targets_ratio = 0.05,
   
   # add targets --
