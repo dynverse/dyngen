@@ -5,16 +5,16 @@
 \title{Convert modulenet to modules regulating each other}
 \usage{
 modulenet_to_genenet(modulenet, modulenodes, n_genes,
-  ngenes_per_module = function(n_genes, n_modules) sample(1:10, n_modules,
-  replace = TRUE), gene_name_generator = function(i) paste0("GM", i),
-  edge_retainment = function(n) max(c(round(n/2), 1)))
+  ngenes_per_module_sampler = function(n_genes, n_modules) sample(1:10,
+  n_modules, replace = TRUE), gene_name_generator = function(i) paste0("GM",
+  i), edge_retainment = function(n) max(c(round(n/2), 1)))
 }
 \arguments{
 \item{modulenet}{Module network}
 
 \item{modulenodes}{Module nodes}
 
-\item{ngenes_per_module}{Functions for sampling the number of genes per module}
+\item{ngenes_per_module_sampler}{Functions for sampling the number of genes per module}
 
 \item{gene_name_generator}{Function for generating the name of a gene}
 

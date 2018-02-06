@@ -6,7 +6,7 @@
 Given a network, extract an induced subgraph from from a central TF to (indirect) targets using Personalized PageRank}
 \usage{
 extract_induced_subgraph_from_tf(net, tf_of_interest = NULL, damping = 0.05,
-  ngenesampler = function() {     sample(20:100, 1) })
+  ngenes = 1)
 }
 \arguments{
 \item{net}{Network as a data.frame or igraph object}

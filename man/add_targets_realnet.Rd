@@ -5,8 +5,9 @@
 \title{Add targets based on a real network}
 \usage{
 add_targets_realnet(net, geneinfo, realnet_name = "regulatorycircuits",
-  damping = 0.05, ntargets_sampler = function() {     sample(20:100, 1) },
-  gene_name_generator = function(i) paste0("G", i))
+  damping = 0.05, ntargets, ntargets_sampler = function(n_genes,
+  n_regulators) {     sample(20:100, 1) }, gene_name_generator = function(i)
+  paste0("G", i))
 }
 \arguments{
 \item{net}{Network dataframe}
@@ -16,6 +17,8 @@ add_targets_realnet(net, geneinfo, realnet_name = "regulatorycircuits",
 \item{realnet_name}{Name of the real network.}
 
 \item{damping}{A daping factor for personalized pagerank}
+
+\item{ntargets}{Number of total targets}
 
 \item{ntargets_sampler}{A sample function for the number of targets}
 
