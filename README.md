@@ -67,7 +67,7 @@ experiment <- invoke(run_experiment, params$experiment, simulation, gs)
 Normalise the data
 
 ``` r
-normalisation <- invoke(dynutils::normalise_filter_counts, params$normalisation, experiment$counts)
+normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
 ```
 
 Wrapping in a task

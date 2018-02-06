@@ -17,6 +17,7 @@ Imports:
   cowplot,
   dplyr,
   dtw,
+  dynnormaliser,
   dynutils,
   fastgssa,
   FNN,
@@ -47,18 +48,19 @@ Imports:
   viridis,
   zoo
 Suggests: 
-    rgl,
-    splatter,
-    SingleCellExperiment,
-    Rtsne,
-    SCORPIUS,
-    fastICA,
-    covr,
-    ggnetwork
+  rgl,
+  splatter,
+  SingleCellExperiment,
+  Rtsne,
+  SCORPIUS,
+  fastICA,
+  covr,
+  ggnetwork
 Remotes:
   dgrtwo/gganimate,
   dynverse/fastgssa,
   dynverse/splatter,
+  rcannood/dynnormaliser,
   rcannood/dynutils,
   rcannood/PRISM,
   briatte/ggnetwork
