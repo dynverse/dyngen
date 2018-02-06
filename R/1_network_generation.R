@@ -9,8 +9,8 @@
 #' @inheritParams add_targets_realnet
 #' @inheritParams modulenet_to_genenet 
 #' @inheritParams generate_random_tree
-#' @param ngenes_per_module_generator Generator for number of genes per module
-#' @param ntargets_sampler_generator Generator for number of targets
+#' @param ngenes_per_module_sampler Function for number of genes per module, given n_genes and n_modules
+#' @param ntargets_sampler Function for number of targets per regulator, given n_genes and n_regulators
 #' @param main_targets_ratio Ratio of targets versus main tfs
 #' @param verbose Whether or not to produce textual output
 #' 
@@ -27,9 +27,9 @@ generate_model_from_modulenet <- function(
   decay,
   
   # module net to net --
-  ngenes_per_module_generator,
+  ngenes_per_module_sampler,
   edge_retainment,
-  ntargets_sampler_generator,
+  ntargets_sampler,
   main_targets_ratio = 0.05,
   
   # add targets --
@@ -58,25 +58,23 @@ generate_model_from_modulenet <- function(
   n_genes_total <- round(platform$n_genes * platform$pct_changing)
   ngenes_in_main <- round(n_genes_total * main_targets_ratio)
   ngenes_in_targets <- n_genes_total - ngenes_in_main
-  ngenes_per_module_mean <- round(max(ngenes_in_main/nrow(model$modulenodes), 1))
-  ngenes_per_module <- ngenes_per_module_generator(ngenes_per_module_mean)
   
   model <- modulenet_to_genenet(
     model$modulenet, 
     model$modulenodes, 
-    ngenes_per_module = ngenes_per_module, 
+    ngenes_in_main,
+    ngenes_per_module_sampler,
     edge_retainment = edge_retainment
   ) %>% c(model)
   
   # add some targets
   if (verbose) print("Sampling targets")
-  ntargets_mean <- max(round(ngenes_in_targets / nrow(model$geneinfo)), 1)
-  ntargets_sampler <- ntargets_sampler_generator(ntargets_mean)
   if (target_adder_name == "realnet") {
     model <- add_targets_realnet(
       model$net, model$geneinfo,
       realnet_name = realnet_name,
       damping = damping,
+      ntargets = ngenes_in_targets,
       ntargets_sampler = ntargets_sampler
     ) %>% dynutils::merge_lists(model, .)
   } else {
@@ -128,20 +126,22 @@ load_modulenet <- function(modulenet_name) {
 #' Convert modulenet to modules regulating each other
 #' @param modulenet Module network
 #' @param modulenodes Module nodes
-#' @param ngenes_per_module Functions for sampling the number of genes per module
+#' @param ngenes Number of genes to use
+#' @param ngenes_per_module_sampler Functions for sampling the number of genes per module
 #' @param gene_name_generator Function for generating the name of a gene
 #' @param edge_retainment Function for sampling the number of edges retained between tfs of module nodes
 modulenet_to_genenet <- function(
   modulenet, 
   modulenodes, 
-  ngenes_per_module = function(n) sample(1:10, n, replace=TRUE), 
+  n_genes,
+  ngenes_per_module_sampler = function(n_genes, n_modules) sample(1:10, n_modules, replace=TRUE), 
   gene_name_generator = function(i) paste0("GM", i),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {
   # generate tfs for each module, add to geneinfo
   geneinfo <- modulenodes %>% 
     mutate(
-      ngenes = ngenes_per_module(n()),
+      ngenes = ngenes_per_module_sampler(max(n_genes, n()), n()),
       startgeneid = c(0, cumsum(ngenes)[-n()]),
       genes = map2(startgeneid, ngenes, ~gene_name_generator(seq(.x, .x+.y-1))),
       isgene = TRUE,
@@ -176,6 +176,7 @@ modulenet_to_genenet <- function(
 #' @param geneinfo Geneinfo dataframe
 #' @param realnet_name Name of the real network.
 #' @param damping A daping factor for personalized pagerank
+#' @param ntargets Number of total targets
 #' @param ntargets_sampler A sample function for the number of targets
 #' @param gene_name_generator A function for determining the name of a gene
 #' 
@@ -187,7 +188,8 @@ add_targets_realnet <- function(
   geneinfo, 
   realnet_name = "regulatorycircuits", 
   damping=0.05, 
-  ntargets_sampler=function() {sample(20:100, 1)},
+  ntargets,
+  ntargets_sampler=function(n_genes, n_regulators) {sample(20:100, 1)},
   gene_name_generator = function(i) paste0("G", i)
 ) {
   # get the real network
@@ -213,10 +215,12 @@ add_targets_realnet <- function(
   net$from <- oldtf_to_newtf_mapper[net$from]
   net$to <- oldtf_to_newtf_mapper[net$to]
   
+  geneinfo$ntargets <- ntargets_sampler(max(nrow(geneinfo), ntargets), nrow(geneinfo))
+  
   # extract the small induced subgraphs
   geneinfo <- geneinfo %>% 
     rowwise() %>% 
-    mutate(target_net=list(extract_induced_subgraph_from_tf(realnet, gene_id, damping=damping, ngenesampler=ntargets_sampler))) %>% 
+    mutate(target_net=list(extract_induced_subgraph_from_tf(realnet, gene_id, damping=damping, ngenes=ntargets))) %>% 
     ungroup()
   geneinfo$target <- map(geneinfo$target_net, ~unique(c(.$from, .$to)))
   
@@ -263,7 +267,7 @@ add_targets_realnet <- function(
 #' @return Network as a data.frame
 #' 
 #' @importFrom stats runif
-extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0.05, ngenesampler=function() {sample(20:100, 1)}) {
+extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0.05, ngenes=1) {
   if(!("igraph" %in% class(net))) net <- igraph::graph_from_data_frame(net)
   tfs <- net %>% igraph::degree(mode="out") %>% {which(.>0)} %>% names
   
@@ -273,10 +277,9 @@ extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0
   personalized[tf_of_interest] <- 1
   p <- igraph::page_rank(net, personalized=personalized, directed=TRUE, damping=damping)
   
-  n_genes <- ngenesampler()
   genes_of_interest <- tibble(score=p$vector, gene_id=names(p$vector)) %>% 
     mutate(score = score + stats::runif(n(), 0, 1e-15)) %>%  # avoid ties
-    sample_n(n_genes, weight = score) %>% 
+    sample_n(ngenes, weight = score) %>% 
     pull(gene_id) %>% c(tf_of_interest) %>% unique()
   
   # remove genes not connected

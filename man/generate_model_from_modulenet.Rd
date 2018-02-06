@@ -5,11 +5,11 @@
 \title{Model generation from modulenet}
 \usage{
 generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
-  decay = 1.4, ngenes_per_module_generator, edge_retainment = function(n)
-  max(c(round(n/2), 1)), ntargets_sampler_generator,
-  main_targets_ratio = 0.05, target_adder_name,
-  realnet_name = "regulatorycircuits", damping = 0.05, samplers,
-  verbose = TRUE)
+  decay = 1.4, ngenes_per_module = function(n_genes, n_modules) sample(1:10,
+  n_modules, replace = TRUE), edge_retainment = function(n) max(c(round(n/2),
+  1)), ntargets_sampler_generator, main_targets_ratio = 0.05,
+  target_adder_name, realnet_name = "regulatorycircuits", damping = 0.05,
+  samplers, verbose = TRUE)
 }
 \arguments{
 \item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
@@ -20,7 +20,7 @@ generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
 
 \item{decay}{The decay rate}
 
-\item{ngenes_per_module_generator}{Generator for number of genes per module}
+\item{ngenes_per_module}{Function for number of genes per module, given n_genes and n_modules}
 
 \item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
 

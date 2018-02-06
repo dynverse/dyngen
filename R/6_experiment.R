@@ -40,7 +40,7 @@ run_experiment <- function(
   
   # we only use the earlier steps in the splatSImulateSingle, but then you need to dig deep into splat::: 's ...
   # we now combine the genemeans from splatter with the simulated expression values
-  # then use the libsizes from splatter to estimate the "true" expression from each cell, which will then be used to estimate the tre counts
+  # then use the libsizes from splatter to estimate the "true" expression from each cell, which will then be used to estimate the true counts
   
   # see splatter:::splatSimSingleCellMeans
   exp.lib.sizes <- SingleCellExperiment::colData(housekeeping_simulation)$ExpLibSize

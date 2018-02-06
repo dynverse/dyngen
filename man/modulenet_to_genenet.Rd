@@ -4,9 +4,10 @@
 \alias{modulenet_to_genenet}
 \title{Convert modulenet to modules regulating each other}
 \usage{
-modulenet_to_genenet(modulenet, modulenodes, ngenes_per_module = function(n)
-  sample(1:10, n, replace = TRUE), gene_name_generator = function(i)
-  paste0("GM", i), edge_retainment = function(n) max(c(round(n/2), 1)))
+modulenet_to_genenet(modulenet, modulenodes, n_genes,
+  ngenes_per_module = function(n_genes, n_modules) sample(1:10, n_modules,
+  replace = TRUE), gene_name_generator = function(i) paste0("GM", i),
+  edge_retainment = function(n) max(c(round(n/2), 1)))
 }
 \arguments{
 \item{modulenet}{Module network}
@@ -18,6 +19,8 @@ modulenet_to_genenet(modulenet, modulenodes, ngenes_per_module = function(n)
 \item{gene_name_generator}{Function for generating the name of a gene}
 
 \item{edge_retainment}{Function for sampling the number of edges retained between tfs of module nodes}
+
+\item{ngenes}{Number of genes to use}
 }
 \description{
 Convert modulenet to modules regulating each other

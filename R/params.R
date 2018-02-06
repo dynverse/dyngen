@@ -11,10 +11,8 @@ base_params = list(
     platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/small.rds")),
     
     # network between tfs
-    ngenes_per_module_generator = function(ngenes_per_module_mean) {
-      function(n) {
-        sample(1:(ngenes_per_module_mean * 2), n, replace=TRUE)
-      }
+    ngenes_per_module_sampler = function(n_genes, n_modules) {
+      diff(c(0, sort(sample(1:(n_genes-1), n_modules-1, replace = FALSE)), n_genes)) # randomly distribute the tfs over all modules
     },
     edge_retainment = function(n) sample(seq(1, min(1, n)), 1),
     main_targets_ratio = 0.05,
@@ -24,8 +22,8 @@ base_params = list(
     target_adder_name = "realnet",
     realnet_name = "regulatorycircuits",
     damping = 0.05,
-    ntargets_sampler_generator = function(ntargets_mean) {
-      function() {sample(1:(ntargets_mean*2), 1)}
+    ntargets_sampler = function(n_genes, n_regulators) {
+      diff(c(0, sort(sample(1:(n_genes-1), n_regulators-1, replace = FALSE)), n_genes)) # randomly distribute the targets over all modules
     },
     
     #system
