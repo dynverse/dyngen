@@ -62,7 +62,7 @@ normalise <- function(params) {
   pdf(dataset_preproc_file(pritt("{params$settings$params_i}_normalisation_plot.pdf")), width=12, height=12)
   dev.control('enable')
   
-  normalisation <- invoke(dynutils::normalise_filter_counts, params$normalisation, data$experiment$counts, verbose = TRUE)
+  normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, data$experiment$counts, verbose = TRUE)
   normalisation$uuids <- list(normalisation=uuid::UUIDgenerate()) %>% c(data$experiment$uuids)
   
   saveRDS(normalisation, dataset_preproc_file(pritt("{params$settings$params_i}_normalisation.rds")))

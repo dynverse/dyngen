@@ -24,7 +24,7 @@ test_that("a full dataset can be generated", {
   dev.off()
   
   pdf(tempfile())
-  normalisation <- invoke(dynutils::normalise_filter_counts, params$normalisation, experiment$counts, verbose = TRUE)
+  normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts, verbose = TRUE)
   plot_normalisation(experiment, normalisation)
   dev.off()
   
