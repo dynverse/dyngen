@@ -5,6 +5,9 @@
 #' @param gs Gold standard
 #' @param experiment Experiment
 #' @param normalisation Normalisation
+#' 
+#' @importFrom dynnormaliser generate_prior_information
+#' 
 #' @export
 wrap_task <- function(params, model, simulation, gs, experiment, normalisation) {
   counts <- normalisation$counts
@@ -48,7 +51,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
   feature_info$feature_id <- feature_info$gene_id
   
   # add prior information
-  prior_information <- dynutils::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage, counts, feature_info, cell_info)
+  prior_information <- dynnormaliser::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage, counts, feature_info, cell_info)
   
   # create task
   task <- dynutils::wrap_ti_task_data(
