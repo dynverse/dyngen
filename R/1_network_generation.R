@@ -126,7 +126,7 @@ load_modulenet <- function(modulenet_name) {
 #' Convert modulenet to modules regulating each other
 #' @param modulenet Module network
 #' @param modulenodes Module nodes
-#' @param ngenes Number of genes to use
+#' @param n_genes Number of genes to use
 #' @param ngenes_per_module_sampler Functions for sampling the number of genes per module
 #' @param gene_name_generator Function for generating the name of a gene
 #' @param edge_retainment Function for sampling the number of edges retained between tfs of module nodes
@@ -262,7 +262,7 @@ add_targets_realnet <- function(
 #' @param net Network as a data.frame or igraph object
 #' @param tf_of_interest Specify a TF of interest
 #' @param damping Damping factor for personalized pagerank
-#' @param ngenesampler Function for sampling the number of genes
+#' @param ngenes The number of genes
 #' 
 #' @return Network as a data.frame
 #' 
