@@ -66,10 +66,11 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
     feature_info = feature_info,
     settings = params$settings,
     prior_information = prior_information,
-    normalisation_info = normalisation$info
+    normalisation_info = normalisation$info,
+    task_source = "synthetic"
   )
   
-  task$geodesic_dist <- dynutils::compute_emlike_dist(task)
+  task$geodesic_dist <- dynutils::compute_tented_geodesic_distances(task)
   
   task
 }
