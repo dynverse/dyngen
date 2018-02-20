@@ -61,7 +61,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
   ) %>% add_trajectory_to_wrapper(
     milestone_ids = milestone_ids,
     milestone_network = milestone_network,
-    divergence_regions = divergence_regions,
+    divergence_regions = NULL, # dyngen does not support divergence regions right now
     progressions = progressions
   ) %>% add_expression_to_wrapper(
     counts = counts,
