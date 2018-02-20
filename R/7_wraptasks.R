@@ -50,27 +50,22 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
   feature_info <- experiment$geneinfo %>% slice(match(colnames(counts), gene_id))
   feature_info$feature_id <- feature_info$gene_id
   
-  # add prior information
-  prior_information <- dynnormaliser::generate_prior_information(milestone_ids, milestone_network, progressions, milestone_percentage, counts, feature_info, cell_info)
-  
   # create task
-  task <- dynutils::wrap_ti_task_data(
+  wrap_data(
     id = params$settings$dataset_id,
     cell_ids = cell_ids,
+    cell_info = cell_info,
+    task_source = "synthetic",
+    settings = params$settings,
+    normalisation_info = normalisation$info
+  ) %>% add_trajectory_to_wrapper(
     milestone_ids = milestone_ids,
     milestone_network = milestone_network,
-    progressions = progressions,
+    divergence_regions = divergence_regions,
+    progressions = progressions
+  ) %>% add_expression_to_wrapper(
     counts = counts,
     expression = expression,
-    cell_info = cell_info,
-    feature_info = feature_info,
-    settings = params$settings,
-    prior_information = prior_information,
-    normalisation_info = normalisation$info,
-    task_source = "synthetic"
-  )
-  
-  task$geodesic_dist <- dynutils::compute_tented_geodesic_distances(task)
-  
-  task
+    feature_info = feature_info
+  ) %>% dynnormaliser::add_prior_information_to_wrapper()
 }
