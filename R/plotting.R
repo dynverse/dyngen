@@ -342,7 +342,7 @@ plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstanda
   space <- spaces$space[[1]]
   
   milestone_ids <- unique(c(gs$milestone_network$from, gs$milestone_network$to))
-  grouping <- dynutils::convert_progressions_to_milestone_percentages(
+  grouping <- convert_progressions_to_milestone_percentages(
     space$step_id, 
     milestone_ids, 
     gs$milestone_network, 
@@ -363,7 +363,6 @@ plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstanda
   
   spaces_milestone <- map(spaces$space, generate_milestone_space, grouping, gs$milestone_network) %>% bind_rows() %>% bind_cols(spaces)
   
-  #dynutils::extract_row_to_list(spaces_milestone, 1) %>% list2env(.GlobalEnv)
   pmap(as.list(spaces_milestone), function(space, space_milestone, space_milestone_network, ...) {
     space <- space %>% mutate_at(., vars(simulation_id, edge_id), funs(factor))
     

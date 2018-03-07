@@ -4,6 +4,7 @@
 #' @import methods
 #' @import tibble
 #' @import dynutils
+#' @import dynwrap
 #' @import readr
 #' @import tidyr
 #' @import ggplot2

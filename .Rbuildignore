@@ -16,3 +16,4 @@
 ^raw_data
 ^codecov\.yml$
 ^..readme_files
+^README.Rmd$

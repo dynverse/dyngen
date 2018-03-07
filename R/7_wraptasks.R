@@ -44,7 +44,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
     as.character
   
   # milestone percentages
-  milestone_percentage <- dynutils::convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
+  milestone_percentage <- convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
   
   # feature info
   feature_info <- experiment$geneinfo %>% slice(match(colnames(counts), gene_id))

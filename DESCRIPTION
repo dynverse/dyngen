@@ -19,6 +19,7 @@ Imports:
   dtw,
   dynnormaliser,
   dynutils,
+  dynwrap,
   fastgssa,
   FNN,
   gganimate,
@@ -61,5 +62,6 @@ Remotes:
   dynverse/splatter,
   rcannood/dynnormaliser,
   rcannood/dynutils,
+  rcannood/dynwrap,
   rcannood/PRISM,
   briatte/ggnetwork
