@@ -12,7 +12,7 @@ LazyData: TRUE
 RoxygenNote: 6.0.1
 Depends:
   R (>= 3.0.0)
-Imports: 
+Imports:
   Biobase,
   cowplot,
   dplyr,
@@ -48,14 +48,16 @@ Imports:
   utils,
   viridis,
   zoo
-Suggests: 
+Suggests:
   rgl,
   splatter,
   SingleCellExperiment,
   Rtsne,
   SCORPIUS,
   fastICA,
-  covr
+  covr,
+    knitr,
+    rmarkdown
 Remotes:
   dgrtwo/gganimate,
   dynverse/fastgssa,
@@ -65,3 +67,4 @@ Remotes:
   rcannood/dynwrap,
   rcannood/PRISM,
   briatte/ggnetwork
+VignetteBuilder: knitr

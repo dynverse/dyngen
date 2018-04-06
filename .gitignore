@@ -16,5 +16,5 @@ results/*
 packrat/lib*/
 packrat/src/
 data/*
-
 raw_data
+inst/doc

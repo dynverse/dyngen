@@ -1,0 +1,63 @@
+---
+title: "Generating a large bifurcating dataset"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+fig_width: 10
+fig_height: 6
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, message=F}
+library(tidyverse)
+library(dyngen)
+
+params <- simple_params
+params$model$modulenet_name <- "bifurcating"
+options(ncores = 4)
+```
+
+Generating a regulatory network and a system of differential equations
+```{r model}
+model <- invoke(generate_model_from_modulenet, params$model)
+plot_net(model, main_only = FALSE)
+```
+
+Simulating this system 
+```{r simulate}
+simulation <- invoke(simulate_multiple, params$simulation, model$system)
+plot_simulation_space_time(simulation)
+```
+
+Extracting the gold standard trajectory from the simulations
+```{r extract_goldstandard}
+gs <- invoke(extract_goldstandard, params$gs, simulation, model)
+plot_goldstandard_heatmap(simulation, gs)
+```
+
+Simulating the single-cell RNA-seq experiment
+```{r run_experiment}
+experiment <- invoke(run_experiment, params$experiment, simulation, gs)
+```
+
+Normalising the data
+```{r normalise}
+normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
+```
+
+Wrapping in a task
+```{r wrap}
+task <- wrap_task("readme_dataset", params, model, simulation, gs, experiment, normalisation)
+```
