@@ -13,7 +13,6 @@ RoxygenNote: 6.0.1
 Depends:
   R (>= 3.0.0)
 Imports:
-  Biobase,
   cowplot,
   dplyr,
   dtw,
@@ -21,8 +20,6 @@ Imports:
   dynutils,
   dynwrap,
   fastgssa,
-  FNN,
-  gganimate,
   ggnetwork,
   ggplot2,
   glue,
@@ -35,7 +32,6 @@ Imports:
   pdist,
   pheatmap,
   plyr,
-  princurve,
   PRISM,
   purrr,
   readr,
@@ -59,7 +55,6 @@ Suggests:
     knitr,
     rmarkdown
 Remotes:
-  dgrtwo/gganimate,
   dynverse/fastgssa,
   dynverse/splatter,
   rcannood/dynnormaliser,
