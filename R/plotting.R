@@ -78,11 +78,13 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   }
   igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", grDevices::rgb(0, 0, 0, alpha=0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
   
-  igraph::plot.igraph(
-    graph,
-    layout = layout,
-    edge.arrow.size = 0.5,
-    edge.loop.angle = 0.1
+  out <- capture.output( # avoid igraph printing nonsense
+    igraph::plot.igraph(
+      graph,
+      layout = layout,
+      edge.arrow.size = 0.5,
+      edge.loop.angle = 0.1
+    )
   )
 }
 
