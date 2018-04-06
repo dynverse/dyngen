@@ -1,7 +1,7 @@
 dyngen
 ================
 
-[![Build Status](https://travis-ci.com/Zouter/dyngen.svg?token=pzNqJjk3yapU1Hk7sDg8&branch=master)](https://travis-ci.com/Zouter/dyngen) [![codecov](https://codecov.io/gh/Zouter/dyngen/branch/master/graph/badge.svg?token=IGVryyPFpI)](https://codecov.io/gh/Zouter/dyngen)
+[![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen) [![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)
 
 A package to generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps: ![generation\_overview](.readme_files/generation_overview_v1.svg)
 
