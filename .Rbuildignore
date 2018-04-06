@@ -7,11 +7,6 @@
 ^\.travis\.yml$
 ^dyngen.xmind$
 ^\.git$
-^data/genecircuits
-^data/platforms
-^data/statenetworks
-^data/systems
-^data/housekeeping
 ^ext_data
 ^raw_data
 ^codecov\.yml$
