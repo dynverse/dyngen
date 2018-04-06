@@ -1,11 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^packrat/
 ^\.Rprofile$
 ^wip$
 ^scripts$
 ^\.travis\.yml$
-^dyngen.xmind$
 ^\.git$
 ^ext_data
 ^raw_data
