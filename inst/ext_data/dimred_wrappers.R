@@ -1,5 +1,5 @@
 dimred_pca = function(x, ndim=3) {
-  space = prcomp(t(x))$rotation[,seq_len(ndim)]
+  space = prcomp(t(x))$x[,seq_len(ndim)]
   process_dimred(space)
 }
 dimred_simlr = function(x, ndim=3, nclusters=4) {
