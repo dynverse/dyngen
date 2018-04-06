@@ -417,7 +417,8 @@ plot_goldstandard_heatmap <- function(simulation, gs) {
       select(edge_id, simulation_id, percentage) %>% 
       mutate(edge_id = factor(edge_id), simulation_id = simulation_id) %>% 
       as.data.frame() %>% 
-      magrittr::set_rownames(sampleprogressions_ordered$step_id)
+      magrittr::set_rownames(sampleprogressions_ordered$step_id),
+    show_colnames =FALSE
   )
   
   samplexpression_modules_ordered %>% t() %>% pheatmap::pheatmap(
@@ -428,7 +429,8 @@ plot_goldstandard_heatmap <- function(simulation, gs) {
       select(edge_id, simulation_id, percentage) %>% 
       mutate(edge_id = factor(edge_id), simulation_id = simulation_id) %>% 
       as.data.frame() %>% 
-      magrittr::set_rownames(sampleprogressions_ordered$step_id)
+      magrittr::set_rownames(sampleprogressions_ordered$step_id),
+      show_colnames = FALSE
   )
 }
 
