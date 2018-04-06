@@ -9,7 +9,7 @@
 #' @importFrom dynnormaliser generate_prior_information
 #' 
 #' @export
-wrap_task <- function(params, model, simulation, gs, experiment, normalisation) {
+wrap_task <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
   counts <- normalisation$counts
   expression <- normalisation$expression[rownames(counts), colnames(counts)]
   
@@ -35,7 +35,10 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
     select(cell_id, from, to, percentage)
   
   # filter milestone_network for those edges present in the data
-  milestone_network <- progressions %>% select(from, to) %>% distinct(from, to) %>% left_join(milestone_network)
+  milestone_network <- progressions %>% 
+    select(from, to) %>% 
+    distinct(from, to) %>% 
+    left_join(milestone_network, c("from", "to"))
   
   # get milestone ids
   milestone_ids <- milestone_network %>% select(from, to) %>% 
@@ -52,7 +55,7 @@ wrap_task <- function(params, model, simulation, gs, experiment, normalisation) 
   
   # create task
   wrap_data(
-    id = params$settings$dataset_id,
+    id = id,
     cell_ids = cell_ids,
     cell_info = cell_info,
     task_source = "synthetic",
