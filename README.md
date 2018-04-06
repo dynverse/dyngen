@@ -13,7 +13,7 @@ params <- simple_params
 options(ncores = 1)
 ```
 
-Generating a regulatory network and a system of differential equation
+Generating a regulatory network and a system of differential equations
 
 ``` r
 model <- invoke(generate_model_from_modulenet, params$model)
@@ -58,13 +58,13 @@ plot_goldstandard_heatmap(simulation, gs)
 
 ![](.readme_files/extract_goldstandard-1.png)![](.readme_files/extract_goldstandard-2.png)
 
-Simulate the single-cell RNA-seq experiment
+Simulating the single-cell RNA-seq experiment
 
 ``` r
 experiment <- invoke(run_experiment, params$experiment, simulation, gs)
 ```
 
-Normalise the data
+Normalising the data
 
 ``` r
 normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
