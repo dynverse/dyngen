@@ -48,9 +48,10 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   if(main_only) geneinfo <- geneinfo %>% filter(main)
   net <- model$net %>% filter((from %in% geneinfo$gene_id) & (to %in% geneinfo$gene_id))
   
+  # add extra edges invisible between regulators from the same module
   net <- bind_rows(
     net, 
-    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors=FALSE)) %>% bind_rows() %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
+    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors=FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1=character(), V2=character())) %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
   )
   
   
