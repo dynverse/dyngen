@@ -19,7 +19,7 @@ params <- simple_params
 options(ncores = 1)
 ```
 
-Generating a regulatory network and a system of differential equation
+Generating a regulatory network and a system of differential equations
 ```{r model}
 model <- invoke(generate_model_from_modulenet, params$model)
 plot_net(model)
@@ -37,17 +37,17 @@ gs <- invoke(extract_goldstandard, params$gs, simulation, model)
 plot_goldstandard_heatmap(simulation, gs)
 ```
 
-Simulate the single-cell RNA-seq experiment
+Simulating the single-cell RNA-seq experiment
 ```{r run_experiment}
 experiment <- invoke(run_experiment, params$experiment, simulation, gs)
 ```
 
-Normalise the data
+Normalising the data
 ```{r normalise}
 normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
 ```
 
 Wrapping in a task
 ```{r wrap}
-task <- wrap_task(params, model, simulation, gs, experiment, normalisation)
+task <- wrap_task("readme_dataset", params, model, simulation, gs, experiment, normalisation)
 ```

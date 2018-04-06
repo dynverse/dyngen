@@ -37,7 +37,7 @@ simulation <- invoke(simulate_multiple, params$simulation, model$system)
 plot_simulation_space_time(simulation)
 ```
 
-![](.readme_files/unnamed-chunk-2-1.png)
+![](.readme_files/simulate-1.png)
 
 Extracting the gold standard trajectory from the simulations
 
@@ -56,7 +56,7 @@ gs <- invoke(extract_goldstandard, params$gs, simulation, model)
 plot_goldstandard_heatmap(simulation, gs)
 ```
 
-![](.readme_files/unnamed-chunk-3-1.png)![](.readme_files/unnamed-chunk-3-2.png)
+![](.readme_files/extract_goldstandard-1.png)![](.readme_files/extract_goldstandard-2.png)
 
 Simulate the single-cell RNA-seq experiment
 
@@ -73,5 +73,5 @@ normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisa
 Wrapping in a task
 
 ``` r
-task <- wrap_task(params, model, simulation, gs, experiment, normalisation)
+task <- wrap_task("readme_dataset", params, model, simulation, gs, experiment, normalisation)
 ```
