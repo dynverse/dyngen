@@ -52,8 +52,8 @@ Suggests:
   SCORPIUS,
   fastICA,
   covr,
-    knitr,
-    rmarkdown
+  knitr,
+  rmarkdown
 Remotes:
   dynverse/fastgssa,
   dynverse/splatter,
