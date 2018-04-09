@@ -5,6 +5,11 @@ bioc_required: true
 cache: packages
 env:
   - R_MAX_NUM_DLLS=250
+r_binary_packages:
+  - rhdf5
+  - caret
+  - mclust
+  - ggridges
 addons:
   apt:
     packages:
