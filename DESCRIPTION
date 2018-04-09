@@ -16,6 +16,7 @@ Imports:
   cowplot,
   dplyr,
   dtw,
+  dynnormaliser,
   dynutils,
   dynwrap,
   fastgssa,
@@ -45,13 +46,14 @@ Imports:
   zoo
 Suggests:
   rgl,
-  dynnormaliser,
+  splatter,
+  SingleCellExperiment,
   Rtsne,
   SCORPIUS,
   fastICA,
   covr,
-  knitr,
-  rmarkdown
+    knitr,
+    rmarkdown
 Remotes:
   dynverse/fastgssa,
   dynverse/splatter,
