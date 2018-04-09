@@ -19,7 +19,7 @@ addons:
 install:
  - R -e 'install.packages("devtools")'
  - R -e 'setRepositories(ind = 1:2)'
- - R -e 'devtools::install(dependencies = NA, upgrade = T, threads=2)'
+ - R -e 'devtools::install(dependencies = T, threads=2)'
 r_github_packages:
   - r-lib/covr
 after_success:
