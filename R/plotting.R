@@ -157,7 +157,7 @@ dimred <- function(x, dimred_name="pca", ndim=2) {
   get(paste0("dimred_", dimred_name))(x, ndim=ndim)
 }
 
-dimred_simulation <- function(simulation, subsample = subsample_simulation(simulation), dimred_names = c("pca", "ica", "mds"), expression_names=c("samplexpression", "samplexpression_modules")) {
+dimred_simulation <- function(simulation, subsample = subsample_simulation(simulation), dimred_names = c("pca"), expression_names=c("samplexpression", "samplexpression_modules")) {
   map(
     dimred_names, 
     function(dimred_name) {
@@ -207,7 +207,7 @@ plot_simulation_space_time <- function(simulation, spaces=dimred_simulation(simu
 plot_simulation_space_modules <- function(
   simulation, 
   subsample = subsample_simulation(simulation), 
-  spaces=dimred_simulation(simulation, subsample, "ica", "samplexpression_modules")
+  spaces=dimred_simulation(simulation, subsample, "pca", "samplexpression_modules")
 ) {
   module_ids <- colnames(simulation$expression_modules)
   samplexpression_modules_df <- subsample$samplexpression_modules %>% 
@@ -282,7 +282,7 @@ plot_simulation_modules_heatmap <- function(simulation) {
 plot_simulation_3D <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
-  space <- dimred_mds(subsample$samplexpression) %>% bind_cols(subsample$stepinfo)
+  space <- dimred_pca(subsample$samplexpression) %>% bind_cols(subsample$stepinfo)
   for (i in unique(as.numeric(space$simulation_id))) {
     rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
   }
@@ -469,7 +469,7 @@ plot_experiment <- function(experiment) {
       expr <- expr[sample(rownames(expr), 500), ]
     }
     
-    space <- dimred_ica(expr, ndim=2)
+    space <- dimred_pca(expr, ndim=2)
     space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()
@@ -491,7 +491,7 @@ plot_normalisation <- function(experiment, normalisation) {
       expr <- expr[sample(rownames(expr), 500), ]
     }
     
-    space <- dimred_ica(expr, ndim=2)
+    space <- dimred_pca(expr, ndim=2)
     space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()
