@@ -36,6 +36,8 @@ Imports:
   purrr,
   readr,
   reshape2,
+  splatter,
+  SingleCellExperiment,
   stats,
   stringr,
   tibble,
@@ -46,8 +48,6 @@ Imports:
   zoo
 Suggests:
   rgl,
-  splatter,
-  SingleCellExperiment,
   Rtsne,
   SCORPIUS,
   fastICA,
