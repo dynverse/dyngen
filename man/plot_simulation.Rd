@@ -20,7 +20,7 @@ plot_simulation_space_time(simulation, spaces = dimred_simulation(simulation))
 
 plot_simulation_space_modules(simulation,
   subsample = subsample_simulation(simulation),
-  spaces = dimred_simulation(simulation, subsample, "ica",
+  spaces = dimred_simulation(simulation, subsample, "pca",
   "samplexpression_modules"))
 
 plot_simulation_simulations_lines(simulation)

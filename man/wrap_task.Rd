@@ -7,6 +7,8 @@
 wrap_task(id = "", params, model, simulation, gs, experiment, normalisation)
 }
 \arguments{
+\item{id}{The id of the dataset}
+
 \item{params}{Parameters of the dataset}
 
 \item{model}{Model}

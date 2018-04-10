@@ -1,4 +1,5 @@
 #' Wrap tasks
+#' @param id The id of the dataset
 #' @param params Parameters of the dataset
 #' @param model Model
 #' @param simulation Simulation
