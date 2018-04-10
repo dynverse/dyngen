@@ -10,6 +10,7 @@ r_binary_packages:
   - caret
   - mclust
   - ggridges
+  - Rtsne
 addons:
   apt:
     packages:
@@ -19,7 +20,8 @@ addons:
 install:
  - R -e 'install.packages("devtools")'
  - R -e 'setRepositories(ind = 1:2)'
- - R -e 'devtools::install(dependencies = T, threads=2, upgrade_dependencies = FALSE)'
+ - R -e 'devtools::install()'
+r_check_args: "--no-tests --no-manual --no-vignettes --no-build-vignettes"
 r_github_packages:
   - r-lib/covr
 after_success:
