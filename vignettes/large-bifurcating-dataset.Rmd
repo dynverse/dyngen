@@ -22,7 +22,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, message=F}
-library(tidyverse)
+library(dplyr)
+library(purrr)
 library(dyngen)
 
 params <- simple_params
