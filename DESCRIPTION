@@ -33,7 +33,6 @@ Imports:
   pheatmap,
   plyr,
   PRISM,
-  prettydoc,
   purrr,
   readr,
   reshape2,

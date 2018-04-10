@@ -1,10 +1,11 @@
 ---
 title: "Generating a large bifurcating dataset"
 date: "`r Sys.Date()`"
-output:
-  prettydoc::html_pretty:
-    theme: architect
-    highlight: github
+# output:
+#   prettydoc::html_pretty:
+#     theme: architect
+#     highlight: github
+output: rmarkdown::html_vignette
 fig_width: 10
 fig_height: 6
 vignette: >
