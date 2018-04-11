@@ -57,9 +57,9 @@ Suggests:
 Remotes:
   dynverse/fastgssa,
   dynverse/splatter,
-  rcannood/dynnormaliser,
-  rcannood/dynutils,
-  rcannood/dynwrap,
+  dynverse/dynnormaliser,
+  dynverse/dynutils,
+  dynverse/dynwrap,
   rcannood/PRISM,
   briatte/ggnetwork
 VignetteBuilder: knitr
