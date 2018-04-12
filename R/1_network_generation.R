@@ -70,13 +70,14 @@ generate_model_from_modulenet <- function(
   # add some targets
   if (verbose) print("Sampling targets")
   if (target_adder_name == "realnet") {
-    model <- add_targets_realnet(
+    add_to_list <- add_targets_realnet(
       model$net, model$geneinfo,
       realnet_name = realnet_name,
       damping = damping,
       ntargets = ngenes_in_targets,
       ntargets_sampler = ntargets_sampler
-    ) %>% dynutils::merge_lists(model, .)
+    )
+    model[names(add_to_list)] <- add_to_list
   } else {
     warning("Target sampler not supported")
   }
