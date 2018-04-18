@@ -7,7 +7,7 @@
 #' @param experiment Experiment
 #' @param normalisation Normalisation
 #' 
-#' @importFrom dynnormaliser generate_prior_information
+#' @importFrom dynwrap generate_prior_information
 #' 
 #' @export
 wrap_task <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
