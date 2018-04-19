@@ -348,7 +348,7 @@ plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstanda
   grouping <- convert_progressions_to_milestone_percentages(
     space$step_id, 
     milestone_ids, 
-    gs$milestone_network, 
+    gs$milestone_network %>% mutate(length=1), 
     gs$progressions %>% rename(cell_id = step_id) %>% slice(match(space$step_id, cell_id))
   ) %>% 
     group_by(cell_id) %>% filter(row_number() == which.max(percentage)) %>% rename(step_id = cell_id) %>% 
