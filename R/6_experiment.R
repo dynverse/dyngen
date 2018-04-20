@@ -25,7 +25,7 @@ run_experiment <- function(
   n_genes_simulated <- ncol(expression_simulated)
   
   # generate housekeeping expression
-  # number of genes housekeeping depends on the fraction in the reference
+  # number of genes housekeeping depends on the fraction in the reference dataset
   n_genes_housekeeping <- round((n_genes_simulated / platform$pct_changing) * (1 - platform$pct_changing))
   n_genes <- n_genes_simulated + n_genes_housekeeping
   
@@ -58,7 +58,7 @@ run_experiment <- function(
   true_counts <- matrix(stats::rpois(n_genes * n_cells, lambda = expression), nrow = n_genes, ncol = n_cells)
   dimnames(true_counts) <- dimnames(expression)
   
-  true_counts %>% {log2(. + 1)} %>% apply(1, sd) %>% sort() %>% rev() %>% head(100) %>% names()
+  # true_counts %>% {log2(. + 1)} %>% apply(1, sd) %>% sort() %>% rev() %>% head(100) %>% names()
   
   # finally, if present, dropouts will be simulated
   # see splatter:::splatSimDropout
