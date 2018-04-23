@@ -17,6 +17,7 @@ before_install:
   - "sudo apt-get update -qq"
   - "sudo apt-get install -y r-cran-rcpp r-bioc-rhdf5 r-cran-caret r-cran-mclust r-cran-ggridges r-cran-dplyr r-cran-purrr r-cran-igraph r-bioc-s4vectors r-cran-xml2 r-cran-rcurl r-cran-data.table r-cran-xml r-cran-httpuv r-cran-rcppeigen r-cran-vgam r-cran-jsonlite r-cran-git2r r-cran-hms r-cran-matrixstats r-cran-readr r-cran-pheatmap  r-cran-pdist  r-cran-pbapply r-cran-dtw r-cran-testthat r-cran-locfit r-cran-fastica r-cran-covr r-cran-rgl r-cran-rmarkdown"
 install:
+ - if [ `git branch | grep '* master' | wc -l` == 0 ]; then sed -i 's#\(dynverse/[^, ]*\)#\1@devel#' DESCRIPTION; fi
  - R -e 'install.packages("devtools")'
  - R -e 'setRepositories(ind = 1:2)'
  - R -e 'devtools::install(dep=T, upgrade_dependencies=F)'
