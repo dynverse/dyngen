@@ -14,9 +14,7 @@ addons:
 install:
  - if [ `git branch | grep '* master' | wc -l` == 0 ]; then sed -i 's#\(dynverse/[^, ]*\)#\1@devel#' DESCRIPTION; fi
  - R -e 'install.packages("devtools")'
- - R -e 'setRepositories(ind = 1:2)'
- - R -e 'devtools::install(dep=T, upgrade_dependencies=F)'
-r_check_args: "--no-tests --no-manual --no-vignettes --no-build-vignettes"
+ - R -e 'setRepositories(ind = 1:2); devtools::install(dependencies = T, upgrade_dependencies = T)'
 r_github_packages:
   - r-lib/covr
 after_success:
