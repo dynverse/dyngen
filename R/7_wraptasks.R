@@ -7,7 +7,7 @@
 #' @param experiment Experiment
 #' @param normalisation Normalisation
 #' 
-#' @importFrom dynwrap add_prior_information_to_wrapper
+#' @importFrom dynwrap add_prior_information
 #' 
 #' @export
 wrap_task <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
@@ -62,14 +62,14 @@ wrap_task <- function(id = "", params, model, simulation, gs, experiment, normal
     task_source = "synthetic",
     settings = params$settings,
     normalisation_info = normalisation$info
-  ) %>% add_trajectory_to_wrapper(
+  ) %>% add_trajectory(
     milestone_ids = milestone_ids,
     milestone_network = milestone_network,
     divergence_regions = NULL, # dyngen does not support divergence regions right now
     progressions = progressions
-  ) %>% add_expression_to_wrapper(
+  ) %>% add_expression(
     counts = counts,
     expression = expression,
     feature_info = feature_info
-  ) %>% dynwrap::add_prior_information_to_wrapper()
+  ) %>% dynwrap::add_prior_information()
 }

@@ -28,7 +28,7 @@ library(dyngen)
 
 params <- simple_params
 params$model$modulenet_name <- "bifurcating"
-options(ncores = 4)
+options(ncores = 2)
 ```
 
 Generating a regulatory network and a system of differential equations
