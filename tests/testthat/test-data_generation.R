@@ -12,7 +12,7 @@ test_that("a full dataset can be generated", {
   simulation <- preprocess_simulation_for_gs(simulation, model, params$gs$smooth_window)
   plot_simulation(simulation)
   
-  gs <- invoke(extract_goldstandard, params$gs, simulation, model, preprocess=FALSE)
+  gs <- invoke(extract_goldstandard, params$gs, simulation, model, preprocess = FALSE)
   pdf(tempfile())
   plot_goldstandard(simulation, gs)
   dev.off()

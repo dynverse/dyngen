@@ -5,11 +5,11 @@
 #' @param cells Cells dataframe
 #' @importFrom stats setNames
 #' @export
-generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)) {
+generate_formulae <- function(net, geneinfo, cells = tibble(cell_id = 1, dies = FALSE)) {
   formulae <- list()
   
   # generate the formulae for every target gene
-  formulae <- pbapply::pblapply(cl=getOption("ncores"), geneinfo$gene_id, function(target_id) {
+  formulae <- pbapply::pblapply(cl = getOption("ncores"), geneinfo$gene_id, function(target_id) {
     formulae <- list()
     
     info <- dynutils::extract_row_to_list(geneinfo, which(geneinfo$gene_id == target_id))
@@ -46,7 +46,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
       
         # now combine the binding combinations
         binding_configurations <- map(get_configuration_ids(length(regulator_ids)), get_binding_configuration, length(regulator_ids))
-        configuration_affinities <- map(binding_configurations, ~paste0(regulator_affinities[.], collapse="*"))
+        configuration_affinities <- map(binding_configurations, ~paste0(regulator_affinities[.], collapse = "*"))
         configuration_as <- map(get_configuration_ids(length(regulator_ids)), ~pritt("a_{target_id}_{.}"))
         
         activations <- map2(configuration_affinities, configuration_as, function(affinity, a) pritt("{a} * {affinity}"))
@@ -106,7 +106,7 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
     }
     
     formulae
-  }) %>% unlist(recursive=F)
+  }) %>% unlist(recursive = F)
   
   # global transcription rates
   # for (i in 1:nrow(cells)) {
@@ -115,16 +115,16 @@ generate_formulae <- function(net, geneinfo, cells=tibble(cell_id=1, dies=FALSE)
   #   rg = rgs[[celltypeinfo$celltype]]
   #   
   #   formula = fcon(paste0("ifelse(", rg@string, ">0.2, 1, 0) * 10"))
-  #   nu = get_nu(higher=rg)
+  #   nu = get_nu(higher = rg)
   #   add.formula(formula, nu, paste0("global_mrna_production_increase"), formulae)
   #   
   #   formula = fcon(paste0("1 * 10 * ", rg@string))
-  #   nu = get_nu(lower=rg)
+  #   nu = get_nu(lower = rg)
   #   add.formula(formula, nu, paste0("global_mrna_production_decrease"), formulae)
   #   
   #   if(celltypeinfo$dies) {
   #     formula = fcon(paste0(rg@string, " * (",x@string, "*100)^2"))
-  #     nu = get_nu(lower=rg)
+  #     nu = get_nu(lower = rg)
   #     add.formula(formula, nu, paste0("death"), formulae)
   #   }
   # }

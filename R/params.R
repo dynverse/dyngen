@@ -62,7 +62,7 @@ base_params = list(
     totaltime = 20,
     burntime = 2,
     nsimulations = 32,
-    ssa_algorithm = fastgssa::ssa.em(noise_strength=8),
+    ssa_algorithm = fastgssa::ssa.em(noise_strength = 8),
     local = TRUE
   ),
   experiment = list(
