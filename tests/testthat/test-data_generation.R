@@ -3,8 +3,12 @@ context("Test data generation")
 test_that("a full dataset can be generated", {
   params <- simple_params
   
+  tmpfile <- tempfile()
+  on.exit(unlink(tmpfile))
+  
   model <- invoke(generate_model_from_modulenet, params$model)
-  pdf(tempfile())
+  
+  pdf(tmpfile)
   plot_model(model)
   dev.off()
   
@@ -13,16 +17,16 @@ test_that("a full dataset can be generated", {
   plot_simulation(simulation)
   
   gs <- invoke(extract_goldstandard, params$gs, simulation, model, preprocess = FALSE)
-  pdf(tempfile())
+  pdf(tmpfile)
   plot_goldstandard(simulation, gs)
   dev.off()
   
   experiment <- invoke(run_experiment, params$experiment, simulation, gs)
-  pdf(tempfile())
+  pdf(tmpfile)
   plot_experiment(experiment)
   dev.off()
   
-  pdf(tempfile())
+  pdf(tmpfile)
   normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts, verbose = TRUE)
   plot_normalisation(experiment, normalisation)
   dev.off()
