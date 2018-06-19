@@ -5,7 +5,7 @@ Version: 0.1
 Date: 2016-04-06
 Authors@R: c(
   person("Wouter", "Saelens", email = "wouter.saelens@ugent.be", role = c("aut", "cre")),
-  person("Robrecht", "Cannoodt", email = "rcannood@ugent.be", role = c("aut")))
+  person("Robrecht", "Cannoodt", email = "rcannood@gmail.com", role = c("aut")))
 Description: A toolkit for generating synthetic single cell data.
 License: GPL-3
 LazyData: TRUE
