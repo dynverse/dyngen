@@ -32,7 +32,6 @@ Imports:
   pdist,
   pheatmap,
   plyr,
-  PRISM,
   purrr,
   readr,
   reshape2,
@@ -60,6 +59,5 @@ Remotes:
   dynverse/dynnormaliser,
   dynverse/dynutils,
   dynverse/dynwrap,
-  rcannood/PRISM,
   briatte/ggnetwork
 VignetteBuilder: knitr
