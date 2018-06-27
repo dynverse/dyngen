@@ -9,10 +9,10 @@
 #' @param verbose Whether to include progress information
 #' @param preprocess Whether to preprocess
 #' @export
-extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose=TRUE, preprocess=TRUE) {
+extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose = TRUE, preprocess = TRUE) {
   if(preprocess) {
     if (verbose) print("Preprocessing")
-    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window=smooth_window)
+    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window = smooth_window)
   }
   
   expression <- simulation$expression_modules
@@ -30,7 +30,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   path_operations <- extract_path_operations(operations, paths)
   
   if (verbose) print("Extracting references")
-  references <- extract_references(path_operations, milestone_network, reference_length=reference_length)
+  references <- extract_references(path_operations, milestone_network, reference_length = reference_length)
   
   if (verbose) print("Mapping simulations onto reference")
   simulation_expressions <- expression %>% as.data.frame() %>% split(stepinfo$simulation_id)
@@ -38,7 +38,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   
   if (verbose) print("Postprocessing")
   gs <- list()
-  gs$progressions <- stepinfo %>% left_join(times, by="step_id") %>% left_join(milestone_network, by=c("edge_id"))
+  gs$progressions <- stepinfo %>% left_join(times, by = "step_id") %>% left_join(milestone_network, by = c("edge_id"))
   gs$milestone_network <- milestone_network
   gs$references <- references
   gs$expression_modules <- simulation$expression_modules
@@ -46,26 +46,26 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   gs
   
   # when things go wrong:
-  # pheatmap::pheatmap(references[[8]]$reference_expression, cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
-  # pheatmap::pheatmap(simulation_expressions[[1]], cluster_rows=F, cluster_cols=F, show_rownames = FALSE)
+  # pheatmap::pheatmap(references[[8]]$reference_expression, cluster_rows = F, cluster_cols = F, show_rownames = FALSE)
+  # pheatmap::pheatmap(simulation_expressions[[1]], cluster_rows = F, cluster_cols = F, show_rownames = FALSE)
   # 
 }
 
 check_goldstandard <- function(gs) {
-  gs$progressions$edge_id <- factor(gs$progressions$edge_id, levels=gs$milestone_network$edge_id)
+  gs$progressions$edge_id <- factor(gs$progressions$edge_id, levels = gs$milestone_network$edge_id)
   edge_counts <- table(gs$progressions$edge_id)
   if (any(edge_counts == 0)) {warning("Some edges not represented!")}
   
   lst(edge_counts)
 }
 
-smooth_expression <- function(expression, smooth_window=50) {
+smooth_expression <- function(expression, smooth_window = 50) {
   # expression %>% 
-  #   zoo::rollmean(smooth_window, partial=TRUE, c("extend", "extend", "extend")) %>%
+  #   zoo::rollmean(smooth_window, partial = TRUE, c("extend", "extend", "extend")) %>%
   #   magrittr::set_rownames(rownames(expression))
   
   expression %>%
-    zoo::rollapply(smooth_window, mean, partial=TRUE) %>%
+    zoo::rollapply(smooth_window, mean, partial = TRUE) %>%
     magrittr::set_rownames(rownames(expression))
 }
 
@@ -74,18 +74,18 @@ smooth_expression <- function(expression, smooth_window=50) {
 #' @inheritParams extract_goldstandard
 #' @param smooth_window The window (steps) to smooth over
 #' @export
-preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
+preprocess_simulation_for_gs <- function(simulation, model, smooth_window = 50) {
   geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
   expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
   
-  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window=smooth_window) %>% do.call(rbind, .)
+  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window = smooth_window) %>% do.call(rbind, .)
   dimnames(simulation$expression_smooth) <- dimnames(expression)
   
   # print("normalising...")
-  simulation$expression_normalised <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff=0.05)
+  simulation$expression_normalised <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff = 0.05)
   
   # print("calculating module expression...")
-  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels=model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
+  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
   simulation$expression_modules <- simulation$expression_modules[, as.character(model$modulenodes$module_id)] # fix ordering
   
   simulation
@@ -96,17 +96,17 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window=50) {
 #' @param start_milestones The starting milestones
 #' @param max_path_length Maximal number of milestones per path
 get_milestone_paths <- function(milestone_network, start_milestones, max_path_length = 10) {
-  recursor <- function(curnode, curpath=c(), max_path_length = 10) {
+  recursor <- function(curnode, curpath = c(), max_path_length = 10) {
     curpath <- c(curpath, curnode)
     tos <- milestone_network %>% filter(from == curnode) %>% pull(to)
     
     if (length(curpath) < max_path_length) {
-      c(list(curpath), unlist(map(tos, recursor, curpath=curpath, max_path_length=max_path_length), recursive=FALSE))
+      c(list(curpath), unlist(map(tos, recursor, curpath = curpath, max_path_length = max_path_length), recursive = FALSE))
     } else {
       curpath
     }
   }
-  paths <- map(start_milestones, recursor, curpath = c(), max_path_length=max_path_length) %>% unlist(recursive=FALSE) %>% keep(~length(.) > 1)
+  paths <- map(start_milestones, recursor, curpath = c(), max_path_length = max_path_length) %>% unlist(recursive = FALSE) %>% keep(~length(.) > 1)
   paths
 }
 
@@ -115,14 +115,14 @@ process_operations <- function(edge_operations, module_ids) {
   
   # process operations
   operations <- edge_operations %>% 
-    separate_rows(module_progression, sep="\\|") %>% 
+    separate_rows(module_progression, sep = "\\|") %>% 
     mutate(operation_id = seq_len(n())) %>% 
-    separate_rows(module_progression, sep=",") %>% 
+    separate_rows(module_progression, sep = ",") %>% 
     mutate(
-      operation = c(1, -1)[as.numeric(factor(substring(module_progression, 1, 1), levels=c("+", "-")))], 
+      operation = c(1, -1)[as.numeric(factor(substring(module_progression, 1, 1), levels = c("+", "-")))], 
       module_id = as.integer(substring(module_progression, 2))
     )
-  operations$module_id <- factor(operations$module_id, levels=module_ids) # factor -> acast
+  operations$module_id <- factor(operations$module_id, levels = module_ids) # factor -> acast
   operations
 }
 
@@ -148,10 +148,10 @@ extract_references <- function(path_operations, milestone_network, reference_len
     operations$edge_run <- rle(operations$edge_id) %>% {rep(seq_along(.$length), .$length)}
     
     # first calculate the changes during every operation (run), than do a cumsum to get the actual reference
-    reference_expression <- reshape2::acast(operations, module_id~operation_run, value.var="operation", fill=0, drop=FALSE) %>% apply(1, cumsum)
+    reference_expression <- reshape2::acast(operations, module_id~operation_run, value.var = "operation", fill = 0, drop = FALSE) %>% apply(1, cumsum)
     
     if(class(reference_expression)== "numeric") {
-      reference_expression <- matrix(reference_expression, nrow=1) %>% magrittr::set_colnames(names(reference_expression))
+      reference_expression <- matrix(reference_expression, nrow = 1) %>% magrittr::set_colnames(names(reference_expression))
     }
     
     # add start
@@ -172,18 +172,18 @@ extract_references <- function(path_operations, milestone_network, reference_len
     }
     
     reference_expression <- reference_expression %>% apply(2, function(x) {
-      reference_expression <- stats::approx(1:length(x), x, seq(1, length(x), length.out=reference_length * length(x)))$y
+      reference_expression <- stats::approx(1:length(x), x, seq(1, length(x), length.out = reference_length * length(x)))$y
     })
     
-    operations_start <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0, operation_run=0), operations)
+    operations_start <- bind_rows(operations %>% filter(row_number() == 1) %>% mutate(operation_id = 0, operation_run = 0), operations)
     reference_info <- operations_start %>% 
       select(from, to, edge_id, operation_run, edge_run) %>% 
       group_by(operation_run, edge_run, edge_id) %>% 
       summarise() %>% 
-      {.[rep(seq_len(nrow(.)), each=reference_length), ]} %>% 
+      {.[rep(seq_len(nrow(.)), each = reference_length), ]} %>% 
       ungroup() %>% 
       group_by(edge_run, edge_id) %>% 
-      mutate(percentage = seq(0, 1, length.out=n())) %>% 
+      mutate(percentage = seq(0, 1, length.out = n())) %>% 
       ungroup() %>% 
       mutate(reference_row_id = seq_len(n()))
     
@@ -212,7 +212,7 @@ map_to_reference <- function(simulation_expressions, references) {
       simulation_expression <- simulation_expression[, colnames(reference$reference_expression)]
       
       dist <- pdist::pdist(simulation_expression, reference$reference_expression) %>% as.matrix()
-      dtw <- dtw::dtw(dist, open.end=TRUE)
+      dtw <- dtw::dtw(dist, open.end = TRUE)
       dtw
     })
     
@@ -226,11 +226,11 @@ map_to_reference <- function(simulation_expressions, references) {
     dtw$index1 <- c(dtw$index1, which(!seq_len(nrow(simulation_expression)) %in% dtw$index1))
     dtw$index2 <- c(dtw$index2, rep(tail(dtw$index2, 1), length(dtw$index2) - length(dtw$index1)))
     
-    times <- tibble(index1=dtw$index1, index2=dtw$index2) %>% 
+    times <- tibble(index1 = dtw$index1, index2 = dtw$index2) %>% 
       mutate(step_id = rownames(simulation_expression)[index1]) %>% 
       group_by(step_id) %>% 
       summarise(reference_row_id = round(mean(index2))) %>% 
-      left_join(reference$reference_info, by="reference_row_id") %>% 
+      left_join(reference$reference_info, by = "reference_row_id") %>% 
       select(-reference_row_id) %>% 
       mutate(percentage = ifelse(is.na(percentage), 1, percentage)) %>% 
       mutate(normalisedDistance = normalisedDistance) %>% 

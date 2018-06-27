@@ -5,7 +5,7 @@
 \title{Simulate multiple cells}
 \usage{
 simulate_multiple(system, burntime, totaltime, nsimulations = 16,
-  local = FALSE, ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
+  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
 }
 \arguments{
 \item{system}{The system to simulate}
@@ -15,8 +15,6 @@ simulate_multiple(system, burntime, totaltime, nsimulations = 16,
 \item{totaltime}{The total simulation time}
 
 \item{nsimulations}{The number of simulations}
-
-\item{local}{Whether or not to use \code{\link[PRISM]{qsub_lapply}}, not used right now}
 
 \item{ssa_algorithm}{Which GSSA algorithm to use}
 }

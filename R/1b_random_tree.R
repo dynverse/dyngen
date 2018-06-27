@@ -4,10 +4,10 @@
 #' @param decay The decay rate
 #' 
 #' @importFrom stats runif
-generate_random_tree <- function(treeseed=NULL, decay=1.4) {
+generate_random_tree <- function(treeseed = NULL, decay = 1.4) {
   if(!is.null(treeseed)) set.seed(treeseed)
   
-  recurse <- function(net, level=0, parentstage=2, decay=1.4, parentstate = "S1") {
+  recurse <- function(net, level = 0, parentstage = 2, decay = 1.4, parentstate = "S1") {
     if (decay <= 1) stop("decay has to be > 1")
     for (i in c(1,2)) {
       maxstage <- ifelse(nrow(net), max(net$to), 0)
@@ -25,7 +25,7 @@ generate_random_tree <- function(treeseed=NULL, decay=1.4) {
   recurse(initial_net) %>% 
     mutate_all(as.character) %>% 
     group_by(from) %>% 
-    mutate(singular=n() == 1)
+    mutate(singular = n() == 1)
 }
 
 #' Convert tree to states list, used later by the gold standard to determine where there are bifurcations
@@ -39,7 +39,7 @@ generate_tree_states <- function(stagenet) {
   for (fromoi in bifurcating_froms) {
     tos <- stagenet %>% filter(from == fromoi) %>% pull(to)
     stage2state <- c(stage2state, paste0("S", seq(length(stage2state)+1, length.out = length(tos))) %>% set_names(tos))
-    states <- c(states, list(list("state_id"=stage2state[[fromoi]], "type"="bifurcation", to=stage2state[tos])))
+    states <- c(states, list(list("state_id" = stage2state[[fromoi]], "type" = "bifurcation", to = stage2state[tos])))
   }
   states <- states %>% set_names(map_chr(states, "state_id"))
   lst(stage2state, states)
@@ -55,19 +55,19 @@ from_stages_to_modulenet <- function(stagenet) {
   stage2state <- statesinfo$stage2state
   states <- statesinfo$states
   
-  modulename_generator <- function(modulenodes, n) {paste0("M", seq(nrow(modulenodes)+1, length.out=n))}
+  modulename_generator <- function(modulenodes, n) {paste0("M", seq(nrow(modulenodes)+1, length.out = n))}
   
   # recursive function to generate the module network
   dig_deeper <- function(
     stagenet, 
-    curstage="1", 
-    visitedstages=c(), 
-    modules=list(
-      modulenet=tibble(), 
-      modulenodes=tibble(module_id="M1", stage="1"),
+    curstage = "1", 
+    visitedstages = c(), 
+    modules = list(
+      modulenet = tibble(), 
+      modulenodes = tibble(module_id = "M1", stage = "1"),
       states = states
     ), 
-    connecting_module="M1"
+    connecting_module = "M1"
   ) {
     modulenet <- modules$modulenet
     modulenodes <- modules$modulenodes
@@ -80,11 +80,11 @@ from_stages_to_modulenet <- function(stagenet) {
     if(length(to) > 1) {
       if(is.null(connecting_module)) stop("need a connecting module before a split...")
       # repression between modules of the different stages
-      submodulenet <- tibble(from=connecting_module, to=receiving_modules, strength=1, effect=1) %>% 
+      submodulenet <- tibble(from = connecting_module, to = receiving_modules, strength = 1, effect = 1) %>% 
         bind_rows(
-          combn(receiving_modules, 2) %>% cbind2(utils::combn(receiving_modules %>% rev, 2)) %>% t %>% as.data.frame(stringsAsFactors=FALSE) %>% rename(from=V1, to=V2) %>% mutate(strength=100, effect=-1)
+          combn(receiving_modules, 2) %>% cbind2(utils::combn(receiving_modules %>% rev, 2)) %>% t %>% as.data.frame(stringsAsFactors = FALSE) %>% rename(from = V1, to = V2) %>% mutate(strength = 100, effect = -1)
         )
-      submodulenodes <- tibble(module_id=receiving_modules, stage=to)
+      submodulenodes <- tibble(module_id = receiving_modules, stage = to)
       
       # add module info to the states
       states[[stage2state[[curstage]]]]$modules <- receiving_modules
@@ -93,11 +93,11 @@ from_stages_to_modulenet <- function(stagenet) {
     } else {
       if (length(to) > 0) {receiving_modules <- set_names(receiving_modules, to)}
       if(!is.null(connecting_module)) {
-        submodulenet <- tibble(from=connecting_module, to=receiving_modules, strength=1, effect=1)
+        submodulenet <- tibble(from = connecting_module, to = receiving_modules, strength = 1, effect = 1)
       } else {
         submodulenet <- tibble()
       }
-      submodulenodes <- tibble(module_id=receiving_modules, stage=to)
+      submodulenodes <- tibble(module_id = receiving_modules, stage = to)
     }
     
     modulenet <- modulenet %>% bind_rows(submodulenet)
@@ -127,16 +127,16 @@ from_stages_to_modulenet <- function(stagenet) {
   # process module information
   modulenodes <- modulenodes %>% 
     mutate(
-      a0=ifelse(stage == 1, 1, 0),
+      a0 = ifelse(stage == 1, 1, 0),
       cell_id = 1,
-      burn=ifelse(stage == 1, TRUE, FALSE)
+      burn = ifelse(stage == 1, TRUE, FALSE)
     )
   modulenet <- modulenet %>% 
     mutate(
       cooperativity = 2,
-      randomize=TRUE
+      randomize = TRUE
     )
   
-  cells <- tibble(cell_id=1, dies=FALSE)
+  cells <- tibble(cell_id = 1, dies = FALSE)
   lst(cells, modulenodes, modulenet, states)
 }

@@ -7,7 +7,7 @@
 #' @export
 plot_model <- function(model) {
   list(
-    plot_net(model, label=FALSE, main_only = FALSE),
+    plot_net(model, label = FALSE, main_only = FALSE),
     plot_modulenet(model),
     plot_net_overlaps(model)
   )
@@ -26,7 +26,7 @@ plot_modulenet <- function(model) {
   igraph::V(graph)$color <- colors
   igraph::E(graph)$color <- c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(1,-1, 0)))]
   
-  layout <- igraph::layout.graphopt(graph, charge=0.01, niter=10000)
+  layout <- igraph::layout.graphopt(graph, charge = 0.01, niter = 10000)
   
   igraph::plot.igraph(
     graph,
@@ -41,7 +41,7 @@ plot_modulenet <- function(model) {
 #' @rdname plot_model
 #' @importFrom grDevices rainbow rgb
 #' @export
-plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=FALSE) {
+plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, label = FALSE) {
   colorby <- match.arg(colorby)
   
   geneinfo  <- model$geneinfo
@@ -51,16 +51,16 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
   # add extra edges invisible between regulators from the same module
   net <- bind_rows(
     net, 
-    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors=FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1=character(), V2=character())) %>% mutate(effect = -2) %>% rename(from = V1, to=V2)
+    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors = FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1 = character(), V2 = character())) %>% mutate(effect = -2) %>% rename(from = V1, to = V2)
   )
   
   
-  graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices=geneinfo$gene_id)
+  graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices = geneinfo$gene_id)
   
   # layout
   set.seed(1) # to get same layout
   layout <- igraph::layout.fruchterman.reingold(graph)
-  main_filter <- as.numeric(factor(geneinfo$main, levels = c(FALSE, TRUE, NA), exclude=NULL))
+  main_filter <- as.numeric(factor(geneinfo$main, levels = c(FALSE, TRUE, NA), exclude = NULL))
   
   # change vertex/edge colors and sizes
   igraph::V(graph)$size <- c(1, 4, 1)[main_filter]
@@ -76,7 +76,7 @@ plot_net <- function(model, colorby=c("module", "main"), main_only=TRUE, label=F
     colors <- rainbow(length(modulenames)) %>% set_names(modulenames)
     igraph::V(graph)$color <- colors[geneinfo$module_id]
   }
-  igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", grDevices::rgb(0, 0, 0, alpha=0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
+  igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", grDevices::rgb(0, 0, 0, alpha = 0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
   
   out <- capture.output( # avoid igraph printing nonsense
     igraph::plot.igraph(
@@ -128,21 +128,21 @@ subsample_simulation <- function(simulation) {
   lst(samplexpression, samplexpression_modules, samplestepinfo)
 }
 
-dimred_pca = function(x, ndim=3) {
+dimred_pca = function(x, ndim = 3) {
   space = prcomp(t(x))$rotation[,seq_len(ndim)]
   process_dimred(space)
 }
-dimred_mds = function(x, ndim=3) {
+dimred_mds = function(x, ndim = 3) {
   requireNamespace("SCORPIUS")
   space = SCORPIUS::reduce_dimensionality(SCORPIUS::correlation_distance(x),ndim = ndim)
   process_dimred(space)
 }
-dimred_ica = function(x, ndim=3) {
+dimred_ica = function(x, ndim = 3) {
   requireNamespace("fastICA")
   space = fastICA::fastICA(t(scale(t(x))), ndim)$S
   process_dimred(space)
 }
-dimred_tsne = function(x, ndim=3) {
+dimred_tsne = function(x, ndim = 3) {
   requireNamespace("Rtsne")
   space = Rtsne::Rtsne(as.dist(SCORPIUS::correlation_distance(x)), dims = ndim, is_distance = TRUE,  perplexity = 20)$Y
   rownames(space) = rownames(x)
@@ -153,11 +153,11 @@ process_dimred = function(space) {
   colnames(space) = paste0("Comp", 1:ncol(space))
   space
 }
-dimred <- function(x, dimred_name="pca", ndim=2) {
-  get(paste0("dimred_", dimred_name))(x, ndim=ndim)
+dimred <- function(x, dimred_name = "pca", ndim = 2) {
+  get(paste0("dimred_", dimred_name))(x, ndim = ndim)
 }
 
-dimred_simulation <- function(simulation, subsample = subsample_simulation(simulation), dimred_names = c("pca"), expression_names=c("samplexpression", "samplexpression_modules")) {
+dimred_simulation <- function(simulation, subsample = subsample_simulation(simulation), dimred_names = c("pca"), expression_names = c("samplexpression", "samplexpression_modules")) {
   map(
     dimred_names, 
     function(dimred_name) {
@@ -166,11 +166,11 @@ dimred_simulation <- function(simulation, subsample = subsample_simulation(simul
         function(expression_name) {
           expression <- subsample[[expression_name]]
           space <- expression %>% 
-            dimred(dimred_name = dimred_name, ndim=2) %>% 
+            dimred(dimred_name = dimred_name, ndim = 2) %>% 
             as.data.frame() %>% 
             bind_cols(subsample$samplestepinfo)
           
-          tibble(dimred_name = dimred_name, expression_name = expression_name, space=list(space))
+          tibble(dimred_name = dimred_name, expression_name = expression_name, space = list(space))
         }
       ) %>% bind_rows()
     }
@@ -179,27 +179,27 @@ dimred_simulation <- function(simulation, subsample = subsample_simulation(simul
 
 #' @rdname plot_simulation
 #' @export
-plot_simulation_space_individual <- function(simulation, spaces=dimred_simulation(simulation)) {
+plot_simulation_space_individual <- function(simulation, spaces = dimred_simulation(simulation)) {
   spaces %>% 
     unnest(space) %>% 
-    ggplot(aes(Comp1, Comp2, group=simulation_id, color=factor(simulation_id))) + 
+    ggplot(aes(Comp1, Comp2, group = simulation_id, color = factor(simulation_id))) + 
       geom_path() + 
       facet_wrap(dimred_name~expression_name, scales = "free") +
       theme_void() +
-      theme(legend.position="none")
+      theme(legend.position = "none")
 }
 
 #' @rdname plot_simulation
 #' @export
-plot_simulation_space_time <- function(simulation, spaces=dimred_simulation(simulation)) {
+plot_simulation_space_time <- function(simulation, spaces = dimred_simulation(simulation)) {
   spaces %>% 
     unnest(space) %>% 
-    ggplot(aes(Comp1, Comp2, group=simulation_id, color=simulationtime)) + 
+    ggplot(aes(Comp1, Comp2, group = simulation_id, color = simulationtime)) + 
       geom_path() + 
       facet_wrap(dimred_name~expression_name, scales = "free") +
       viridis::scale_color_viridis() +
       theme_void() +
-      theme(legend.position="none")
+      theme(legend.position = "none")
 }
 
 #' @rdname plot_simulation
@@ -207,24 +207,24 @@ plot_simulation_space_time <- function(simulation, spaces=dimred_simulation(simu
 plot_simulation_space_modules <- function(
   simulation, 
   subsample = subsample_simulation(simulation), 
-  spaces=dimred_simulation(simulation, subsample, "pca", "samplexpression_modules")
+  spaces = dimred_simulation(simulation, subsample, "pca", "samplexpression_modules")
 ) {
   module_ids <- colnames(simulation$expression_modules)
   samplexpression_modules_df <- subsample$samplexpression_modules %>% 
-    reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character)
   
   spaces$space <- map(spaces$space, ~bind_cols(., ))
   
   spaces %>% 
     unnest(space) %>% 
-    left_join(samplexpression_modules_df, by="step_id") %>% 
-    ggplot(aes(Comp1, Comp2, group=simulation_id, color=expression)) + 
+    left_join(samplexpression_modules_df, by = "step_id") %>% 
+    ggplot(aes(Comp1, Comp2, group = simulation_id, color = expression)) + 
     geom_path() + 
     facet_wrap(dimred_name~module_id, scales = "free") +
     viridis::scale_color_viridis() +
     theme_void() +
-    theme(legend.position="none")
+    theme(legend.position = "none")
 }
 
 #' @rdname plot_simulation
@@ -233,13 +233,13 @@ plot_simulation_simulations_lines <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
   expression_df <- subsample$samplexpression_modules %>% 
-    reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by="step_id")
+    left_join(subsample$samplestepinfo, by = "step_id")
   
   expression_df %>% 
     ggplot() + 
-      geom_line(aes(simulationtime, expression, group=module_id, color=factor(module_id))) + 
+      geom_line(aes(simulationtime, expression, group = module_id, color = factor(module_id))) + 
       facet_wrap(~simulation_id) +
       theme_void()
 }
@@ -250,16 +250,16 @@ plot_simulation_modules_lines <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
   expression_df <- subsample$samplexpression_modules %>% 
-    reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by="step_id")
+    left_join(subsample$samplestepinfo, by = "step_id")
   
   expression_df %>% 
     ggplot() + 
-    geom_line(aes(simulationtime, expression, group=simulation_id, color=factor(simulation_id))) + 
+    geom_line(aes(simulationtime, expression, group = simulation_id, color = factor(simulation_id))) + 
     facet_wrap(~module_id) +
     cowplot::theme_cowplot() +
-    theme(legend.position="none", panel.grid.major.x=element_line(color="grey"))
+    theme(legend.position = "none", panel.grid.major.x = element_line(color = "grey"))
 }
 
 #' @rdname plot_simulation
@@ -268,13 +268,13 @@ plot_simulation_modules_heatmap <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
   subsample$samplexpression_modules %>% 
-    reshape2::melt(varnames=c("step_id", "module_id"), value.name="expression") %>% 
+    reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by="step_id") %>% 
+    left_join(subsample$samplestepinfo, by = "step_id") %>% 
     ggplot() + 
-        geom_raster(aes(step, factor(module_id), fill=expression, group=module_id)) + 
+        geom_raster(aes(step, factor(module_id), fill = expression, group = module_id)) + 
         facet_wrap(~simulation_id) + 
-        scale_fill_distiller(palette="RdBu")
+        scale_fill_distiller(palette = "RdBu")
 }
 
 #' @rdname plot_simulation
@@ -306,7 +306,7 @@ plot_goldstandard <- function(simulation, gs) {
 
 dimred_goldstandard <- function(simulation, gs) {
   subsample <- subsample_simulation(simulation)
-  spaces <- dimred_simulation(simulation, subsample = subsample, expression_names=c("samplexpression_modules"))
+  spaces <- dimred_simulation(simulation, subsample = subsample, expression_names = c("samplexpression_modules"))
   step_ids <- subsample$samplestepinfo$step_id
   
   sampleprogressions <- gs$progressions %>% 
@@ -322,7 +322,7 @@ dimred_goldstandard <- function(simulation, gs) {
 plot_goldstandard_edges <- function(simulation, gs, spaces = dimred_goldstandard(simulation, gs)) {
   spaces %>% 
     unnest(space) %>% 
-    ggplot(aes(Comp1, Comp2, group=simulation_id, color=factor(edge_id))) + 
+    ggplot(aes(Comp1, Comp2, group = simulation_id, color = factor(edge_id))) + 
     geom_path() + 
     facet_wrap(dimred_name~expression_name, scales = "free") +
     theme_void()
@@ -333,7 +333,7 @@ plot_goldstandard_edges <- function(simulation, gs, spaces = dimred_goldstandard
 plot_goldstandard_burn <- function(simulation, gs, spaces = dimred_goldstandard(simulation, gs)) {
   spaces %>% 
     unnest(space) %>% 
-    ggplot(aes(Comp1, Comp2, group=simulation_id, color=!burn)) + 
+    ggplot(aes(Comp1, Comp2, group = simulation_id, color=!burn)) + 
     geom_path() + 
     facet_wrap(dimred_name~expression_name, scales = "free") +
     theme_void()
@@ -348,18 +348,18 @@ plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstanda
   grouping <- convert_progressions_to_milestone_percentages(
     space$step_id, 
     milestone_ids, 
-    gs$milestone_network %>% mutate(length=1), 
+    gs$milestone_network %>% mutate(length = 1), 
     gs$progressions %>% rename(cell_id = step_id) %>% slice(match(space$step_id, cell_id))
   ) %>% 
     group_by(cell_id) %>% filter(row_number() == which.max(percentage)) %>% rename(step_id = cell_id) %>% 
     ungroup()
   
   generate_milestone_space <- function(space, grouping, milestone_network) {
-    space <- space %>% left_join(grouping, by="step_id")
-    space_milestone <- space %>% group_by(milestone_id) %>% summarise(Comp1=mean(Comp1), Comp2=mean(Comp2))
+    space <- space %>% left_join(grouping, by = "step_id")
+    space_milestone <- space %>% group_by(milestone_id) %>% summarise(Comp1 = mean(Comp1), Comp2 = mean(Comp2))
     space_milestone_network <- milestone_network %>% 
-      left_join(space_milestone %>% rename_all(~paste0(., "_from")) %>% rename(from = milestone_id_from), by="from") %>% 
-      left_join(space_milestone %>% rename_all(~paste0(., "_to")) %>% rename(to = milestone_id_to), by="to")
+      left_join(space_milestone %>% rename_all(~paste0(., "_from")) %>% rename(from = milestone_id_from), by = "from") %>% 
+      left_join(space_milestone %>% rename_all(~paste0(., "_to")) %>% rename(to = milestone_id_to), by = "to")
     
     tibble(space_milestone = list(space_milestone), space_milestone_network = list(space_milestone_network))
   }
@@ -372,31 +372,31 @@ plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstanda
     map(c("percentage", "simulationtime", "simulation_id", "edge_id", "milestones"), function(colorize) {
       space$color <- space[[colorize]]
       if(colorize %in% c("percentage", "simulationtime")) {
-        color_scale <- viridis::scale_color_viridis(option="A")
+        color_scale <- viridis::scale_color_viridis(option = "A")
       } else if(colorize %in% c("simulation_id", "edge_id")) {
         color_scale <- scale_color_discrete()
       }
       
       if (colorize != "milestones") {
         ggplot(space, aes(Comp1, Comp2)) + 
-          geom_path(aes_string(color=colorize, group="simulation_id")) + 
-          geom_point(aes_string(color=colorize)) + 
+          geom_path(aes_string(color = colorize, group = "simulation_id")) + 
+          geom_point(aes_string(color = colorize)) + 
           color_scale + 
           theme_void() +
           theme(legend.position = "none") + 
           ggtitle(colorize)
       } else {
         ggplot() + 
-          geom_point(aes(Comp1, Comp2, color=factor(milestone_id, levels=milestone_ids)), data=space_milestone, alpha=0.1) +
-          ggnetwork::geom_edges(aes(Comp1_from, Comp2_from, xend=Comp1_to, yend = Comp2_to), space_milestone_network, color = "grey50") +
-          ggnetwork::geom_edges(aes(Comp1_from+(Comp1_to - Comp1_from)/2.1, Comp2_from+(Comp2_to - Comp2_from)/2.1, xend=Comp1_from+(Comp1_to - Comp1_from)/1.9, yend = Comp2_from+(Comp2_to - Comp2_from)/1.9), space_milestone_network, color = "grey50", arrow=arrow(type="closed", length=unit(0.1, "inches"))) +
-          ggnetwork::geom_nodelabel(aes(Comp1, Comp2, color = factor(milestone_id, levels=milestone_ids), label=milestone_id), space_milestone, size=5) +
+          geom_point(aes(Comp1, Comp2, color = factor(milestone_id, levels = milestone_ids)), data = space_milestone, alpha = 0.1) +
+          ggnetwork::geom_edges(aes(Comp1_from, Comp2_from, xend = Comp1_to, yend = Comp2_to), space_milestone_network, color = "grey50") +
+          ggnetwork::geom_edges(aes(Comp1_from+(Comp1_to - Comp1_from)/2.1, Comp2_from+(Comp2_to - Comp2_from)/2.1, xend = Comp1_from+(Comp1_to - Comp1_from)/1.9, yend = Comp2_from+(Comp2_to - Comp2_from)/1.9), space_milestone_network, color = "grey50", arrow = arrow(type = "closed", length = unit(0.1, "inches"))) +
+          ggnetwork::geom_nodelabel(aes(Comp1, Comp2, color = factor(milestone_id, levels = milestone_ids), label = milestone_id), space_milestone, size = 5) +
           ggnetwork::theme_blank() + 
           theme(legend.position = "none") + 
           ggtitle(colorize)
       }
     })
-  }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist=., nrow=length(spaces)) %>% print()
+  }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist = ., nrow = length(spaces)) %>% print()
 }
 
 #' @rdname plot_goldstandard
@@ -412,8 +412,8 @@ plot_goldstandard_heatmap <- function(simulation, gs) {
   samplexpression_modules_ordered <- subsample$samplexpression_modules[sampleprogressions_ordered$step_id, ]
   
   samplexpression_ordered %>% t() %>% pheatmap::pheatmap(
-    cluster_cols=F, 
-    cluster_rows=F, 
+    cluster_cols = F, 
+    cluster_rows = F, 
     gaps_col = which(diff(sampleprogressions_ordered$edge_id) != 0),
     annotation_col = sampleprogressions_ordered %>% 
       select(edge_id, simulation_id, percentage) %>% 
@@ -424,8 +424,8 @@ plot_goldstandard_heatmap <- function(simulation, gs) {
   )
   
   samplexpression_modules_ordered %>% t() %>% pheatmap::pheatmap(
-    cluster_cols=F, 
-    cluster_rows=F, 
+    cluster_cols = F, 
+    cluster_rows = F, 
     gaps_col = which(diff(sampleprogressions_ordered$edge_id) != 0),
     annotation_col = sampleprogressions_ordered %>% 
       select(edge_id, simulation_id, percentage) %>% 
@@ -440,14 +440,14 @@ plot_goldstandard_heatmap <- function(simulation, gs) {
 #' @export
 plot_goldstandard_references <- function(gs) {
   reference_data <- imap(gs$references, function(reference, i) {
-    reference$reference_expression %>% reshape2::melt(varnames=c("step", "module"), value.name="expression") %>% mutate(reference_id = i)
+    reference$reference_expression %>% reshape2::melt(varnames = c("step", "module"), value.name = "expression") %>% mutate(reference_id = i)
   }) %>% bind_rows()
   
   reference_data %>% 
     ggplot() + 
-      geom_raster(aes(step, factor(module), fill=expression, group=module)) + 
+      geom_raster(aes(step, factor(module), fill = expression, group = module)) + 
       facet_wrap(~reference_id) + 
-      scale_fill_distiller(palette="RdBu") +
+      scale_fill_distiller(palette = "RdBu") +
       cowplot::theme_cowplot()
 }
 
@@ -469,7 +469,7 @@ plot_experiment <- function(experiment) {
       expr <- expr[sample(rownames(expr), 500), ]
     }
     
-    space <- dimred_pca(expr, ndim=2)
+    space <- dimred_pca(expr, ndim = 2)
     space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()
@@ -482,7 +482,7 @@ plot_experiment <- function(experiment) {
 #' @export
 plot_normalisation <- function(experiment, normalisation) {
   plots <- map(c("experiment$expression_simulated", "experiment$expression", "experiment$true_counts", "experiment$counts", "normalisation$count", "normalisation$expression"), function(expression_name) {
-    expr <- eval(parse(text=expression_name))
+    expr <- eval(parse(text = expression_name))
     
     if(ncol(expr) > 500) {
       expr <- expr[, sample(colnames(expr), 500)]
@@ -491,7 +491,7 @@ plot_normalisation <- function(experiment, normalisation) {
       expr <- expr[sample(rownames(expr), 500), ]
     }
     
-    space <- dimred_pca(expr, ndim=2)
+    space <- dimred_pca(expr, ndim = 2)
     space %>% as.data.frame() %>% ggplot() + geom_point(aes(Comp1, Comp2)) + ggtitle(expression_name)
   })
   cowplot::plot_grid(plotlist = plots) %>% print()

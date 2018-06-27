@@ -42,7 +42,7 @@ generate_model_from_modulenet <- function(
   # params for system
   samplers,
   
-  verbose=TRUE
+  verbose = TRUE
 ) {
   # load modulenet
   if (modulenet_name == "tree") {
@@ -103,8 +103,8 @@ generate_model_from_modulenet <- function(
 load_modulenet <- function(modulenet_name) {
   folder <- paste0(find.package("dyngen"), "/ext_data/modulenetworks/", modulenet_name)
   
-  modulenodes <- read_tsv(paste0(folder, "/modulenodes.tsv"), col_types=cols(module_id=col_character()))
-  modulenet <- read_tsv(paste0(folder, "/modulenet.tsv"), col_types=cols(from=col_character(), to=col_character()))
+  modulenodes <- read_tsv(paste0(folder, "/modulenodes.tsv"), col_types = cols(module_id = col_character()))
+  modulenet <- read_tsv(paste0(folder, "/modulenet.tsv"), col_types = cols(from = col_character(), to = col_character()))
   if (!("randomize" %in% colnames(modulenet))) {
     modulenet$randomize <- TRUE
   }
@@ -113,13 +113,13 @@ load_modulenet <- function(modulenet_name) {
   if (!all(modulenet$from %in% modulenodes$module_id) | !all(modulenet$to %in% modulenodes$module_id)) stop("Not all nodes in modulenodes")
   
   if(file.exists(paste0(folder, "/cells.tsv"))) {
-    cells <- read_tsv(paste0(folder, "/cells.tsv"), col_types=cols())
+    cells <- read_tsv(paste0(folder, "/cells.tsv"), col_types = cols())
   } else {
-    cells <- tibble(cell_id = 1, dies=FALSE)
+    cells <- tibble(cell_id = 1, dies = FALSE)
     modulenodes$cell_id <- 1
   }
   
-  edge_operations <-  read_tsv(paste0(folder, "/edge_operations.tsv"), col_types=cols())
+  edge_operations <-  read_tsv(paste0(folder, "/edge_operations.tsv"), col_types = cols())
   
   lst(modulenodes, modulenet, cells, edge_operations)
 }
@@ -135,7 +135,7 @@ modulenet_to_genenet <- function(
   modulenet, 
   modulenodes, 
   n_genes,
-  ngenes_per_module_sampler = function(n_genes, n_modules) sample(1:10, n_modules, replace=TRUE), 
+  ngenes_per_module_sampler = function(n_genes, n_modules) sample(1:10, n_modules, replace = TRUE), 
   gene_name_generator = function(i) paste0("GM", i),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {
@@ -155,9 +155,9 @@ modulenet_to_genenet <- function(
   # generate network between tfs
   # first generate the complete network for every from to every to
   completenet <- modulenet %>% 
-    mutate(modulenet_edge_id=row_number()) %>% 
-    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(from_gene=gene_id), by=c("from"="module_id")) %>%
-    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(to_gene=gene_id), by=c("to"="module_id")) %>% 
+    mutate(modulenet_edge_id = row_number()) %>% 
+    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(from_gene = gene_id), by = c("from" = "module_id")) %>%
+    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(to_gene = gene_id), by = c("to" = "module_id")) %>% 
     rename(from_module_id = from, to_module_id = to, from = from_gene, to = to_gene) %>% 
     drop_na()
   
@@ -188,14 +188,14 @@ add_targets_realnet <- function(
   net, 
   geneinfo, 
   realnet_name = "regulatorycircuits", 
-  damping=0.05, 
+  damping = 0.05, 
   ntargets,
-  ntargets_sampler=function(n_genes, n_regulators) {sample(20:100, 1)},
+  ntargets_sampler = function(n_genes, n_regulators) {sample(20:100, 1)},
   gene_name_generator = function(i) paste0("G", i)
 ) {
   # get the real network
-  realnet <- read_csv(glue::glue(find.package("dyngen"), "/ext_data/realnetworks/{realnet_name}.csv"), col_types=cols(from=col_character(), to=col_character()))
-  realnet <- bind_rows(realnet, realnet %>% mutate(from=paste0("2_", from), to=paste0("2_", to)) %>% sample_frac(0.5))
+  realnet <- read_csv(glue::glue(find.package("dyngen"), "/ext_data/realnetworks/{realnet_name}.csv"), col_types = cols(from = col_character(), to = col_character()))
+  realnet <- bind_rows(realnet, realnet %>% mutate(from = paste0("2_", from), to = paste0("2_", to)) %>% sample_frac(0.5))
   allgenes <- unique(c(realnet$from, realnet$to))
   realgene2gene <- set_names(gene_name_generator(seq_along(allgenes)), allgenes)
   realnet$from <- realgene2gene[realnet$from]
@@ -221,7 +221,7 @@ add_targets_realnet <- function(
   # extract the small induced subgraphs
   geneinfo <- geneinfo %>% 
     rowwise() %>% 
-    mutate(target_net=list(extract_induced_subgraph_from_tf(realnet, gene_id, damping=damping, ngenes=ntargets))) %>% 
+    mutate(target_net = list(extract_induced_subgraph_from_tf(realnet, gene_id, damping = damping, ngenes = ntargets))) %>% 
     ungroup()
   geneinfo$target <- map(geneinfo$target_net, ~unique(c(.$from, .$to)))
   
@@ -230,15 +230,15 @@ add_targets_realnet <- function(
   added_geneinfo <- geneinfo %>%
     unnest(target) %>% 
     select(-gene_id) %>% 
-    rename(gene_id=target) %>% 
+    rename(gene_id = target) %>% 
     group_by(gene_id) %>% 
     filter(row_number() == 1) %>% 
     ungroup() %>% 
     mutate(
-      isgene=TRUE,
-      main=FALSE,
+      isgene = TRUE,
+      main = FALSE,
       a0 = NA, # a0 is decided later based on regulation
-      burn=FALSE # extra genes should be available during burn in
+      burn = FALSE # extra genes should be available during burn in
     )
   
   # also combine the subnetworks
@@ -268,23 +268,23 @@ add_targets_realnet <- function(
 #' @return Network as a data.frame
 #' 
 #' @importFrom stats runif
-extract_induced_subgraph_from_tf <- function(net, tf_of_interest=NULL, damping=0.05, ngenes=1) {
+extract_induced_subgraph_from_tf <- function(net, tf_of_interest = NULL, damping = 0.05, ngenes = 1) {
   if(!("igraph" %in% class(net))) net <- igraph::graph_from_data_frame(net)
-  tfs <- net %>% igraph::degree(mode="out") %>% {which(.>0)} %>% names
+  tfs <- net %>% igraph::degree(mode = "out") %>% {which(.>0)} %>% names
   
   personalized <- rep(0, length(igraph::V(net))) %>% set_names(names(igraph::V(net)))
   
   if (is.null(tf_of_interest)) tf_of_interest <- sample(tfs, 1)
   personalized[tf_of_interest] <- 1
-  p <- igraph::page_rank(net, personalized=personalized, directed=TRUE, damping=damping)
+  p <- igraph::page_rank(net, personalized = personalized, directed = TRUE, damping = damping)
   
-  genes_of_interest <- tibble(score=p$vector, gene_id=names(p$vector)) %>% 
+  genes_of_interest <- tibble(score = p$vector, gene_id = names(p$vector)) %>% 
     mutate(score = score + stats::runif(n(), 0, 1e-15)) %>%  # avoid ties
     sample_n(ngenes, weight = score) %>% 
     pull(gene_id) %>% c(tf_of_interest) %>% unique()
   
   # remove genes not connected
-  real_genes_of_interest <- igraph::ego(igraph::induced_subgraph(net, genes_of_interest), 10, tf_of_interest, mode="out") %>% first %>% names
+  real_genes_of_interest <- igraph::ego(igraph::induced_subgraph(net, genes_of_interest), 10, tf_of_interest, mode = "out") %>% first %>% names
   igraph::induced_subgraph(net, real_genes_of_interest) %>% igraph::as_data_frame()
 }
 

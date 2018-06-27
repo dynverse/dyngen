@@ -1,16 +1,18 @@
 ---
 title: "dyngen"
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.path=".readme_files/", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
+knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
 ```
 
 [![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen) [![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)
 
 A package to generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps:
-![generation_overview](.readme_files/generation_overview_v1.svg)
+![generation_overview](man/figures/README_generation_overview_v1.svg)
 
 ```{r, message=F}
 library(tidyverse)

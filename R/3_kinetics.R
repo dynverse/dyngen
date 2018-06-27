@@ -77,7 +77,7 @@ randomize_gene_kinetics <- function(
     left_join(
     net %>% group_by(to) %>% 
       summarise(effects = list(effect), regulator_ids = list(from))
-    , by=c("gene_id"="to")
+    , by = c("gene_id" = "to")
   )
   
   # for a0 and a
@@ -86,7 +86,7 @@ randomize_gene_kinetics <- function(
   calculate_all_a <- function(effects) {
     # for every binding configuration
     configuration_ids <- get_configuration_ids(length(effects))
-    map_dbl(configuration_ids, samplers$calculate_a, effects=effects) %>% set_names(configuration_ids)
+    map_dbl(configuration_ids, samplers$calculate_a, effects = effects) %>% set_names(configuration_ids)
   }
   
   geneinfo <- geneinfo %>% 
@@ -100,7 +100,7 @@ randomize_gene_kinetics <- function(
   # calculate k
   geneinfo <- geneinfo %>% mutate(max_protein = r/d * p/q) # calculate maximal protein
   net <- net %>% 
-    left_join(geneinfo %>% select(max_protein, gene_id), by=c("from" = "gene_id")) %>%  # add maximal protein of regulator
+    left_join(geneinfo %>% select(max_protein, gene_id), by = c("from" = "gene_id")) %>%  # add maximal protein of regulator
     mutate(
       strength = ifelse(is.na(strength), samplers$sample_strength(n()), strength),
       k = samplers$calculate_k(max_protein, strength)
@@ -146,7 +146,7 @@ extract_params <- function(geneinfo, net, cells) {
   # extract a
   params <- geneinfo %>% 
     unnest(as, configuration_ids) %>% 
-    mutate(param_id=glue::glue("a_{.$gene_id}_{.$configuration_ids}"), param_value=as) %>% 
+    mutate(param_id = glue::glue("a_{.$gene_id}_{.$configuration_ids}"), param_value = as) %>% 
     {set_names(.$param_value, .$param_id)} %>% 
     c(params)
   
@@ -194,9 +194,9 @@ generate_system <- function(net, geneinfo, cells, samplers) {
   
   # Extract nus
   formulae <- formulae_changes$formula %>% set_names(formulae_changes$formula_id)
-  formulae_changes$molecule <- factor(formulae_changes$molecule, levels=molecule_ids) # fix order
-  formulae_changes$formula_id <- factor(formulae_changes$formula_id, levels=names(formulae)) # fix order
-  nus <- reshape2::acast(formulae_changes, molecule~formula_id, value.var="effect", fun.aggregate = first, fill = 0, drop = F)
+  formulae_changes$molecule <- factor(formulae_changes$molecule, levels = molecule_ids) # fix order
+  formulae_changes$formula_id <- factor(formulae_changes$formula_id, levels = names(formulae)) # fix order
+  nus <- reshape2::acast(formulae_changes, molecule~formula_id, value.var = "effect", fun.aggregate = first, fill = 0, drop = F)
   
   # Burn in
   burn_variables <- geneinfo %>% filter(as.logical(burn)) %>% select(x, y) %>% unlist() %>% unname()

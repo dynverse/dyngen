@@ -44,7 +44,7 @@ run_experiment <- function(
   
   # see splatter:::splatSimSingleCellMeans
   exp.lib.sizes <- SingleCellExperiment::colData(housekeeping_simulation)$ExpLibSize
-  cell.means.gene <- rep(SingleCellExperiment::rowData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol=n_cells)
+  cell.means.gene <- rep(SingleCellExperiment::rowData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol = n_cells)
   cell.means.gene <- rbind(
     cell.means.gene, 
     t(expression_simulated / mean(expression_simulated) * mean(cell.means.gene))
@@ -106,12 +106,12 @@ sample_snapshot <- function(simulation, gs, ncells = 500) {
 #' Snapshot sampler
 #' @param ncells Number of cells to sample
 #' @export
-snapshot_sampler <- function(ncells=10) {
-  function(simulation, gs) {sample_snapshot(simulation, gs, ncells=ncells)}
+snapshot_sampler <- function(ncells = 10) {
+  function(simulation, gs) {sample_snapshot(simulation, gs, ncells = ncells)}
 }
 
 # Sample synchronised ----------
-sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$stepinfo$simulationtime), length.out=ntimepoints), ncells_per_timepoint = 12) {
+sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$stepinfo$simulationtime), length.out = ntimepoints), ncells_per_timepoint = 12) {
   ncells_per_timepoint <- min(ncells_per_timepoint, length(unique(simulation$stepinfo$simulation_id)))
   
   non_burn_step_ids <- gs$progressions %>% 
@@ -136,8 +136,8 @@ sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = s
 #' Snapshot sampler
 #' @param ntimepoints Number of timepoints to sample
 #' @export
-synchronised_sampler <- function(ntimepoints=10) {
-  function(simulation, gs) sample_synchronised(simulation, gs, ntimepoints=ntimepoints)
+synchronised_sampler <- function(ntimepoints = 10) {
+  function(simulation, gs) sample_synchronised(simulation, gs, ntimepoints = ntimepoints)
 }
 
 #' Checks the expression for certain properties

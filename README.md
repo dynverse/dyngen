@@ -3,7 +3,7 @@ dyngen
 
 [![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen) [![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)
 
-A package to generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps: ![generation\_overview](.readme_files/generation_overview_v1.svg)
+A package to generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps: ![generation\_overview](man/figures/README_generation_overview_v1.svg)
 
 ``` r
 library(tidyverse)
@@ -28,7 +28,7 @@ model <- invoke(generate_model_from_modulenet, params$model)
 plot_net(model)
 ```
 
-![](.readme_files/model-1.png)
+![](man/figures/README_model-1.png)
 
 Simulating this system
 
@@ -37,7 +37,7 @@ simulation <- invoke(simulate_multiple, params$simulation, model$system)
 plot_simulation_space_time(simulation)
 ```
 
-![](.readme_files/simulate-1.png)
+![](man/figures/README_simulate-1.png)
 
 Extracting the gold standard trajectory from the simulations
 
@@ -56,7 +56,7 @@ gs <- invoke(extract_goldstandard, params$gs, simulation, model)
 plot_goldstandard_heatmap(simulation, gs)
 ```
 
-![](.readme_files/extract_goldstandard-1.png)![](.readme_files/extract_goldstandard-2.png)
+![](man/figures/README_extract_goldstandard-1.png)![](man/figures/README_extract_goldstandard-2.png)
 
 Simulating the single-cell RNA-seq experiment
 
