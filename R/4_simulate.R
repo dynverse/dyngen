@@ -25,7 +25,7 @@ simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16,ssa
     step_info = tibble(step_id = rownames(cell$molecules), step = seq_along(cell$times), simulationtime = cell$times, simulation_id = i)
     
     lst(molecules = cell$molecules, step_info = step_info, expression = expression)
-  })
+  }, cl = getOption("ncores", 1))
   
   molecules <- map(simulations, "molecules") %>% do.call(rbind, .)
   expression <- map(simulations, "expression") %>% do.call(rbind, .)

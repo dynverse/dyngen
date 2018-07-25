@@ -51,7 +51,7 @@ wrap_dyngen_dataset <- function(id = "", params, model, simulation, gs, experime
   milestone_percentage <- convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
   
   # feature info
-  feature_info <- experiment$geneinfo %>% slice(match(colnames(counts), gene_id))
+  feature_info <- experiment$feature_info %>% slice(match(colnames(counts), gene_id))
   feature_info$feature_id <- feature_info$gene_id
   
   # create task

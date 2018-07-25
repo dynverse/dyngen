@@ -71,7 +71,7 @@ generate_model_from_modulenet <- function(
   if (verbose) print("Sampling targets")
   if (target_adder_name == "realnet") {
     add_to_list <- add_targets_realnet(
-      model$net, model$geneinfo,
+      model$net, model$feature_info,
       realnet_name = realnet_name,
       damping = damping,
       ntargets = ngenes_in_targets,
@@ -88,7 +88,7 @@ generate_model_from_modulenet <- function(
   
   # generate thermodynamics formulae & kinetics
   if (verbose) print("Generating system")
-  model$system <- generate_system(model$net, model$geneinfo, model$cells, samplers)
+  model$system <- generate_system(model$net, model$feature_info, model$cells, samplers)
   
   model
 }
@@ -139,8 +139,8 @@ modulenet_to_genenet <- function(
   gene_name_generator = function(i) paste0("GM", i),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {
-  # generate tfs for each module, add to geneinfo
-  geneinfo <- modulenodes %>% 
+  # generate tfs for each module, add to feature_info
+  feature_info <- modulenodes %>% 
     mutate(
       ngenes = ngenes_per_module_sampler(max(n_features, n()), n()),
       startgeneid = c(0, cumsum(ngenes)[-n()]),
@@ -156,8 +156,8 @@ modulenet_to_genenet <- function(
   # first generate the complete network for every from to every to
   completenet <- modulenet %>% 
     mutate(modulenet_edge_id = row_number()) %>% 
-    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(from_gene = gene_id), by = c("from" = "module_id")) %>%
-    left_join(geneinfo %>% select(gene_id, module_id) %>% rename(to_gene = gene_id), by = c("to" = "module_id")) %>% 
+    left_join(feature_info %>% select(gene_id, module_id) %>% rename(from_gene = gene_id), by = c("from" = "module_id")) %>%
+    left_join(feature_info %>% select(gene_id, module_id) %>% rename(to_gene = gene_id), by = c("to" = "module_id")) %>% 
     rename(from_module_id = from, to_module_id = to, from = from_gene, to = to_gene) %>% 
     drop_na()
   
@@ -168,13 +168,13 @@ modulenet_to_genenet <- function(
     ungroup() %>% 
     select(-from_module_id, -to_module_id, -modulenet_edge_id)
   
-  lst(geneinfo, net)
+  lst(feature_info, net)
 }
 
 #' Add targets based on a real network
 #' 
 #' @param net Network dataframe
-#' @param geneinfo Geneinfo dataframe
+#' @param feature_info Geneinfo dataframe
 #' @param realnet_name Name of the real network.
 #' @param damping A daping factor for personalized pagerank
 #' @param ntargets Number of total targets
@@ -186,7 +186,7 @@ modulenet_to_genenet <- function(
 #' @importFrom glue glue
 add_targets_realnet <- function(
   net, 
-  geneinfo, 
+  feature_info, 
   realnet_name = "regulatorycircuits", 
   damping = 0.05, 
   ntargets,
@@ -204,30 +204,30 @@ add_targets_realnet <- function(
   tfs <- realnet$from %>% unique
   
   # map existing tfs in network to real tfs, by randomly sampling real tfs for each gene
-  if (length(tfs) < nrow(geneinfo)) {
+  if (length(tfs) < nrow(feature_info)) {
     print(length(tfs))
-    print(nrow(geneinfo))
+    print(nrow(feature_info))
     stop("Not enough tfs in real network")
   }
   
-  oldtf_to_newtf_mapper <- geneinfo$gene_id %>% set_names(sample(tfs, nrow(geneinfo)), .)
+  oldtf_to_newtf_mapper <- feature_info$gene_id %>% set_names(sample(tfs, nrow(feature_info)), .)
   
-  geneinfo$gene_id <- oldtf_to_newtf_mapper[geneinfo$gene_id]
+  feature_info$gene_id <- oldtf_to_newtf_mapper[feature_info$gene_id]
   net$from <- oldtf_to_newtf_mapper[net$from]
   net$to <- oldtf_to_newtf_mapper[net$to]
   
-  geneinfo$ntargets <- ntargets_sampler(max(nrow(geneinfo), ntargets), nrow(geneinfo))
+  feature_info$ntargets <- ntargets_sampler(max(nrow(feature_info), ntargets), nrow(feature_info))
   
   # extract the small induced subgraphs
-  geneinfo <- geneinfo %>% 
+  feature_info <- feature_info %>% 
     rowwise() %>% 
     mutate(target_net = list(extract_induced_subgraph_from_tf(realnet, gene_id, damping = damping, ngenes = ntargets))) %>% 
     ungroup()
-  geneinfo$target <- map(geneinfo$target_net, ~unique(c(.$from, .$to)))
+  feature_info$target <- map(feature_info$target_net, ~unique(c(.$from, .$to)))
   
-  # create the geneinfo of the targets, based on the geneinfo of its (indirect) tfs
+  # create the feature_info of the targets, based on the feature_info of its (indirect) tfs
   # this can contain duplicates, so these are removed
-  added_geneinfo <- geneinfo %>%
+  added_feature_info <- feature_info %>%
     unnest(target) %>% 
     select(-gene_id) %>% 
     rename(gene_id = target) %>% 
@@ -242,17 +242,17 @@ add_targets_realnet <- function(
     )
   
   # also combine the subnetworks
-  added_net <- geneinfo$target_net %>% bind_rows() %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
+  added_net <- feature_info$target_net %>% bind_rows() %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
   
   # remove connections between main tfs (to avoid ruining the given module network)
-  added_net <- added_net %>% filter(!(from %in% geneinfo$gene_id & to %in% geneinfo$gene_id))
+  added_net <- added_net %>% filter(!(from %in% feature_info$gene_id & to %in% feature_info$gene_id))
   
   # combine
-  geneinfo = bind_rows(geneinfo, added_geneinfo) %>% group_by(gene_id) %>% filter(row_number() == 1) %>% ungroup()
+  feature_info = bind_rows(feature_info, added_feature_info) %>% group_by(gene_id) %>% filter(row_number() == 1) %>% ungroup()
   net = bind_rows(net, added_net) %>% group_by(from, to) %>% filter(row_number() == 1) %>% ungroup()
   
   lst(
-    geneinfo, net
+    feature_info, net
   )
 }
 

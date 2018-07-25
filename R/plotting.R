@@ -21,7 +21,7 @@ plot_model <- function(model) {
 plot_modulenet <- function(model) {
   graph <- igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
   
-  modulenames <- unique(model$geneinfo$module_id)
+  modulenames <- unique(model$feature_info$module_id)
   colors <- rainbow(length(modulenames))
   igraph::V(graph)$color <- colors
   igraph::E(graph)$color <- c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(1,-1, 0)))]
@@ -44,23 +44,23 @@ plot_modulenet <- function(model) {
 plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, label = FALSE) {
   colorby <- match.arg(colorby)
   
-  geneinfo  <- model$geneinfo
-  if(main_only) geneinfo <- geneinfo %>% filter(main)
-  net <- model$net %>% filter((from %in% geneinfo$gene_id) & (to %in% geneinfo$gene_id))
+  feature_info  <- model$feature_info
+  if(main_only) feature_info <- feature_info %>% filter(main)
+  net <- model$net %>% filter((from %in% feature_info$gene_id) & (to %in% feature_info$gene_id))
   
   # add extra edges invisible between regulators from the same module
   net <- bind_rows(
     net, 
-    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors = FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1 = character(), V2 = character())) %>% mutate(effect = -2) %>% rename(from = V1, to = V2)
+    feature_info %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors = FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1 = character(), V2 = character())) %>% mutate(effect = -2) %>% rename(from = V1, to = V2)
   )
   
   
-  graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices = geneinfo$gene_id)
+  graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices = feature_info$gene_id)
   
   # layout
   set.seed(1) # to get same layout
   layout <- igraph::layout.fruchterman.reingold(graph)
-  main_filter <- as.numeric(factor(geneinfo$main, levels = c(FALSE, TRUE, NA), exclude = NULL))
+  main_filter <- as.numeric(factor(feature_info$main, levels = c(FALSE, TRUE, NA), exclude = NULL))
   
   # change vertex/edge colors and sizes
   igraph::V(graph)$size <- c(1, 4, 1)[main_filter]
@@ -74,7 +74,7 @@ plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, lab
   } else if (colorby == "module") {
     modulenames <- model$modulenodes$module_id
     colors <- rainbow(length(modulenames)) %>% set_names(modulenames)
-    igraph::V(graph)$color <- colors[geneinfo$module_id]
+    igraph::V(graph)$color <- colors[feature_info$module_id]
   }
   igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", grDevices::rgb(0, 0, 0, alpha = 0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
   
@@ -93,7 +93,7 @@ plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, lab
 #' @export
 plot_net_overlaps <- function(model) {
   jaccard <- function(x, y) {length(intersect(x, y))/length(union(x,y))}
-  pheatmap::pheatmap(sapply(model$geneinfo$gene_id, function(i) sapply(model$geneinfo$gene_id, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
+  pheatmap::pheatmap(sapply(model$feature_info$gene_id, function(i) sapply(model$feature_info$gene_id, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
 }
 
 

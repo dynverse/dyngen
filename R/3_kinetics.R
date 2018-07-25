@@ -58,12 +58,12 @@ get_default_kinetics_samplers <- function() {
 #' @rdname generate_system
 #' @export
 randomize_gene_kinetics <- function(
-  geneinfo, 
+  feature_info, 
   net, 
   samplers = get_default_kinetics_samplers()) {
   # sample r, d, p, q and k ----------------------
   
-  geneinfo <- geneinfo %>% mutate(
+  feature_info <- feature_info %>% mutate(
     r = samplers$sample_r(n()),
     d = samplers$sample_d(n()),
     p = samplers$sample_p(n()),
@@ -71,8 +71,8 @@ randomize_gene_kinetics <- function(
   )
   
   # sample a0 and a ---------------------------------------
-  # include a list of effects in the geneinfo
-  geneinfo <- geneinfo %>% 
+  # include a list of effects in the feature_info
+  feature_info <- feature_info %>% 
     select(-matches("effects"), -matches("regulator_ids")) %>% # remove previously added effects
     left_join(
     net %>% group_by(to) %>% 
@@ -89,7 +89,7 @@ randomize_gene_kinetics <- function(
     map_dbl(configuration_ids, samplers$calculate_a, effects = effects) %>% set_names(configuration_ids)
   }
   
-  geneinfo <- geneinfo %>% 
+  feature_info <- feature_info %>% 
     mutate(
       a0 = ifelse(!is.na(a0), a0, map_dbl(effects, samplers$calculate_a0)),
       configuration_ids = map(effects, ~get_configuration_ids(length(.))),
@@ -98,9 +98,9 @@ randomize_gene_kinetics <- function(
   
   # calculate interaction cooperativity and binding strength
   # calculate k
-  geneinfo <- geneinfo %>% mutate(max_protein = r/d * p/q) # calculate maximal protein
+  feature_info <- feature_info %>% mutate(max_protein = r/d * p/q) # calculate maximal protein
   net <- net %>% 
-    left_join(geneinfo %>% select(max_protein, gene_id), by = c("from" = "gene_id")) %>%  # add maximal protein of regulator
+    left_join(feature_info %>% select(max_protein, gene_id), by = c("from" = "gene_id")) %>%  # add maximal protein of regulator
     mutate(
       strength = ifelse(is.na(strength), samplers$sample_strength(n()), strength),
       k = samplers$calculate_k(max_protein, strength)
@@ -111,7 +111,7 @@ randomize_gene_kinetics <- function(
     c = ifelse(is.na(cooperativity), samplers$sample_cooperativity(n()), cooperativity)
   )
   
-  lst(geneinfo, net)
+  lst(feature_info, net)
 }
 
 #' Randomize kinetics of cells
@@ -134,17 +134,17 @@ randomize_cell_kinetics <- function(cells) {
     )
 }
 
-extract_params <- function(geneinfo, net, cells) {
+extract_params <- function(feature_info, net, cells) {
   params <- c()
   # extract r, d, p, q, a0
-  params <- geneinfo %>% select(r, d, p, q, a0, gene_id) %>% 
+  params <- feature_info %>% select(r, d, p, q, a0, gene_id) %>% 
     gather("param_type", "param_value", -gene_id) %>% 
     mutate(param_id = glue::glue("{param_type}_{gene_id}")) %>% 
     {set_names(.$param_value, .$param_id)} %>% 
     c(params)
   
   # extract a
-  params <- geneinfo %>% 
+  params <- feature_info %>% 
     unnest(as, configuration_ids) %>% 
     mutate(param_id = glue::glue("a_{.$gene_id}_{.$configuration_ids}"), param_value = as) %>% 
     {set_names(.$param_value, .$param_id)} %>% 
@@ -170,27 +170,27 @@ extract_params <- function(geneinfo, net, cells) {
 #' Generate a system from a network using 
 #' 
 #' @param net Regulatory network dataframe
-#' @param geneinfo Geneinfo dataframe
+#' @param feature_info Geneinfo dataframe
 #' @param cells Cells dataframe
 #' @param samplers The samplers for the kinetics parameters
 #' @export
-generate_system <- function(net, geneinfo, cells, samplers) {
+generate_system <- function(net, feature_info, cells, samplers) {
   # Randomize
-  randomized_gene_kinetics <- randomize_gene_kinetics(geneinfo, net, samplers)
-  geneinfo <- randomized_gene_kinetics$geneinfo
+  randomized_gene_kinetics <- randomize_gene_kinetics(feature_info, net, samplers)
+  feature_info <- randomized_gene_kinetics$feature_info
   net <- randomized_gene_kinetics$net
   
   cells <- randomize_cell_kinetics(cells)
   
   # Create variables
-  geneinfo$x <- glue("x_{geneinfo$gene_id}")
-  geneinfo$y <- glue("y_{geneinfo$gene_id}")
-  molecule_ids <- c(geneinfo$x, geneinfo$y)
+  feature_info$x <- glue("x_{feature_info$gene_id}")
+  feature_info$y <- glue("y_{feature_info$gene_id}")
+  molecule_ids <- c(feature_info$x, feature_info$y)
   
   # Extract formulae & kinetics
-  formulae_changes <- generate_formulae(net, geneinfo, cells)
+  formulae_changes <- generate_formulae(net, feature_info, cells)
   initial_state <- rep(0, length(molecule_ids)) %>% setNames(molecule_ids)
-  params <- extract_params(geneinfo, net, cells)
+  params <- extract_params(feature_info, net, cells)
   
   # Extract nus
   formulae <- formulae_changes$formula %>% set_names(formulae_changes$formula_id)
@@ -199,7 +199,7 @@ generate_system <- function(net, geneinfo, cells, samplers) {
   nus <- reshape2::acast(formulae_changes, molecule~formula_id, value.var = "effect", fun.aggregate = first, fill = 0, drop = F)
   
   # Burn in
-  burn_variables <- geneinfo %>% filter(as.logical(burn)) %>% select(x, y) %>% unlist() %>% unname()
+  burn_variables <- feature_info %>% filter(as.logical(burn)) %>% select(x, y) %>% unlist() %>% unname()
   
-  lst(formulae, initial_state, params, nus, burn_variables, molecule_ids, geneinfo, net, cells)
+  lst(formulae, initial_state, params, nus, burn_variables, molecule_ids, feature_info, net, cells)
 }

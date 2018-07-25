@@ -4,7 +4,7 @@
 \alias{snapshot_sampler}
 \title{Snapshot sampler}
 \usage{
-snapshot_sampler(ncells = 10)
+snapshot_sampler(weight_bw = 0.1)
 }
 \arguments{
 \item{ncells}{Number of cells to sample}

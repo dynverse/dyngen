@@ -1,18 +1,18 @@
 #' Generate formulae from a given network
 #' 
 #' @param net Network dataframe
-#' @param geneinfo Gene info dataframe
+#' @param feature_info Gene info dataframe
 #' @param cells Cells dataframe
 #' @importFrom stats setNames
 #' @export
-generate_formulae <- function(net, geneinfo, cells = tibble(cell_id = 1, dies = FALSE)) {
+generate_formulae <- function(net, feature_info, cells = tibble(cell_id = 1, dies = FALSE)) {
   formulae <- list()
   
   # generate the formulae for every target gene
-  formulae <- pbapply::pblapply(cl = getOption("ncores"), geneinfo$gene_id, function(target_id) {
+  formulae <- pbapply::pblapply(cl = getOption("ncores"), feature_info$gene_id, function(target_id) {
     formulae <- list()
     
-    info <- dynutils::extract_row_to_list(geneinfo, which(geneinfo$gene_id == target_id))
+    info <- dynutils::extract_row_to_list(feature_info, which(feature_info$gene_id == target_id))
     cell_id <- info$cell_id
     
     rg <- pritt("rg_{cell_id}")

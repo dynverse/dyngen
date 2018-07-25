@@ -51,8 +51,8 @@ run_experiment <- function(
   )
   cell.props.gene <- t(t(cell.means.gene)/colSums(cell.means.gene))
   expression <- t(t(cell.props.gene) * exp.lib.sizes)
-  geneinfo <- tibble(gene_id = ifelse(rownames(expression) == "", paste0("H", seq_len(nrow(expression))), rownames(expression)), housekeeping = rownames(expression) == "")
-  rownames(expression) <- geneinfo$gene_id
+  feature_info <- tibble(gene_id = ifelse(rownames(expression) == "", paste0("H", seq_len(nrow(expression))), rownames(expression)), housekeeping = rownames(expression) == "")
+  rownames(expression) <- feature_info$gene_id
   
   # see splatter:::splatSimTrueCounts
   true_counts <- matrix(stats::rpois(n_features * n_cells, lambda = expression), nrow = n_features, ncol = n_cells)
@@ -84,7 +84,7 @@ run_experiment <- function(
     expression = t(expression),
     true_counts = t(true_counts),
     counts = t(counts),
-    geneinfo
+    feature_info
   )
 }
 
@@ -113,8 +113,8 @@ sample_snapshot <- function(simulation, gs, ncells = 500, weight_bw = 0.1) {
 #' Snapshot sampler
 #' @param ncells Number of cells to sample
 #' @export
-snapshot_sampler <- function(ncells = 10) {
-  function(simulation, gs) {sample_snapshot(simulation, gs, ncells = ncells)}
+snapshot_sampler <- function(weight_bw = 0.1) {
+  function(simulation, gs, ncells) {sample_snapshot(simulation, gs, ncells = ncells, weight_bw = weight_bw)}
 }
 
 # Sample synchronised ----------
@@ -165,7 +165,7 @@ check_expression <- function(expression) {
 
 #' Filter counts
 #' 
-#' @param experiment Experiment list, containing expression, cell_info and geneinfo
+#' @param experiment Experiment list, containing expression, cell_info and feature_info
 #' 
 #' @export
 filter_experiment <- function(experiment) {

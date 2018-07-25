@@ -75,8 +75,8 @@ smooth_expression <- function(expression, smooth_window = 50) {
 #' @param smooth_window The window (steps) to smooth over
 #' @export
 preprocess_simulation_for_gs <- function(simulation, model, smooth_window = 50) {
-  geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
-  expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
+  feature_info <- filter(model$feature_info, main, !is.na(module_id))
+  expression <- simulation$expression[, feature_info %>% pull(gene_id)]
   
   simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$step_info$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window = smooth_window) %>% do.call(rbind, .)
   dimnames(simulation$expression_smooth) <- dimnames(expression)
@@ -85,7 +85,7 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window = 50) 
   simulation$expression_normalised <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff = 0.05)
   
   # print("calculating module expression...")
-  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(geneinfo$module_id, levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
+  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(feature_info$module_id, levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(feature_info$module_id))
   simulation$expression_modules <- simulation$expression_modules[, as.character(model$modulenodes$module_id)] # fix ordering
   
   simulation

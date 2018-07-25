@@ -6,16 +6,16 @@
 \alias{generate_system}
 \title{Randomize kinetics of genes}
 \usage{
-randomize_gene_kinetics(geneinfo, net,
+randomize_gene_kinetics(feature_info, net,
   samplers = get_default_kinetics_samplers())
 
 randomize_cell_kinetics(cells)
 
-generate_system(net, geneinfo, cells,
+generate_system(net, feature_info, cells,
   samplers = get_default_kinetics_samplers())
 }
 \arguments{
-\item{geneinfo}{Geneinfo dataframe}
+\item{feature_info}{Geneinfo dataframe}
 
 \item{net}{Regulatory network dataframe}
 
