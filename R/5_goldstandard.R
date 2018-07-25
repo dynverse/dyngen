@@ -85,7 +85,7 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window = 50) 
   simulation$expression_normalised <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff = 0.05)
   
   # print("calculating module expression...")
-  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
+  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(geneinfo$module_id, levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
   simulation$expression_modules <- simulation$expression_modules[, as.character(model$modulenodes$module_id)] # fix ordering
   
   simulation
@@ -120,7 +120,7 @@ process_operations <- function(edge_operations, module_ids) {
     separate_rows(module_progression, sep = ",") %>% 
     mutate(
       operation = c(1, -1)[as.numeric(factor(substring(module_progression, 1, 1), levels = c("+", "-")))], 
-      module_id = as.integer(substring(module_progression, 2))
+      module_id = as.character(substring(module_progression, 2))
     )
   operations$module_id <- factor(operations$module_id, levels = module_ids) # factor -> acast
   operations
