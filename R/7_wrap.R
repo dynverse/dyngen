@@ -10,7 +10,7 @@
 #' @importFrom dynwrap add_prior_information
 #' 
 #' @export
-wrap_task <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
+wrap_dyngen_dataset <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
   counts <- normalisation$counts
   expression <- normalisation$expression[rownames(counts), colnames(counts)]
   
@@ -71,5 +71,6 @@ wrap_task <- function(id = "", params, model, simulation, gs, experiment, normal
     counts = counts,
     expression = expression,
     feature_info = feature_info
-  ) %>% dynwrap::add_prior_information()
+  ) %>% dynwrap::add_prior_information() %>% 
+    dynwrap::add_root()
 }
