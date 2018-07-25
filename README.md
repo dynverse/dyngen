@@ -70,8 +70,8 @@ Normalising the data
 normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
 ```
 
-Wrapping in a task
+Wrapping in a dynwrap dataset
 
 ``` r
-task <- wrap_task("readme_dataset", params, model, simulation, gs, experiment, normalisation)
+task <- wrap_dyngen_dataset("readme_dataset", params, model, simulation, gs, experiment, normalisation)
 ```
