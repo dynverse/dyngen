@@ -91,12 +91,19 @@ run_experiment <- function(
 
 
 # Sample snapshet --------------
-sample_snapshot <- function(simulation, gs, ncells = 500) {
-  sample_ids <- gs$progressions %>% 
+sample_snapshot <- function(simulation, gs, ncells = 500, weight_bw = 0.1) {
+  # determine weights using the density
+  progressions <- gs$progressions %>% 
+    group_by(edge_id) %>% 
+    mutate(density = approxfun(density(percentage, bw=weight_bw))(percentage)) %>% 
+    mutate(weight = 1/density) %>% 
+    ungroup()
+  
+  sample_ids <- progressions %>% 
     filter(!burn) %>% 
-    group_by(step_id) %>% 
-    summarise() %>% 
-    sample_n(ncells) %>% 
+    # group_by(step_id) %>% 
+    # summarise() %>% 
+    sample_n(ncells, weight = weight) %>% 
     pull(step_id)
   expression <- simulation$expression[sample_ids, ]
   
