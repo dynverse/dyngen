@@ -9,3 +9,5 @@ from	to	module_progression	start	burn
 4	8	+9A|+9B	FALSE	FALSE
 6	9	+6A|+6B	FALSE	FALSE
 6	10	+7A|+7B	FALSE	FALSE
+5	11	+10A|+10B|+10C|+10D|+10E	FALSE	FALSE
+5	12	+11A|+11B|+11C	FALSE	FALSE
