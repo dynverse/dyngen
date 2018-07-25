@@ -55,7 +55,7 @@ generate_model_from_modulenet <- function(
   # convert module network to gene network between modules
   if (verbose) print("Generating main network")
   # number of genes in main based on number of genes in platform
-  n_features_total <- round(platform$n_features * platform$pct_changing)
+  n_features_total <- round(platform$n_features * platform$trajectory_dependent_features)
   ngenes_in_main <- round(n_features_total * main_targets_ratio)
   ngenes_in_targets <- n_features_total - ngenes_in_main
   

@@ -26,7 +26,7 @@ run_experiment <- function(
   
   # generate housekeeping expression
   # number of genes housekeeping depends on the fraction in the reference dataset
-  n_features_housekeeping <- round((n_features_simulated / platform$pct_changing) * (1 - platform$pct_changing))
+  n_features_housekeeping <- round((n_features_simulated / platform$trajectory_dependent_features) * (1 - platform$trajectory_dependent_features))
   n_features <- n_features_simulated + n_features_housekeeping
   
   # we now extract the splatter estimates
