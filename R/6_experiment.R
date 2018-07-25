@@ -111,7 +111,7 @@ sample_snapshot <- function(simulation, gs, ncells = 500, weight_bw = 0.1) {
 }
 
 #' Snapshot sampler
-#' @param ncells Number of cells to sample
+#' @param weight_bw The bandwidth for density estimation, measured in "percentage" units
 #' @export
 snapshot_sampler <- function(weight_bw = 0.1) {
   function(simulation, gs, ncells) {sample_snapshot(simulation, gs, ncells = ncells, weight_bw = weight_bw)}

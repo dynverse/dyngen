@@ -7,7 +7,7 @@
 snapshot_sampler(weight_bw = 0.1)
 }
 \arguments{
-\item{ncells}{Number of cells to sample}
+\item{weight_bw}{The bandwidth for density estimation, measured in "percentage" units}
 }
 \description{
 Snapshot sampler
