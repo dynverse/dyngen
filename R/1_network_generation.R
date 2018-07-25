@@ -101,6 +101,8 @@ generate_model_from_modulenet <- function(
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
 load_modulenet <- function(modulenet_name) {
+  if (!modulenet_name %in% list_modulenets()) {stop("Invalid modulenet_name")}
+  
   folder <- paste0(find.package("dyngen"), "/ext_data/modulenetworks/", modulenet_name)
   
   modulenodes <- read_tsv(paste0(folder, "/modulenodes.tsv"), col_types = cols(module_id = col_character()))
@@ -122,6 +124,13 @@ load_modulenet <- function(modulenet_name) {
   edge_operations <-  read_tsv(paste0(folder, "/edge_operations.tsv"), col_types = cols())
   
   lst(modulenodes, modulenet, cells, edge_operations)
+}
+
+#' @rdname load_modulenet
+#' @export
+list_modulenets <- function() {
+  folder <- paste0(find.package("dyngen"), "/ext_data/modulenetworks/")
+  list.files(folder) %>% gsub("(.*)\\.tsv", "\\1", .)
 }
 
 #' Convert modulenet to modules regulating each other
