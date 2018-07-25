@@ -20,7 +20,7 @@ run_experiment <- function(
   sampled <- sampler(simulation, gs, n_cells)
   expression_simulated <- sampled$expression
   rownames(expression_simulated) <- paste0("C", seq_len(nrow(expression_simulated)))
-  cellinfo <- sampled$cellinfo %>% mutate(cell_id = rownames(expression_simulated))
+  cell_info <- sampled$cell_info %>% mutate(cell_id = rownames(expression_simulated))
   
   n_features_simulated <- ncol(expression_simulated)
   
@@ -79,7 +79,7 @@ run_experiment <- function(
   dimnames(counts) <- dimnames(true_counts)
   
   experiment <- lst(
-    cellinfo,
+    cell_info,
     expression_simulated,
     expression = t(expression),
     true_counts = t(true_counts),
@@ -107,7 +107,7 @@ sample_snapshot <- function(simulation, gs, ncells = 500, weight_bw = 0.1) {
     pull(step_id)
   expression <- simulation$expression[sample_ids, ]
   
-  lst(expression, cellinfo = tibble(step_id = sample_ids))
+  lst(expression, cell_info = tibble(step_id = sample_ids))
 }
 
 #' Snapshot sampler
@@ -118,18 +118,18 @@ snapshot_sampler <- function(ncells = 10) {
 }
 
 # Sample synchronised ----------
-sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$stepinfo$simulationtime), length.out = ntimepoints), ncells_per_timepoint = 12) {
-  ncells_per_timepoint <- min(ncells_per_timepoint, length(unique(simulation$stepinfo$simulation_id)))
+sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = seq(0, max(simulation$step_info$simulationtime), length.out = ntimepoints), ncells_per_timepoint = 12) {
+  ncells_per_timepoint <- min(ncells_per_timepoint, length(unique(simulation$step_info$simulation_id)))
   
   non_burn_step_ids <- gs$progressions %>% 
     filter(!burn) %>% 
     pull(step_id) %>% 
     unique()
   
-  stepinfo <- simulation$stepinfo %>% filter(step_id %in% non_burn_step_ids)
+  step_info <- simulation$step_info %>% filter(step_id %in% non_burn_step_ids)
   
   sample_step_info <- map_dfr(timepoints, function(timepoint) {
-    stepinfo %>% group_by(simulation_id) %>% 
+    step_info %>% group_by(simulation_id) %>% 
       summarise(step_id = step_id[which.min(abs(simulationtime - timepoint))]) %>% 
       mutate(timepoint = timepoint) %>% 
       sample_n(ncells_per_timepoint)
@@ -137,7 +137,7 @@ sample_synchronised <- function(simulation, gs, ntimepoints = 10, timepoints = s
   
   lst(
     expression = simulation$expression[sample_step_info$step_id, ],
-    cellinfo = sample_step_info
+    cell_info = sample_step_info
   )
 }
 #' Snapshot sampler
@@ -165,13 +165,13 @@ check_expression <- function(expression) {
 
 #' Filter counts
 #' 
-#' @param experiment Experiment list, containing expression, cellinfo and geneinfo
+#' @param experiment Experiment list, containing expression, cell_info and geneinfo
 #' 
 #' @export
 filter_experiment <- function(experiment) {
   remove_cells <- (apply(experiment$expression, 1, max) == 0) | is.na(apply(experiment$expression, 1, sd))
   
   experiment$expression <- experiment$expression[!remove_cells, ]
-  experiment$cellinfo <- experiment$cellinfo %>% slice(match(rownames(experiment$expression), cell_id))
+  experiment$cell_info <- experiment$cell_info %>% slice(match(rownames(experiment$expression), cell_id))
   experiment
 }

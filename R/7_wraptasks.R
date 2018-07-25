@@ -17,9 +17,9 @@ wrap_task <- function(id = "", params, model, simulation, gs, experiment, normal
   cell_ids <- rownames(counts)
   
   # create sample info
-  cell_info <- experiment$cellinfo %>%
+  cell_info <- experiment$cell_info %>%
     slice(match(cell_ids, cell_id)) %>% 
-    left_join(simulation$stepinfo, by = "step_id")
+    left_join(simulation$step_info, by = "step_id")
   
   # get milestone network
   milestone_network <- gs$milestone_network %>% 

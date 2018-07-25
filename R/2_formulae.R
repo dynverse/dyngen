@@ -110,7 +110,7 @@ generate_formulae <- function(net, geneinfo, cells = tibble(cell_id = 1, dies = 
   
   # global transcription rates
   # for (i in 1:nrow(cells)) {
-  #   cellinfo = cells[i,]
+  #   cell_info = cells[i,]
   #   
   #   rg = rgs[[celltypeinfo$celltype]]
   #   

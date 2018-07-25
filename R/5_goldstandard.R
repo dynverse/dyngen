@@ -16,7 +16,7 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   }
   
   expression <- simulation$expression_modules
-  stepinfo <- simulation$stepinfo
+  step_info <- simulation$step_info
   
   start_milestones <- unique(model$edge_operations %>% filter(start) %>% pull(from))
   milestone_network <- model$edge_operations %>% mutate(edge_id = seq_len(n())) %>% select(from, to, edge_id, burn)
@@ -33,12 +33,12 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   references <- extract_references(path_operations, milestone_network, reference_length = reference_length)
   
   if (verbose) print("Mapping simulations onto reference")
-  simulation_expressions <- expression %>% as.data.frame() %>% split(stepinfo$simulation_id)
+  simulation_expressions <- expression %>% as.data.frame() %>% split(step_info$simulation_id)
   times <- map_to_reference(simulation_expressions, references)
   
   if (verbose) print("Postprocessing")
   gs <- list()
-  gs$progressions <- stepinfo %>% left_join(times, by = "step_id") %>% left_join(milestone_network, by = c("edge_id"))
+  gs$progressions <- step_info %>% left_join(times, by = "step_id") %>% left_join(milestone_network, by = c("edge_id"))
   gs$milestone_network <- milestone_network
   gs$references <- references
   gs$expression_modules <- simulation$expression_modules
@@ -78,7 +78,7 @@ preprocess_simulation_for_gs <- function(simulation, model, smooth_window = 50) 
   geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
   expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
   
-  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window = smooth_window) %>% do.call(rbind, .)
+  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$step_info$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window = smooth_window) %>% do.call(rbind, .)
   dimnames(simulation$expression_smooth) <- dimnames(expression)
   
   # print("normalising...")

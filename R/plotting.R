@@ -117,15 +117,15 @@ plot_simulation <- function(simulation) {
 subsample_simulation <- function(simulation) {
   if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
   
-  sample_n <- round(nrow(simulation$stepinfo)/2000)
-  samplestepinfo <- simulation$stepinfo %>% group_by(simulation_id) %>% filter((step %% sample_n) == 0) %>% ungroup()
-  samplexpression <- simulation$expression[samplestepinfo$step_id, ]
-  samplexpression_modules <- simulation$expression_modules[samplestepinfo$step_id, ]
+  sample_n <- round(nrow(simulation$step_info)/2000)
+  samplestep_info <- simulation$step_info %>% group_by(simulation_id) %>% filter((step %% sample_n) == 0) %>% ungroup()
+  samplexpression <- simulation$expression[samplestep_info$step_id, ]
+  samplexpression_modules <- simulation$expression_modules[samplestep_info$step_id, ]
   
   samplexpression <- samplexpression + runif(length(samplexpression), 0, 0.01)
   samplexpression_modules <- samplexpression_modules + runif(length(samplexpression_modules), 0, 0.01)
   
-  lst(samplexpression, samplexpression_modules, samplestepinfo)
+  lst(samplexpression, samplexpression_modules, samplestep_info)
 }
 
 dimred_pca = function(x, ndim = 3) {
@@ -168,7 +168,7 @@ dimred_simulation <- function(simulation, subsample = subsample_simulation(simul
           space <- expression %>% 
             dimred(dimred_name = dimred_name, ndim = 2) %>% 
             as.data.frame() %>% 
-            bind_cols(subsample$samplestepinfo)
+            bind_cols(subsample$samplestep_info)
           
           tibble(dimred_name = dimred_name, expression_name = expression_name, space = list(space))
         }
@@ -235,7 +235,7 @@ plot_simulation_simulations_lines <- function(simulation) {
   expression_df <- subsample$samplexpression_modules %>% 
     reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by = "step_id")
+    left_join(subsample$samplestep_info, by = "step_id")
   
   expression_df %>% 
     ggplot() + 
@@ -252,7 +252,7 @@ plot_simulation_modules_lines <- function(simulation) {
   expression_df <- subsample$samplexpression_modules %>% 
     reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by = "step_id")
+    left_join(subsample$samplestep_info, by = "step_id")
   
   expression_df %>% 
     ggplot() + 
@@ -270,7 +270,7 @@ plot_simulation_modules_heatmap <- function(simulation) {
   subsample$samplexpression_modules %>% 
     reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by = "step_id") %>% 
+    left_join(subsample$samplestep_info, by = "step_id") %>% 
     ggplot() + 
         geom_raster(aes(step, factor(module_id), fill = expression, group = module_id)) + 
         facet_wrap(~simulation_id) + 
@@ -282,7 +282,7 @@ plot_simulation_modules_heatmap <- function(simulation) {
 plot_simulation_3D <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
-  space <- dimred_pca(subsample$samplexpression) %>% bind_cols(subsample$stepinfo)
+  space <- dimred_pca(subsample$samplexpression) %>% bind_cols(subsample$step_info)
   for (i in unique(as.numeric(space$simulation_id))) {
     rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
   }
@@ -307,7 +307,7 @@ plot_goldstandard <- function(simulation, gs) {
 dimred_goldstandard <- function(simulation, gs) {
   subsample <- subsample_simulation(simulation)
   spaces <- dimred_simulation(simulation, subsample = subsample, expression_names = c("samplexpression_modules"))
-  step_ids <- subsample$samplestepinfo$step_id
+  step_ids <- subsample$samplestep_info$step_id
   
   sampleprogressions <- gs$progressions %>% 
     slice(match(step_ids, step_id))
