@@ -5,7 +5,7 @@
 \title{Add targets based on a real network}
 \usage{
 add_targets_realnet(net, geneinfo, realnet_name = "regulatorycircuits",
-  damping = 0.05, ntargets, ntargets_sampler = function(n_genes,
+  damping = 0.05, ntargets, ntargets_sampler = function(n_features,
   n_regulators) {     sample(20:100, 1) }, gene_name_generator = function(i)
   paste0("G", i))
 }

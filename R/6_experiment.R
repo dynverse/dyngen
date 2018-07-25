@@ -22,16 +22,16 @@ run_experiment <- function(
   rownames(expression_simulated) <- paste0("C", seq_len(nrow(expression_simulated)))
   cellinfo <- sampled$cellinfo %>% mutate(cell_id = rownames(expression_simulated))
   
-  n_genes_simulated <- ncol(expression_simulated)
+  n_features_simulated <- ncol(expression_simulated)
   
   # generate housekeeping expression
   # number of genes housekeeping depends on the fraction in the reference dataset
-  n_genes_housekeeping <- round((n_genes_simulated / platform$pct_changing) * (1 - platform$pct_changing))
-  n_genes <- n_genes_simulated + n_genes_housekeeping
+  n_features_housekeeping <- round((n_features_simulated / platform$pct_changing) * (1 - platform$pct_changing))
+  n_features <- n_features_simulated + n_features_housekeeping
   
   # we now extract the splatter estimates
   estimate <- platform$estimate
-  attr(estimate, "nGenes") <- n_genes_housekeeping
+  attr(estimate, "nGenes") <- n_features_housekeeping
   attr(estimate, "nCells") <- n_cells;attr(estimate, "groupCells") <- n_cells;attr(estimate, "batchCells") <- n_cells;
   
   class(estimate) <- "SplatParams" # trick splatter into thinking this is a splatparams class, avoiding it to load in a bunch of garbage functions in the global environment, most of them coming from scater -__-
@@ -55,7 +55,7 @@ run_experiment <- function(
   rownames(expression) <- geneinfo$gene_id
   
   # see splatter:::splatSimTrueCounts
-  true_counts <- matrix(stats::rpois(n_genes * n_cells, lambda = expression), nrow = n_genes, ncol = n_cells)
+  true_counts <- matrix(stats::rpois(n_features * n_cells, lambda = expression), nrow = n_features, ncol = n_cells)
   dimnames(true_counts) <- dimnames(expression)
   
   # true_counts %>% {log2(. + 1)} %>% apply(1, sd) %>% sort() %>% rev() %>% head(100) %>% names()
@@ -68,8 +68,8 @@ run_experiment <- function(
       eta <- log(expression[, idx])
       return(logistic(eta, x0 = estimate@dropout.mid, k = estimate@dropout.shape))
     })
-    keep <- matrix(stats::rbinom(n_cells * n_genes, 1, 1 - drop.prob), 
-                   nrow = n_genes, ncol = n_cells)
+    keep <- matrix(stats::rbinom(n_cells * n_features, 1, 1 - drop.prob), 
+                   nrow = n_features, ncol = n_cells)
     
     counts <- true_counts
     counts[!keep] <- 0

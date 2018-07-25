@@ -4,8 +4,8 @@
 \alias{modulenet_to_genenet}
 \title{Convert modulenet to modules regulating each other}
 \usage{
-modulenet_to_genenet(modulenet, modulenodes, n_genes,
-  ngenes_per_module_sampler = function(n_genes, n_modules) sample(1:10,
+modulenet_to_genenet(modulenet, modulenodes, n_features,
+  ngenes_per_module_sampler = function(n_features, n_modules) sample(1:10,
   n_modules, replace = TRUE), gene_name_generator = function(i) paste0("GM",
   i), edge_retainment = function(n) max(c(round(n/2), 1)))
 }
@@ -14,7 +14,7 @@ modulenet_to_genenet(modulenet, modulenodes, n_genes,
 
 \item{modulenodes}{Module nodes}
 
-\item{n_genes}{Number of genes to use}
+\item{n_features}{Number of genes to use}
 
 \item{ngenes_per_module_sampler}{Functions for sampling the number of genes per module}
 

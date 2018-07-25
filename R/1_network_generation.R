@@ -9,8 +9,8 @@
 #' @inheritParams add_targets_realnet
 #' @inheritParams modulenet_to_genenet 
 #' @inheritParams generate_random_tree
-#' @param ngenes_per_module_sampler Function for number of genes per module, given n_genes and n_modules
-#' @param ntargets_sampler Function for number of targets per regulator, given n_genes and n_regulators
+#' @param ngenes_per_module_sampler Function for number of genes per module, given n_features and n_modules
+#' @param ntargets_sampler Function for number of targets per regulator, given n_features and n_regulators
 #' @param main_targets_ratio Ratio of targets versus main tfs
 #' @param verbose Whether or not to produce textual output
 #' 
@@ -55,9 +55,9 @@ generate_model_from_modulenet <- function(
   # convert module network to gene network between modules
   if (verbose) print("Generating main network")
   # number of genes in main based on number of genes in platform
-  n_genes_total <- round(platform$n_genes * platform$pct_changing)
-  ngenes_in_main <- round(n_genes_total * main_targets_ratio)
-  ngenes_in_targets <- n_genes_total - ngenes_in_main
+  n_features_total <- round(platform$n_features * platform$pct_changing)
+  ngenes_in_main <- round(n_features_total * main_targets_ratio)
+  ngenes_in_targets <- n_features_total - ngenes_in_main
   
   model <- modulenet_to_genenet(
     model$modulenet, 
@@ -127,22 +127,22 @@ load_modulenet <- function(modulenet_name) {
 #' Convert modulenet to modules regulating each other
 #' @param modulenet Module network
 #' @param modulenodes Module nodes
-#' @param n_genes Number of genes to use
+#' @param n_features Number of genes to use
 #' @param ngenes_per_module_sampler Functions for sampling the number of genes per module
 #' @param gene_name_generator Function for generating the name of a gene
 #' @param edge_retainment Function for sampling the number of edges retained between tfs of module nodes
 modulenet_to_genenet <- function(
   modulenet, 
   modulenodes, 
-  n_genes,
-  ngenes_per_module_sampler = function(n_genes, n_modules) sample(1:10, n_modules, replace = TRUE), 
+  n_features,
+  ngenes_per_module_sampler = function(n_features, n_modules) sample(1:10, n_modules, replace = TRUE), 
   gene_name_generator = function(i) paste0("GM", i),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {
   # generate tfs for each module, add to geneinfo
   geneinfo <- modulenodes %>% 
     mutate(
-      ngenes = ngenes_per_module_sampler(max(n_genes, n()), n()),
+      ngenes = ngenes_per_module_sampler(max(n_features, n()), n()),
       startgeneid = c(0, cumsum(ngenes)[-n()]),
       genes = map2(startgeneid, ngenes, ~gene_name_generator(seq(.x, .x+.y-1))),
       isgene = TRUE,
@@ -190,7 +190,7 @@ add_targets_realnet <- function(
   realnet_name = "regulatorycircuits", 
   damping = 0.05, 
   ntargets,
-  ntargets_sampler = function(n_genes, n_regulators) {sample(20:100, 1)},
+  ntargets_sampler = function(n_features, n_regulators) {sample(20:100, 1)},
   gene_name_generator = function(i) paste0("G", i)
 ) {
   # get the real network
