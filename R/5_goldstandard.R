@@ -10,14 +10,6 @@
 #' @param preprocess Whether to preprocess
 #' @export
 extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose = TRUE, preprocess = TRUE) {
-  if(preprocess) {
-    if (verbose) print("Preprocessing")
-    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window = smooth_window)
-  }
-  
-  expression <- simulation$expression_modules
-  step_info <- simulation$step_info
-  
   start_milestones <- unique(model$edge_operations %>% filter(start) %>% pull(from))
   milestone_network <- model$edge_operations %>% mutate(edge_id = seq_len(n())) %>% select(from, to, edge_id, burn)
   
@@ -31,6 +23,14 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   
   if (verbose) print("Extracting references")
   references <- extract_references(path_operations, milestone_network, reference_length = reference_length)
+  
+  if(preprocess) {
+    if (verbose) print("Preprocessing")
+    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window = smooth_window)
+  }
+  
+  expression <- simulation$expression_modules
+  step_info <- simulation$step_info
   
   if (verbose) print("Mapping simulations onto reference")
   simulation_expressions <- expression %>% as.data.frame() %>% split(step_info$simulation_id)
@@ -122,6 +122,11 @@ process_operations <- function(edge_operations, module_ids) {
       operation = c(1, -1)[as.numeric(factor(substring(module_progression, 1, 1), levels = c("+", "-")))], 
       module_id = as.character(substring(module_progression, 2))
     )
+  
+  if (any(operations == "")) {
+    stop("Some module progressions cannot be empty!")
+  }
+  
   operations$module_id <- factor(operations$module_id, levels = module_ids) # factor -> acast
   operations
 }

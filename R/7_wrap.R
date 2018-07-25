@@ -39,7 +39,7 @@ wrap_dyngen_dataset <- function(id = "", params, model, simulation, gs, experime
   milestone_network <- progressions %>% 
     select(from, to) %>% 
     distinct(from, to) %>% 
-    left_join(milestone_network, c("from", "to"))
+    right_join(milestone_network, c("from", "to")) # retain order
   
   # get milestone ids
   milestone_ids <- milestone_network %>% select(from, to) %>% 
@@ -71,6 +71,5 @@ wrap_dyngen_dataset <- function(id = "", params, model, simulation, gs, experime
     counts = counts,
     expression = expression,
     feature_info = feature_info
-  ) %>% dynwrap::add_prior_information() %>% 
-    dynwrap::add_root()
+  ) %>% dynwrap::add_prior_information()
 }
