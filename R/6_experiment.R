@@ -34,20 +34,22 @@ run_experiment <- function(
   attr(estimate, "nGenes") <- n_features_housekeeping
   attr(estimate, "nCells") <- n_cells;attr(estimate, "groupCells") <- n_cells;attr(estimate, "batchCells") <- n_cells;
   
-  class(estimate) <- "SplatParams" # trick splatter into thinking this is a splatparams class, avoiding it to load in a bunch of garbage functions in the global environment, most of them coming from scater -__-
+  class(estimate) <- "SplatParams" # trick splatter into thinking this is a splatparams class, avoiding it to load in a bunch of functions in the global environment, most of them coming from scater -__-
   
   housekeeping_simulation <- splatter::splatSimulateSingle(estimate)
   
-  # we only use the earlier steps in the splatSImulateSingle, but then you need to dig deep into splat::: 's ...
+  # we only use the earlier steps from the result of splatSimulateSingle, but then you need to dig deep into splat::: 's ...
   # we now combine the genemeans from splatter with the simulated expression values
   # then use the libsizes from splatter to estimate the "true" expression from each cell, which will then be used to estimate the true counts
+  
+  simulated_expression_factor <- SingleCellExperiment::rowData(housekeeping_simulation)$GeneMean %>% sort() %>% tail(min(n_features_simulated, n_features_housekeeping)) %>% mean()
   
   # see splatter:::splatSimSingleCellMeans
   exp.lib.sizes <- SingleCellExperiment::colData(housekeeping_simulation)$ExpLibSize
   cell.means.gene <- rep(SingleCellExperiment::rowData(housekeeping_simulation)$GeneMean, n_cells) %>% matrix(ncol = n_cells)
   cell.means.gene <- rbind(
     cell.means.gene, 
-    t(expression_simulated / mean(expression_simulated) * mean(cell.means.gene))
+    t(expression_simulated / mean(expression_simulated) * simulated_expression_factor)
   )
   cell.props.gene <- t(t(cell.means.gene)/colSums(cell.means.gene))
   expression <- t(t(cell.props.gene) * exp.lib.sizes)
