@@ -55,7 +55,7 @@ Suggests:
   rmarkdown
 Remotes:
   dynverse/fastgssa,
-  dynverse/splatter,
+  Oshlack/splatter,
   dynverse/dynnormaliser,
   dynverse/dynutils,
   dynverse/dynwrap,
