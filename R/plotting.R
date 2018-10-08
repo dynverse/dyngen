@@ -122,7 +122,7 @@ subsample_simulation <- function(
     simulation <- preprocess_simulation_for_gs(simulation, model)
   }
   
-  samplestep_info <- simulation$step_info %>%  filter((step %% one_in_every_x) == 0)
+  samplestep_info <- simulation$step_info %>% filter((step %% one_in_every_x) == 0)
   
   samplexpression <- simulation$expression[samplestep_info$step_id, ]
   samplexpression <- samplexpression + runif(length(samplexpression), 0, 0.01)
