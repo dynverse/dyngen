@@ -134,7 +134,7 @@ dimred_pca = function(x, ndim = 3) {
 }
 dimred_mds = function(x, ndim = 3) {
   requireNamespace("SCORPIUS")
-  space = SCORPIUS::reduce_dimensionality(SCORPIUS::correlation_distance(x),ndim = ndim)
+  space = SCORPIUS::reduce_dimensionality(x, SCORPIUS::correlation_distance, ndim = ndim)
   process_dimred(space)
 }
 dimred_ica = function(x, ndim = 3) {
