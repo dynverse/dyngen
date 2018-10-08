@@ -114,15 +114,20 @@ plot_simulation <- function(simulation) {
   )
 }
 
-subsample_simulation <- function(simulation) {
-  if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
+subsample_simulation <- function(
+  simulation, 
+  one_in_every_x = round(nrow(simulation$step_info) / 2000)
+) {
+  if(is.null(simulation$expression_modules)) {
+    simulation <- preprocess_simulation_for_gs(simulation, model)
+  }
   
-  sample_n <- round(nrow(simulation$step_info)/2000)
-  samplestep_info <- simulation$step_info %>% group_by(simulation_id) %>% filter((step %% sample_n) == 0) %>% ungroup()
+  samplestep_info <- simulation$step_info %>%  filter((step %% one_in_every_x) == 0)
+  
   samplexpression <- simulation$expression[samplestep_info$step_id, ]
-  samplexpression_modules <- simulation$expression_modules[samplestep_info$step_id, ]
-  
   samplexpression <- samplexpression + runif(length(samplexpression), 0, 0.01)
+  
+  samplexpression_modules <- simulation$expression_modules[samplestep_info$step_id, ]
   samplexpression_modules <- samplexpression_modules + runif(length(samplexpression_modules), 0, 0.01)
   
   lst(samplexpression, samplexpression_modules, samplestep_info)
