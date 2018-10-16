@@ -10,14 +10,6 @@
 #' @param preprocess Whether to preprocess
 #' @export
 extract_goldstandard <- function(simulation, model, reference_length, max_path_length, smooth_window, verbose = TRUE, preprocess = TRUE) {
-  if(preprocess) {
-    if (verbose) print("Preprocessing")
-    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window = smooth_window)
-  }
-  
-  expression <- simulation$expression_modules
-  stepinfo <- simulation$stepinfo
-  
   start_milestones <- unique(model$edge_operations %>% filter(start) %>% pull(from))
   milestone_network <- model$edge_operations %>% mutate(edge_id = seq_len(n())) %>% select(from, to, edge_id, burn)
   
@@ -32,13 +24,21 @@ extract_goldstandard <- function(simulation, model, reference_length, max_path_l
   if (verbose) print("Extracting references")
   references <- extract_references(path_operations, milestone_network, reference_length = reference_length)
   
+  if(preprocess) {
+    if (verbose) print("Preprocessing")
+    simulation <- preprocess_simulation_for_gs(simulation, model, smooth_window = smooth_window)
+  }
+  
+  expression <- simulation$expression_modules
+  step_info <- simulation$step_info
+  
   if (verbose) print("Mapping simulations onto reference")
-  simulation_expressions <- expression %>% as.data.frame() %>% split(stepinfo$simulation_id)
+  simulation_expressions <- expression %>% as.data.frame() %>% split(step_info$simulation_id)
   times <- map_to_reference(simulation_expressions, references)
   
   if (verbose) print("Postprocessing")
   gs <- list()
-  gs$progressions <- stepinfo %>% left_join(times, by = "step_id") %>% left_join(milestone_network, by = c("edge_id"))
+  gs$progressions <- step_info %>% left_join(times, by = "step_id") %>% left_join(milestone_network, by = c("edge_id"))
   gs$milestone_network <- milestone_network
   gs$references <- references
   gs$expression_modules <- simulation$expression_modules
@@ -75,17 +75,17 @@ smooth_expression <- function(expression, smooth_window = 50) {
 #' @param smooth_window The window (steps) to smooth over
 #' @export
 preprocess_simulation_for_gs <- function(simulation, model, smooth_window = 50) {
-  geneinfo <- filter(model$geneinfo, main, !is.na(module_id))
-  expression <- simulation$expression[, geneinfo %>% pull(gene_id)]
+  feature_info <- filter(model$feature_info, main, !is.na(module_id))
+  expression <- simulation$expression[, feature_info %>% pull(gene_id)]
   
-  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$stepinfo$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window = smooth_window) %>% do.call(rbind, .)
+  simulation$expression_smooth <- expression %>% as.data.frame() %>% split(simulation$step_info$simulation_id) %>% pbapply::pblapply(cl = getOption("ncores"), smooth_expression, smooth_window = smooth_window) %>% do.call(rbind, .)
   dimnames(simulation$expression_smooth) <- dimnames(expression)
   
   # print("normalising...")
   simulation$expression_normalised <- dynutils::scale_quantile(simulation$expression_smooth, outlier_cutoff = 0.05)
   
   # print("calculating module expression...")
-  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(as.numeric(geneinfo$module_id), levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(geneinfo$module_id))
+  simulation$expression_modules <- simulation$expression_normalised %>% t %>% as.data.frame() %>% split(factor(feature_info$module_id, levels = model$modulenodes$module_id)) %>% map(~apply(., 2, mean)) %>% do.call(rbind, .) %>% t %>% magrittr::set_colnames(unique(feature_info$module_id))
   simulation$expression_modules <- simulation$expression_modules[, as.character(model$modulenodes$module_id)] # fix ordering
   
   simulation
@@ -120,8 +120,13 @@ process_operations <- function(edge_operations, module_ids) {
     separate_rows(module_progression, sep = ",") %>% 
     mutate(
       operation = c(1, -1)[as.numeric(factor(substring(module_progression, 1, 1), levels = c("+", "-")))], 
-      module_id = as.integer(substring(module_progression, 2))
+      module_id = as.character(substring(module_progression, 2))
     )
+  
+  if (any(operations == "")) {
+    stop("Some module progressions cannot be empty!")
+  }
+  
   operations$module_id <- factor(operations$module_id, levels = module_ids) # factor -> acast
   operations
 }

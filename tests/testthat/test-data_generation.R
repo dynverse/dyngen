@@ -31,5 +31,5 @@ test_that("a full dataset can be generated", {
   plot_normalisation(experiment, normalisation)
   dev.off()
   
-  task <- wrap_task("test", params, model, simulation, gs, experiment, normalisation)
+  task <- wrap_dyngen_dataset("test", params, model, simulation, gs, experiment, normalisation)
 })

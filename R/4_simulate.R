@@ -22,16 +22,16 @@ simulate_multiple <- function(system, burntime, totaltime, nsimulations = 16,ssa
     
     expression = cell$molecules[,stringr::str_detect(colnames(cell$molecules), "x_")]
     colnames(expression) = gsub("x_(.*)", "\\1", colnames(expression))
-    stepinfo = tibble(step_id = rownames(cell$molecules), step = seq_along(cell$times), simulationtime = cell$times, simulation_id = i)
+    step_info = tibble(step_id = rownames(cell$molecules), step = seq_along(cell$times), simulationtime = cell$times, simulation_id = i)
     
-    lst(molecules = cell$molecules, stepinfo = stepinfo, expression = expression)
-  })
+    lst(molecules = cell$molecules, step_info = step_info, expression = expression)
+  }, cl = getOption("ncores", 1))
   
   molecules <- map(simulations, "molecules") %>% do.call(rbind, .)
   expression <- map(simulations, "expression") %>% do.call(rbind, .)
-  stepinfo <- map(simulations, "stepinfo") %>% do.call(bind_rows, .)
+  step_info <- map(simulations, "step_info") %>% do.call(bind_rows, .)
   
-  lst(molecules, expression, stepinfo)
+  lst(molecules, expression, step_info)
 }
 
 

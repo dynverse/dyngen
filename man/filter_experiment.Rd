@@ -7,7 +7,7 @@
 filter_experiment(experiment)
 }
 \arguments{
-\item{experiment}{Experiment list, containing expression, cellinfo and geneinfo}
+\item{experiment}{Experiment list, containing expression, cell_info and feature_info}
 }
 \description{
 Filter counts

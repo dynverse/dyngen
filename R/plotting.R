@@ -21,7 +21,7 @@ plot_model <- function(model) {
 plot_modulenet <- function(model) {
   graph <- igraph::graph_from_data_frame(model$modulenet, vertices = model$modulenodes)
   
-  modulenames <- unique(model$geneinfo$module_id)
+  modulenames <- unique(model$feature_info$module_id)
   colors <- rainbow(length(modulenames))
   igraph::V(graph)$color <- colors
   igraph::E(graph)$color <- c("#d63737", "#3793d6", "green")[as.numeric(factor(model$modulenet$effect, levels = c(1,-1, 0)))]
@@ -44,23 +44,23 @@ plot_modulenet <- function(model) {
 plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, label = FALSE) {
   colorby <- match.arg(colorby)
   
-  geneinfo  <- model$geneinfo
-  if(main_only) geneinfo <- geneinfo %>% filter(main)
-  net <- model$net %>% filter((from %in% geneinfo$gene_id) & (to %in% geneinfo$gene_id))
+  feature_info  <- model$feature_info
+  if(main_only) feature_info <- feature_info %>% filter(main)
+  net <- model$net %>% filter((from %in% feature_info$gene_id) & (to %in% feature_info$gene_id))
   
   # add extra edges invisible between regulators from the same module
   net <- bind_rows(
     net, 
-    geneinfo %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors = FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1 = character(), V2 = character())) %>% mutate(effect = -2) %>% rename(from = V1, to = V2)
+    feature_info %>% group_by(module_id) %>% filter(n() > 1) %>% {split(., .$module_id)} %>% map(~as.data.frame(t(combn(.$gene_id, 2)), stringsAsFactors = FALSE)) %>% bind_rows() %>% bind_rows(tibble(V1 = character(), V2 = character())) %>% mutate(effect = -2) %>% rename(from = V1, to = V2)
   )
   
   
-  graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices = geneinfo$gene_id)
+  graph <- igraph::graph_from_data_frame(net %>% select(from, to), vertices = feature_info$gene_id)
   
   # layout
   set.seed(1) # to get same layout
   layout <- igraph::layout.fruchterman.reingold(graph)
-  main_filter <- as.numeric(factor(geneinfo$main, levels = c(FALSE, TRUE, NA), exclude = NULL))
+  main_filter <- as.numeric(factor(feature_info$main, levels = c(FALSE, TRUE, NA), exclude = NULL))
   
   # change vertex/edge colors and sizes
   igraph::V(graph)$size <- c(1, 4, 1)[main_filter]
@@ -74,7 +74,7 @@ plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, lab
   } else if (colorby == "module") {
     modulenames <- model$modulenodes$module_id
     colors <- rainbow(length(modulenames)) %>% set_names(modulenames)
-    igraph::V(graph)$color <- colors[geneinfo$module_id]
+    igraph::V(graph)$color <- colors[feature_info$module_id]
   }
   igraph::E(graph)$color <- c("#d63737", "#3793d6", "#7cd637", grDevices::rgb(0, 0, 0, alpha = 0))[as.numeric(factor(net$effect, levels = c(1,-1, 0, -2)))]
   
@@ -93,7 +93,7 @@ plot_net <- function(model, colorby = c("module", "main"), main_only = TRUE, lab
 #' @export
 plot_net_overlaps <- function(model) {
   jaccard <- function(x, y) {length(intersect(x, y))/length(union(x,y))}
-  pheatmap::pheatmap(sapply(model$geneinfo$gene_id, function(i) sapply(model$geneinfo$gene_id, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
+  pheatmap::pheatmap(sapply(model$feature_info$gene_id, function(i) sapply(model$feature_info$gene_id, function(j) jaccard(model$net$from[model$net$to==i], model$net$from[model$net$to==j]))))
 }
 
 
@@ -114,18 +114,23 @@ plot_simulation <- function(simulation) {
   )
 }
 
-subsample_simulation <- function(simulation) {
-  if(is.null(simulation$expression_modules)) simulation <- preprocess_simulation_for_gs(simulation, model)
+subsample_simulation <- function(
+  simulation, 
+  one_in_every_x = round(nrow(simulation$step_info) / 2000)
+) {
+  if(is.null(simulation$expression_modules)) {
+    simulation <- preprocess_simulation_for_gs(simulation, model)
+  }
   
-  sample_n <- round(nrow(simulation$stepinfo)/2000)
-  samplestepinfo <- simulation$stepinfo %>% group_by(simulation_id) %>% filter((step %% sample_n) == 0) %>% ungroup()
-  samplexpression <- simulation$expression[samplestepinfo$step_id, ]
-  samplexpression_modules <- simulation$expression_modules[samplestepinfo$step_id, ]
+  samplestep_info <- simulation$step_info %>% filter((step %% one_in_every_x) == 0)
   
+  samplexpression <- simulation$expression[samplestep_info$step_id, ]
   samplexpression <- samplexpression + runif(length(samplexpression), 0, 0.01)
+  
+  samplexpression_modules <- simulation$expression_modules[samplestep_info$step_id, ]
   samplexpression_modules <- samplexpression_modules + runif(length(samplexpression_modules), 0, 0.01)
   
-  lst(samplexpression, samplexpression_modules, samplestepinfo)
+  lst(samplexpression, samplexpression_modules, samplestep_info)
 }
 
 dimred_pca = function(x, ndim = 3) {
@@ -134,7 +139,7 @@ dimred_pca = function(x, ndim = 3) {
 }
 dimred_mds = function(x, ndim = 3) {
   requireNamespace("SCORPIUS")
-  space = SCORPIUS::reduce_dimensionality(SCORPIUS::correlation_distance(x),ndim = ndim)
+  space = SCORPIUS::reduce_dimensionality(x, SCORPIUS::correlation_distance, ndim = ndim)
   process_dimred(space)
 }
 dimred_ica = function(x, ndim = 3) {
@@ -168,7 +173,7 @@ dimred_simulation <- function(simulation, subsample = subsample_simulation(simul
           space <- expression %>% 
             dimred(dimred_name = dimred_name, ndim = 2) %>% 
             as.data.frame() %>% 
-            bind_cols(subsample$samplestepinfo)
+            bind_cols(subsample$samplestep_info)
           
           tibble(dimred_name = dimred_name, expression_name = expression_name, space = list(space))
         }
@@ -235,7 +240,7 @@ plot_simulation_simulations_lines <- function(simulation) {
   expression_df <- subsample$samplexpression_modules %>% 
     reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by = "step_id")
+    left_join(subsample$samplestep_info, by = "step_id")
   
   expression_df %>% 
     ggplot() + 
@@ -252,7 +257,7 @@ plot_simulation_modules_lines <- function(simulation) {
   expression_df <- subsample$samplexpression_modules %>% 
     reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by = "step_id")
+    left_join(subsample$samplestep_info, by = "step_id")
   
   expression_df %>% 
     ggplot() + 
@@ -270,7 +275,7 @@ plot_simulation_modules_heatmap <- function(simulation) {
   subsample$samplexpression_modules %>% 
     reshape2::melt(varnames = c("step_id", "module_id"), value.name = "expression") %>% 
     mutate_if(is.factor, as.character) %>% 
-    left_join(subsample$samplestepinfo, by = "step_id") %>% 
+    left_join(subsample$samplestep_info, by = "step_id") %>% 
     ggplot() + 
         geom_raster(aes(step, factor(module_id), fill = expression, group = module_id)) + 
         facet_wrap(~simulation_id) + 
@@ -282,7 +287,7 @@ plot_simulation_modules_heatmap <- function(simulation) {
 plot_simulation_3D <- function(simulation) {
   subsample <- subsample_simulation(simulation)
   
-  space <- dimred_pca(subsample$samplexpression) %>% bind_cols(subsample$stepinfo)
+  space <- dimred_pca(subsample$samplexpression) %>% bind_cols(subsample$step_info)
   for (i in unique(as.numeric(space$simulation_id))) {
     rgl::lines3d(space %>% filter(simulation_id == i), col = grDevices::rainbow(length(unique(space$simulation_id)))[[i]])
   }
@@ -307,7 +312,7 @@ plot_goldstandard <- function(simulation, gs) {
 dimred_goldstandard <- function(simulation, gs) {
   subsample <- subsample_simulation(simulation)
   spaces <- dimred_simulation(simulation, subsample = subsample, expression_names = c("samplexpression_modules"))
-  step_ids <- subsample$samplestepinfo$step_id
+  step_ids <- subsample$samplestep_info$step_id
   
   sampleprogressions <- gs$progressions %>% 
     slice(match(step_ids, step_id))

@@ -4,12 +4,13 @@
 \alias{generate_formulae}
 \title{Generate formulae from a given network}
 \usage{
-generate_formulae(net, geneinfo, cells = tibble(cell_id = 1, dies = FALSE))
+generate_formulae(net, feature_info, cells = tibble(cell_id = 1, dies =
+  FALSE))
 }
 \arguments{
 \item{net}{Network dataframe}
 
-\item{geneinfo}{Gene info dataframe}
+\item{feature_info}{Gene info dataframe}
 
 \item{cells}{Cells dataframe}
 }

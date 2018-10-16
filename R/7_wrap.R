@@ -10,16 +10,16 @@
 #' @importFrom dynwrap add_prior_information
 #' 
 #' @export
-wrap_task <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
+wrap_dyngen_dataset <- function(id = "", params, model, simulation, gs, experiment, normalisation) {
   counts <- normalisation$counts
   expression <- normalisation$expression[rownames(counts), colnames(counts)]
   
   cell_ids <- rownames(counts)
   
   # create sample info
-  cell_info <- experiment$cellinfo %>%
+  cell_info <- experiment$cell_info %>%
     slice(match(cell_ids, cell_id)) %>% 
-    left_join(simulation$stepinfo, by = "step_id")
+    left_join(simulation$step_info, by = "step_id")
   
   # get milestone network
   milestone_network <- gs$milestone_network %>% 
@@ -39,7 +39,7 @@ wrap_task <- function(id = "", params, model, simulation, gs, experiment, normal
   milestone_network <- progressions %>% 
     select(from, to) %>% 
     distinct(from, to) %>% 
-    left_join(milestone_network, c("from", "to"))
+    right_join(milestone_network, c("from", "to")) # retain order
   
   # get milestone ids
   milestone_ids <- milestone_network %>% select(from, to) %>% 
@@ -51,7 +51,7 @@ wrap_task <- function(id = "", params, model, simulation, gs, experiment, normal
   milestone_percentage <- convert_progressions_to_milestone_percentages(cell_ids, milestone_ids, milestone_network, progressions)
   
   # feature info
-  feature_info <- experiment$geneinfo %>% slice(match(colnames(counts), gene_id))
+  feature_info <- experiment$feature_info %>% slice(match(colnames(counts), gene_id))
   feature_info$feature_id <- feature_info$gene_id
   
   # create task
