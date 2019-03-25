@@ -3,7 +3,7 @@
 \name{generate_tree_states}
 \alias{generate_tree_states}
 \title{Convert tree to states list, used later by the gold standard to determine where there are bifurcations
-The modules of each bifurcation will be added later by `from_stages_to_modulenet`}
+The modules of each bifurcation will be added later by \code{from_stages_to_modulenet}}
 \usage{
 generate_tree_states(stagenet)
 }
@@ -12,5 +12,5 @@ generate_tree_states(stagenet)
 }
 \description{
 Convert tree to states list, used later by the gold standard to determine where there are bifurcations
-The modules of each bifurcation will be added later by `from_stages_to_modulenet`
+The modules of each bifurcation will be added later by \code{from_stages_to_modulenet}
 }

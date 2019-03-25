@@ -10,7 +10,7 @@ simulate_cell(system, timeofsampling = NULL, totaltime = 10,
 \arguments{
 \item{system}{The system to simulate}
 
-\item{timeofsampling}{`NULL` to return expression at all time steps, a double to return expression at a particular time step}
+\item{timeofsampling}{\code{NULL} to return expression at all time steps, a double to return expression at a particular time step}
 
 \item{totaltime}{The total simulation time}
 

@@ -14,7 +14,7 @@ generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
   verbose = TRUE)
 }
 \arguments{
-\item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree}
+\item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or \code{tree} to generate a random tree}
 
 \item{platform}{The platform}
 
@@ -41,5 +41,5 @@ generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
 \item{verbose}{Whether or not to produce textual output}
 }
 \description{
-Default parameters are defined in individual functions and are inherited in `zzz_param_inheritance.R`
+Default parameters are defined in individual functions and are inherited in \code{zzz_param_inheritance.R}
 }
