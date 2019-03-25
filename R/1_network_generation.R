@@ -97,7 +97,9 @@ generate_model_from_modulenet <- function(
 
 
 #' Load module network from extra data
-#' @param modulenet_name A modulenet_name as defined in data/modulenetworks or `tree` to generate a random tree
+#' @param modulenet_name A modulenet_name as defined in 
+#'   [ext_data/modulenetworks](https://github.com/dynverse/dyngen/tree/master/inst/ext_data/modulenetworks).
+#'   Additionally, `"tree"` can also be used in order to generate a random tree.
 #' @importFrom readr read_tsv
 #' @importFrom jsonlite read_json
 load_modulenet <- function(modulenet_name) {

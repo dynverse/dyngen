@@ -14,7 +14,9 @@ generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
   verbose = TRUE)
 }
 \arguments{
-\item{modulenet_name}{A modulenet_name as defined in data/modulenetworks or \code{tree} to generate a random tree}
+\item{modulenet_name}{A modulenet_name as defined in
+\href{https://github.com/dynverse/dyngen/tree/master/inst/ext_data/modulenetworks}{ext_data/modulenetworks}.
+Additionally, \code{"tree"} can also be used in order to generate a random tree.}
 
 \item{platform}{The platform}
 
