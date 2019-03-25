@@ -5,10 +5,11 @@
 \title{Model generation from modulenet}
 \usage{
 generate_model_from_modulenet(modulenet_name, platform, treeseed = NULL,
-  decay = 1.4, ngenes_per_module_sampler = function(n_features, n_modules)
-  sample(1:10, n_modules, replace = TRUE), edge_retainment = function(n)
-  max(c(round(n/2), 1)), ntargets_sampler = function(n_features, n_regulators)
-  {     sample(20:100, 1) }, main_targets_ratio = 0.05, target_adder_name,
+  decay = 1.4, ngenes_per_module_sampler = function(n_features,
+  n_modules) sample(1:10, n_modules, replace = TRUE),
+  edge_retainment = function(n) max(c(round(n/2), 1)),
+  ntargets_sampler = function(n_features, n_regulators) {    
+  sample(20:100, 1) }, main_targets_ratio = 0.05, target_adder_name,
   realnet_name = "regulatorycircuits", damping = 0.05, samplers,
   verbose = TRUE)
 }

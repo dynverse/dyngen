@@ -4,8 +4,8 @@
 \alias{simulate_cell}
 \title{Simulation one individual cells}
 \usage{
-simulate_cell(system, timeofsampling = NULL, totaltime = 10, burntime = 2,
-  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
+simulate_cell(system, timeofsampling = NULL, totaltime = 10,
+  burntime = 2, ssa_algorithm = fastgssa::ssa.em(noise_strength = 4))
 }
 \arguments{
 \item{system}{The system to simulate}

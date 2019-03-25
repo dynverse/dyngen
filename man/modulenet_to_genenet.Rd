@@ -5,9 +5,10 @@
 \title{Convert modulenet to modules regulating each other}
 \usage{
 modulenet_to_genenet(modulenet, modulenodes, n_features,
-  ngenes_per_module_sampler = function(n_features, n_modules) sample(1:10,
-  n_modules, replace = TRUE), gene_name_generator = function(i) paste0("GM",
-  i), edge_retainment = function(n) max(c(round(n/2), 1)))
+  ngenes_per_module_sampler = function(n_features, n_modules)
+  sample(1:10, n_modules, replace = TRUE),
+  gene_name_generator = function(i) paste0("GM", i),
+  edge_retainment = function(n) max(c(round(n/2), 1)))
 }
 \arguments{
 \item{modulenet}{Module network}

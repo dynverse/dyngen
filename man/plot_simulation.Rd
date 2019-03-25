@@ -16,7 +16,8 @@ plot_simulation(simulation)
 plot_simulation_space_individual(simulation,
   spaces = dimred_simulation(simulation))
 
-plot_simulation_space_time(simulation, spaces = dimred_simulation(simulation))
+plot_simulation_space_time(simulation,
+  spaces = dimred_simulation(simulation))
 
 plot_simulation_space_modules(simulation,
   subsample = subsample_simulation(simulation),

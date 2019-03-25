@@ -4,7 +4,8 @@
 \alias{get_milestone_paths}
 \title{Extract all milestone paths}
 \usage{
-get_milestone_paths(milestone_network, start_milestones, max_path_length = 10)
+get_milestone_paths(milestone_network, start_milestones,
+  max_path_length = 10)
 }
 \arguments{
 \item{milestone_network}{The milestone network}

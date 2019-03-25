@@ -4,7 +4,8 @@
 \alias{extract_references}
 \title{Extract reference expression for every edge}
 \usage{
-extract_references(path_operations, milestone_network, reference_length = 100)
+extract_references(path_operations, milestone_network,
+  reference_length = 100)
 }
 \arguments{
 \item{path_operations}{The operations within each path}
