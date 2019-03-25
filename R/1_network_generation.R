@@ -20,7 +20,7 @@ generate_model_from_modulenet <- function(
   modulenet_name, 
   
   # reference
-  platform,
+  platform = get_simple_platform(),
   
   # params for modulenet_name == "tree"
   treeseed,

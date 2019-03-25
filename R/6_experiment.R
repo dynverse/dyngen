@@ -10,7 +10,7 @@ run_experiment <- function(
   simulation, 
   gs,
   sampler,
-  platform
+  platform = get_simple_platform()
 ) {
   # mutate <- dplyr::mutate
   # filter <- dplyr::filter

@@ -8,7 +8,7 @@ base_params = list(
     # treeseed = 1,
     
     # reference
-    platform = readRDS(paste0(find.package("dyngen"), "/ext_data/platforms/small.rds")),
+    platform = get_simple_platform(),
     
     # network between tfs
     ngenes_per_module_sampler = function(n_features, n_modules) {
