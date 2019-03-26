@@ -1,4 +1,4 @@
-#' Module network models for starting the simulation with
+#' Module network models for creating a gene regulatory network
 #' 
 #' A module is a group of genes which, to some extent, shows the same
 #' expression behaviour. Several modules are connected together such that
@@ -23,7 +23,8 @@
 #' * effect (integer): `1` if the regulating module upregulates 
 #'   the target module, `-1` if it downregulates
 #' * strength (numeric): the strength of the interaction
-#' * cooperativity (numeric): what does this do again?
+#' * cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
+#'   between 0 and 1 for negative cooperativity
 #' 
 #' `expression_patterns` describes the expected expression pattern
 #' changes when a cell is simulated by dyngen.
