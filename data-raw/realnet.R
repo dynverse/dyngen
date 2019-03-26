@@ -25,7 +25,8 @@ realnets <- map(
   function(file) {
     df <- 
       read_tsv(file, col_names = c("regulator", "target", "weight"), col_types = c("regulator" = "c", "target" = "c", "weight" = "d")) %>% 
-      top_n(250000)
+      arrange(desc(weight)) %>% 
+      slice(seq_len(250000))
     
     genes <- unique(c(df$regulator, df$target))
     
