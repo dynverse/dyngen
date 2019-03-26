@@ -1,11 +1,15 @@
 generator_config <- function(
   modulenet = modulenet_linear(),
   platform = platform_simple(),
-  targetadder = targetadder_realnet()
+  tf_generator = tf_random(),
+  target_generator = target_realnet(),
+  kinetics_generator = kinetics_samplers()
 ) {
   lst(
     modulenet,
     platform,
-    targetadder
+    tf_generator,
+    target_generator,
+    kinetics_generator
   )
 }
