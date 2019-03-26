@@ -61,23 +61,23 @@ modulenet <- function(
 #' @rdname modulenet
 list_modulenet_generators <- function() {
   list(
-    bifurcating = generate_modulenet_bifurcating,
-    bifurcating_converging = generate_modulenet_bifurcating_converging,
-    bifurcating_cycle = generate_modulenet_bifurcating_cycle,
-    bifurcating_loop = generate_modulenet_bifurcating_loop,
-    binary_tree = generate_modulenet_binary_tree,
-    consecutive_bifurcating = generate_modulenet_consecutive_bifurcating,
-    converging = generate_modulenet_converging,
-    cycle = generate_modulenet_cycle,
-    linear = generate_modulenet_linear,
-    linear_long = generate_modulenet_linear_long,
-    trifurcating = generate_modulenet_trifurcating
+    bifurcating = modulenet_bifurcating,
+    bifurcating_converging = modulenet_bifurcating_converging,
+    bifurcating_cycle = modulenet_bifurcating_cycle,
+    bifurcating_loop = modulenet_bifurcating_loop,
+    binary_tree = modulenet_binary_tree,
+    consecutive_bifurcating = modulenet_consecutive_bifurcating,
+    converging = modulenet_converging,
+    cycle = modulenet_cycle,
+    linear = modulenet_linear,
+    linear_long = modulenet_linear_long,
+    trifurcating = modulenet_trifurcating
   )
 }
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_bifurcating <- function() {
+modulenet_bifurcating <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -119,7 +119,7 @@ generate_modulenet_bifurcating <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_bifurcating_converging <- function() {
+modulenet_bifurcating_converging <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -173,7 +173,7 @@ generate_modulenet_bifurcating_converging <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_bifurcating_cycle <- function() {
+modulenet_bifurcating_cycle <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -230,7 +230,7 @@ generate_modulenet_bifurcating_cycle <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_bifurcating_loop <- function() {
+modulenet_bifurcating_loop <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -286,7 +286,7 @@ generate_modulenet_bifurcating_loop <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_binary_tree <- function() {
+modulenet_binary_tree <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1A", 1, TRUE,
@@ -388,7 +388,7 @@ generate_modulenet_binary_tree <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_consecutive_bifurcating <- function() {
+modulenet_consecutive_bifurcating <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -442,7 +442,7 @@ generate_modulenet_consecutive_bifurcating <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_converging <- function() {
+modulenet_converging <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -498,7 +498,7 @@ generate_modulenet_converging <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_cycle <- function() {
+modulenet_cycle <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -533,7 +533,7 @@ generate_modulenet_cycle <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_linear <- function() {
+modulenet_linear <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -569,7 +569,7 @@ generate_modulenet_linear <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_linear_long <- function() {
+modulenet_linear_long <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,
@@ -627,7 +627,7 @@ generate_modulenet_linear_long <- function() {
 
 #' @export
 #' @rdname modulenet
-generate_modulenet_trifurcating <- function() {
+modulenet_trifurcating <- function() {
   module_nodes <- tribble(
     ~module_id, ~a0, ~burn,
     "1", 1, TRUE,

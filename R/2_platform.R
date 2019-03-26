@@ -1,15 +1,15 @@
 #' Estimate platform parameters from a dataset
 #' 
-#' Altenatively, [generate_simple_platform()] returns a toy platform parameter configuration.
+#' Altenatively, [platform_simple()] returns a toy platform parameter configuration.
 #'  
 #' @param counts The counts with cells in rows and genes in columns.
 #' @param grouping A named vector representing a grouping of the cells.
 #' @param subsample The number of cells to subsample.
 #' 
-#' @rdname platforms
+#' @rdname platform
 #' 
 #' @export
-generate_platform_from_counts <- function(counts, grouping, subsample = 500) {
+platform_from_counts <- function(counts, grouping, subsample = 500) {
   requireNamespace("splatter")
   
   # add a try catch to the splatEstDropout function because it errors too frequently
@@ -92,10 +92,10 @@ generate_platform_from_counts <- function(counts, grouping, subsample = 500) {
 #' @param dropout_mean_rate The mean rate of dropouts
 #' @param dropout_mean_shape The shape of dropouts
 #' 
-#' @rdname platforms
+#' @rdname platform
 #' 
 #' @export
-generate_platform_toy <- function(
+platform_simple <- function(
   n_cells = 100L,
   n_features = 100L,
   trajectory_dependent_features = 0.1,
