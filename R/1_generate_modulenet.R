@@ -36,6 +36,8 @@
 #' * start (logical): Whether or not this from cell state is the start of the trajectory
 #' * burn (logical): Whether these cell states are part of the burn in phase. Cells will 
 #'   not get sampled from these cell states.
+#'   
+#' @export
 modulenet <- function(
   module_nodes,
   module_module_edges,
