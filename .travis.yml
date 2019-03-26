@@ -1,21 +1,11 @@
 language: r
-sudo: required
 dist: trusty
-bioc_required: true
 cache: packages
-env:
-  - R_MAX_NUM_DLLS=250
-addons:
-  apt:
-    packages:
-      - libgsl-dev
-      - libsdl1.2-dev
-      - libreadline-dev
+before_install:
+- source <(curl -sSL https://raw.githubusercontent.com/dynverse/travis_scripts/master/helper.sh)
 install:
- - if [ `git branch | grep '* master' | wc -l` == 0 ]; then sed -i 's#\(dynverse/[^, ]*\)#\1@devel#' DESCRIPTION; fi
- - R -e 'install.packages("devtools")'
- - R -e 'setRepositories(ind = 1:2); devtools::install(dependencies = T, upgrade_dependencies = T)'
-r_github_packages:
-  - r-lib/covr
+- use_dynverse_devel
+- install_cran devtools covr
+- install_withdeps
 after_success:
-  - Rscript -e 'covr::codecov(function_exclusions = c("sample_snapshot", "snapshot_sampler", "sample_synchronised", "synchronised_sampler"))'
+ - R -e 'covr::codecov()'
