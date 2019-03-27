@@ -16,7 +16,7 @@
 \alias{modulenet_trifurcating}
 \title{Module network models for creating a gene regulatory network}
 \usage{
-modulenet(module_nodes, module_module_edges, expression_patterns)
+modulenet(module_nodes, module_edges, expression_patterns)
 
 list_modulenet_generators()
 
