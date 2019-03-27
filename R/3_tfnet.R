@@ -12,45 +12,25 @@ tf_random <- function(
 }
 
 #' @export
-target_realnet <- function(
-  realnet_name = realnets$name,
-  damping = 0.05,
-  ntargets_sampler = function(n_features, n_regulators) sample(20:100, 1)
+generate_tfnet <- function(
+  data
 ) {
-  realnet_name <- match.arg(realnet_name)
-  
-  data(realnets, package = "dyngen")
-  assert_that(realnet_name %all_in% realnets$name)
-  
-  realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
-  
-  lst(
-    realnet_name,
-    realnet_url,
-    damping,
-    ntargets_sampler
-  )
-}
-
-generate_genenet <- function(
-  config
-) {
-  module_info <- config$modulenet$module_info
-  module_network <- config$modulenet$module_network
+  module_info <- data$modulenet$module_info
+  module_network <- data$modulenet$module_network
   
   ###########################
   ## GENERATING TF NETWORK ##
   ###########################
-  if (config$verbose) cat("Generating TF network\n")
+  if (data$verbose) cat("Generating TF network\n")
   
   # number of genes in main based on number of genes in platform
-  num_traj_features <- round(config$platform$num_features * config$platform$pct_trajectory_features)
-  num_tfs <- round(num_traj_features * config$tfgen_params$percentage_tfs)
+  num_traj_features <- round(data$platform$num_features * data$platform$pct_trajectory_features)
+  num_tfs <- round(num_traj_features * data$tfgen_params$percentage_tfs)
   num_targets <- num_traj_features - num_tfs
   
   num_modules <- nrow(module_info)
   
-  tf_info <- 
+  config$tf_info <- 
     module_info %>% mutate(
       num_tfs = .num_tf_per_module_sampler(
         num_tfs = max(num_modules, num_tfs),
@@ -64,14 +44,9 @@ generate_genenet <- function(
     unnest(feature_id) %>% 
     select(feature_id, everything(), -num_tfs)
   
-  tf_regnet <- .generate_tf_regnet(module_network, tf_info)
+  data$tf_regnet <- .generate_tf_regnet(module_network, data$tf_info)
   
-  ###############################
-  ## GENERATING TARGET NETWORK ##
-  ###############################
-  if (config$verbose) cat("Generating target\n")
-  
-  
+  data  
 }
 
 .num_tf_per_module_sampler <- function(num_tfs, num_modules, min_tfs_per_module) {
