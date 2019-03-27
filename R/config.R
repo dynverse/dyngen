@@ -2,8 +2,8 @@
 generator_config <- function(
   modulenet = modulenet_linear(),
   platform = platform_simple(),
-  tfgen_params = tf_random(),
-  targetgen_params = target_realnet(),
+  tfgen_params = tfgen_random(),
+  targetgen_params = targetgen_realnet(),
   kinetics_params = kinetics_default(),
   simulation_params = simulation_default(),
   goldstandard_params = goldstandard_default(),

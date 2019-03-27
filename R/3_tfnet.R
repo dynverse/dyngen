@@ -1,52 +1,68 @@
 #' @export
-tf_random <- function(
+tfgen_random <- function(
   percentage_tfs = 0.05,
   min_tfs_per_module = 1L,
+  min_targets_per_tf = 5L,
   edge_retainment = function(n) round(n / 2) %>% max(1)
 ) {
   lst(
     percentage_tfs,
     min_tfs_per_module,
+    min_targets_per_tf,
     edge_retainment
   )
 }
 
 #' @export
 generate_tfnet <- function(
-  data
+  model
 ) {
-  module_info <- data$modulenet$module_info
-  module_network <- data$modulenet$module_network
+  module_info <- model$modulenet$module_info
+  module_network <- model$modulenet$module_network
   
-  ###########################
-  ## GENERATING TF NETWORK ##
-  ###########################
-  if (data$verbose) cat("Generating TF network\n")
+  if (model$verbose) cat("Generating TF network\n")
   
   # number of genes in main based on number of genes in platform
-  num_traj_features <- round(data$platform$num_features * data$platform$pct_trajectory_features)
-  num_tfs <- round(num_traj_features * data$tfgen_params$percentage_tfs)
+  num_traj_features <- round(model$platform$num_features * model$platform$pct_trajectory_features)
+  num_tfs <- round(num_traj_features * model$tfgen_params$percentage_tfs)
   num_targets <- num_traj_features - num_tfs
-  
   num_modules <- nrow(module_info)
   
-  data$tf_info <- 
+  model$feature_numbers <- lst(
+    num_features = model$platform$num_features,
+    num_traj_features,
+    num_tfs,
+    num_targets,
+    num_modules
+  )
+  
+  module_info <- 
     module_info %>% mutate(
       num_tfs = .num_tf_per_module_sampler(
         num_tfs = max(num_modules, num_tfs),
         num_modules = num_modules, 
-        min_tfs_per_module = data$tfgen_params$min_tfs_per_module
+        min_tfs_per_module = model$tfgen_params$min_tfs_per_module
       ),
       feature_id = map2(module_id, num_tfs, function(module_id, num_tfs) paste0(module_id, "_TF", seq_len(num_tfs))),
       is_tf = TRUE,
-      is_tractory_driven = TRUE
-    ) %>% 
+      is_trajectory_driven = TRUE
+    )
+  
+  model$tf_info <- 
+    module_info %>% 
     unnest(feature_id) %>% 
-    select(feature_id, everything(), -num_tfs)
+    select(feature_id, everything(), -num_tfs) %>% 
+    mutate(
+      num_targets = .num_tf_per_module_sampler(
+        num_tfs = max(num_tfs, num_targets),
+        num_modules = num_tfs, 
+        min_tfs_per_module = model$tfgen_params$min_targets_per_tf
+      )
+    )
   
-  data$tf_regnet <- .generate_tf_regnet(module_network, data$tf_info)
+  model$tf_network <- .generate_tf_regnet(model)
   
-  data  
+  model  
 }
 
 .num_tf_per_module_sampler <- function(num_tfs, num_modules, min_tfs_per_module) {
@@ -67,8 +83,11 @@ generate_tfnet <- function(
     { . + min_tfs_per_module}
 }
 
-.generate_tf_regnet <- function(module_network, tf_info) {
-  # initialise data structures
+.generate_tf_regnet <- function(model) {
+  module_network <- model$modulenet$module_network
+  tf_info <- model$tf_info
+  
+  # initialise model structures
   regnet <- map(tf_info$feature_id, ~list()) %>% set_names(tf_info$feature_id)
   num_targets <- rep(0, length(regnet)) %>% set_names(tf_info$feature_id)
   
