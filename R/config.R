@@ -8,7 +8,8 @@ generator_config <- function(
   simulation_params = simulation_default(),
   goldstandard_params = goldstandard_default(),
   experiment_sampler = experiment_sampler_snapshot(),
-  normalisation_params = normalisation_default()
+  normalisation_params = normalisation_default(),
+  verbose = FALSE
 ) {
   lst(
     modulenet,
@@ -19,6 +20,7 @@ generator_config <- function(
     simulation_params,
     goldstandard_params,
     experiment_sampler,
-    normalisation_params
+    normalisation_params,
+    verbose
   )
 }
