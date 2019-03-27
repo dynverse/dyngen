@@ -6,17 +6,17 @@
 #' another module. By creating chains of modules, a dynamic behaviour in gene 
 #' regulation can be created.
 #' 
-#' A modulenet model contains three tibbles, namely `module_nodes`,
-#' `module_edges`, and `expression_patterns`.
+#' A modulenet model contains three tibbles, namely `module_info`,
+#' `module_network`, and `expression_patterns`.
 #' 
-#' `module_nodes` contains meta information on the modules themselves.
+#' `module_info` contains meta information on the modules themselves.
 #' 
 #' * module_id (character): the name of the module
 #' * a0 (numeric): basal expression level of genes in this module
 #' * burn (logical): whether or not outgoing edges of this module will 
 #'   be active during the burn in phase
 #'     
-#' `module_edges` describes which modules regulate which other modules.
+#' `module_network` describes which modules regulate which other modules.
 #' 
 #' * from (character): the regulating module
 #' * to (character): the target module
@@ -40,18 +40,26 @@
 #'   
 #' @export
 modulenet <- function(
-  module_nodes,
-  module_edges,
+  module_info,
+  module_network,
   expression_patterns
 ) {
   assert_that(
-    module_edges$from %all_in% module_nodes$module_id,
-    module_edges$to %all_in% module_nodes$module_id
+    module_network$from %all_in% module_info$module_id,
+    module_network$to %all_in% module_info$module_id
   )
   
+  tmp_modules <-
+    expression_patterns$module_progression %>%
+    strsplit("[,|]") %>%
+    unlist() %>%
+    unique() %>% 
+    gsub("[+-]", "", .)
+  assert_that(tmp_modules %all_in% module_info$module_id)
+  
   lst(
-    module_nodes, 
-    module_edges, 
+    module_info, 
+    module_network, 
     expression_patterns
   ) %>% 
     add_class("dyngen::modulenet")
@@ -78,600 +86,600 @@ list_modulenet_generators <- function() {
 #' @export
 #' @rdname modulenet
 modulenet_bifurcating <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 1, TRUE,
-    "8", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 1, TRUE,
+    "M8", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "8", 1, 1, 2,
-    "8", "2", 1, 0.2, 2,
-    "2", "3", 1, 1, 2,
-    "2", "4", 1, 1, 2,
-    "3", "3", 1, 10, 2,
-    "4", "4", 1, 10, 2,
-    "4", "3", -1, 10, 2,
-    "3", "4", -1, 10, 2,
-    "4", "1", -1, 10, 2,
-    "3", "1", -1, 10, 2,
-    "3", "6", 1, 1, 2,
-    "3", "7", -1, 10, 2
+    "M1", "M8", 1, 1, 2,
+    "M8", "M2", 1, 0.2, 2,
+    "M2", "M3", 1, 1, 2,
+    "M2", "M4", 1, 1, 2,
+    "M3", "M3", 1, 10, 2,
+    "M4", "M4", 1, 10, 2,
+    "M4", "M3", -1, 10, 2,
+    "M3", "M4", -1, 10, 2,
+    "M4", "M1", -1, 10, 2,
+    "M3", "M1", -1, 10, 2,
+    "M3", "M6", 1, 1, 2,
+    "M3", "M7", -1, 10, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1,+7", TRUE, TRUE,
-    "1", "2", "+8|+2", FALSE, FALSE,
-    "2", "3", "+3|-1|-8,+6|-7,-2", FALSE, FALSE,
-    "2", "4", "+4|-1|-8|-2", FALSE, FALSE
+    "S0", "S1", "+M1,+M7", TRUE, TRUE,
+    "S1", "S2", "+M8|+M2", FALSE, FALSE,
+    "S2", "S3", "+M3|-M1|-M8,+M6|-M7,-M2", FALSE, FALSE,
+    "S2", "S4", "+M4|-M1|-M8|-M2", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_bifurcating_converging <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 0, FALSE,
-    "8", 0, FALSE,
-    "9", 0, FALSE,
-    "10", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 0, FALSE,
+    "M8", 0, FALSE,
+    "M9", 0, FALSE,
+    "M10", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "4", 1, 1, 2,
-    "4", "4", 1, 10, 2,
-    "3", "5", 1, 1, 2,
-    "5", "5", 1, 10, 2,
-    "4", "5", -1, 100, 2,
-    "5", "4", -1, 100, 2,
-    "4", "6", 1, 0.25, 5,
-    "5", "7", 1, 0.25, 5,
-    "6", "8", 1, 1, 2,
-    "7", "8", 1, 1, 2,
-    "8", "8", 1, 10, 2,
-    "8", "4", -1, 10, 2,
-    "8", "5", -1, 10, 2,
-    "8", "9", 1, 1, 2,
-    "9", "1", -1, 10, 2,
-    "9", "10", 1, 1, 2
+    "M1", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M4", 1, 10, 2,
+    "M3", "M5", 1, 1, 2,
+    "M5", "M5", 1, 10, 2,
+    "M4", "M5", -1, 100, 2,
+    "M5", "M4", -1, 100, 2,
+    "M4", "M6", 1, 0.25, 5,
+    "M5", "M7", 1, 0.25, 5,
+    "M6", "M8", 1, 1, 2,
+    "M7", "M8", 1, 1, 2,
+    "M8", "M8", 1, 10, 2,
+    "M8", "M4", -1, 10, 2,
+    "M8", "M5", -1, 10, 2,
+    "M8", "M9", 1, 1, 2,
+    "M9", "M1", -1, 10, 2,
+    "M9", "M10", 1, 1, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2|+3", FALSE, FALSE,
-    "2", "3", "+5|+7|+8", FALSE, FALSE,
-    "2", "4", "+4|+6|+8", FALSE, FALSE,
-    "3", "5", "+9,-5|-7,+10", FALSE, FALSE,
-    "4", "5", "+9,-4|-6,+10", FALSE, FALSE,
-    "5", "6", "-1,-8|-9,-2|-10,-3", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2|+M3", FALSE, FALSE,
+    "S2", "S3", "+M5|+M7|+M8", FALSE, FALSE,
+    "S2", "S4", "+M4|+M6|+M8", FALSE, FALSE,
+    "S3", "S5", "+M9,-M5|-M7,+M10", FALSE, FALSE,
+    "S4", "S5", "+M9,-M4|-M6,+M10", FALSE, FALSE,
+    "S5", "S6", "-M1,-M8|-M9,-M2|-M10,-M3", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_bifurcating_cycle <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 0, FALSE,
-    "8", 0, FALSE,
-    "9", 0, FALSE,
-    "10", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 0, FALSE,
+    "M8", 0, FALSE,
+    "M9", 0, FALSE,
+    "M10", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "4", 1, 1, 2,
-    "4", "4", 1, 10, 2,
-    "3", "5", 1, 1, 2,
-    "5", "5", 1, 10, 2,
-    "4", "5", -1, 100, 2,
-    "5", "4", -1, 100, 2,
-    "4", "6", 1, 0.1, 5,
-    "5", "7", 1, 0.1, 5,
-    "6", "8", 1, 1, 2,
-    "7", "8", 1, 1, 2,
-    "8", "8", 1, 10, 2,
-    "8", "4", -1, 10, 2,
-    "8", "5", -1, 10, 2,
-    "8", "9", 1, 1, 2,
-    "9", "1", -1, 10, 2,
-    "9", "10", 1, 1, 2,
-    "10", "8", -1, 100, 2,
-    "10", "4", -1, 100, 2,
-    "10", "5", -1, 100, 2
+    "M1", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M4", 1, 10, 2,
+    "M3", "M5", 1, 1, 2,
+    "M5", "M5", 1, 10, 2,
+    "M4", "M5", -1, 100, 2,
+    "M5", "M4", -1, 100, 2,
+    "M4", "M6", 1, 0.1, 5,
+    "M5", "M7", 1, 0.1, 5,
+    "M6", "M8", 1, 1, 2,
+    "M7", "M8", 1, 1, 2,
+    "M8", "M8", 1, 10, 2,
+    "M8", "M4", -1, 10, 2,
+    "M8", "M5", -1, 10, 2,
+    "M8", "M9", 1, 1, 2,
+    "M9", "M1", -1, 10, 2,
+    "M9", "M10", 1, 1, 2,
+    "M10", "M8", -1, 100, 2,
+    "M10", "M4", -1, 100, 2,
+    "M10", "M5", -1, 100, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2|+3", FALSE, FALSE,
-    "2", "3", "+4|+6|+8", FALSE, FALSE,
-    "2", "4", "+5|+7|+8", FALSE, FALSE,
-    "3", "5", "-4,+9,-6|+10,-1", FALSE, FALSE,
-    "4", "5", "-5,+9,-7|+10,-1", FALSE, FALSE,
-    "5", "1", "-2,-8|-3,-9|-10|+1", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2|+M3", FALSE, FALSE,
+    "S2", "S3", "+M4|+M6|+M8", FALSE, FALSE,
+    "S2", "S4", "+M5|+M7|+M8", FALSE, FALSE,
+    "S3", "S5", "-M4,+M9,-M6|+M10,-M1", FALSE, FALSE,
+    "S4", "S5", "-M5,+M9,-M7|+M10,-M1", FALSE, FALSE,
+    "S5", "S1", "-M2,-M8|-M3,-M9|-M10|+M1", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_bifurcating_loop <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 0, FALSE,
-    "8", 0, FALSE,
-    "9", 0, FALSE,
-    "10", 0, FALSE,
-    "11", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 0, FALSE,
+    "M8", 0, FALSE,
+    "M9", 0, FALSE,
+    "M10", 0, FALSE,
+    "M11", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "4", 1, 1, 2,
-    "4", "4", 1, 10, 2,
-    "3", "5", 1, 1, 2,
-    "5", "5", 1, 10, 2,
-    "4", "5", -1, 100, 2,
-    "5", "4", -1, 100, 2,
-    "4", "6", 1, 0.1, 5,
-    "6", "8", 1, 1, 2,
-    "7", "8", 1, 1, 2,
-    "8", "8", 1, 10, 2,
-    "8", "4", -1, 10, 2,
-    "8", "9", 1, 1, 2,
-    "9", "1", -1, 10, 2,
-    "9", "10", 1, 1, 2,
-    "10", "8", -1, 100, 2,
-    "10", "4", -1, 100, 2,
-    "5", "11", 1, 10, 2,
-    "5", "8", -1, 100, 2,
-    "10", "5", -1, 100, 2
+    "M1", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M4", 1, 10, 2,
+    "M3", "M5", 1, 1, 2,
+    "M5", "M5", 1, 10, 2,
+    "M4", "M5", -1, 100, 2,
+    "M5", "M4", -1, 100, 2,
+    "M4", "M6", 1, 0.1, 5,
+    "M6", "M8", 1, 1, 2,
+    "M7", "M8", 1, 1, 2,
+    "M8", "M8", 1, 10, 2,
+    "M8", "M4", -1, 10, 2,
+    "M8", "M9", 1, 1, 2,
+    "M9", "M1", -1, 10, 2,
+    "M9", "M10", 1, 1, 2,
+    "M10", "M8", -1, 100, 2,
+    "M10", "M4", -1, 100, 2,
+    "M5", "M11", 1, 10, 2,
+    "M5", "M8", -1, 100, 2,
+    "M10", "M5", -1, 100, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2|+3", FALSE, FALSE,
-    "2", "4", "+4|+6|+8|+9,-4", FALSE, FALSE,
-    "4", "1", "-1,+10,-6|-2,-8|-3,-9|-10|+1", FALSE, FALSE,
-    "2", "3", "+5|+11", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2|+M3", FALSE, FALSE,
+    "S2", "S4", "+M4|+M6|+M8|+M9,-M4", FALSE, FALSE,
+    "S4", "S1", "-M1,+M10,-M6|-M2,-M8|-M3,-M9|-M10|+M1", FALSE, FALSE,
+    "S2", "S3", "+M5|+M11", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_binary_tree <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1A", 1, TRUE,
-    "1B", 0, FALSE,
-    "2A", 0, FALSE,
-    "2B", 0, FALSE,
-    "2C", 0, FALSE,
-    "3A", 0, FALSE,
-    "3B", 0, FALSE,
-    "3C", 0, FALSE,
-    "4A", 0, FALSE,
-    "5A", 0, FALSE,
-    "4B", 0, FALSE,
-    "5B", 0, FALSE,
-    "5C", 0, FALSE,
-    "6A", 0, FALSE,
-    "6B", 0, FALSE,
-    "7A", 0, FALSE,
-    "7B", 0, FALSE,
-    "8A", 0, FALSE,
-    "8B", 0, FALSE,
-    "8C", 0, FALSE,
-    "9A", 0, FALSE,
-    "9B", 0, FALSE,
-    "10A", 0, FALSE,
-    "10B", 0, FALSE,
-    "10C", 0, FALSE,
-    "10D", 0, FALSE,
-    "10E", 0, FALSE,
-    "11A", 0, FALSE,
-    "11B", 0, FALSE,
-    "11C", 0, FALSE
+    "M1A", 1, TRUE,
+    "M1B", 0, FALSE,
+    "M2A", 0, FALSE,
+    "M2B", 0, FALSE,
+    "M2C", 0, FALSE,
+    "M3A", 0, FALSE,
+    "M3B", 0, FALSE,
+    "M3C", 0, FALSE,
+    "M4A", 0, FALSE,
+    "M5A", 0, FALSE,
+    "M4B", 0, FALSE,
+    "M5B", 0, FALSE,
+    "M5C", 0, FALSE,
+    "M6A", 0, FALSE,
+    "M6B", 0, FALSE,
+    "M7A", 0, FALSE,
+    "M7B", 0, FALSE,
+    "M8A", 0, FALSE,
+    "M8B", 0, FALSE,
+    "M8C", 0, FALSE,
+    "M9A", 0, FALSE,
+    "M9B", 0, FALSE,
+    "M10A", 0, FALSE,
+    "M10B", 0, FALSE,
+    "M10C", 0, FALSE,
+    "M10D", 0, FALSE,
+    "M10E", 0, FALSE,
+    "M11A", 0, FALSE,
+    "M11B", 0, FALSE,
+    "M11C", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1A", "1B", 1, 0.1, 2,
-    "1B", "2A", 1, 1, 2,
-    "2A", "2A", 1, 10, 2,
-    "1B", "3A", 1, 1, 2,
-    "3A", "3A", 1, 10, 2,
-    "3A", "2A", -1, 10, 2,
-    "2A", "3A", -1, 10, 2,
-    "2A", "2B", 1, 1, 2,
-    "2B", "2C", 1, 1, 2,
-    "2C", "4A", 1, 1, 2,
-    "2C", "5A", 1, 1, 2,
-    "4A", "5A", -1, 10, 2,
-    "5A", "4A", -1, 10, 2,
-    "4A", "4B", 1, 1, 2,
-    "5A", "5B", 1, 1, 2,
-    "5B", "5C", 1, 1, 2,
-    "5C", "6A", 1, 1, 2,
-    "5C", "7A", 1, 1, 2,
-    "6A", "7A", -1, 10, 2,
-    "7A", "6A", -1, 10, 2,
-    "6A", "6B", 1, 1, 2,
-    "7A", "7B", 1, 1, 2,
-    "3A", "3B", 1, 1, 2,
-    "3B", "3C", 1, 1, 2,
-    "3C", "8A", 1, 1, 2,
-    "3C", "9A", 1, 1, 2,
-    "8A", "9A", -1, 10, 2,
-    "9A", "8A", -1, 10, 2,
-    "8A", "8B", 1, 1, 2,
-    "8B", "8C", 1, 1, 2,
-    "9A", "9B", 1, 1, 2,
-    "4B", "10A", 1, 1, 2,
-    "4B", "11A", 1, 1, 2,
-    "10A", "11A", -1, 10, 2,
-    "11A", "10A", -1, 10, 2,
-    "11A", "11B", 1, 1, 2,
-    "11B", "11C", 1, 1, 2,
-    "10A", "10B", 1, 1, 2,
-    "10B", "10C", 1, 1, 2,
-    "10C", "10D", 1, 1, 2,
-    "10D", "10E", 1, 1, 2
+    "M1A", "M1B", 1, 0.1, 2,
+    "M1B", "M2A", 1, 1, 2,
+    "M2A", "M2A", 1, 10, 2,
+    "M1B", "M3A", 1, 1, 2,
+    "M3A", "M3A", 1, 10, 2,
+    "M3A", "M2A", -1, 10, 2,
+    "M2A", "M3A", -1, 10, 2,
+    "M2A", "M2B", 1, 1, 2,
+    "M2B", "M2C", 1, 1, 2,
+    "M2C", "M4A", 1, 1, 2,
+    "M2C", "M5A", 1, 1, 2,
+    "M4A", "M5A", -1, 10, 2,
+    "M5A", "M4A", -1, 10, 2,
+    "M4A", "M4B", 1, 1, 2,
+    "M5A", "M5B", 1, 1, 2,
+    "M5B", "M5C", 1, 1, 2,
+    "M5C", "M6A", 1, 1, 2,
+    "M5C", "M7A", 1, 1, 2,
+    "M6A", "M7A", -1, 10, 2,
+    "M7A", "M6A", -1, 10, 2,
+    "M6A", "M6B", 1, 1, 2,
+    "M7A", "M7B", 1, 1, 2,
+    "M3A", "M3B", 1, 1, 2,
+    "M3B", "M3C", 1, 1, 2,
+    "M3C", "M8A", 1, 1, 2,
+    "M3C", "M9A", 1, 1, 2,
+    "M8A", "M9A", -1, 10, 2,
+    "M9A", "M8A", -1, 10, 2,
+    "M8A", "M8B", 1, 1, 2,
+    "M8B", "M8C", 1, 1, 2,
+    "M9A", "M9B", 1, 1, 2,
+    "M4B", "M10A", 1, 1, 2,
+    "M4B", "M11A", 1, 1, 2,
+    "M10A", "M11A", -1, 10, 2,
+    "M11A", "M10A", -1, 10, 2,
+    "M11A", "M11B", 1, 1, 2,
+    "M11B", "M11C", 1, 1, 2,
+    "M10A", "M10B", 1, 1, 2,
+    "M10B", "M10C", 1, 1, 2,
+    "M10C", "M10D", 1, 1, 2,
+    "M10D", "M10E", 1, 1, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1A", TRUE, TRUE,
-    "1", "2", "+1B", FALSE, FALSE,
-    "2", "3", "+2A|+2B|+2C", FALSE, FALSE,
-    "2", "4", "+3A|+3B|+3C", FALSE, FALSE,
-    "3", "5", "+4A|+4B", FALSE, FALSE,
-    "3", "6", "+5A|+5B|+5C", FALSE, FALSE,
-    "4", "7", "+8A|+8B|+8C", FALSE, FALSE,
-    "4", "8", "+9A|+9B", FALSE, FALSE,
-    "6", "9", "+6A|+6B", FALSE, FALSE,
-    "6", "10", "+7A|+7B", FALSE, FALSE,
-    "5", "11", "+10A|+10B|+10C|+10D|+10E", FALSE, FALSE,
-    "5", "12", "+11A|+11B|+11C", FALSE, FALSE
+    "S0", "S1", "+M1A", TRUE, TRUE,
+    "S1", "S2", "+M1B", FALSE, FALSE,
+    "S2", "S3", "+M2A|+M2B|+M2C", FALSE, FALSE,
+    "S2", "S4", "+M3A|+M3B|+M3C", FALSE, FALSE,
+    "S3", "S5", "+M4A|+M4B", FALSE, FALSE,
+    "S3", "S6", "+M5A|+M5B|+M5C", FALSE, FALSE,
+    "S4", "S7", "+M8A|+M8B|+M8C", FALSE, FALSE,
+    "S4", "S8", "+M9A|+M9B", FALSE, FALSE,
+    "S6", "S9", "+M6A|+M6B", FALSE, FALSE,
+    "S6", "S10", "+M7A|+M7B", FALSE, FALSE,
+    "S5", "S11", "+M10A|+M10B|+M10C|+M10D|+M10E", FALSE, FALSE,
+    "S5", "S12", "+M11A|+M11B|+M11C", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_consecutive_bifurcating <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 0, FALSE,
-    "8", 0, FALSE,
-    "9", 0, FALSE,
-    "10", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 0, FALSE,
+    "M8", 0, FALSE,
+    "M9", 0, FALSE,
+    "M10", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 0.1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "3", 1, 10, 2,
-    "2", "4", 1, 1, 2,
-    "4", "4", 1, 10, 2,
-    "4", "3", -1, 10, 2,
-    "3", "4", -1, 10, 2,
-    "3", "5", 1, 0.1, 2,
-    "5", "6", 1, 1, 2,
-    "5", "7", 1, 1, 2,
-    "6", "6", 1, 10, 2,
-    "7", "7", 1, 10, 2,
-    "6", "7", -1, 10, 2,
-    "7", "6", -1, 10, 2,
-    "4", "7", -1, 10, 2,
-    "4", "6", -1, 10, 2,
-    "7", "8", 1, 1, 2,
-    "6", "9", 1, 1, 2,
-    "4", "10", 1, 1, 2
+    "M1", "M2", 1, 0.1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M3", 1, 10, 2,
+    "M2", "M4", 1, 1, 2,
+    "M4", "M4", 1, 10, 2,
+    "M4", "M3", -1, 10, 2,
+    "M3", "M4", -1, 10, 2,
+    "M3", "M5", 1, 0.1, 2,
+    "M5", "M6", 1, 1, 2,
+    "M5", "M7", 1, 1, 2,
+    "M6", "M6", 1, 10, 2,
+    "M7", "M7", 1, 10, 2,
+    "M6", "M7", -1, 10, 2,
+    "M7", "M6", -1, 10, 2,
+    "M4", "M7", -1, 10, 2,
+    "M4", "M6", -1, 10, 2,
+    "M7", "M8", 1, 1, 2,
+    "M6", "M9", 1, 1, 2,
+    "M4", "M10", 1, 1, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2", FALSE, FALSE,
-    "2", "3", "+3|+5", FALSE, FALSE,
-    "2", "4", "+4|+10", FALSE, FALSE,
-    "3", "5", "+7|+8", FALSE, FALSE,
-    "3", "6", "+6|+9", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2", FALSE, FALSE,
+    "S2", "S3", "+M3|+M5", FALSE, FALSE,
+    "S2", "S4", "+M4|+M10", FALSE, FALSE,
+    "S3", "S5", "+M7|+M8", FALSE, FALSE,
+    "S3", "S6", "+M6|+M9", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_converging <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, TRUE,
-    "3", 0, TRUE,
-    "4", 0, TRUE,
-    "5", 0, TRUE,
-    "6", 0, TRUE,
-    "7", 0, TRUE,
-    "8", 0, FALSE,
-    "9", 0, FALSE,
-    "10", 0, FALSE,
-    "11", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, TRUE,
+    "M3", 0, TRUE,
+    "M4", 0, TRUE,
+    "M5", 0, TRUE,
+    "M6", 0, TRUE,
+    "M7", 0, TRUE,
+    "M8", 0, FALSE,
+    "M9", 0, FALSE,
+    "M10", 0, FALSE,
+    "M11", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "4", 1, 1, 2,
-    "4", "4", 1, 10, 2,
-    "3", "5", 1, 1, 2,
-    "5", "5", 1, 10, 2,
-    "4", "5", -1, 100, 2,
-    "5", "4", -1, 100, 2,
-    "4", "6", 1, 0.25, 5,
-    "5", "7", 1, 0.25, 5,
-    "6", "8", 1, 1, 2,
-    "7", "8", 1, 1, 2,
-    "8", "8", 1, 10, 2,
-    "8", "4", -1, 10, 2,
-    "8", "5", -1, 10, 2,
-    "8", "9", 1, 1, 2,
-    "9", "1", -1, 10, 2,
-    "9", "10", 1, 1, 2,
-    "10", "11", 1, 1, 2
+    "M1", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M4", 1, 10, 2,
+    "M3", "M5", 1, 1, 2,
+    "M5", "M5", 1, 10, 2,
+    "M4", "M5", -1, 100, 2,
+    "M5", "M4", -1, 100, 2,
+    "M4", "M6", 1, 0.25, 5,
+    "M5", "M7", 1, 0.25, 5,
+    "M6", "M8", 1, 1, 2,
+    "M7", "M8", 1, 1, 2,
+    "M8", "M8", 1, 10, 2,
+    "M8", "M4", -1, 10, 2,
+    "M8", "M5", -1, 10, 2,
+    "M8", "M9", 1, 1, 2,
+    "M9", "M1", -1, 10, 2,
+    "M9", "M10", 1, 1, 2,
+    "M10", "M11", 1, 1, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2|+3", FALSE, TRUE,
-    "2", "3", "+5|+7", FALSE, TRUE,
-    "2", "4", "+4|+6", FALSE, TRUE,
-    "3", "5", "+8|+9,-5|-7,+10", FALSE, FALSE,
-    "4", "5", "+8|+9,-4|-6,+10", FALSE, FALSE,
-    "5", "6", "+11,-1,-8|-9,-2|-10,-3", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2|+M3", FALSE, TRUE,
+    "S2", "S3", "+M5|+M7", FALSE, TRUE,
+    "S2", "S4", "+M4|+M6", FALSE, TRUE,
+    "S3", "S5", "+M8|+M9,-M5|-M7,+M10", FALSE, FALSE,
+    "S4", "S5", "+M8|+M9,-M4|-M6,+M10", FALSE, FALSE,
+    "S5", "S6", "+M11,-M1,-M8|-M9,-M2|-M10,-M3", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_cycle <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 1, FALSE,
-    "3", 1, TRUE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, TRUE
+    "M1", 1, TRUE,
+    "M2", 1, FALSE,
+    "M3", 1, TRUE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, TRUE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", -1, 100, 2,
-    "2", "3", -1, 100, 2,
-    "3", "4", 1, 1, 2,
-    "4", "5", 1, 1, 2,
-    "5", "1", -1, 100, 2,
-    "1", "6", 1, 1, 2
+    "M1", "M2", -1, 100, 2,
+    "M2", "M3", -1, 100, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M5", 1, 1, 2,
+    "M5", "M1", -1, 100, 2,
+    "M1", "M6", 1, 1, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+3,+1|+6", TRUE, TRUE,
-    "1", "2", "-1,+4|+5,-6", FALSE, FALSE,
-    "2", "3", "-3,+2|-4|-5", FALSE, FALSE,
-    "3", "1", "+1,-2|+6|+3", FALSE, FALSE
+    "S0", "S1", "+M3,+M1|+M6", TRUE, TRUE,
+    "S1", "S2", "-M1,+M4|+M5,-M6", FALSE, FALSE,
+    "S2", "S3", "-M3,+M2|-M4|-M5", FALSE, FALSE,
+    "S3", "S1", "+M1,-M2|+M6|+M3", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_linear <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "4", 1, 1, 2,
-    "4", "5", 1, 1, 2,
-    "5", "6", 1, 1, 2,
-    "6", "7", 1, 1, 2,
-    "7", "7", 1, 5, 2,
-    "7", "1", -1, 5, 2
+    "M1", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M5", 1, 1, 2,
+    "M5", "M6", 1, 1, 2,
+    "M6", "M7", 1, 1, 2,
+    "M7", "M7", 1, 5, 2,
+    "M7", "M1", -1, 5, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2|+3|+4|+5|+6|+7|-1|-2|-3|-4|-5|-6", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2|+M3|+M4|+M5|+M6|+M7|-M1|-M2|-M3|-M4|-M5|-M6", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_linear_long <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 0, FALSE,
-    "8", 0, FALSE,
-    "9", 0, FALSE,
-    "10", 0, FALSE,
-    "11", 0, FALSE,
-    "12", 0, FALSE,
-    "13", 0, FALSE,
-    "14", 0, FALSE,
-    "15", 0, FALSE,
-    "16", 0, FALSE,
-    "17", 0, FALSE,
-    "18", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 0, FALSE,
+    "M8", 0, FALSE,
+    "M9", 0, FALSE,
+    "M10", 0, FALSE,
+    "M11", 0, FALSE,
+    "M12", 0, FALSE,
+    "M13", 0, FALSE,
+    "M14", 0, FALSE,
+    "M15", 0, FALSE,
+    "M16", 0, FALSE,
+    "M17", 0, FALSE,
+    "M18", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "3", "4", 1, 1, 2,
-    "4", "5", 1, 1, 2,
-    "5", "6", 1, 1, 2,
-    "6", "7", 1, 1, 2,
-    "7", "8", 1, 1, 2,
-    "8", "9", 1, 1, 2,
-    "9", "10", 1, 1, 2,
-    "10", "11", 1, 1, 2,
-    "11", "12", 1, 1, 2,
-    "12", "13", 1, 1, 2,
-    "13", "14", 1, 1, 2,
-    "14", "15", 1, 1, 2,
-    "15", "16", 1, 1, 2,
-    "16", "17", 1, 1, 2,
-    "17", "18", 1, 1, 2,
-    "18", "18", 1, 5, 2,
-    "18", "1", -1, 5, 2
+    "M1", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M3", "M4", 1, 1, 2,
+    "M4", "M5", 1, 1, 2,
+    "M5", "M6", 1, 1, 2,
+    "M6", "M7", 1, 1, 2,
+    "M7", "M8", 1, 1, 2,
+    "M8", "M9", 1, 1, 2,
+    "M9", "M10", 1, 1, 2,
+    "M10", "M11", 1, 1, 2,
+    "M11", "M12", 1, 1, 2,
+    "M12", "M13", 1, 1, 2,
+    "M13", "M14", 1, 1, 2,
+    "M14", "M15", 1, 1, 2,
+    "M15", "M16", 1, 1, 2,
+    "M16", "M17", 1, 1, 2,
+    "M17", "M18", 1, 1, 2,
+    "M18", "M18", 1, 5, 2,
+    "M18", "M1", -1, 5, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1", TRUE, TRUE,
-    "1", "2", "+2|+3|+4|+5|+6|+7|+8|+9|+10|+11|+12|+13|+14|+15|+16|+17|+18|-1|-2|-3|-4|-5|-6|-7|-8|-9|-10|-11|-12|-13|-14|-15|-16|-17", FALSE, FALSE
+    "S0", "S1", "+M1", TRUE, TRUE,
+    "S1", "S2", "+M2|+M3|+M4|+M5|+M6|+M7|+M8|+M9|+M10|+M11|+M12|+M13|+M14|+M15|+M16|+M17|+M18|-M1|-M2|-M3|-M4|-M5|-M6|-M7|-M8|-M9|-M10|-M11|-M12|-M13|-M14|-M15|-M16|-M17", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
 #' @rdname modulenet
 modulenet_trifurcating <- function() {
-  module_nodes <- tribble(
+  module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "1", 1, TRUE,
-    "2", 0, FALSE,
-    "3", 0, FALSE,
-    "4", 0, FALSE,
-    "5", 0, FALSE,
-    "6", 0, FALSE,
-    "7", 1, TRUE,
-    "8", 0, FALSE
+    "M1", 1, TRUE,
+    "M2", 0, FALSE,
+    "M3", 0, FALSE,
+    "M4", 0, FALSE,
+    "M5", 0, FALSE,
+    "M6", 0, FALSE,
+    "M7", 1, TRUE,
+    "M8", 0, FALSE
   )
   
-  module_edges <- tribble(
+  module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "1", "8", 1, 1, 2,
-    "8", "2", 1, 1, 2,
-    "2", "3", 1, 1, 2,
-    "2", "4", 1, 1, 2,
-    "2", "5", 1, 1, 2,
-    "3", "3", 1, 10, 2,
-    "4", "4", 1, 10, 2,
-    "5", "5", 1, 10, 2,
-    "4", "3", -1, 10, 2,
-    "3", "4", -1, 10, 2,
-    "4", "5", -1, 10, 2,
-    "3", "5", -1, 10, 2,
-    "5", "3", -1, 10, 2,
-    "5", "4", -1, 10, 2,
-    "4", "1", -1, 10, 2,
-    "3", "1", -1, 10, 2,
-    "5", "1", -1, 10, 2,
-    "5", "6", 1, 1, 2,
-    "3", "7", -1, 10, 2
+    "M1", "M8", 1, 1, 2,
+    "M8", "M2", 1, 1, 2,
+    "M2", "M3", 1, 1, 2,
+    "M2", "M4", 1, 1, 2,
+    "M2", "M5", 1, 1, 2,
+    "M3", "M3", 1, 10, 2,
+    "M4", "M4", 1, 10, 2,
+    "M5", "M5", 1, 10, 2,
+    "M4", "M3", -1, 10, 2,
+    "M3", "M4", -1, 10, 2,
+    "M4", "M5", -1, 10, 2,
+    "M3", "M5", -1, 10, 2,
+    "M5", "M3", -1, 10, 2,
+    "M5", "M4", -1, 10, 2,
+    "M4", "M1", -1, 10, 2,
+    "M3", "M1", -1, 10, 2,
+    "M5", "M1", -1, 10, 2,
+    "M5", "M6", 1, 1, 2,
+    "M3", "M7", -1, 10, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "0", "1", "+1,+7", TRUE, TRUE,
-    "1", "2", "+8|+2", FALSE, FALSE,
-    "2", "3", "+3|-7|-1|-8|-2", FALSE, FALSE,
-    "2", "4", "+4|-1|-8|-2", FALSE, FALSE,
-    "2", "5", "+5|+6|-1|-8|-2", FALSE, FALSE
+    "S0", "S1", "+M1,+M7", TRUE, TRUE,
+    "S1", "S2", "+M8|+M2", FALSE, FALSE,
+    "S2", "S3", "+M3|-M7|-M1|-M8|-M2", FALSE, FALSE,
+    "S2", "S4", "+M4|-M1|-M8|-M2", FALSE, FALSE,
+    "S2", "S5", "+M5|+M6|-M1|-M8|-M2", FALSE, FALSE
   )
   
-  modulenet(module_nodes, module_edges, expression_patterns)
+  modulenet(module_info, module_network, expression_patterns)
 }
 
