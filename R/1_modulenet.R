@@ -41,7 +41,7 @@
 #' @export
 modulenet <- function(
   module_nodes,
-  module_module_edges,
+  module_edges,
   expression_patterns
 ) {
   assert_that(
