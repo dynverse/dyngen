@@ -30,12 +30,12 @@ generate_tfnet <- function(
   
   num_modules <- nrow(module_info)
   
-  config$tf_info <- 
+  data$tf_info <- 
     module_info %>% mutate(
       num_tfs = .num_tf_per_module_sampler(
         num_tfs = max(num_modules, num_tfs),
         num_modules = num_modules, 
-        min_tfs_per_module = config$tfgen_params$min_tfs_per_module
+        min_tfs_per_module = data$tfgen_params$min_tfs_per_module
       ),
       feature_id = map2(module_id, num_tfs, function(module_id, num_tfs) paste0(module_id, "_TF", seq_len(num_tfs))),
       is_tf = TRUE,
@@ -69,7 +69,7 @@ generate_tfnet <- function(
 
 .generate_tf_regnet <- function(module_network, tf_info) {
   # initialise data structures
-  regnet <- map(tf_info$feature_id, ~c()) %>% set_names(tf_info$feature_id)
+  regnet <- map(tf_info$feature_id, ~list()) %>% set_names(tf_info$feature_id)
   num_targets <- rep(0, length(regnet)) %>% set_names(tf_info$feature_id)
   
   # go over each tf to find their regulators
@@ -101,8 +101,10 @@ generate_tfnet <- function(
       ) %>% 
       unlist()
     
-    num_targets[regulating_tfs] <- num_targets[regulating_tfs] + 1
-    regnet[[fi]] <- tibble(regulator = regulating_tfs, target = fi)
+    if (length(regulating_tfs) > 0) {
+      num_targets[regulating_tfs] <- num_targets[regulating_tfs] + 1
+      regnet[[fi]] <- tibble(regulator = regulating_tfs, target = fi)
+    }
   }
   
   bind_rows(regnet)

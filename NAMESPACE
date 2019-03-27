@@ -2,6 +2,7 @@
 
 export(experiment_sampler_snapshot)
 export(experiment_sampler_synchronised)
+export(generate_tfnet)
 export(generator_config)
 export(goldstandard_default)
 export(kinetics_default)
