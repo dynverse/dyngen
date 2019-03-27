@@ -1,4 +1,5 @@
-kinetics_samplers <- function(
+#' @export
+kinetics_default <- function(
   sample_r = function(n) runif(n, 10, 200), 
   sample_d = function(n) runif(n, 2, 8), 
   sample_p = function(n) runif(n, 2, 8), 

@@ -1,9 +1,14 @@
+#' @export
 tf_random <- function(
   main_targets_ratio = 0.05,
   ngenes_per_module_sampler = function(n_features, n_modules) sample(1:10, n_modules, replace = TRUE),
   edge_retainment = function(n) max(c(round(n/2), 1))
 ) {
-  
+  lst(
+    main_targets_ratio,
+    ngenes_per_module_sampler,
+    edge_retainment
+  )
 }
 
 #' ... todo
