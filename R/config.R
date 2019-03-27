@@ -4,13 +4,21 @@ generator_config <- function(
   platform = platform_simple(),
   tfgen_params = tf_random(),
   targetgen_params = target_realnet(),
-  kinetics_params = kinetics_default()
+  kinetics_params = kinetics_default(),
+  simulation_params = simulation_default(),
+  goldstandard_params = goldstandard_default(),
+  experiment_sampler = experiment_sampler_snapshot(),
+  normalisation_params = normalisation_default()
 ) {
   lst(
     modulenet,
     platform,
     tfgen_params,
     targetgen_params,
-    kinetics_params
+    kinetics_params,
+    simulation_params,
+    goldstandard_params,
+    experiment_sampler,
+    normalisation_params
   )
 }
