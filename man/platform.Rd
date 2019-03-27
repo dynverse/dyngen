@@ -7,8 +7,8 @@
 \usage{
 platform_from_counts(counts, grouping, subsample = 500)
 
-platform_simple(n_cells = 100L, n_features = 100L,
-  trajectory_dependent_features = 0.1, dropout_rate = 0.01,
+platform_simple(n_cells = 100L, n_features = 1000L,
+  pct_trajectory_features = 0.5, dropout_rate = 0.01,
   dropout_shape = 1)
 }
 \arguments{
@@ -22,7 +22,7 @@ platform_simple(n_cells = 100L, n_features = 100L,
 
 \item{n_features}{The number of features}
 
-\item{trajectory_dependent_features}{The percentage of features that are being driven by the trajectory (or vice versa)}
+\item{pct_trajectory_features}{The percentage of features that are being driven by the trajectory (or vice versa)}
 
 \item{dropout_mean_rate}{The mean rate of dropouts}
 

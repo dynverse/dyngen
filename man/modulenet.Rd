@@ -16,7 +16,7 @@
 \alias{modulenet_trifurcating}
 \title{Module network models for creating a gene regulatory network}
 \usage{
-modulenet(module_nodes, module_edges, expression_patterns)
+modulenet(module_info, module_network, expression_patterns)
 
 list_modulenet_generators()
 
@@ -50,10 +50,10 @@ another module. By creating chains of modules, a dynamic behaviour in gene
 regulation can be created.
 }
 \details{
-A modulenet model contains three tibbles, namely \code{module_nodes},
-\code{module_edges}, and \code{expression_patterns}.
+A modulenet model contains three tibbles, namely \code{module_info},
+\code{module_network}, and \code{expression_patterns}.
 
-\code{module_nodes} contains meta information on the modules themselves.
+\code{module_info} contains meta information on the modules themselves.
 \itemize{
 \item module_id (character): the name of the module
 \item a0 (numeric): basal expression level of genes in this module
@@ -61,7 +61,7 @@ A modulenet model contains three tibbles, namely \code{module_nodes},
 be active during the burn in phase
 }
 
-\code{module_edges} describes which modules regulate which other modules.
+\code{module_network} describes which modules regulate which other modules.
 \itemize{
 \item from (character): the regulating module
 \item to (character): the target module
