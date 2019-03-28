@@ -139,15 +139,6 @@ generate_feature_network <- function(
     # remove connections between tfs (to avoid ruining the given module network)
     filter(!(from %in% tf_names & to %in% tf_names))
   
-  # randomize parameters
-  target_regnet <- 
-    target_regnet %>% 
-    mutate(
-      effect = sample(c(-1, 1), n(), replace = TRUE), # TODO: add as samplers
-      cooperativity = stats::runif(n(), 0.5, 2),
-      strength = 1
-    )
-  
   # rename non-tf features
   target_names <- unique(c(target_regnet$from, target_regnet$to)) %>% setdiff(tf_names)
   target_mapper <- 
@@ -162,23 +153,11 @@ generate_feature_network <- function(
   
   # create target info
   target_info <- 
-    target_regnet %>% 
-    filter(to %in% target_mapper) %>% 
-    group_by(to) %>% 
-    summarise(
-      a0 = case_when(
-        all(effect != 1) ~ 1,
-        all(effect != -1) ~ 0.0001,
-        TRUE ~ 0
-      )
-    ) %>% 
-    rename(
-      feature_id = to
-    ) %>% 
-    mutate(
+    tibble(
+      feature_id = target_mapper,
       is_tf = FALSE,
       is_main = TRUE,
-      burn = FALSE # extra genes should be available during burn in ; TODO: should this not be the other way around then? 
+      burn = TRUE # extra genes should be available during burn in
     )
   
   lst(
