@@ -13,13 +13,27 @@ plot_model <- function(model) {
   )
 }
 
+effect_colour <- function(effect) {
+  index <- match(effect, c(1, -1, -2, NA, 0))
+  c(
+    "#3793d6",     # activating => blue
+    "#d63737",     # repressing => red
+    "#00000000",   # not real => invisible
+    "darkgray",    # not decided yet
+    "#7cd637"      # ??? :P => green
+  )[index]
+}
+
 #' @rdname plot_model
 #' 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
 #' @export
 plot_module_network <- function(model) {
   graph <- igraph::graph_from_data_frame(
-    model$modulenet$module_network %>% mutate(color = c("#d63737", "#3793d6", "green")[factor(effect, levels = c(1, -1, 0))]),
+    model$modulenet$module_network %>%
+      mutate(
+        color = effect_colour(effect)
+      ),
     vertices = model$modulenet$module_info
   )
   
@@ -81,8 +95,7 @@ plot_feature_network <- function(model, color_by = c("module", "main"), main_onl
   feature_network <-
     feature_network %>% 
     mutate(
-      effect_index = match(effect, c(1, -1, 0, -2)),
-      color = c("#d63737", "#3793d6", "#7cd637", "#00000000")[effect_index]
+      color = effect_colour(effect)
     )
   
   # construct graph
