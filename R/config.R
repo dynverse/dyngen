@@ -1,9 +1,9 @@
 #' @export
-generator_config <- function(
+initialise_model <- function(
   modulenet = modulenet_linear(),
   platform = platform_simple(),
   tfgen_params = tfgen_random(),
-  targetgen_params = targetgen_realnet(),
+  networkgen_params = networkgen_realnet_sampler(),
   kinetics_params = kinetics_default(),
   simulation_params = simulation_default(),
   goldstandard_params = goldstandard_default(),
@@ -15,7 +15,7 @@ generator_config <- function(
     modulenet,
     platform,
     tfgen_params,
-    targetgen_params,
+    networkgen_params,
     kinetics_params,
     simulation_params,
     goldstandard_params,

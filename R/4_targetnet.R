@@ -1,8 +1,8 @@
 #' @export
-targetgen_realnet <- function(
+networkgen_realnet_sampler <- function(
   realnet_name = realnets$name,
-  damping = 0.05,
-  ntargets_sampler = function(n_features, n_regulators) sample(20:100, 1)
+  min_targets_per_tf = 5L,
+  damping = 0.05
 ) {
   realnet_name <- match.arg(realnet_name)
   
@@ -12,37 +12,74 @@ targetgen_realnet <- function(
   realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
   
   lst(
+    type = "realnet_sampler",
     realnet_name,
     realnet_url,
-    damping,
-    ntargets_sampler
+    min_targets_per_tf,
+    damping
   )
 }
 
 #' @export
-generate_targetnet <- function(
+generate_feature_network <- function(
   model
 ) {
   if (model$verbose) cat("Sampling feature network from real network\n")
   
-  tf_info <- model$tf_info
+  # determine number of targets for each tf
+  tf_info <- model$tf_info %>% 
+    mutate(
+      num_targets = .generate_partitions(
+        num_elements = max(model$feature_numbers$num_tfs, model$feature_numbers$num_targets),
+        num_groups = model$feature_numbers$num_tfs, 
+        min_elements_per_group = model$networkgen_params$min_targets_per_tf
+      )
+    )
   tf_names <- tf_info$feature_id
   
   # download realnet (~2MB)
-  tmpfile <- tempfile()
-  on.exit(file.remove(tmpfile))
-  download.file(model$targetgen_params$realnet_url, destfile = tmpfile, quiet = !model$verbose)
-  realnet <- read_rds(tmpfile)
-  
-  assert_that(
-    length(tf_names) <= nrow(realnet),
-    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", length(tf_names))
-  )
+  realnet <- .networkgen_fetch_realnet(model)
   
   # map tfs to rownames of realnet randomly
   tf_mapper <- set_names(tf_names, sample(rownames(realnet), length(tf_names)))
   rownames(realnet) <- ifelse(rownames(realnet) %in% names(tf_mapper), tf_mapper[rownames(realnet)], rownames(realnet))
   colnames(realnet) <- ifelse(colnames(realnet) %in% names(tf_mapper), tf_mapper[colnames(realnet)], colnames(realnet))
+  
+  # sample target network from realnet
+  out <- .networkgen_sample_from_realnet(model, tf_info, realnet)
+
+  # return output
+  model$feature_info <- 
+    bind_rows(
+      model$tf_info,
+      out$target_info
+    )
+  
+  model$feature_network <- 
+    bind_rows(
+      model$tf_network,
+      out$target_network
+    )
+  
+  model
+}
+
+.networkgen_fetch_realnet <- function(model) {
+  tmpfile <- tempfile()
+  on.exit(file.remove(tmpfile))
+  download.file(model$networkgen_params$realnet_url, destfile = tmpfile, quiet = !model$verbose)
+  realnet <- read_rds(tmpfile)
+  
+  assert_that(
+    nrow(model$tf_info) <= nrow(realnet),
+    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", nrow(model$tf_info))
+  )
+  
+  realnet
+}
+
+.networkgen_sample_from_realnet <- function(model, tf_info, realnet) {
+  tf_names <- tf_info$feature_id
   
   # convert to igraph
   gr <- 
@@ -70,7 +107,7 @@ generate_targetnet <- function(
         personalized = personalized, 
         directed = TRUE,
         weights = igraph::E(gr)$weight,
-        damping = model$targetgen_params$damping
+        damping = model$networkgen_params$damping
       )
       
       # select top targets
@@ -100,12 +137,12 @@ generate_targetnet <- function(
     # can contain duplicates
     unique() %>% 
     # remove connections between tfs (to avoid ruining the given module network)
-    filter(!(regulator %in% tf_mapper && target %in% tf_mapper))
+    filter(!(regulator %in% tf_names && target %in% tf_names))
   
   # rename non-tf features
   tmp_names <- unique(c(target_regnet$regulator, target_regnet$target))
   other_mapper <- setdiff(tmp_names, tf_names) %>% 
-    {set_names(paste0("Target", seq_along(.)), .)}
+  {set_names(paste0("Target", seq_along(.)), .)}
   
   target_regnet <- 
     target_regnet %>% 
@@ -120,19 +157,9 @@ generate_targetnet <- function(
       a0 = NA, # a0 is decided later based on regulation
       burn = FALSE # extra genes should be available during burn in ; TODO: should this not be the other way around then? 
     )
-
-  # return output
-  model$feature_info <- 
-    bind_rows(
-      model$tf_info,
-      target_info
-    )
   
-  model$feature_network <- 
-    bind_rows(
-      model$tf_network,
-      target_regnet
-    )
-  
-  model
+  lst(
+    target_network = target_regnet,
+    target_info = target_info
+  )
 }

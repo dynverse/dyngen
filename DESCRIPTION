@@ -14,7 +14,7 @@ Roxygen: list(markdown = TRUE)
 Depends:
   R (>= 3.0.0)
 Imports:
-  cowplot,
+  assertthat,
   dplyr,
   dtw,
   dynnormaliser,
