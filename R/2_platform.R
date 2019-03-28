@@ -75,12 +75,12 @@ platform_from_counts <- function(counts, grouping, subsample = 500) {
     pull(feature_id) %>%
     unique()
   
-  pct_trajectory_features <- length(diffexp_features) / ncol(dataset_raw$counts)
+  pct_main_features <- length(diffexp_features) / ncol(dataset_raw$counts)
   
   # create platform object
   lst(
     estimate,
-    pct_trajectory_features,
+    pct_main_features,
     num_cells = nrow(counts),
     num_features = ncol(counts)
   )
@@ -88,7 +88,7 @@ platform_from_counts <- function(counts, grouping, subsample = 500) {
 
 #' @param n_cells The number of cells
 #' @param n_features The number of features
-#' @param pct_trajectory_features The percentage of features that are being driven by the trajectory (or vice versa)
+#' @param pct_main_features The percentage of features that are being driven by the trajectory (or vice versa)
 #' @param dropout_mean_rate The mean rate of dropouts
 #' @param dropout_mean_shape The shape of dropouts
 #' 
@@ -98,7 +98,7 @@ platform_from_counts <- function(counts, grouping, subsample = 500) {
 platform_simple <- function(
   n_cells = 100L,
   n_features = 1000L,
-  pct_trajectory_features = 0.5,
+  pct_main_features = 0.5,
   dropout_rate = 0.01,
   dropout_shape = 1
 ) {
@@ -107,6 +107,6 @@ platform_simple <- function(
     estimate = splatter::newSplatParams(mean.rate = dropout_rate, mean.shape = dropout_shape),
     num_cells = n_cells,
     num_features = n_features,
-    pct_trajectory_features = pct_trajectory_features
+    pct_main_features = pct_main_features
   )
 }

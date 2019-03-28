@@ -10,7 +10,7 @@ tfgen_random <- function(
 }
 
 #' @export
-generate_tfnet <- function(
+generate_tf_network <- function(
   model
 ) {
   if (model$verbose) cat("Generating TF network\n")
@@ -25,7 +25,7 @@ generate_tfnet <- function(
   module_network <- model$modulenet$module_network
   
   # number of genes in main based on number of genes in platform
-  num_traj_features <- round(model$platform$num_features * model$platform$pct_trajectory_features)
+  num_traj_features <- round(model$platform$num_features * model$platform$pct_main_features)
   num_tfs <- round(num_traj_features * model$tfgen_params$percentage_tfs)
   num_targets <- num_traj_features - num_tfs
   num_modules <- nrow(module_info)
@@ -47,7 +47,7 @@ generate_tfnet <- function(
       ),
       feature_id = map2(module_id, num_tfs, function(module_id, num_tfs) paste0(module_id, "_TF", seq_len(num_tfs))),
       is_tf = TRUE,
-      is_trajectory_driven = TRUE
+      is_main = TRUE
     )
   
   model$tf_info <- 
@@ -76,8 +76,8 @@ generate_tfnet <- function(
     regulating_modules <- module_network %>% filter(to == mi) %>% pull(from)
     
     # generate regulating tfs
-    regulating_tfs <- 
-      map(
+    edges <- 
+      map_df(
         regulating_modules,
         function(mreg) {
           # what tfs are in this module
@@ -90,18 +90,26 @@ generate_tfnet <- function(
           # targes the candidate regulator already has
           weights <- num_targets[candidate_regulating_tfs] + 1
           
-          sample(candidate_regulating_tfs, num_regulating_tfs, replace = FALSE, prob = weights)
+          regulating_tfs <- sample(candidate_regulating_tfs, num_regulating_tfs, replace = FALSE, prob = weights)
+          
+          tibble(
+            from = regulating_tfs,
+            to = fi,
+            from_module = mreg,
+            to_module = mi
+          )
         }
-      ) %>% 
-      unlist()
+      )
     
-    if (length(regulating_tfs) > 0) {
-      num_targets[regulating_tfs] <- num_targets[regulating_tfs] + 1
-      tf_network[[fi]] <- tibble(regulator = regulating_tfs, target = fi)
+    if (nrow(edges) > 0) {
+      num_targets[edges$from] <- num_targets[edges$from] + 1
+      tf_network[[fi]] <- edges
     }
   }
   
-  model$tf_network <- bind_rows(tf_network)
+  model$tf_network <- 
+    bind_rows(tf_network) %>% 
+    left_join(module_network %>% rename(from_module = from, to_module = to), by = c("from_module", "to_module"))
   
   model
 }

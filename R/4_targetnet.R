@@ -127,7 +127,7 @@ generate_feature_network <- function(
         igraph::induced_subgraph(gr, .) %>% 
         igraph::as_data_frame() %>% 
         as_tibble() %>% 
-        select(regulator = from, target = to)
+        select(from, to)
     }
   )
   
@@ -137,24 +137,47 @@ generate_feature_network <- function(
     # can contain duplicates
     unique() %>% 
     # remove connections between tfs (to avoid ruining the given module network)
-    filter(!(regulator %in% tf_names && target %in% tf_names))
+    filter(!(from %in% tf_names & to %in% tf_names))
+  
+  # randomize parameters
+  target_regnet <- 
+    target_regnet %>% 
+    mutate(
+      effect = sample(c(-1, 1), n(), replace = TRUE), # TODO: add as samplers
+      cooperativity = stats::runif(n(), 0.5, 2),
+      strength = 1
+    )
   
   # rename non-tf features
-  tmp_names <- unique(c(target_regnet$regulator, target_regnet$target))
-  other_mapper <- setdiff(tmp_names, tf_names) %>% 
-  {set_names(paste0("Target", seq_along(.)), .)}
+  target_names <- unique(c(target_regnet$from, target_regnet$to)) %>% setdiff(tf_names)
+  target_mapper <- 
+    set_names(
+      paste0("Target", seq_along(target_names)),
+      target_names
+    )
   
   target_regnet <- 
     target_regnet %>% 
-    mutate_all(~ ifelse(. %in% names(other_mapper), other_mapper[.], .))
+    mutate_all(~ ifelse(. %in% names(target_mapper), target_mapper[.], .))
   
   # create target info
   target_info <- 
-    tibble(
-      feature_id = other_mapper,
+    target_regnet %>% 
+    filter(to %in% target_mapper) %>% 
+    group_by(to) %>% 
+    summarise(
+      a0 = case_when(
+        all(effect != 1) ~ 1,
+        all(effect != -1) ~ 0.0001,
+        TRUE ~ 0
+      )
+    ) %>% 
+    rename(
+      feature_id = to
+    ) %>% 
+    mutate(
       is_tf = FALSE,
-      is_trajectory_driven = TRUE,
-      a0 = NA, # a0 is decided later based on regulation
+      is_main = TRUE,
       burn = FALSE # extra genes should be available during burn in ; TODO: should this not be the other way around then? 
     )
   

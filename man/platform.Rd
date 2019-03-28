@@ -8,8 +8,7 @@
 platform_from_counts(counts, grouping, subsample = 500)
 
 platform_simple(n_cells = 100L, n_features = 1000L,
-  pct_trajectory_features = 0.5, dropout_rate = 0.01,
-  dropout_shape = 1)
+  pct_main_features = 0.5, dropout_rate = 0.01, dropout_shape = 1)
 }
 \arguments{
 \item{counts}{The counts with cells in rows and genes in columns.}
@@ -22,7 +21,7 @@ platform_simple(n_cells = 100L, n_features = 1000L,
 
 \item{n_features}{The number of features}
 
-\item{pct_trajectory_features}{The percentage of features that are being driven by the trajectory (or vice versa)}
+\item{pct_main_features}{The percentage of features that are being driven by the trajectory (or vice versa)}
 
 \item{dropout_mean_rate}{The mean rate of dropouts}
 

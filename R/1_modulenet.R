@@ -57,6 +57,12 @@ modulenet <- function(
     gsub("[+-]", "", .)
   assert_that(tmp_modules %all_in% module_info$module_id)
   
+  if (! module_info %has_name% "color") {
+    module_info <-
+      module_info %>% 
+      mutate(color = grDevices::rainbow(n()))
+  }
+  
   lst(
     module_info, 
     module_network, 
