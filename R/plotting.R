@@ -162,34 +162,6 @@ plot_feature_network <- function(model, color_by = c("module", "main"), main_onl
 #'   lst(samplexpression, samplexpression_modules, samplestep_info)
 #' }
 #' 
-#' dimred_pca = function(x, ndim = 3) {
-#'   space = prcomp(t(x))$rotation[,seq_len(ndim)]
-#'   process_dimred(space)
-#' }
-#' dimred_mds = function(x, ndim = 3) {
-#'   requireNamespace("SCORPIUS")
-#'   space = SCORPIUS::reduce_dimensionality(x, SCORPIUS::correlation_distance, ndim = ndim)
-#'   process_dimred(space)
-#' }
-#' dimred_ica = function(x, ndim = 3) {
-#'   requireNamespace("fastICA")
-#'   space = fastICA::fastICA(t(scale(t(x))), ndim)$S
-#'   process_dimred(space)
-#' }
-#' dimred_tsne = function(x, ndim = 3) {
-#'   requireNamespace("Rtsne")
-#'   space = Rtsne::Rtsne(as.dist(SCORPIUS::correlation_distance(x)), dims = ndim, is_distance = TRUE,  perplexity = 20)$Y
-#'   rownames(space) = rownames(x)
-#'   process_dimred(space)
-#' }
-#' process_dimred = function(space) {
-#'   space = as.matrix(space)
-#'   colnames(space) = paste0("Comp", 1:ncol(space))
-#'   space
-#' }
-#' dimred <- function(x, dimred_name = "pca", ndim = 2) {
-#'   get(paste0("dimred_", dimred_name))(x, ndim = ndim)
-#' }
 #' 
 #' dimred_simulation <- function(simulation, subsample = subsample_simulation(simulation), dimred_names = c("pca"), expression_names = c("samplexpression", "samplexpression_modules")) {
 #'   map(
