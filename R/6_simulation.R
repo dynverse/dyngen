@@ -94,6 +94,8 @@ simulate_cells <- function(
         simulation
       }
     ))
+  
+  model
 }
 
 .simulate_cells_process_ssa <- function(out) {
