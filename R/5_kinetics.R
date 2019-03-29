@@ -106,7 +106,7 @@ generate_simulation_setup <- function(model) {
 }
 
 .kinetics_generate_gene_kinetics <- function(model) {
-  if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n")
+  if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
   params <- model$simulation_setup_params
   
   feature_info <-
