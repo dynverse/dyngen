@@ -84,15 +84,19 @@ generate_simulation_setup <- function(model) {
       dimnames = list(molecule_ids, .$formula_id)
     )}
   
-  # burn in
+  # determine variables to be used during burn in
   burn_variables <- 
     model$feature_info %>% 
     filter(burn) %>% 
-    select(x, y)
+    select(x, y) %>% 
+    gather(col, val) %>% 
+    pull(val)
     
-  model$simulation_settings <- lst(
+  # return system
+  model$simulation_system <- lst(
     formulae, 
     molecule_ids,
+    initial_state,
     parameters,
     nus,
     burn_variables
@@ -102,7 +106,7 @@ generate_simulation_setup <- function(model) {
 }
 
 .kinetics_generate_gene_kinetics <- function(model) {
-  if (model$verbose) cat("Generating feature kinetics\n")
+  if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n")
   params <- model$simulation_setup_params
   
   feature_info <-
@@ -188,14 +192,13 @@ generate_simulation_setup <- function(model) {
       fid <- info$feature_id
       
       x <- paste0("x_", fid)
-      # u <- paste0("u_", fid)
       y <- paste0("y_", fid)
       p <- paste0("p_", fid)
       q <- paste0("q_", fid)
       r <- paste0("r_", fid)
       d <- paste0("d_", fid)
       
-      a0 <- paste0("d_", fid)
+      a0 <- paste0("a0_", fid)
       
       activation_function <- 
         if (!is.null(info$regulators)) {
