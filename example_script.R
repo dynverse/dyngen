@@ -9,10 +9,36 @@ model <-
   ) %>% 
   generate_tf_network() %>% 
   generate_feature_network() %>% 
-  generate_simulation_setup()
+  generate_simulation_setup() %>% 
+  simulate_cells()
 
 plot_module_network(model)
 plot_feature_network(model)
+
+
+
+expr <- model$simulations %>% select(one_of(model$simulation_system$molecule_ids)) %>% as.matrix
+expr <- expr[,colSums(expr) != 0]
+sim_f <- model$simulations[rowSums(expr) != 0,]
+expr <- expr[rowSums(expr) != 0,]
+space <- SCORPIUS::reduce_dimensionality(expr, dist_fun = SCORPIUS::correlation_distance)
+plot_df <- bind_cols(sim_f %>% select(1:2), as.data.frame(space))
+ggplot(plot_df %>% filter(t >= 0, t <= 6)) +
+  geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
+  viridis::scale_color_viridis() +
+  theme_bw()
+
+
+
+ggplot(plot_df %>% filter(t >= 0)) +
+  geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
+  viridis::scale_color_viridis() +
+  theme_bw()
+
+ggplot(plot_df %>% filter(t >= 6)) +
+  geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
+  viridis::scale_color_viridis() +
+  theme_bw()
 
 
 library(gganimate)
@@ -76,14 +102,14 @@ plot_df <-
   feature_info %>% 
   left_join(layout, by = "feature_id") %>% 
   left_join(
-    simulations %>% 
+    model$simulations %>% 
       # filter(simulation_i == 1) %>% 
       select(t, simulation_i, one_of(feature_info$x)) %>% 
       gather(x, value, -t, -simulation_i),
     by = "x"
   )
 
-ggplot(plot_df %>% filter(t == sample(t, 1), simulation_i <= 6)) +
+ggplot(plot_df %>% filter(t == sample(t, 1), simulation_i == 1)) +
   geom_segment(aes(x = from_comp1, xend = to_comp1, y = from_comp2, yend = to_comp2), edges, arrow = arrow(), colour = "darkgray") +
   geom_point(aes(comp1, comp2, colour = value, size = is_tf)) +
   scale_colour_distiller(palette = "RdBu") +
@@ -92,7 +118,7 @@ ggplot(plot_df %>% filter(t == sample(t, 1), simulation_i <= 6)) +
   facet_wrap(~simulation_i)
 
 g <-
-  ggplot(plot_df %>% filter(simulation_i <= 9)) +
+  ggplot(plot_df %>% filter(simulation_i == 1)) +
   geom_segment(aes(x = from_comp1, xend = to_comp1, y = from_comp2, yend = to_comp2), edges, arrow = arrow(), colour = "darkgray") +
   geom_point(aes(comp1, comp2, colour = value, size = is_tf)) +
   scale_colour_distiller(palette = "RdBu") +
@@ -102,17 +128,6 @@ g <-
   labs(title = "time = {current_frame}") +
   transition_manual(t)
 # animate(g, fig.width = 1000, fig.height = 1000)
-options(gganimate.dev_args = list(width = 800, height = 600))
+options(gganimate.dev_args = list(width = 1000, height = 1000))
 print(g)
 anim_save(filename = "~/help.gif")
-
-expr <- simulations %>% select(one_of(sim_system$molecule_ids)) %>% as.matrix
-expr <- expr[,colSums(expr) != 0]
-sim_f <- simulations[rowSums(expr) != 0,]
-expr <- expr[rowSums(expr) != 0,]
-space <- SCORPIUS::reduce_dimensionality(expr, dist_fun = SCORPIUS::correlation_distance)
-plot_df <- bind_cols(sim_f %>% select(1:2), as.data.frame(space))
-ggplot(plot_df %>% filter(t >= 0, t <= 6)) +
-  geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
-  viridis::scale_color_viridis() +
-  theme_bw()
