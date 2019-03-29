@@ -10,8 +10,8 @@
     replace = TRUE
   ) %>% 
     sort() %>% 
-    c(0, ., num_elements - num_groups) %>% 
-    as.integer() %>% 
+    c(0, ., num_elements - num_groups * min_elements_per_group) %>% 
     diff() %>% 
-    { . + min_elements_per_group}
+    { . + min_elements_per_group} %>% 
+    as.integer()
 }
