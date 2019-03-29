@@ -50,7 +50,7 @@ generate_tf_network <- function(
       is_main = TRUE
     )
   
-  model$tf_info <- 
+  model$feature_info <- 
     module_info %>% 
     unnest(feature_id) %>% 
     select(feature_id, everything(), -num_tfs)
@@ -60,7 +60,7 @@ generate_tf_network <- function(
 
 .generate_tf_network <- function(model) {
   module_network <- model$modulenet$module_network
-  tf_info <- model$tf_info
+  tf_info <- model$feature_info
   
   # initialise model structures
   tf_network <- map(tf_info$feature_id, ~list()) %>% set_names(tf_info$feature_id)
@@ -107,7 +107,7 @@ generate_tf_network <- function(
     }
   }
   
-  model$tf_network <- 
+  model$feature_network <- 
     bind_rows(tf_network) %>% 
     left_join(module_network %>% rename(from_module = from, to_module = to), by = c("from_module", "to_module"))
   

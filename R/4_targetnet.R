@@ -27,7 +27,7 @@ generate_feature_network <- function(
   if (model$verbose) cat("Sampling feature network from real network\n")
   
   # determine number of targets for each tf
-  tf_info <- model$tf_info %>% 
+  tf_info <- model$feature_info %>% 
     mutate(
       num_targets = .generate_partitions(
         num_elements = model$feature_numbers$num_targets,
@@ -51,13 +51,13 @@ generate_feature_network <- function(
   # return output
   model$feature_info <- 
     bind_rows(
-      model$tf_info,
+      model$feature_info,
       out$target_info
     )
   
   model$feature_network <- 
     bind_rows(
-      model$tf_network,
+      model$feature_network,
       out$target_network
     )
   
