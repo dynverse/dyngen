@@ -226,9 +226,7 @@ generate_simulation_setup <- function(model) {
               na.omit(x) %>% paste(collapse = "*")
             })
           
-          activation <-
-            map2(config_as, config_affinities, function(a, affinity) paste0(a, " * ", affinity)) %>% 
-            paste0(collapse = "+")
+          activation <- paste0(config_as, " * ", config_affinities, collapse = " + ")
           activation_denominator <- paste0(config_affinities, collapse = "+")
           
           # now make the activation function, by summing the activations
