@@ -95,7 +95,8 @@ plot_feature_network <- function(model, color_by = c("module", "main"), main_onl
   feature_network <-
     feature_network %>% 
     mutate(
-      color = effect_colour(effect)
+      color = effect_colour(effect),
+      width = dynutils::scale_minmax(log10(strength)) * 4 + 1
     )
   
   # construct graph
