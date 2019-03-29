@@ -5,7 +5,7 @@ simulation_setup_default <- function(
   sample_p = function(n) runif(n, 2, 8), 
   sample_q = function(n) runif(n, 1, 5),
   
-  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE),
+  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
   sample_strength = function(n) runif(n, 1, 20),
   sample_cooperativity = function(n) runif(n, 0.5, 2),
   
