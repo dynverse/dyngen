@@ -1,23 +1,25 @@
 devtools::load_all(".")
 
+set.seed(1)
 model <- 
   initialise_model(
     modulenet = modulenet_consecutive_bifurcating(),
     platform = platform_simple(n_cells = 1000, n_features = 50, pct_main_features = 1),
-    tfgen_params = tfgen_random(percentage_tfs = 1, min_tfs_per_module = 4),
-    simulation_params = simulation_default(total_time = 10, num_simulations = 16),
+    tfgen_params = tfgen_random(percentage_tfs = 1, min_tfs_per_module = 3),
+    simulation_params = simulation_default(total_time = 10, num_simulations = 32),
     verbose = TRUE,
     num_cores = 8
   ) %>% 
-  generate_tf_network() %>% 
-  # generate_feature_network() %>% 
-  generate_simulation_setup()
+  generate_tf_network() #%>% 
+  # generate_feature_network()
+  
 
-plot_module_network(model)
-plot_feature_network(model, tfs_only = TRUE)
+# plot_module_network(model)
+# plot_feature_network(model, tfs_only = TRUE)
 plot_feature_network(model)
 
 model <- model %>%
+  generate_simulation_setup() %>% 
   simulate_cells()
 
 plot_simulations(model)
