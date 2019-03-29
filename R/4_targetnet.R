@@ -1,7 +1,7 @@
 #' @export
 networkgen_realnet_sampler <- function(
   realnet_name = realnets$name,
-  min_targets_per_tf = 5L,
+  min_targets_per_tf = 0L,
   damping = 0.05
 ) {
   realnet_name <- match.arg(realnet_name)
@@ -30,7 +30,7 @@ generate_feature_network <- function(
   tf_info <- model$tf_info %>% 
     mutate(
       num_targets = .generate_partitions(
-        num_elements = max(model$feature_numbers$num_tfs, model$feature_numbers$num_targets),
+        num_elements = model$feature_numbers$num_targets,
         num_groups = model$feature_numbers$num_tfs, 
         min_elements_per_group = model$networkgen_params$min_targets_per_tf
       )
@@ -98,36 +98,40 @@ generate_feature_network <- function(
     tf_info$feature_id,
     tf_info$num_targets,
     function(tf_name, num_targets) {
-      personalized <- rep(0, ncol(realnet)) %>% set_names(colnames(realnet))
-      personalized[[tf_name]] <- 1
-      
-      # calculate page rank from regulator
-      page_rank <- igraph::page_rank(
-        gr,
-        personalized = personalized, 
-        directed = TRUE,
-        weights = igraph::E(gr)$weight,
-        damping = model$networkgen_params$damping
-      )
-      
-      # select top targets
-      features_sel <- 
-        enframe(page_rank$vector, "feature_id", "score") %>% 
-        mutate(score = score + stats::runif(n(), 0, 1e-15)) %>% 
-        sample_n(num_targets, weight = score) %>% 
-        pull(feature_id) %>% 
-        c(tf_name)
-      
-      # get induced subgraph
-      gr %>% 
-        igraph::induced_subgraph(features_sel) %>% 
-        igraph::ego(10, tf_name, mode = "out") %>% 
-        first() %>% 
-        names() %>% 
-        igraph::induced_subgraph(gr, .) %>% 
-        igraph::as_data_frame() %>% 
-        as_tibble() %>% 
-        select(from, to)
+      if (num_targets > 0) {
+        personalized <- rep(0, ncol(realnet)) %>% set_names(colnames(realnet))
+        personalized[[tf_name]] <- 1
+        
+        # calculate page rank from regulator
+        page_rank <- igraph::page_rank(
+          gr,
+          personalized = personalized, 
+          directed = TRUE,
+          weights = igraph::E(gr)$weight,
+          damping = model$networkgen_params$damping
+        )
+        
+        # select top targets
+        features_sel <- 
+          enframe(page_rank$vector, "feature_id", "score") %>% 
+          mutate(score = score + stats::runif(n(), 0, 1e-15)) %>% 
+          sample_n(num_targets, weight = score) %>% 
+          pull(feature_id) %>% 
+          c(tf_name)
+        
+        # get induced subgraph
+        gr %>% 
+          igraph::induced_subgraph(features_sel) %>% 
+          igraph::ego(10, tf_name, mode = "out") %>% 
+          first() %>% 
+          names() %>% 
+          igraph::induced_subgraph(gr, .) %>% 
+          igraph::as_data_frame() %>% 
+          as_tibble() %>% 
+          select(from, to)
+      } else {
+        tibble(from = character(0), to = character(0))
+      }
     }
   )
   
@@ -140,16 +144,20 @@ generate_feature_network <- function(
     filter(!(from %in% tf_names & to %in% tf_names))
   
   # rename non-tf features
-  target_names <- unique(c(target_regnet$from, target_regnet$to)) %>% setdiff(tf_names)
-  target_mapper <- 
-    set_names(
-      paste0("Target", seq_along(target_names)),
-      target_names
-    )
-  
-  target_regnet <- 
-    target_regnet %>% 
-    mutate_all(~ ifelse(. %in% names(target_mapper), target_mapper[.], .))
+  if (nrow(target_regnet) > 0) {
+    target_names <- unique(c(target_regnet$from, target_regnet$to)) %>% setdiff(tf_names)
+    target_mapper <- 
+      set_names(
+        paste0("Target", seq_along(target_names)),
+        target_names
+      )
+    
+    target_regnet <- 
+      target_regnet %>% 
+      mutate_all(~ ifelse(. %in% names(target_mapper), target_mapper[.], .))
+  } else {
+    target_mapper <- character(0)
+  }
   
   # create target info
   target_info <- 
