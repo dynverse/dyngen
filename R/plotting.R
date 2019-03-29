@@ -52,7 +52,7 @@ plot_module_network <- function(model) {
 
 #' @rdname plot_model
 #' @export
-plot_feature_network <- function(model, color_by = c("module", "main"), main_only = TRUE, label = FALSE) {
+plot_feature_network <- function(model, color_by = c("module", "main"), main_only = TRUE, tfs_only = FALSE, label = FALSE) {
   color_by <- match.arg(color_by)
   
   # get feature info
@@ -69,7 +69,9 @@ plot_feature_network <- function(model, color_by = c("module", "main"), main_onl
   } else if (color_by == "module") {
     feature_info <- feature_info %>% mutate(color = ifelse(is.na(color), "lightgray", color))
   }
+  
   if (main_only) feature_info <- feature_info %>% filter(is_main)
+  if (tfs_only) feature_info <- feature_info %>% filter(is_tf)
   
   # get feature network
   feature_network <- 
@@ -117,6 +119,22 @@ plot_feature_network <- function(model, color_by = c("module", "main"), main_onl
     edge.loop.angle = 0.1
   )
   # )
+}
+
+# todo: this should be updated to look more like the functions below at some point in time
+#' @export
+plot_simulations <- function(model) {
+  expr <- model$simulations %>% select(one_of(model$simulation_system$molecule_ids)) %>% as.matrix
+  expr <- expr[,colSums(expr) != 0]
+  sim_f <- model$simulations[rowSums(expr) != 0,]
+  expr <- expr[rowSums(expr) != 0,]
+  space <- SCORPIUS::reduce_dimensionality(expr, dist_fun = SCORPIUS::correlation_distance)
+  plot_df <- bind_cols(sim_f %>% select(t, simulation_i), as.data.frame(space))
+  
+  ggplot(plot_df %>% filter(t >= 0)) +
+    geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
+    viridis::scale_color_viridis() +
+    theme_bw()
 }
 
 #' #' @rdname plot_model
