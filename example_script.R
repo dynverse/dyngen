@@ -2,8 +2,9 @@ devtools::load_all(".")
 
 model <- 
   initialise_model(
-    modulenet = modulenet_consecutive_bifurcating(),
-    platform = platform_simple(n_cells = 1000, n_features = 2000, pct_main_features = 0.2),
+    modulenet = modulenet_bifurcating_converging(),
+    platform = platform_simple(n_cells = 1000, n_features = 50, pct_main_features = 1),
+    tfgen_params = tfgen_random(percentage_tfs = 0.2),
     verbose = TRUE,
     num_cores = 8
   ) %>% 
@@ -23,10 +24,7 @@ sim_f <- model$simulations[rowSums(expr) != 0,]
 expr <- expr[rowSums(expr) != 0,]
 space <- SCORPIUS::reduce_dimensionality(expr, dist_fun = SCORPIUS::correlation_distance)
 plot_df <- bind_cols(sim_f %>% select(1:2), as.data.frame(space))
-ggplot(plot_df %>% filter(t >= 0, t <= 6)) +
-  geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
-  viridis::scale_color_viridis() +
-  theme_bw()
+
 
 
 
@@ -34,6 +32,8 @@ ggplot(plot_df %>% filter(t >= 0)) +
   geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
   viridis::scale_color_viridis() +
   theme_bw()
+
+
 
 ggplot(plot_df %>% filter(t >= 6)) +
   geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
