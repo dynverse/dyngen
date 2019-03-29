@@ -1,3 +1,6 @@
+library(tidyverse)
+devtools::load_all(".")
+
 model <- read_rds("~/yay.rds")
 
 plot_module_network(model)
@@ -113,10 +116,10 @@ model_new$simulations <- bind_rows(simulation, model$simulations %>% mutate(type
 ########################################
 ###              plot                ###
 ########################################
-expr <- model_new$simulations %>% select(one_of(model_new$simulation_system$molecule_ids)) %>% as.matrix
-expr <- expr[,colSums(expr) != 0]
-sim_f <- model_new$simulations[rowSums(expr) != 0,]
-expr <- expr[rowSums(expr) != 0,]
+# expr <- model_new$simulations %>% select(one_of(model_new$simulation_system$molecule_ids)) %>% as.matrix
+sim_f <- model_new$simulations %>% select(t, simulation_i, type)
+expr <- model_new$simulations %>% select(-one_of(colnames(sim_f))) %>% as.matrix
+
 space <- SCORPIUS::reduce_dimensionality(expr, dist_fun = SCORPIUS::correlation_distance, num_landmarks = 2000)
 plot_df <- bind_cols(sim_f %>% select(t, simulation_i, type), as.data.frame(space))
 
@@ -125,3 +128,25 @@ ggplot() +
   geom_path(aes(Comp1, Comp2, colour = type, group = paste0(type, "_", simulation_i)), plot_df %>% filter(simulation_i == 0), size = 2) +
   scale_color_brewer(palette = "Set3") +
   theme_bw()
+
+
+
+
+ix <- sim_f$simulation_i == 0
+sim_f_tr <- data.frame(sim_f[ix,], space[ix, ]) %>% mutate(group = "train")
+expr_tr <- expr[ix,]
+
+sim_f_pr <- data.frame(sim_f[-ix,], space[-ix, ]) %>% mutate(group = "pred")
+expr_pr <- expr[-ix,]
+
+rf <- ranger::ranger(type ~ ., data.frame(type = sim_f_tr$type, expr_tr, check.names = FALSE, stringsAsFactors = FALSE))
+pred <- predict(rf, data.frame(expr_pr, check.names = FALSE, stringsAsFactors = FALSE))
+sim_f_pr$pred <- pred$predictions
+
+
+ggplot() +
+  geom_path(aes(Comp1, Comp2, colour = pred, group = paste0(type, "_", simulation_i)), sim_f_pr, size = 2) +
+  geom_path(aes(Comp1, Comp2, colour = type, group = paste0(type, "_", simulation_i)), sim_f_tr, size = 2) +
+  scale_color_brewer(palette = "Set3") +
+  theme_bw() +
+  facet_wrap(~ simulation_i)
