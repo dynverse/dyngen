@@ -6,7 +6,7 @@ networkgen_realnet_sampler <- function(
 ) {
   realnet_name <- match.arg(realnet_name)
   
-  data(realnets, package = "dyngen")
+  data(realnets, package = "dyngen", envir = environment())
   assert_that(realnet_name %all_in% realnets$name)
   
   realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
