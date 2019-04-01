@@ -23,6 +23,8 @@ simulate_cells <- function(
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
+  if (model$verbose) cat("Running ", sim_params$num_simulations, " simulations\n", sep = "")
+  
   model$simulations <- 
     bind_rows(pbapply::pblapply(
       seq_len(sim_params$num_simulations),
