@@ -1,36 +1,13 @@
 #' @export
 simulation_setup_default <- function(
-  sample_r = function(n) runif(n, 10, 200), 
-  sample_d = function(n) runif(n, 2, 8), 
-  sample_p = function(n) runif(n, 2, 8), 
+  sample_r = function(n) runif(n, 10, 200),
+  sample_d = function(n) runif(n, 2, 8),
+  sample_p = function(n) runif(n, 2, 8),
   sample_q = function(n) runif(n, 1, 5),
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
   sample_strength = function(n) runif(n, 1, 20),
-  sample_cooperativity = function(n) runif(n, 0.5, 2),
-  
-  calculate_k = function(max_protein, strength) {
-    max_protein / 2 / strength
-  },
-  calculate_a0 = function(effects) {
-    case_when(
-      all(effects != 1) ~ 1,
-      all(effects != -1) ~ 0.0001,
-      TRUE ~ 0
-    )
-  },
-  calculate_a = function(effects) {
-    num_states <- 2 ^ length(effects)
-    a <- rep(1, num_states)
-    ix <- seq_len(num_states)-1
-    for (i in seq_along(effects)) {
-      if (effects[[i]] == -1) {
-        mask <- 2 ^ (i-1)
-        a[bitwAnd(ix, mask) != 0] <- 0
-      }
-    }
-    list(a)
-  }
+  sample_cooperativity = function(n) runif(n, 0.5, 2)
 ) {
   lst(
     sample_r,
@@ -40,11 +17,30 @@ simulation_setup_default <- function(
     
     sample_effect,
     sample_strength,
-    sample_cooperativity,
+    sample_cooperativity
+  )
+}
+
+#' @export
+simulation_setup_custom <- function(
+  sample_r = function(n) rnorm(n, 100, 20) %>% pmax(10),
+  sample_d = function(n) rnorm(n, 5, 1) %>% pmax(2),
+  sample_p = function(n) rnorm(n, 5, 1) %>% pmax(2),
+  sample_q = function(n) rnorm(n, 3, .5) %>% pmax(1),
+  
+  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
+  sample_strength = function(n) rexp(n, rate = .1),
+  sample_cooperativity = function(n) runif(n, 0.5, 2)
+) {
+  lst(
+    sample_r,
+    sample_d,
+    sample_p,
+    sample_q,
     
-    calculate_k,
-    calculate_a0,
-    calculate_a
+    sample_effect,
+    sample_strength,
+    sample_cooperativity
   )
 }
 
@@ -133,7 +129,7 @@ generate_simulation_setup <- function(model) {
       effect = effect %|||% params$sample_effect(n()),
       cooperativity = cooperativity %|||% params$sample_cooperativity(n()),
       strength = strength %|||% params$sample_strength(n()),
-      k = params$calculate_k(max_protein, strength)
+      k = .kinetics_calculate_k(max_protein, strength)
     )
   
   # calculate a0 and a
@@ -144,8 +140,8 @@ generate_simulation_setup <- function(model) {
         rename(feature_id = to) %>% 
         group_by(feature_id) %>% 
         summarise(
-          a0_2 = params$calculate_a0(effect),
-          as = params$calculate_a(effect)
+          a0_2 = .kinetics_calculate_a0(effect),
+          as = .kinetics_calculate_a(effect)
         ),
       by = "feature_id"
     ) %>% 
@@ -311,4 +307,29 @@ generate_simulation_setup <- function(model) {
     deframe()
   
   c(feature_params, as_params, edge_params)
+}
+
+.kinetics_calculate_k <- function(max_protein, strength) {
+  max_protein / 2 / strength
+}
+
+.kinetics_calculate_a0 <- function(effects) {
+  case_when(
+    all(effects != 1) ~ 1,
+    all(effects != -1) ~ 0.0001,
+    TRUE ~ 0
+  )
+}
+
+.kinetics_calculate_a <- function(effects) {
+  num_states <- 2 ^ length(effects)
+  a <- rep(1, num_states)
+  ix <- seq_len(num_states)-1
+  for (i in seq_along(effects)) {
+    if (effects[[i]] == -1) {
+      mask <- 2 ^ (i-1)
+      a[bitwAnd(ix, mask) != 0] <- 0
+    }
+  }
+  list(a)
 }
