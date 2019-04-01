@@ -1,11 +1,13 @@
 #' @export
 tfgen_random <- function(
   percentage_tfs = 0.05,
-  min_tfs_per_module = 1L
+  min_tfs_per_module = 1L,
+  sample_num_regulators = function() rbinom(1, 10, .1) + 2
 ) {
   lst(
     percentage_tfs,
-    min_tfs_per_module
+    min_tfs_per_module,
+    sample_num_regulators
   )
 }
 
@@ -84,7 +86,10 @@ generate_tf_network <- function(
           candidate_regulating_tfs <- tf_info %>% filter(module_id == mreg) %>% pull(feature_id)
           
           # how many regulators will we sample?
-          num_regulating_tfs <- sample.int(min(3L, length(candidate_regulating_tfs)))
+          num_regulating_tfs <-
+            model$tfgen_params$sample_num_regulators() %>% 
+            min(length(candidate_regulating_tfs)) %>%
+            max(1L)
           
           # do weighted sampling based on the number of 
           # targes the candidate regulator already has
