@@ -11,7 +11,7 @@ plot_model(model)
 plot_module_network(model)
 
 plot_feature_network(model, color_by = c("module", "main"),
-  main_only = TRUE, label = FALSE)
+  main_only = TRUE, tfs_only = FALSE, label = FALSE)
 }
 \arguments{
 \item{model}{The model}
