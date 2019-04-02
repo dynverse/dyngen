@@ -4,27 +4,29 @@ set.seed(1)
 model <- 
   initialise_model(
     modulenet = modulenet_bifurcating_converging(),
-    platform = platform_simple(n_cells = 1000, n_features = 9 * 3, pct_main_features = 1),
+    platform = platform_simple(n_cells = 1000, n_features = 10 * 3, pct_main_features = 1),
     tfgen_params = tfgen_random(percentage_tfs = 1, min_tfs_per_module = 3),
-    simulation_params = simulation_default(total_time = 10, num_simulations = 16),
+    simulation_params = simulation_default(total_time = 10, num_simulations = 12),
     simulation_setup = simulation_setup_custom(),
     verbose = TRUE,
-    num_cores = 8
+    num_cores = 6
   ) %>% 
   generate_tf_network() #%>% 
   # generate_feature_network()
 
 
-# plot_module_network(model)
+plot_module_network(model)
 # plot_feature_network(model, tfs_only = TRUE)
 plot_feature_network(model)
 
-model <- model %>%
+model <- 
+  model %>%
   generate_simulation_setup() %>% 
   simulate_cells()
 
 plot_simulations(model)
 
+# write_rds(model, "~/yay3.rds")
 # write_rds(model, "~/yay2.rds")
 # model <- read_rds("~/yay.rds")
 
