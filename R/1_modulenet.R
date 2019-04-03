@@ -170,15 +170,26 @@ modulenet_bifurcating_converging <- function() {
     "M9", "M10", 1, 1, 2
   )
   
+  # expression_patterns <- tribble(
+  #   ~from, ~to, ~module_progression, ~start, ~burn,
+  #   "S0", "S1", "+M1", TRUE, TRUE,
+  #   "S1", "S2", "+M2|+M3", FALSE, FALSE,
+  #   "S2", "S3", "+M5|+M7|+M8", FALSE, FALSE,
+  #   "S2", "S4", "+M4|+M6|+M8", FALSE, FALSE,
+  #   "S3", "S5", "+M9,-M5|-M7,+M10", FALSE, FALSE,
+  #   "S4", "S5", "+M9,-M4|-M6,+M10", FALSE, FALSE,
+  #   "S5", "S6", "-M1,-M8|-M9,-M2|-M10,-M3", FALSE, FALSE
+  # )
+  
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
     "S0", "S1", "+M1", TRUE, TRUE,
     "S1", "S2", "+M2|+M3", FALSE, FALSE,
-    "S2", "S3", "+M5|+M7|+M8", FALSE, FALSE,
-    "S2", "S4", "+M4|+M6|+M8", FALSE, FALSE,
-    "S3", "S5", "+M9,-M5|-M7,+M10", FALSE, FALSE,
-    "S4", "S5", "+M9,-M4|-M6,+M10", FALSE, FALSE,
-    "S5", "S6", "-M1,-M8|-M9,-M2|-M10,-M3", FALSE, FALSE
+    "S2", "S3", "+M5|+M7", FALSE, FALSE,
+    "S2", "S4", "+M4|+M6", FALSE, FALSE,
+    "S3", "S5", "+M8|+M8|+M8", FALSE, FALSE,
+    "S4", "S5", "+M8|+M8|+M8", FALSE, FALSE,
+    "S5", "S6", "+M9|+M10", FALSE, FALSE
   )
   
   modulenet(module_info, module_network, expression_patterns)
