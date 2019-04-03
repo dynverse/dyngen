@@ -205,10 +205,10 @@ generate_simulation_setup <- function(model) {
           
           reg_affinities <- paste0("((", reg_ys, "/", reg_ks, ")**", reg_cs, ")")
           
-          num_states <- 2 ^ length(reg_affinities)
-          config_as <- paste0("a_", fid, "_", seq_len(num_states))
+          ix <- seq(1, 2 ^ length(reg_affinities) - 1)
+          num_states <- length(ix)
+          config_as <- paste0("a_", fid, "_", ix)
           
-          ix <- seq_len(num_states)-1
           config_affinities <- 
             map(
               seq_along(reg_affinities),
@@ -322,9 +322,10 @@ generate_simulation_setup <- function(model) {
 }
 
 .kinetics_calculate_a <- function(effects) {
-  num_states <- 2 ^ length(effects)
+  ix <- seq(1, 2 ^ length(effects) - 1)
+  num_states <- length(ix)
   a <- rep(1, num_states)
-  ix <- seq_len(num_states)-1
+  
   for (i in seq_along(effects)) {
     if (effects[[i]] == -1) {
       mask <- 2 ^ (i-1)
