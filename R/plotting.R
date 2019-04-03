@@ -52,7 +52,13 @@ plot_module_network <- function(model) {
 
 #' @rdname plot_model
 #' @export
-plot_feature_network <- function(model, color_by = c("module", "main"), main_only = TRUE, tfs_only = FALSE, label = FALSE) {
+plot_feature_network <- function(
+  model,
+  color_by = c("module", "main"), 
+  main_only = TRUE, 
+  tfs_only = FALSE,
+  label = FALSE
+) {
   color_by <- match.arg(color_by)
   
   # get feature info
@@ -98,9 +104,17 @@ plot_feature_network <- function(model, color_by = c("module", "main"), main_onl
   feature_network <-
     feature_network %>% 
     mutate(
-      color = effect_colour(effect),
-      width = dynutils::scale_minmax(log10(strength)) * 4 + .5
+      color = effect_colour(effect)
     )
+  
+  if (!any(is.na(feature_network$strength))) {
+    # determine widths
+    feature_network <-
+      feature_network %>% 
+      mutate(
+        width = dynutils::scale_minmax(log10(strength)) * 4 + .5
+      )
+  }
   
   # construct graph
   graph <- igraph::graph_from_data_frame(
@@ -135,6 +149,41 @@ plot_simulations <- function(model) {
     geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
     viridis::scale_color_viridis() +
     theme_bw()
+}
+
+#' @export
+plot_gold_simulations <- function(model) {
+  gold_sims <- model$goldstandard$simulations %>% filter(!burn)
+  sims <- model$simulations %>% filter(t >= 0)
+  
+  meta_tr <- gold_sims %>% select(simulation_i:time) %>% mutate(edge = factor(paste0(from, "--->", to)))
+  expr_tr <- gold_sims %>% select(-simulation_i:-time)
+  meta_pr <- sims %>% select(-one_of(colnames(expr_tr)))
+  expr_pr <- sims %>% select(one_of(colnames(expr_tr)))
+  
+  space <- SCORPIUS::reduce_dimensionality(rbind(expr_tr, expr_pr), dist_fun = SCORPIUS::correlation_distance)
+  plot_df <- bind_cols(bind_rows(meta_tr, meta_pr), as.data.frame(space))
+  
+  ggplot(mapping = aes(Comp1, Comp2)) +
+    geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
+    geom_path(aes(colour = paste0(from, "_", to), group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == 0), size = 2) +
+    theme_bw()
+}
+
+
+#' @export
+plot_gold_mappings <- function(model) {
+  progressions <- model$goldstandard$progressions
+  counts <- model$goldstandard$counts
+  
+  space <- SCORPIUS::reduce_dimensionality(counts, dist_fun = SCORPIUS::correlation_distance)
+  plot_df <- left_join(progressions, space %>% as.data.frame %>% rownames_to_column("cell_id"), by = "cell_id")
+  
+  ggplot(plot_df %>% mutate(edge = paste0(from, "->", to)), aes(Comp1, Comp2)) +
+    geom_point(aes(colour = percentage)) +
+    theme_bw() +
+    viridis::scale_color_viridis() +
+    facet_wrap(~ edge)
 }
 
 #' #' @rdname plot_model
