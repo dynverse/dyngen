@@ -2,7 +2,7 @@
 tfgen_random <- function(
   percentage_tfs = 0.05,
   min_tfs_per_module = 1L,
-  sample_num_regulators = function() rbinom(1, 10, .1) + 2
+  sample_num_regulators = function() sample.int(3)
 ) {
   lst(
     percentage_tfs,
