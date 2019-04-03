@@ -110,3 +110,11 @@ platform_simple <- function(
     pct_main_features = pct_main_features
   )
 }
+
+# to be removed
+
+#' @export
+get_platform_from_counts <- platform_from_counts
+
+#' @export
+load_simple_platform <- platform_simple
