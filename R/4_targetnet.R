@@ -71,8 +71,8 @@ generate_feature_network <- function(
   realnet <- read_rds(tmpfile)
   
   assert_that(
-    nrow(model$tf_info) <= nrow(realnet),
-    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", nrow(model$tf_info))
+    nrow(model$feature_info) <= nrow(realnet),
+    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", nrow(model$feature_info))
   )
   
   realnet
