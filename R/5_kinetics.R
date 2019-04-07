@@ -49,6 +49,7 @@ simulation_setup_custom <- function(
   ifelse(is.na(x), y, x)
 }
 
+#' @export
 generate_simulation_setup <- function(model) {
   # generate kinetics params
   model <- .kinetics_generate_gene_kinetics(model)

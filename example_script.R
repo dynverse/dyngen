@@ -1,4 +1,5 @@
-devtools::load_all(".")
+library(tidyverse)
+library(dyngen)
 
 set.seed(1)
 model <- 
@@ -16,19 +17,14 @@ model <-
   generate_tf_network() %>% 
   generate_feature_network() %>% 
   generate_simulation_setup() %>% 
-  simulate_cells()
+  simulate_cells() %>% 
+  simulate_goldstandard()
 
 
 plot_module_network(model)
 # plot_feature_network(model, tfs_only = TRUE)
 plot_feature_network(model)
 plot_simulations(model)
-
-model <- 
-  model %>% 
-  generate_goldstandard()
-
-
 plot_gold_simulations(model)
 plot_gold_mappings(model)
 

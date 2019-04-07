@@ -138,12 +138,11 @@ plot_feature_network <- function(
 # todo: this should be updated to look more like the functions below at some point in time
 #' @export
 plot_simulations <- function(model) {
-  expr <- model$simulations %>% select(one_of(model$simulation_system$molecule_ids)) %>% as.matrix
-  expr <- expr[,colSums(expr) != 0]
-  sim_f <- model$simulations[rowSums(expr) != 0,]
-  expr <- expr[rowSums(expr) != 0,]
-  space <- dyndimred::dimred_landmark_mds(expr, distance_metric = "angular")
-  plot_df <- bind_cols(sim_f %>% select(t, simulation_i), as.data.frame(space))
+  plot_df <- 
+    bind_cols(
+      model$simulations$meta,
+      model$simulations$dimred %>% as.data.frame
+    )
   
   ggplot(plot_df %>% filter(t >= 0)) +
     geom_path(aes(comp_1, comp_2, colour = t, group = simulation_i)) +
@@ -153,16 +152,17 @@ plot_simulations <- function(model) {
 
 #' @export
 plot_gold_simulations <- function(model) {
-  gold_sims <- model$goldstandard$simulations %>% filter(!burn)
-  sims <- model$simulations %>% filter(t >= 0)
-  
-  meta_tr <- gold_sims %>% select(simulation_i:time) %>% mutate(edge = factor(paste0(from, "--->", to)))
-  expr_tr <- gold_sims %>% select(-simulation_i:-time)
-  meta_pr <- sims %>% select(-one_of(colnames(expr_tr)))
-  expr_pr <- sims %>% select(one_of(colnames(expr_tr)))
-  
-  space <- dyndimred::dimred_landmark_mds(rbind(expr_tr, expr_pr), distance_metric = "angular")
-  plot_df <- bind_cols(bind_rows(meta_tr, meta_pr), as.data.frame(space))
+  plot_df <- 
+    bind_rows(
+      bind_cols(
+        model$simulations$meta,
+        model$simulations$dimred %>% as.data.frame
+      ) %>% filter(t >= 0),
+      bind_cols(
+        model$goldstandard$meta,
+        model$goldstandard$dimred %>% as.data.frame
+      ) %>% filter(!burn)
+    )
   
   ggplot(mapping = aes(comp_1, comp_2)) +
     geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
@@ -175,10 +175,15 @@ plot_gold_simulations <- function(model) {
 plot_gold_mappings <- function(model) {
   plot_df <- 
     bind_rows(
-      # model$goldstandard$simulations %>% select(simulation_i, step_id, from, to, percentage = time),
-      model$goldstandard$progressions
-    ) %>% 
-    inner_join(model$goldstandard$dimred %>% as.data.frame() %>% rownames_to_column("step_id"), by = "step_id")
+      bind_cols(
+        model$simulations$meta,
+        model$simulations$dimred %>% as.data.frame
+      ) %>% filter(t >= 0),
+      bind_cols(
+        model$goldstandard$meta,
+        model$goldstandard$dimred %>% as.data.frame
+      ) %>% filter(!burn)
+    )
   
   ggplot(plot_df %>% mutate(edge = paste0(from, "->", to)), aes(comp_1, comp_2)) +
     geom_point(aes(colour = edge)) +

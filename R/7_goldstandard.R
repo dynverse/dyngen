@@ -7,12 +7,39 @@ goldstandard_default <- function(
   )
 }
 
-generate_goldstandard <- function(model) {
-  model %>% 
-    .generate_goldstandard_mod_changes() %>% 
-    .generate_goldstandard_simulations() %>% 
-    .generate_goldstandard_predict_state()
+#' @export
+simulate_goldstandard <- function(model) {
+  model$goldstandard <- list()
   
+  # compute changes in modules along the edges
+  if (model$verbose) cat("Running gold simulations\n")
+  model$goldstandard$mod_changes <- .generate_goldstandard_mod_changes(model)
+  
+  # run gold standard simulations
+  simulations <- .generate_goldstandard_simulations(model)
+  gs_meta <- simulations %>% select(simulation_i:time)
+  gs_counts <- simulations %>% select(-simulation_i:-time) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
+  model$goldstandard$meta <- gs_meta
+  model$goldstandard$counts <- gs_counts
+  
+  # do combined dimred
+  sim_meta <- model$simulations$meta
+  sim_counts <- model$simulations$counts
+  dimred <- dyndimred::dimred_landmark_mds(Matrix::rbind2(gs_counts, sim_counts), distance_metric = "angular")
+  gs_dimred <- dimred[seq_len(nrow(gs_counts)), , drop = FALSE]
+  sim_dimred <- dimred[-seq_len(nrow(gs_counts)), , drop = FALSE]
+  
+  model$simulations$dimred <- sim_dimred
+  model$goldstandard$dimred <- gs_dimred
+  
+  # predict simulation edge and time with gold standard
+  if (model$verbose) cat("Predicting simulation states from gold simulations\n")
+  model$simulations$meta <- .generate_goldstandard_predict_state(model)
+  
+  # construct simulation network from dimred
+  model$goldstandard$network <- .generate_goldstandard_generate_network(model)
+  
+  model
 }
 
 .generate_goldstandard_mod_changes <- function(model) {
@@ -44,10 +71,7 @@ generate_goldstandard <- function(model) {
     igraph::make_line_graph() %>%
     igraph::topo_sort()
   
-  model$goldstandard <- 
-    lst(mod_changes = mod_changes[order, ])
-
-  model
+  mod_changes[order, ]
 }
 
 .generate_goldstandard_simulations <- function(model) {
@@ -78,7 +102,7 @@ generate_goldstandard <- function(model) {
     prev_mods <- gold_sim_modules[[from_]]
     mods <- union(prev_mods, mod_on) %>% setdiff(mod_off)
     
-    if (model$verbose) cat("Generating gold for ", from_, "->", to_, "; modules on: ", paste(mods, collapse = ","), "\n", sep = "")
+    # if (model$verbose) cat("Generating gold for ", from_, "->", to_, "; modules on: ", paste(mods, collapse = ","), "\n", sep = "")
     
     # fetch initial state
     new_initial_state <- rowMeans(gold_sim_vectors[[from_]])
@@ -127,8 +151,8 @@ generate_goldstandard <- function(model) {
     }
   }
   
-  model$goldstandard$simulations <- 
-    bind_rows(gold_sim_outputs) %>% 
+  
+  bind_rows(gold_sim_outputs) %>% 
     left_join(mod_changes %>% select(from, to, from_, to_, substate, burn), by = c("from_", "to_")) %>% 
     group_by(from, to) %>%
     mutate(
@@ -138,36 +162,29 @@ generate_goldstandard <- function(model) {
     ungroup() %>% 
     select(-i, -substate) %>% 
     select(simulation_i, t, burn, from, to, from_, to_, time, everything())
-  
-  model
 }
 
 .generate_goldstandard_predict_state <- function(model) {
-  # should the burn stages be removed earlier?
-  # should the names be added to the simulations earlier?
-  gold_sims <- model$goldstandard$simulations %>% filter(!burn) %>% mutate(step_id = paste0("GOLD", row_number())) %>% as.data.frame()
-  sims <- model$simulations %>% filter(t >= 0) %>% mutate(step_id = paste0("Step", row_number())) %>% as.data.frame()
+  # fetch gold standard data
+  gs_meta <- model$goldstandard$meta
+  gold_ix <- !gs_meta$burn
+  gs_meta <- gs_meta[gold_ix, , drop = FALSE]
+  gs_counts <- model$goldstandard$counts[gold_ix, , drop = FALSE]
+  gs_dimred <- model$goldstandard$dimred[gold_ix, , drop = FALSE]
   
-  # fetch meta data and expression data
-  meta_tr <- gold_sims %>% select(simulation_i:time, step_id) %>% mutate(edge = factor(paste0(from, "--->", to)))
-  expr_tr <- gold_sims %>% select(-simulation_i:-time) %>% column_to_rownames("step_id")
-  meta_pr <- sims %>% select(-one_of(colnames(expr_tr)))
-  expr_pr <- sims %>% select(one_of(colnames(expr_tr)), step_id) %>% column_to_rownames("step_id")
+  # fetch simulation data
+  sim_meta <- model$simulations$meta
+  sim_counts <- model$simulations$counts
   
   # predict edges for simulation data
   # todo: use ranger random forest with probabilities and smooth it
-  train <- bind_cols(meta_tr %>% select(edge, time), expr_tr) %>% as.data.frame()
-  rf <- randomForestSRC::rfsrc(Multivar(edge, time) ~ ., train)
-  pred <- predict(rf, expr_pr)
-  
-  # compute dimred
-  dimred <- dyndimred::dimred_landmark_mds(rbind(expr_tr, expr_pr), distance_metric = "angular")
+  train <- data.frame(gs_meta %>% transmute(edge = factor(paste0(from, "--->", to)), time), gs_counts %>% as.matrix)
+  rf <- randomForestSRC::rfsrc(Multivar(edge, time) ~ ., train) # causing memory allocation errors on a 2800 x 260 train object...
+  pred <- predict(rf, sim_counts)
   
   # construct progressions
-  progressions <- 
-    tibble(
-      simulation_i = meta_pr$simulation_i,
-      step_id = rownames(expr_pr),
+  sim_meta <- 
+    sim_meta %>% mutate(
       edge = pred$classOutput$edge$class,
       time = pred$regrOutput$time$predicted,
       from = gsub("--->.*", "", edge),
@@ -175,30 +192,23 @@ generate_goldstandard <- function(model) {
     ) %>% 
     group_by(from, to) %>% 
     mutate(
-      percentage = dynutils::scale_minmax(time)
+      time = dynutils::scale_minmax(time)
     ) %>% 
-    ungroup() %>% 
-    select(simulation_i, step_id, from, to, percentage)
-  
-  # construct milestone network
-  milestone_network <- 
-    inner_join(
-      meta_tr %>% group_by(from, to) %>% mutate(step_i = row_number()) %>% ungroup() %>% select(step_id_1 = step_id, from, to, step_i),
-      meta_tr %>% group_by(from, to) %>% mutate(step_i = row_number() + 1) %>% ungroup() %>% select(step_id_2 = step_id, from, to, step_i),
-      by = c("from", "to", "step_i")
-    ) %>% 
-    mutate(
-      dist = sqrt(rowSums((dimred[step_id_1, , drop = FALSE] - dimred[step_id_2, , drop = FALSE])^2))
-    ) %>% 
-    group_by(from, to) %>% 
-    summarise(length = sum(dist), directed = TRUE) %>% 
     ungroup()
-
-  # return output  
-  model$goldstandard$dimred <- dimred
-  model$goldstandard$counts <- expr_pr
-  model$goldstandard$progressions <- progressions
-  model$goldstandard$milestone_network <- milestone_network
   
-  model
+  sim_meta
+}
+
+.generate_goldstandard_generate_network <- function(model) {
+  gs_dimred <- model$goldstandard$dimred
+  gs_meta <- model$goldstandard$meta
+  
+  gs_meta %>% 
+    mutate(i = row_number()) %>% 
+    group_by(from, to) %>% 
+    summarise(
+      length = sqrt(sum((gs_dimred[i[-1], , drop = FALSE] - gs_dimred[i[-n()], , drop = FALSE])^2)),
+      directed = TRUE
+    ) %>% 
+    ungroup()
 }

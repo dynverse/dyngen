@@ -17,87 +17,106 @@ simulation_default <- function(
   )
 }
 
+#' @export
 simulate_cells <- function(
   model
 ) {
   sim_params <- model$simulation_params
-  sim_system <- model$simulation_system
   
   if (model$verbose) cat("Running ", sim_params$num_simulations, " simulations\n", sep = "")
   
-  model$simulations <- 
+  # simulate cells one by one
+  simulations <- 
     bind_rows(pbapply::pblapply(
       seq_len(sim_params$num_simulations),
       cl = model$num_cores,
       function(i) {
-        set.seed(sim_params$seeds[[i]])
-        
-        propensity_funs <-
-          sim_system$formulae %>% 
-          select(formula_id, formula) %>% 
-          deframe
-        
-        if (sim_params$burn_time > 0) {
-          nus_burn <- sim_system$nus
-          nus_burn[setdiff(rownames(nus_burn), sim_system$burn_variables),] <- 0
-          
-          # burn in
-          out <- fastgssa::ssa(
-            initial.state = sim_system$initial_state, 
-            propensity.funs = propensity_funs,
-            nu = nus_burn %>% as.matrix,
-            final.time = sim_params$burn_time, 
-            parms = sim_system$parameters,
-            method = sim_params$ssa_algorithm,
-            recalculate.all = TRUE, 
-            stop.on.negstate = FALSE,
-            stop.on.propensity = FALSE,
-            verbose = FALSE
-          )
-          
-          burn_out <- .simulate_cells_process_ssa(out)
-          
-          new_initial_state <- 
-            burn_out %>% 
-            slice(n()) %>% 
-            select(one_of(sim_system$molecule_ids)) %>% 
-            .[1, , drop = TRUE] %>% 
-            unlist()
-        } else {
-          burn_out <- NULL
-          new_initial_state <- system$initial_state
-        }
-        
-        # actual simulation
-        out <- fastgssa::ssa(
-          initial.state = new_initial_state,
-          propensity.funs = propensity_funs,
-          nu = sim_system$nus %>% as.matrix,
-          final.time = sim_params$total_time,
-          parms = sim_system$parameters,
-          method = sim_params$ssa_algorithm,
-          recalculate.all = TRUE, 
-          stop.on.negstate = FALSE,
-          stop.on.propensity = FALSE,
-          verbose = FALSE
-        )
-        
-        # add both burnin as normal simulation together
-        sim_out <- .simulate_cells_process_ssa(out)
-        
-        simulation <- 
-          bind_rows(
-            burn_out %>% mutate(t = t - max(t)), 
-            sim_out
-          ) %>% 
-          mutate(simulation_i = i) %>% 
-          select(simulation_i, t, everything())
-        
-        simulation
+        .simulate_cells_simulate_cell(model, i)
       }
     ))
   
+  # do dimred
+  meta <- simulations %>% select(simulation_i, t)
+  counts <- simulations %>% select(-simulation_i, -t) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
+  dimred <- dyndimred::dimred_landmark_mds(counts, distance_metric = "angular")
+  
+  model$simulations <- lst(
+    meta, 
+    counts,
+    dimred
+  )
+  
   model
+}
+
+.simulate_cells_simulate_cell <- function(model, simulation_i) {
+  sim_params <- model$simulation_params
+  sim_system <- model$simulation_system
+  
+  set.seed(sim_params$seeds[[simulation_i]])
+  
+  propensity_funs <-
+    sim_system$formulae %>% 
+    select(formula_id, formula) %>% 
+    deframe
+  
+  if (sim_params$burn_time > 0) {
+    nus_burn <- sim_system$nus
+    nus_burn[setdiff(rownames(nus_burn), sim_system$burn_variables),] <- 0
+    
+    # burn in
+    out <- fastgssa::ssa(
+      initial.state = sim_system$initial_state, 
+      propensity.funs = propensity_funs,
+      nu = nus_burn %>% as.matrix,
+      final.time = sim_params$burn_time, 
+      parms = sim_system$parameters,
+      method = sim_params$ssa_algorithm,
+      recalculate.all = TRUE, 
+      stop.on.negstate = FALSE,
+      stop.on.propensity = FALSE,
+      verbose = FALSE
+    )
+    
+    burn_out <- .simulate_cells_process_ssa(out)
+    
+    new_initial_state <- 
+      burn_out %>% 
+      slice(n()) %>% 
+      select(one_of(sim_system$molecule_ids)) %>% 
+      .[1, , drop = TRUE] %>% 
+      unlist()
+  } else {
+    burn_out <- NULL
+    new_initial_state <- system$initial_state
+  }
+  
+  # actual simulation
+  out <- fastgssa::ssa(
+    initial.state = new_initial_state,
+    propensity.funs = propensity_funs,
+    nu = sim_system$nus %>% as.matrix,
+    final.time = sim_params$total_time,
+    parms = sim_system$parameters,
+    method = sim_params$ssa_algorithm,
+    recalculate.all = TRUE, 
+    stop.on.negstate = FALSE,
+    stop.on.propensity = FALSE,
+    verbose = FALSE
+  )
+  
+  # add both burnin as normal simulation together
+  sim_out <- .simulate_cells_process_ssa(out)
+  
+  simulation <- 
+    bind_rows(
+      burn_out %>% mutate(t = t - max(t)), 
+      sim_out
+    ) %>% 
+    mutate(simulation_i = simulation_i) %>% 
+    select(simulation_i, t, everything())
+  
+  simulation
 }
 
 .simulate_cells_process_ssa <- function(out) {
