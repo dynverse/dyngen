@@ -1,0 +1,7 @@
+from	to	effect	strength	cooperativity
+1	2	-1	100	2
+2	3	-1	100	2
+3	4	1	1	2
+4	5	1	1	2
+5	1	-1	100	2
+1	6	1	1	2
