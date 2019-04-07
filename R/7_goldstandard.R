@@ -1,13 +1,9 @@
 #' @export
 goldstandard_default <- function(
-  max_path_length = 10,
-  reference_length = 100,
-  smooth_window = 50
+  time_per_edge = 2
 ) {
   lst(
-    max_path_length,
-    reference_length,
-    smooth_window
+    time_per_edge
   )
 }
 
@@ -23,13 +19,13 @@ generate_goldstandard <- function(model) {
   mod_changes <- 
     model$modulenet$expression_patterns %>% 
     mutate(
-      mod_diff = module_progression %>% str_split("\\|"),
+      mod_diff = module_progression %>% strsplit("\\|"),
       substate = map(mod_diff, seq_along)
     ) %>% 
     select(-module_progression) %>% 
     unnest(mod_diff, substate) %>% 
     mutate(
-      mod_diff = str_split(mod_diff, ","),
+      mod_diff = strsplit(mod_diff, ","),
       mod_on = map(mod_diff, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
       mod_off = map(mod_diff, function(x) x %>% keep(grepl("-", .)) %>% gsub("-", "", .))
     ) %>% 
@@ -55,7 +51,14 @@ generate_goldstandard <- function(model) {
 }
 
 .generate_goldstandard_simulations <- function(model) {
+  time_per_edge <- model$goldstandard_params$time_per_edge
   mod_changes <- model$goldstandard$mod_changes
+  sim_system <- model$simulation_system
+  
+  propensity_funs <-
+    sim_system$formulae %>% 
+    select(formula_id, formula) %>% 
+    deframe
   
   # start constructing golds
   gold_sim_outputs <- list()
@@ -90,9 +93,9 @@ generate_goldstandard <- function(model) {
       initial.state = new_initial_state,
       propensity.funs = propensity_funs,
       nu = new_nus %>% as.matrix,
-      final.time = sim_params$burn_time,
+      final.time = time_per_edge,
       parms = sim_system$parameters,
-      method = fastgssa::ssa.em(noise_strength = 0),#sim_params$ssa_algorithm,
+      method = fastgssa::ssa.em(noise_strength = 0),
       recalculate.all = TRUE,
       stop.on.negstate = FALSE,
       stop.on.propensity = FALSE,
@@ -130,7 +133,7 @@ generate_goldstandard <- function(model) {
     group_by(from, to) %>%
     mutate(
       simulation_i = 0,
-      time = ((substate - 1) * sim_params$burn_time + t) / sim_params$burn_time / max(substate)
+      time = ((substate - 1) * time_per_edge + t) / time_per_edge / max(substate)
     ) %>% 
     ungroup() %>% 
     select(-i, -substate) %>% 
@@ -152,6 +155,7 @@ generate_goldstandard <- function(model) {
   
   train <- bind_cols(meta_tr %>% select(edge, time), expr_tr) %>% as.data.frame()
   
+  # todo: use ranger random forest with probabilities and smooth it
   rf <- randomForestSRC::rfsrc(Multivar(edge, time) ~ ., train)
   pred <- predict(rf, expr_pr)
   

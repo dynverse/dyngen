@@ -142,11 +142,11 @@ plot_simulations <- function(model) {
   expr <- expr[,colSums(expr) != 0]
   sim_f <- model$simulations[rowSums(expr) != 0,]
   expr <- expr[rowSums(expr) != 0,]
-  space <- SCORPIUS::reduce_dimensionality(expr, dist_fun = SCORPIUS::correlation_distance)
+  space <- dyndimred::dimred_landmark_mds(expr)
   plot_df <- bind_cols(sim_f %>% select(t, simulation_i), as.data.frame(space))
   
   ggplot(plot_df %>% filter(t >= 0)) +
-    geom_path(aes(Comp1, Comp2, colour = t, group = simulation_i)) +
+    geom_path(aes(comp_1, comp_2, colour = t, group = simulation_i)) +
     viridis::scale_color_viridis() +
     theme_bw()
 }
@@ -161,10 +161,10 @@ plot_gold_simulations <- function(model) {
   meta_pr <- sims %>% select(-one_of(colnames(expr_tr)))
   expr_pr <- sims %>% select(one_of(colnames(expr_tr)))
   
-  space <- SCORPIUS::reduce_dimensionality(rbind(expr_tr, expr_pr), dist_fun = SCORPIUS::correlation_distance)
+  space <- dyndimred::dimred_landmark_mds(rbind(expr_tr, expr_pr))
   plot_df <- bind_cols(bind_rows(meta_tr, meta_pr), as.data.frame(space))
   
-  ggplot(mapping = aes(Comp1, Comp2)) +
+  ggplot(mapping = aes(comp_1, comp_2)) +
     geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
     geom_path(aes(colour = paste0(from, "_", to), group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == 0), size = 2) +
     theme_bw()
