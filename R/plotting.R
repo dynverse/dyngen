@@ -142,7 +142,7 @@ plot_simulations <- function(model) {
   expr <- expr[,colSums(expr) != 0]
   sim_f <- model$simulations[rowSums(expr) != 0,]
   expr <- expr[rowSums(expr) != 0,]
-  space <- dyndimred::dimred_landmark_mds(expr)
+  space <- dyndimred::dimred_landmark_mds(expr, distance_metric = "angular")
   plot_df <- bind_cols(sim_f %>% select(t, simulation_i), as.data.frame(space))
   
   ggplot(plot_df %>% filter(t >= 0)) +
@@ -161,7 +161,7 @@ plot_gold_simulations <- function(model) {
   meta_pr <- sims %>% select(-one_of(colnames(expr_tr)))
   expr_pr <- sims %>% select(one_of(colnames(expr_tr)))
   
-  space <- dyndimred::dimred_landmark_mds(rbind(expr_tr, expr_pr))
+  space <- dyndimred::dimred_landmark_mds(rbind(expr_tr, expr_pr), distance_metric = "angular")
   plot_df <- bind_cols(bind_rows(meta_tr, meta_pr), as.data.frame(space))
   
   ggplot(mapping = aes(comp_1, comp_2)) +
@@ -173,17 +173,17 @@ plot_gold_simulations <- function(model) {
 
 #' @export
 plot_gold_mappings <- function(model) {
-  progressions <- model$goldstandard$progressions
-  counts <- model$goldstandard$counts
+  plot_df <- 
+    bind_rows(
+      # model$goldstandard$simulations %>% select(simulation_i, step_id, from, to, percentage = time),
+      model$goldstandard$progressions
+    ) %>% 
+    inner_join(model$goldstandard$dimred %>% as.data.frame() %>% rownames_to_column("step_id"), by = "step_id")
   
-  space <- SCORPIUS::reduce_dimensionality(counts, dist_fun = SCORPIUS::correlation_distance)
-  plot_df <- left_join(progressions, space %>% as.data.frame %>% rownames_to_column("cell_id"), by = "cell_id")
-  
-  ggplot(plot_df %>% mutate(edge = paste0(from, "->", to)), aes(Comp1, Comp2)) +
-    geom_point(aes(colour = percentage)) +
+  ggplot(plot_df %>% mutate(edge = paste0(from, "->", to)), aes(comp_1, comp_2)) +
+    geom_point(aes(colour = edge)) +
     theme_bw() +
-    viridis::scale_color_viridis() +
-    facet_wrap(~ edge)
+    facet_wrap(~ simulation_i)
 }
 
 #' #' @rdname plot_model

@@ -24,13 +24,13 @@ plot_module_network(model)
 plot_feature_network(model)
 plot_simulations(model)
 
-model$goldstandard_params <- goldstandard_default(time_per_edge = 3)
 model <- 
   model %>% 
   generate_goldstandard()
 
 
 plot_gold_simulations(model)
+plot_gold_mappings(model)
 
 # write_rds(model, "~/yay3.rds")
 # write_rds(model, "~/yay2.rds")
