@@ -3,9 +3,11 @@ devtools::load_all(".")
 set.seed(1)
 model <- 
   initialise_model(
+    num_cells = 1000,
+    num_features = 50,
+    pct_tfs = 1,
     modulenet = modulenet_bifurcating_converging(),
-    platform = platform_simple(n_cells = 1000, n_features = 5 * 10, pct_main_features = 1),
-    tfgen_params = tfgen_random(percentage_tfs = 1, min_tfs_per_module = 3),
+    tfgen_params = tfgen_random(min_tfs_per_module = 3),
     simulation_params = simulation_default(total_time = 10, num_simulations = 32),
     simulation_setup = simulation_setup_custom(),
     verbose = TRUE,

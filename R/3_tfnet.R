@@ -1,11 +1,9 @@
 #' @export
 tfgen_random <- function(
-  percentage_tfs = 0.05,
   min_tfs_per_module = 1L,
   sample_num_regulators = function() sample.int(3)
 ) {
   lst(
-    percentage_tfs,
     min_tfs_per_module,
     sample_num_regulators
   )
@@ -25,26 +23,13 @@ generate_tf_network <- function(
 .generate_tf_info <- function(model) {
   module_info <- model$modulenet$module_info
   module_network <- model$modulenet$module_network
-  
-  # number of genes in main based on number of genes in platform
-  num_traj_features <- round(model$platform$num_features * model$platform$pct_main_features)
-  num_tfs <- round(num_traj_features * model$tfgen_params$percentage_tfs)
-  num_targets <- num_traj_features - num_tfs
-  num_modules <- nrow(module_info)
-  
-  model$feature_numbers <- lst(
-    num_features = model$platform$num_features,
-    num_traj_features,
-    num_tfs,
-    num_targets,
-    num_modules
-  )
+  numbers <- model$numbers
   
   module_info <- 
     module_info %>% mutate(
       num_tfs = .generate_partitions(
-        num_elements = max(num_modules, num_tfs),
-        num_groups = num_modules, 
+        num_elements = max(numbers$num_modules, numbers$num_tfs),
+        num_groups = numbers$num_modules, 
         min_elements_per_group = model$tfgen_params$min_tfs_per_module
       ),
       feature_id = map2(module_id, num_tfs, function(module_id, num_tfs) paste0(module_id, "_TF", seq_len(num_tfs))),

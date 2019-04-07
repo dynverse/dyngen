@@ -30,8 +30,8 @@ generate_feature_network <- function(
   tf_info <- model$feature_info %>% 
     mutate(
       num_targets = .generate_partitions(
-        num_elements = model$feature_numbers$num_targets,
-        num_groups = model$feature_numbers$num_tfs, 
+        num_elements = model$numbers$num_targets,
+        num_groups = model$numbers$num_tfs, 
         min_elements_per_group = model$networkgen_params$min_targets_per_tf
       )
     )
