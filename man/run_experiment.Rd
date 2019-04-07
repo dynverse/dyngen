@@ -4,7 +4,7 @@
 \alias{run_experiment}
 \title{Run an experiment from a simulation}
 \usage{
-run_experiment(simulation, gs, sampler, platform = get_simple_platform())
+run_experiment(simulation, gs, sampler, platform)
 }
 \arguments{
 \item{simulation}{The simulation}
