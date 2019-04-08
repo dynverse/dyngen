@@ -18,6 +18,8 @@ calculate_dimred <- function(model) {
     landmark_ix <- if (length(sim_ix) > 1000) sample(sim_ix, 1000) else sim_ix
   }
   
+  counts <- counts[, grep("TF", colnames(counts)), drop = FALSE]
+  
   dist_funs <- dynutils::list_distance_metrics()
   dist_fun <- dist_funs[[model$simulation_params$dimred_method]]
   

@@ -163,9 +163,12 @@ simulate_goldstandard <- function(model) {
   gs_counts <- model$goldstandard$counts[gold_ix, , drop = FALSE]
   gs_dimred <- model$goldstandard$dimred[gold_ix, , drop = FALSE]
   
+  tf_names <- grep("TF", colnames(gs_counts))
+  gs_counts <- gs_counts[, tf_names, drop = FALSE]
+  
   # fetch simulation data
   sim_meta <- model$simulations$meta
-  sim_counts <- model$simulations$counts
+  sim_counts <- model$simulations$counts[, tf_names, drop = FALSE]
   
   dis_fun <- dynutils::list_distance_metrics()[[model$simulation_params$dimred_method]]
   dis <- dis_fun(gs_counts, sim_counts)
