@@ -164,7 +164,7 @@ generate_feature_network <- function(
     tibble(
       feature_id = target_mapper,
       is_tf = FALSE,
-      is_main = TRUE,
+      is_hk = FALSE,
       burn = TRUE # extra genes should be available during burn in
     )
   

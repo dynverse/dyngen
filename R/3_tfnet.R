@@ -34,7 +34,7 @@ generate_tf_network <- function(
       ),
       feature_id = map2(module_id, num_tfs, function(module_id, num_tfs) paste0(module_id, "_TF", seq_len(num_tfs))),
       is_tf = TRUE,
-      is_main = TRUE
+      is_hk = FALSE
     )
   
   model$feature_info <- 

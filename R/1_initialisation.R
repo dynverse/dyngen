@@ -3,6 +3,7 @@ initialise_model <- function(
   num_cells,
   num_features,
   pct_tfs,
+  pct_hks,
   modulenet = modulenet_linear(),
   tfgen_params = tfgen_random(),
   networkgen_params = networkgen_realnet_sampler(),
@@ -14,13 +15,16 @@ initialise_model <- function(
   verbose = FALSE,
   num_cores = 1
 ) {
+  assert_that(pct_tfs + pct_hks <= 1)
+  
   lst(
     numbers = lst(
       num_cells,
       num_features,
       pct_tfs,
       num_tfs = num_features * pct_tfs,
-      num_targets = num_features * (1 - pct_tfs),
+      num_hks = num_features * pct_hks,
+      num_targets = num_features * (1 - pct_tfs - pct_hks),
       num_modules = nrow(modulenet$module_info)
     ),
     modulenet,
