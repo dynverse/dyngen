@@ -1,11 +1,9 @@
 #' @export
 networkgen_realnet_sampler <- function(
-  realnet_name = realnets$name,
+  realnet_name = sample(realnets$name, 1),
   min_targets_per_tf = 0L,
   damping = 0.05
 ) {
-  realnet_name <- match.arg(realnet_name)
-  
   data(realnets, package = "dyngen", envir = environment())
   assert_that(realnet_name %all_in% realnets$name)
   
