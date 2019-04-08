@@ -17,20 +17,11 @@ simulate_goldstandard <- function(model) {
   
   # run gold standard simulations
   simulations <- .generate_goldstandard_simulations(model)
-  gs_meta <- simulations %>% select(simulation_i:time)
-  gs_counts <- simulations %>% select(-simulation_i:-time) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
-  model$goldstandard$meta <- gs_meta
-  model$goldstandard$counts <- gs_counts
+  model$goldstandard$meta <- simulations %>% select(simulation_i:time)
+  model$goldstandard$counts <- simulations %>% select(-simulation_i:-time) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
   
   # do combined dimred
-  sim_meta <- model$simulations$meta
-  sim_counts <- model$simulations$counts
-  dimred <- dyndimred::dimred_landmark_mds(Matrix::rbind2(gs_counts, sim_counts), distance_metric = model$simulation_params$dimred_method)
-  gs_dimred <- dimred[seq_len(nrow(gs_counts)), , drop = FALSE]
-  sim_dimred <- dimred[-seq_len(nrow(gs_counts)), , drop = FALSE]
-  
-  model$simulations$dimred <- sim_dimred
-  model$goldstandard$dimred <- gs_dimred
+  model <- model %>% calculate_dimred()
   
   # predict simulation edge and time with gold standard
   if (model$verbose) cat("Predicting simulation states from gold simulations\n")

@@ -37,18 +37,14 @@ simulate_cells <- function(
       }
     ))
   
-  # do dimred
-  meta <- simulations %>% select(simulation_i, t)
-  counts <- simulations %>% select(-simulation_i, -t) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
-  dimred <- dyndimred::dimred_landmark_mds(counts, distance_metric = sim_params$dimred_method)
-  
+  # split up simulation data
   model$simulations <- lst(
-    meta, 
-    counts,
-    dimred
+    meta = simulations %>% select(simulation_i, t), 
+    counts = simulations %>% select(-simulation_i, -t) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
   )
   
-  model
+  # do dimred and return
+  model %>% calculate_dimred()
 }
 
 .simulate_cells_simulate_cell <- function(model, simulation_i) {
