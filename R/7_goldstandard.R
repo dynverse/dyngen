@@ -167,25 +167,17 @@ simulate_goldstandard <- function(model) {
   sim_meta <- model$simulations$meta
   sim_counts <- model$simulations$counts
   
-  # predict edges for simulation data
-  # todo: use ranger random forest with probabilities and smooth it
-  train <- data.frame(gs_meta %>% transmute(edge = factor(paste0(from, "--->", to)), time), gs_counts %>% as.matrix)
-  options(mc.cores = 1)
-  rf <- randomForestSRC::rfsrc(Multivar(edge, time) ~ ., train)
-  pred <- predict(rf, sim_counts %>% as.matrix() %>% as.data.frame())
+  dis_fun <- dynutils::list_distance_metrics()[[model$simulation_params$dimred_method]]
+  dis <- dis_fun(gs_counts, sim_counts)
+  best_match <- apply(dis, 2, which.min)
   
-  # construct progressions
   sim_meta <- 
-    sim_meta %>% mutate(
-      edge = pred$classOutput$edge$class,
-      time = pred$regrOutput$time$predicted,
-      from = gsub("--->.*", "", edge),
-      to = gsub(".*--->", "", edge)
+    bind_cols(
+      sim_meta %>% select(simulation_i, t),
+      gs_meta[best_match, , drop = FALSE] %>% select(from, to, time)
     ) %>% 
     group_by(from, to) %>% 
-    mutate(
-      time = dynutils::scale_minmax(time)
-    ) %>% 
+    mutate(time = dynutils::scale_minmax(time)) %>% 
     ungroup()
   
   sim_meta
