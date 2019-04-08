@@ -11,12 +11,21 @@ calculate_dimred <- function(model) {
   if (has_gs) {
     gs_counts <- model$goldstandard$counts
     counts <- Matrix::rbind2(sim_counts, gs_counts)
+    gs_ix <- seq_len(nrow(counts))[-sim_ix]
+    landmark_ix <- if (length(gs_ix) > 1000) sample(gs_ix, 1000) else gs_ix
   } else {
     counts <- sim_counts
+    landmark_ix <- if (length(sim_ix) > 1000) sample(sim_ix, 1000) else sim_ix
   }
   
+  dist_funs <- dynutils::list_distance_metrics()
+  dist_fun <- dist_funs[[model$simulation_params$dimred_method]]
   
-  dimred <- dyndimred::dimred_landmark_mds(counts, distance_metric = model$simulation_params$dimred_method)
+  dist_lm <- dist_fun(counts[landmark_ix, , drop = FALSE])
+  dist_2lm <- dist_fun(counts[landmark_ix, , drop = FALSE], counts)
+  dimred <- dyndimred:::.lmds_cmdscale(dist_lm, dist_2lm, ndim = 3, rescale = TRUE)
+  attr(dimred, "landmark_space") <- NULL
+  dimred <- dyndimred:::process_dimred(dimred)
   
   model$simulations$dimred <- dimred[sim_ix, , drop = FALSE]
   if (has_gs) {
