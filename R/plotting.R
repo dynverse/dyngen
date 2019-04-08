@@ -1,18 +1,3 @@
-## Plotting models
-#' Model plotting
-#' @param model The model
-#' @param color_by By what to color
-#' @param main_only Whether to only draw the main network
-#' @param label Whether to label genes
-#' @export
-plot_model <- function(model) {
-  list(
-    plot_feature_network(model, label = FALSE, main_only = FALSE),
-    plot_module_network(model)#,
-    # plot_net_overlaps(model)
-  )
-}
-
 effect_colour <- function(effect) {
   index <- match(effect, c(1, -1, -2, NA, 0))
   c(
@@ -24,8 +9,6 @@ effect_colour <- function(effect) {
   )[index]
 }
 
-#' @rdname plot_model
-#' 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
 #' @export
 plot_module_network <- function(model) {
@@ -50,12 +33,10 @@ plot_module_network <- function(model) {
   )
 }
 
-#' @rdname plot_model
 #' @export
 plot_feature_network <- function(
   model,
   color_by = c("module", "main"), 
-  main_only = TRUE, 
   tfs_only = FALSE,
   label = FALSE
 ) {
@@ -65,7 +46,7 @@ plot_feature_network <- function(
   feature_info <- 
     model$feature_info %>% 
     mutate(
-      main_index = match(is_main, c(TRUE, FALSE, NA)),
+      main_index = match(is_hk, c(FALSE, TRUE, NA)),
       size = c(4, 1, 1)[main_index],
       label = ifelse(label, feature_id, "")
     )
@@ -76,7 +57,6 @@ plot_feature_network <- function(
     feature_info <- feature_info %>% mutate(color = ifelse(is.na(color), "lightgray", color))
   }
   
-  if (main_only) feature_info <- feature_info %>% filter(is_main)
   if (tfs_only) feature_info <- feature_info %>% filter(is_tf)
   
   # get feature network

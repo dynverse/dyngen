@@ -11,16 +11,16 @@ plot_model(model)
 plot_module_network(model)
 
 plot_feature_network(model, color_by = c("module", "main"),
-  main_only = TRUE, tfs_only = FALSE, label = FALSE)
+  tfs_only = FALSE, label = FALSE)
 }
 \arguments{
 \item{model}{The model}
 
 \item{color_by}{By what to color}
 
-\item{main_only}{Whether to only draw the main network}
-
 \item{label}{Whether to label genes}
+
+\item{main_only}{Whether to only draw the main network}
 }
 \description{
 Model plotting
