@@ -25,7 +25,7 @@ simulate_goldstandard <- function(model) {
   # do combined dimred
   sim_meta <- model$simulations$meta
   sim_counts <- model$simulations$counts
-  dimred <- dyndimred::dimred_landmark_mds(Matrix::rbind2(gs_counts, sim_counts), distance_metric = "angular")
+  dimred <- dyndimred::dimred_landmark_mds(Matrix::rbind2(gs_counts, sim_counts), distance_metric = model$simulation_params$dimred_method)
   gs_dimred <- dimred[seq_len(nrow(gs_counts)), , drop = FALSE]
   sim_dimred <- dimred[-seq_len(nrow(gs_counts)), , drop = FALSE]
   
@@ -179,8 +179,9 @@ simulate_goldstandard <- function(model) {
   # predict edges for simulation data
   # todo: use ranger random forest with probabilities and smooth it
   train <- data.frame(gs_meta %>% transmute(edge = factor(paste0(from, "--->", to)), time), gs_counts %>% as.matrix)
-  rf <- randomForestSRC::rfsrc(Multivar(edge, time) ~ ., train) # causing memory allocation errors on a 2800 x 260 train object...
-  pred <- predict(rf, sim_counts)
+  options(mc.cores = 1)
+  rf <- randomForestSRC::rfsrc(Multivar(edge, time) ~ ., train)
+  pred <- predict(rf, sim_counts %>% as.matrix() %>% as.data.frame())
   
   # construct progressions
   sim_meta <- 

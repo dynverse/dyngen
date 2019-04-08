@@ -4,7 +4,8 @@ simulation_default <- function(
   total_time = 20,
   num_simulations = 32,
   seeds = seq(1, num_simulations),
-  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4)
+  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4),
+  dimred_method = "angular"
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -13,7 +14,8 @@ simulation_default <- function(
     total_time,
     num_simulations,
     seeds,
-    ssa_algorithm
+    ssa_algorithm,
+    dimred_method
   )
 }
 
@@ -38,7 +40,7 @@ simulate_cells <- function(
   # do dimred
   meta <- simulations %>% select(simulation_i, t)
   counts <- simulations %>% select(-simulation_i, -t) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
-  dimred <- dyndimred::dimred_landmark_mds(counts, distance_metric = "angular")
+  dimred <- dyndimred::dimred_landmark_mds(counts, distance_metric = sim_params$dimred_method)
   
   model$simulations <- lst(
     meta, 
