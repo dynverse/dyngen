@@ -188,6 +188,7 @@ simulate_goldstandard <- function(model) {
   gs_meta <- model$goldstandard$meta
   
   gs_meta %>% 
+    filter(!burn) %>% 
     mutate(i = row_number()) %>% 
     group_by(from, to) %>% 
     summarise(
