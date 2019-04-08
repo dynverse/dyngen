@@ -24,9 +24,9 @@ get_simple_platform(n_cells = 100L, n_features = 100L,
 
 \item{trajectory_dependent_features}{The percentage of features that are being driven by the trajectory (or vice versa)}
 
-\item{dropout_mean_rate}{The mean rate of dropouts}
+\item{dropout_rate}{The mean rate of dropouts}
 
-\item{dropout_mean_shape}{The shape of dropouts}
+\item{dropout_shape}{The shape of dropouts}
 }
 \description{
 Altenatively, \code{\link[=get_simple_platform]{get_simple_platform()}} returns a simple platform parameter configuration.
