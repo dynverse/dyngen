@@ -34,6 +34,7 @@ experiment_sampler_synchronised <- function(
 
 #' @export
 simulate_experiment <- function(model) {
+  if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
   step_ixs <- .simulate_experiment_sample_cells(model) %>% sample()
   
@@ -58,7 +59,13 @@ simulate_experiment <- function(model) {
       realcell <- sample.int(nrow(realcount), size = 1, replace = TRUE)
       real_expr <- sort(realcount[realcell, ])
       orig_expr <- sim_counts[cid, ]
-      trafo_expr <- real_expr[floor(dynutils::scale_minmax(rank(orig_expr, ties.method = "random")) * (length(real_expr) - 1e-10)) + 1]
+      # add a bit of noise to the percentages to make duplicate cells a bit different
+      pct_order <- 
+        dynutils::scale_minmax(rank(orig_expr, ties.method = "random")) + 
+        stats::rnorm(length(orig_expr), 0, .001) 
+      pct_order[pct_order <= 0] <- 0
+      pct_order[pct_order >= 1] <- 1
+      trafo_expr <- real_expr[floor(pct_order * (length(real_expr) - 1e-10)) + 1]
       trafo_expr %>% set_names(names(orig_expr)) %>% Matrix::Matrix(sparse = TRUE) %>% Matrix::t()
     }
   )
@@ -83,7 +90,7 @@ simulate_experiment <- function(model) {
       model$feature_info,
       tibble(feature_id = colnames(hk_count), is_tf = FALSE, is_hk = TRUE)
     ),
-    final_cell_info = sim_meta
+    cell_info = sim_meta
   )
   
   model
@@ -119,7 +126,7 @@ simulate_experiment <- function(model) {
             density = approxfun(density(time, bw = model$experiment_sampler$weight_bw))(time),
             weight = 1 / density
           )
-        sample(meta$orig_ix, size = edge$num_cells, replace = FALSE, prob = meta$weight)
+        sample(meta$orig_ix, size = edge$num_cells, replace = TRUE, prob = meta$weight)
       }
     ) %>% 
       unlist()
@@ -148,7 +155,7 @@ simulate_experiment <- function(model) {
       numbers$timepoint_group,
       numbers$num_cells,
       function(gr, num) {
-        sim_meta2 %>% filter(timepoint_group == gr) %>% pull(orig_ix) %>% sample(num)
+        sim_meta2 %>% filter(timepoint_group == gr) %>% pull(orig_ix) %>% sample(size = num, replace = TRUE)
       }
     ) %>% 
       unlist()
