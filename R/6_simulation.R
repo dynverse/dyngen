@@ -4,8 +4,7 @@ simulation_default <- function(
   total_time = 20,
   num_simulations = 32,
   seeds = seq(1, num_simulations),
-  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4),
-  dimred_method = "angular"
+  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4)
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -14,8 +13,7 @@ simulation_default <- function(
     total_time,
     num_simulations,
     seeds,
-    ssa_algorithm,
-    dimred_method
+    ssa_algorithm
   )
 }
 

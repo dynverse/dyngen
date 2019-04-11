@@ -170,8 +170,7 @@ simulate_goldstandard <- function(model) {
   sim_meta <- model$simulations$meta
   sim_counts <- model$simulations$counts[, tf_names, drop = FALSE]
   
-  dis_fun <- dynutils::list_distance_metrics()[[model$simulation_params$dimred_method]]
-  dis <- dis_fun(gs_counts, sim_counts)
+  dis <- dynutils::calculate_distance(gs_counts, sim_counts, metric = model$dist_metric)
   best_match <- apply(dis, 2, which.min)
   
   sim_meta <- 

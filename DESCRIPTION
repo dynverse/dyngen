@@ -18,7 +18,7 @@ Imports:
   dplyr,
   dtw,
   dynnormaliser,
-  dynutils,
+  dynutils (>= 1.0.2.9000),
   dynwrap,
   fastgssa,
   ggnetwork,

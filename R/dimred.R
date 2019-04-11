@@ -20,11 +20,12 @@ calculate_dimred <- function(model) {
   
   counts <- counts[, grep("TF", colnames(counts)), drop = FALSE]
   
-  dist_funs <- dynutils::list_distance_metrics()
-  dist_fun <- dist_funs[[model$simulation_params$dimred_method]]
+  dist_metrics <- dynutils::list_distance_metrics()
+  dist_metric <- model$dist_metric
+  assert_that(dist_metric %all_in% dist_metrics)
   
-  dist_lm <- dist_fun(counts[landmark_ix, , drop = FALSE])
-  dist_2lm <- dist_fun(counts[landmark_ix, , drop = FALSE], counts)
+  dist_2lm <- dynutils::calculate_distance(counts[landmark_ix, , drop = FALSE], counts, metric = dist_metric)
+  dist_lm <- dist_2lm[, landmark_ix, , drop = FALSE]
   dimred <- dyndimred:::.lmds_cmdscale(dist_lm, dist_2lm, ndim = 3, rescale = TRUE)
   attr(dimred, "landmark_space") <- NULL
   dimred <- dyndimred:::process_dimred(dimred)

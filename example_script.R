@@ -8,9 +8,10 @@ model <-
     num_features = 200,
     pct_tfs = .3,
     pct_hks = .3,
+    dist_metric = "cosine",
     modulenet = modulenet_bifurcating_converging(),
     tfgen_params = tfgen_random(min_tfs_per_module = 3),
-    simulation_params = simulation_default(total_time = 10, num_simulations = 32, dimred_method = "angular"),
+    simulation_params = simulation_default(total_time = 10, num_simulations = 32),
     simulation_setup = simulation_setup_custom(),
     verbose = TRUE,
     num_cores = 8

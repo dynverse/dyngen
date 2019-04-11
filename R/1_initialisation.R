@@ -4,6 +4,7 @@ initialise_model <- function(
   num_features,
   pct_tfs,
   pct_hks,
+  dist_metric,
   modulenet = modulenet_linear(),
   tfgen_params = tfgen_random(),
   networkgen_params = networkgen_realnet_sampler(),
@@ -11,10 +12,10 @@ initialise_model <- function(
   simulation_params = simulation_default(),
   goldstandard_params = goldstandard_default(),
   experiment_sampler = experiment_sampler_snapshot(),
-  # normalisation_params = normalisation_default(),
   verbose = FALSE,
   num_cores = 1
 ) {
+  dist_metric <- match.arg(dist_metric)
   assert_that(pct_tfs + pct_hks <= 1)
   
   lst(
@@ -27,6 +28,7 @@ initialise_model <- function(
       num_targets = num_features * (1 - pct_tfs - pct_hks),
       num_modules = nrow(modulenet$module_info)
     ),
+    dist_metric,
     modulenet,
     tfgen_params,
     networkgen_params,
@@ -34,8 +36,8 @@ initialise_model <- function(
     simulation_params,
     goldstandard_params,
     experiment_sampler,
-    # normalisation_params,
     verbose,
     num_cores
   )
 }
+formals(initialise_model)$dist_metric <- dynutils::list_distance_metrics()
