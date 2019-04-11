@@ -10,7 +10,7 @@ calculate_dimred <- function(model) {
   has_gs <- model %has_name% "goldstandard" && model$goldstandard %has_name% "counts"
   if (has_gs) {
     gs_counts <- model$goldstandard$counts
-    counts <- Matrix::rbind2(sim_counts, gs_counts)
+    counts <- rbind(sim_counts, gs_counts)
     gs_ix <- seq_len(nrow(counts))[-sim_ix]
     landmark_ix <- if (length(gs_ix) > 1000) sample(gs_ix, 1000) else gs_ix
   } else {
@@ -20,12 +20,8 @@ calculate_dimred <- function(model) {
   
   counts <- counts[, grep("TF", colnames(counts)), drop = FALSE]
   
-  dist_metrics <- dynutils::list_distance_metrics()
-  dist_metric <- model$dist_metric
-  assert_that(dist_metric %all_in% dist_metrics)
-  
-  dist_2lm <- dynutils::calculate_distance(counts[landmark_ix, , drop = FALSE], counts, metric = dist_metric)
-  dist_lm <- dist_2lm[, landmark_ix, , drop = FALSE]
+  dist_2lm <- as.matrix(dynutils::calculate_distance(counts[landmark_ix, , drop = FALSE], counts, metric = model$dist_metric))
+  dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
   dimred <- dyndimred:::.lmds_cmdscale(dist_lm, dist_2lm, ndim = 3, rescale = TRUE)
   attr(dimred, "landmark_space") <- NULL
   dimred <- dyndimred:::process_dimred(dimred)
