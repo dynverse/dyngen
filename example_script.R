@@ -1,14 +1,14 @@
 library(tidyverse)
 library(dyngen)
 
-set.seed(1)
+set.seed(3)
 model <- 
   initialise_model(
     num_cells = 1000,
     num_features = 200,
     pct_tfs = .3,
     pct_hks = .3,
-    dist_metric = "cosine",
+    dist_metric = "pearson",
     modulenet = modulenet_bifurcating_converging(),
     tfgen_params = tfgen_random(min_tfs_per_module = 3),
     simulation_params = simulation_default(total_time = 10, num_simulations = 32),
@@ -23,6 +23,8 @@ model <-
   simulate_goldstandard() %>% 
   simulate_experiment()
 
+# model$dist_metric <- "pearson"
+# model <- model %>% calculate_dimred()
 
 plot_module_network(model)
 plot_feature_network(model)

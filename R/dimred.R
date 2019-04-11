@@ -3,7 +3,7 @@ calculate_dimred <- function(model) {
   if (!model %has_name% "simulations") {
     stop("First run some simulations before calculating the dimred")
   }
-  
+    
   sim_counts <- model$simulations$counts
   sim_ix <- seq_len(nrow(sim_counts))
   
@@ -20,11 +20,19 @@ calculate_dimred <- function(model) {
   
   counts <- counts[, grep("TF", colnames(counts)), drop = FALSE]
   
-  dist_2lm <- as.matrix(dynutils::calculate_distance(counts[landmark_ix, , drop = FALSE], counts, metric = model$dist_metric))
+  dist_2lm <- as.matrix(dynutils::calculate_distance(
+    x = counts[landmark_ix, , drop = FALSE], 
+    y = counts, 
+    metric = model$dist_metric
+  ))
   dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
-  dimred <- dyndimred:::.lmds_cmdscale(dist_lm, dist_2lm, ndim = 3, rescale = TRUE)
-  attr(dimred, "landmark_space") <- NULL
-  dimred <- dyndimred:::process_dimred(dimred)
+  dimred <- as.matrix(dyndimred:::.lmds_cmdscale(
+    dist_lm, 
+    dist_2lm, 
+    ndim = 3, 
+    rescale = TRUE
+  ))
+  dimnames(dimred) <- list(rownames(counts), paste0("comp_", seq_len(ncol(dimred))))
   
   model$simulations$dimred <- dimred[sim_ix, , drop = FALSE]
   if (has_gs) {
