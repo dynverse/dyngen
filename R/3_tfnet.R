@@ -1,5 +1,5 @@
 #' @export
-tfgen_random <- function(
+tf_network_random <- function(
   min_tfs_per_module = 1L,
   sample_num_regulators = function() sample.int(3)
 ) {
@@ -30,7 +30,7 @@ generate_tf_network <- function(
       num_tfs = .generate_partitions(
         num_elements = max(numbers$num_modules, numbers$num_tfs),
         num_groups = numbers$num_modules, 
-        min_elements_per_group = model$tfgen_params$min_tfs_per_module
+        min_elements_per_group = model$tf_network_params$min_tfs_per_module
       ),
       feature_id = map2(module_id, num_tfs, function(module_id, num_tfs) paste0(module_id, "_TF", seq_len(num_tfs))),
       is_tf = TRUE,
@@ -72,7 +72,7 @@ generate_tf_network <- function(
           
           # how many regulators will we sample?
           num_regulating_tfs <-
-            model$tfgen_params$sample_num_regulators() %>% 
+            model$tf_network_params$sample_num_regulators() %>% 
             min(length(candidate_regulating_tfs)) %>%
             max(1L)
           

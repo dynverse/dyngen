@@ -18,7 +18,7 @@ simulation_default <- function(
 }
 
 #' @export
-simulate_cells <- function(
+generate_cells <- function(
   model
 ) {
   sim_params <- model$simulation_params
@@ -31,7 +31,7 @@ simulate_cells <- function(
       seq_len(sim_params$num_simulations),
       cl = model$num_cores,
       function(i) {
-        .simulate_cells_simulate_cell(model, i)
+        .generate_cells_simulate_cell(model, i)
       }
     ))
   
@@ -45,7 +45,7 @@ simulate_cells <- function(
   model %>% calculate_dimred()
 }
 
-.simulate_cells_simulate_cell <- function(model, simulation_i) {
+.generate_cells_simulate_cell <- function(model, simulation_i) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
@@ -74,7 +74,7 @@ simulate_cells <- function(
       verbose = FALSE
     )
     
-    burn_out <- .simulate_cells_process_ssa(out)
+    burn_out <- .generate_cells_process_ssa(out)
     
     new_initial_state <- 
       burn_out %>% 
@@ -102,7 +102,7 @@ simulate_cells <- function(
   )
   
   # add both burnin as normal simulation together
-  sim_out <- .simulate_cells_process_ssa(out)
+  sim_out <- .generate_cells_process_ssa(out)
   
   simulation <- 
     bind_rows(
@@ -115,7 +115,7 @@ simulate_cells <- function(
   simulation
 }
 
-.simulate_cells_process_ssa <- function(out) {
+.generate_cells_process_ssa <- function(out) {
   final_time <- out$args$final.time
   
   out$timeseries %>%

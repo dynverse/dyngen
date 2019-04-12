@@ -1,5 +1,5 @@
 #' @export
-goldstandard_default <- function(
+gold_standard_default <- function(
   time_per_edge = 2
 ) {
   lst(
@@ -8,32 +8,32 @@ goldstandard_default <- function(
 }
 
 #' @export
-simulate_goldstandard <- function(model) {
-  model$goldstandard <- list()
+generate_gold_standard <- function(model) {
+  model$gold_standard <- list()
   
   # compute changes in modules along the edges
   if (model$verbose) cat("Running gold simulations\n")
-  model$goldstandard$mod_changes <- .generate_goldstandard_mod_changes(model)
+  model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model)
   
   # run gold standard simulations
-  simulations <- .generate_goldstandard_simulations(model)
-  model$goldstandard$meta <- simulations %>% select(simulation_i:time)
-  model$goldstandard$counts <- simulations %>% select(-simulation_i:-time) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
+  simulations <- .generate_gold_standard_simulations(model)
+  model$gold_standard$meta <- simulations %>% select(simulation_i:time)
+  model$gold_standard$counts <- simulations %>% select(-simulation_i:-time) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
   
   # do combined dimred
   model <- model %>% calculate_dimred()
   
   # predict simulation edge and time with gold standard
   if (model$verbose) cat("Predicting simulation states from gold simulations\n")
-  model$simulations$meta <- .generate_goldstandard_predict_state(model)
+  model$simulations$meta <- .generate_gold_standard_predict_state(model)
   
   # construct simulation network from dimred
-  model$goldstandard$network <- .generate_goldstandard_generate_network(model)
+  model$gold_standard$network <- .generate_gold_standard_generate_network(model)
   
   model
 }
 
-.generate_goldstandard_mod_changes <- function(model) {
+.generate_gold_standard_mod_changes <- function(model) {
   mod_changes <- 
     model$modulenet$expression_patterns %>% 
     mutate(
@@ -65,9 +65,9 @@ simulate_goldstandard <- function(model) {
   mod_changes[order, ]
 }
 
-.generate_goldstandard_simulations <- function(model) {
-  time_per_edge <- model$goldstandard_params$time_per_edge
-  mod_changes <- model$goldstandard$mod_changes
+.generate_gold_standard_simulations <- function(model) {
+  time_per_edge <- model$gold_standard_params$time_per_edge
+  mod_changes <- model$gold_standard$mod_changes
   sim_system <- model$simulation_system
   
   propensity_funs <-
@@ -119,7 +119,7 @@ simulate_goldstandard <- function(model) {
     
     # add both burnin as normal simulation together
     simulation <-
-      .simulate_cells_process_ssa(out) %>%
+      .generate_cells_process_ssa(out) %>%
       mutate(i, from_, to_) %>% 
       select(i, from_, to_, everything())
     
@@ -155,13 +155,13 @@ simulate_goldstandard <- function(model) {
     select(simulation_i, t, burn, from, to, from_, to_, time, everything())
 }
 
-.generate_goldstandard_predict_state <- function(model) {
+.generate_gold_standard_predict_state <- function(model) {
   # fetch gold standard data
-  gs_meta <- model$goldstandard$meta
+  gs_meta <- model$gold_standard$meta
   gold_ix <- !gs_meta$burn
   gs_meta <- gs_meta[gold_ix, , drop = FALSE]
-  gs_counts <- model$goldstandard$counts[gold_ix, , drop = FALSE]
-  gs_dimred <- model$goldstandard$dimred[gold_ix, , drop = FALSE]
+  gs_counts <- model$gold_standard$counts[gold_ix, , drop = FALSE]
+  gs_dimred <- model$gold_standard$dimred[gold_ix, , drop = FALSE]
   
   tf_names <- grep("TF", colnames(gs_counts))
   gs_counts <- gs_counts[, tf_names, drop = FALSE]
@@ -185,9 +185,9 @@ simulate_goldstandard <- function(model) {
   sim_meta
 }
 
-.generate_goldstandard_generate_network <- function(model) {
-  gs_dimred <- model$goldstandard$dimred
-  gs_meta <- model$goldstandard$meta
+.generate_gold_standard_generate_network <- function(model) {
+  gs_dimred <- model$gold_standard$dimred
+  gs_meta <- model$gold_standard$meta
   
   gs_meta %>% 
     filter(!burn) %>% 

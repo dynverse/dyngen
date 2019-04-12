@@ -1,13 +1,13 @@
 #' @export
 list_experiment_samplers <- function() {
   lst(
-    snapshot = experiment_sampler_snapshot,
-    synchronised = experiment_sampler_synchronised
+    snapshot = experiment_snapshot,
+    synchronised = experiment_synchronised
   )
 }
 
 #' @export
-experiment_sampler_snapshot <- function(
+experiment_snapshot <- function(
   realcount = sample(realcounts$name, 1),
   weight_bw = 0.1
 ) {
@@ -19,7 +19,7 @@ experiment_sampler_snapshot <- function(
 }
 
 #' @export
-experiment_sampler_synchronised <- function(
+experiment_synchronised <- function(
   realcount = sample(realcounts$name, 1),
   num_timepoints = 8,
   pct_between = .75
@@ -33,10 +33,10 @@ experiment_sampler_synchronised <- function(
 }
 
 #' @export
-simulate_experiment <- function(model) {
+generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
-  step_ixs <- .simulate_experiment_sample_cells(model) %>% sample()
+  step_ixs <- .generate_experiment_sample_cells(model) %>% sample()
   
   sim_meta <-
     model$simulations$meta[step_ixs, , drop = FALSE] %>% 
@@ -50,7 +50,7 @@ simulate_experiment <- function(model) {
   colnames(sim_counts) <- model$feature_info$feature_id
   
   # fetch real expression data
-  realcount <- .simulate_experiment_fetch_realcount(model)
+  realcount <- .generate_experiment_fetch_realcount(model)
   
   # map simulated counts to real counts
   trafo_counts <- map(
@@ -96,9 +96,9 @@ simulate_experiment <- function(model) {
   model
 }
 
-.simulate_experiment_sample_cells <- function(model) {
+.generate_experiment_sample_cells <- function(model) {
   network <- 
-    model$goldstandard$network
+    model$gold_standard$network
   
   end_states <- setdiff(unique(network$to), unique(network$from))
   
@@ -107,7 +107,9 @@ simulate_experiment <- function(model) {
     mutate(orig_ix = row_number()) %>% 
     filter(t >= 0, !to %in% end_states | time < 1)
   
-  if (model$experiment_sampler$sampler_type == "snapshot") {
+  params <- model$experiment_params
+  
+  if (params$sampler_type == "snapshot") {
     network <- network %>%
       mutate(
         pct = length / sum(length), 
@@ -123,21 +125,20 @@ simulate_experiment <- function(model) {
         meta <- 
           inner_join(sim_meta, edge %>% select(from, to), c("from", "to")) %>%
           mutate(
-            density = approxfun(density(time, bw = model$experiment_sampler$weight_bw))(time),
+            density = approxfun(density(time, bw = params$weight_bw))(time),
             weight = 1 / density
           )
         sample(meta$orig_ix, size = edge$num_cells, replace = TRUE, prob = meta$weight)
       }
     ) %>% 
       unlist()
-  } else if (model$experiment_sampler$sampler_type == "synchronised") {
-    prms <- model$experiment_sampler
+  } else if (params$sampler_type == "synchronised") {
     sim_meta2 <- 
       sim_meta %>% 
       mutate(
-        t_scale = t / (max(t)+1e-10) * prms$num_timepoints,
+        t_scale = t / (max(t)+1e-10) * params$num_timepoints,
         timepoint_group = floor(t_scale),
-        selectable = (t_scale - timepoint_group) < (1 - prms$pct_between)
+        selectable = (t_scale - timepoint_group) < (1 - params$pct_between)
       ) %>% 
       filter(selectable)
     
@@ -162,20 +163,16 @@ simulate_experiment <- function(model) {
   }
 }
 
-.simulate_experiment_fetch_realcount <- function(model) {
-  realcount <-  model$experiment_sampler$realcount
-
+.generate_experiment_fetch_realcount <- function(model) {
+  
   # download realcount if needed-
   if (is.character(realcount)) {
     data(realcounts, package = "dyngen", envir = environment())
     assert_that(realcount %all_in% realcounts$name)
 
-    realcount_url <- realcounts$url[[match(realcount, realcounts$name)]]
-
-    tmpfile <- tempfile()
-    on.exit(file.remove(tmpfile))
-    download.file(realcount_url, destfile = tmpfile, quiet = !model$verbose)
-    realcount <- read_rds(tmpfile)
+    url <- realcounts$url[[match(realcount, realcounts$name)]]
+    
+    realcount <- .download_cacheable_file(url, model)
   }
   
   realcount

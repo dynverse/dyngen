@@ -1,5 +1,5 @@
 #' @export
-networkgen_realnet_sampler <- function(
+feature_network_default <- function(
   realnet_name = sample(realnets$name, 1),
   min_targets_per_tf = 0L,
   damping = 0.05
@@ -30,13 +30,13 @@ generate_feature_network <- function(
       num_targets = .generate_partitions(
         num_elements = model$numbers$num_targets,
         num_groups = model$numbers$num_tfs, 
-        min_elements_per_group = model$networkgen_params$min_targets_per_tf
+        min_elements_per_group = model$feature_network_params$min_targets_per_tf
       )
     )
   tf_names <- tf_info$feature_id
   
   # download realnet (~2MB)
-  realnet <- .networkgen_fetch_realnet(model)
+  realnet <- .feature_network_fetch_realnet(model)
   
   # map tfs to rownames of realnet randomly
   tf_mapper <- set_names(tf_names, sample(rownames(realnet), length(tf_names)))
@@ -44,7 +44,7 @@ generate_feature_network <- function(
   colnames(realnet) <- ifelse(colnames(realnet) %in% names(tf_mapper), tf_mapper[colnames(realnet)], colnames(realnet))
   
   # sample target network from realnet
-  out <- .networkgen_sample_from_realnet(model, tf_info, realnet)
+  out <- .feature_network_sample_from_realnet(model, tf_info, realnet)
 
   # return output
   model$feature_info <- 
@@ -62,11 +62,8 @@ generate_feature_network <- function(
   model
 }
 
-.networkgen_fetch_realnet <- function(model) {
-  tmpfile <- tempfile()
-  on.exit(file.remove(tmpfile))
-  download.file(model$networkgen_params$realnet_url, destfile = tmpfile, quiet = !model$verbose)
-  realnet <- read_rds(tmpfile)
+.feature_network_fetch_realnet <- function(model) {
+  realnet <- .download_cacheable_file(model$feature_network_params$realnet_url, model)
   
   assert_that(
     nrow(model$feature_info) <= nrow(realnet),
@@ -76,7 +73,7 @@ generate_feature_network <- function(
   realnet
 }
 
-.networkgen_sample_from_realnet <- function(model, tf_info, realnet) {
+.feature_network_sample_from_realnet <- function(model, tf_info, realnet) {
   tf_names <- tf_info$feature_id
   
   # convert to igraph
@@ -106,7 +103,7 @@ generate_feature_network <- function(
           personalized = personalized, 
           directed = TRUE,
           weights = igraph::E(gr)$weight,
-          damping = model$networkgen_params$damping
+          damping = model$feature_network_params$damping
         )
         
         # select top targets

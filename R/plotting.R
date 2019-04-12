@@ -139,8 +139,8 @@ plot_gold_simulations <- function(model) {
         model$simulations$dimred %>% as.data.frame
       ) %>% filter(t >= 0),
       bind_cols(
-        model$goldstandard$meta,
-        model$goldstandard$dimred %>% as.data.frame
+        model$gold_standard$meta,
+        model$gold_standard$dimred %>% as.data.frame
       ) %>% filter(!burn)
     )
   
@@ -160,8 +160,8 @@ plot_gold_mappings <- function(model) {
         model$simulations$dimred %>% as.data.frame
       ) %>% filter(t >= 0),
       bind_cols(
-        model$goldstandard$meta,
-        model$goldstandard$dimred %>% as.data.frame
+        model$gold_standard$meta,
+        model$gold_standard$dimred %>% as.data.frame
       ) %>% filter(!burn)
     )
   
@@ -354,17 +354,17 @@ plot_gold_mappings <- function(model) {
 #' #' @param gs The gold standard
 #' #' @param spaces Spaces dataframe
 #' #' @export
-#' plot_goldstandard <- function(simulation, gs) {
+#' plot_gold_standard <- function(simulation, gs) {
 #'   list(
-#'     plot_goldstandard_edges(simulation, gs),
-#'     plot_goldstandard_burn(simulation, gs),
-#'     plot_goldstandard_network(simulation, gs),
-#'     plot_goldstandard_heatmap(simulation, gs),
-#'     plot_goldstandard_references(gs)
+#'     plot_gold_standard_edges(simulation, gs),
+#'     plot_gold_standard_burn(simulation, gs),
+#'     plot_gold_standard_network(simulation, gs),
+#'     plot_gold_standard_heatmap(simulation, gs),
+#'     plot_gold_standard_references(gs)
 #'   )
 #' }
 #' 
-#' dimred_goldstandard <- function(simulation, gs) {
+#' dimred_gold_standard <- function(simulation, gs) {
 #'   subsample <- subsample_simulation(simulation)
 #'   spaces <- dimred_simulation(simulation, subsample = subsample, expression_names = c("samplexpression_modules"))
 #'   step_ids <- subsample$samplestep_info$step_id
@@ -377,9 +377,9 @@ plot_gold_mappings <- function(model) {
 #'   spaces
 #' }
 #' 
-#' #' @rdname plot_goldstandard
+#' #' @rdname plot_gold_standard
 #' #' @export
-#' plot_goldstandard_edges <- function(simulation, gs, spaces = dimred_goldstandard(simulation, gs)) {
+#' plot_gold_standard_edges <- function(simulation, gs, spaces = dimred_gold_standard(simulation, gs)) {
 #'   spaces %>% 
 #'     unnest(space) %>% 
 #'     ggplot(aes(Comp1, Comp2, group = simulation_id, color = factor(edge_id))) + 
@@ -388,9 +388,9 @@ plot_gold_mappings <- function(model) {
 #'     theme_void()
 #' }
 #' 
-#' #' @rdname plot_goldstandard
+#' #' @rdname plot_gold_standard
 #' #' @export
-#' plot_goldstandard_burn <- function(simulation, gs, spaces = dimred_goldstandard(simulation, gs)) {
+#' plot_gold_standard_burn <- function(simulation, gs, spaces = dimred_gold_standard(simulation, gs)) {
 #'   spaces %>% 
 #'     unnest(space) %>% 
 #'     ggplot(aes(Comp1, Comp2, group = simulation_id, color=!burn)) + 
@@ -399,9 +399,9 @@ plot_gold_mappings <- function(model) {
 #'     theme_void()
 #' }
 #' 
-#' #' @rdname plot_goldstandard
+#' #' @rdname plot_gold_standard
 #' #' @export
-#' plot_goldstandard_network <- function(simulation, gs, spaces = dimred_goldstandard(simulation, gs)) {
+#' plot_gold_standard_network <- function(simulation, gs, spaces = dimred_gold_standard(simulation, gs)) {
 #'   space <- spaces$space[[1]]
 #'   
 #'   milestone_ids <- unique(c(gs$milestone_network$from, gs$milestone_network$to))
@@ -459,9 +459,9 @@ plot_gold_mappings <- function(model) {
 #'   }) %>% unlist(recursive = F) %>% cowplot::plot_grid(plotlist = ., nrow = length(spaces)) %>% print()
 #' }
 #' 
-#' #' @rdname plot_goldstandard
+#' #' @rdname plot_gold_standard
 #' #' @export
-#' plot_goldstandard_heatmap <- function(simulation, gs) {
+#' plot_gold_standard_heatmap <- function(simulation, gs) {
 #'   subsample <- subsample_simulation(simulation)
 #'   step_ids <- rownames(subsample$samplexpression)
 #'   sampleprogressions <- gs$progressions %>% 
@@ -496,9 +496,9 @@ plot_gold_mappings <- function(model) {
 #'   )
 #' }
 #' 
-#' #' @rdname plot_goldstandard
+#' #' @rdname plot_gold_standard
 #' #' @export
-#' plot_goldstandard_references <- function(gs) {
+#' plot_gold_standard_references <- function(gs) {
 #'   reference_data <- imap(gs$references, function(reference, i) {
 #'     reference$reference_expression %>% reshape2::melt(varnames = c("step", "module"), value.name = "expression") %>% mutate(reference_id = i)
 #'   }) %>% bind_rows()

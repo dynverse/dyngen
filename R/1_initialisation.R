@@ -1,43 +1,47 @@
+#' Initial settings for simulating a dyngen dataset
+#' 
+#' @param num_cells The number of cells to sample.
+#' @param num_tfs The number of transcription factors to generate.
 #' @export
 initialise_model <- function(
   num_cells,
-  num_features,
-  pct_tfs,
-  pct_hks,
+  num_tfs,
+  num_targets,
+  num_hks,
   dist_metric,
   modulenet = modulenet_linear(),
-  tfgen_params = tfgen_random(),
-  networkgen_params = networkgen_realnet_sampler(),
-  simulation_setup_params = simulation_setup_default(),
+  tf_network_params = tf_network_random(),
+  feature_network_params = feature_network_realnet(),
+  kinetics_params = kinetics_default(),
   simulation_params = simulation_default(),
-  goldstandard_params = goldstandard_default(),
-  experiment_sampler = experiment_sampler_snapshot(),
+  gold_standard_params = gold_standard_default(),
+  experiment_params = experiment_snapshot(),
   verbose = FALSE,
-  num_cores = 1
+  num_cores = 1,
+  download_cache_dir = NULL
 ) {
   dist_metric <- match.arg(dist_metric)
-  assert_that(pct_tfs + pct_hks <= 1)
   
   lst(
     numbers = lst(
       num_cells,
-      num_features,
-      pct_tfs,
-      num_tfs = num_features * pct_tfs,
-      num_hks = num_features * pct_hks,
-      num_targets = num_features * (1 - pct_tfs - pct_hks),
+      num_tfs,
+      num_targets,
+      num_hks,
+      num_features = num_tfs + num_targets + num_hks,
       num_modules = nrow(modulenet$module_info)
     ),
     dist_metric,
     modulenet,
-    tfgen_params,
-    networkgen_params,
-    simulation_setup_params,
+    tf_network_params,
+    feature_network_params,
+    kinetics_params,
     simulation_params,
-    goldstandard_params,
-    experiment_sampler,
+    gold_standard_params,
+    experiment_params,
     verbose,
-    num_cores
+    num_cores,
+    download_cache_dir
   )
 }
 formals(initialise_model)$dist_metric <- dynutils::list_distance_metrics()

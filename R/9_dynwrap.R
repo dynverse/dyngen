@@ -8,12 +8,12 @@ wrap_dyngen_dataset <- function(model) {
       feature_info = model$experiment$feature_info
     ) %>% 
     dynwrap::add_trajectory(
-      milestone_network = model$goldstandard$network,
+      milestone_network = model$gold_standard$network,
       progressions = model$experiment$cell_info %>% select(cell_id, from, to, percentage = time)
     ) %>% 
     dynwrap::add_dimred(
       dimred = model$simulations$dimred[model$experiment$cell_info$step_ix, ] %>% magrittr::set_rownames(model$experiment$cell_info$cell_id),
-      dimred_segment_points = model$goldstandard$dimred,
-      dimred_segment_progressions = model$goldstandard$meta %>% select(from, to, percentage = time)
+      dimred_segment_points = model$gold_standard$dimred,
+      dimred_segment_progressions = model$gold_standard$meta %>% select(from, to, percentage = time)
     )
 }

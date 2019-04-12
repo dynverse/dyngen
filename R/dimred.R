@@ -7,9 +7,9 @@ calculate_dimred <- function(model) {
   sim_counts <- model$simulations$counts
   sim_ix <- seq_len(nrow(sim_counts))
   
-  has_gs <- model %has_name% "goldstandard" && model$goldstandard %has_name% "counts"
+  has_gs <- model %has_name% "gold_standard" && model$gold_standard %has_name% "counts"
   if (has_gs) {
-    gs_counts <- model$goldstandard$counts
+    gs_counts <- model$gold_standard$counts
     counts <- rbind(sim_counts, gs_counts)
     gs_ix <- seq_len(nrow(counts))[-sim_ix]
     landmark_ix <- if (length(gs_ix) > 1000) sample(gs_ix, 1000) else gs_ix
@@ -36,7 +36,7 @@ calculate_dimred <- function(model) {
   
   model$simulations$dimred <- dimred[sim_ix, , drop = FALSE]
   if (has_gs) {
-    model$goldstandard$dimred <- dimred[-sim_ix, , drop = FALSE]
+    model$gold_standard$dimred <- dimred[-sim_ix, , drop = FALSE]
   }
   
   model

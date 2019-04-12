@@ -1,5 +1,5 @@
 #' @export
-simulation_setup_default <- function(
+kinetics_default <- function(
   sample_r = function(n) runif(n, 10, 200),
   sample_d = function(n) runif(n, 2, 8),
   sample_p = function(n) runif(n, 2, 8),
@@ -22,7 +22,7 @@ simulation_setup_default <- function(
 }
 
 #' @export
-simulation_setup_custom <- function(
+kinetics_custom <- function(
   sample_r = function(n) rnorm(n, 100, 20) %>% pmax(10),
   sample_d = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_p = function(n) rnorm(n, 5, 1) %>% pmax(2),
@@ -50,7 +50,7 @@ simulation_setup_custom <- function(
 }
 
 #' @export
-generate_simulation_setup <- function(model) {
+generate_kinetics <- function(model) {
   # generate kinetics params
   model <- .kinetics_generate_gene_kinetics(model)
   
@@ -104,7 +104,7 @@ generate_simulation_setup <- function(model) {
 
 .kinetics_generate_gene_kinetics <- function(model) {
   if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
-  params <- model$simulation_setup_params
+  params <- model$kinetics_params
   
   feature_info <-
     model$feature_info %>% 

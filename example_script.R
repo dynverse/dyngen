@@ -5,23 +5,27 @@ set.seed(3)
 model <- 
   initialise_model(
     num_cells = 1000,
-    num_features = 200,
-    pct_tfs = .3,
-    pct_hks = .3,
+    num_tfs = 50,
+    num_targets = 200,
+    num_hks = 300,
     dist_metric = "pearson",
     modulenet = modulenet_bifurcating_converging(),
-    tfgen_params = tfgen_random(min_tfs_per_module = 3),
+    tf_network_params = tf_network_random(min_tfs_per_module = 3),
+    feature_network_params = feature_network_default(),
+    kinetics_params = kinetics_default(),
     simulation_params = simulation_default(total_time = 10, num_simulations = 32),
-    simulation_setup = simulation_setup_custom(),
+    gold_standard_params = gold_standard_default(),
+    experiment_params = experiment_snapshot(),
     verbose = TRUE,
-    num_cores = 8
+    num_cores = 8,
+    download_cache_dir = "~/.cache/dyngen"
   ) %>% 
   generate_tf_network() %>% 
   generate_feature_network() %>% 
-  generate_simulation_setup() %>% 
-  simulate_cells() %>% 
-  simulate_goldstandard() %>% 
-  simulate_experiment()
+  generate_kinetics() %>% 
+  generate_cells() %>% 
+  generate_gold_standard() %>% 
+  generate_experiment()
 
 # model$dist_metric <- "pearson"
 # model <- model %>% calculate_dimred()
