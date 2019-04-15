@@ -23,8 +23,8 @@ model <-
   generate_tf_network() %>% 
   generate_feature_network() %>% 
   generate_kinetics() %>% 
-  generate_cells() %>% 
   generate_gold_standard() %>% 
+  generate_cells() %>% 
   generate_experiment()
 
 plot_backbone(model)

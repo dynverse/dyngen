@@ -41,8 +41,14 @@ generate_cells <- function(
     counts = simulations %>% select(-simulation_i, -t) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
   )
   
-  # do dimred and return
-  model %>% calculate_dimred()
+  # predict state
+  model <- model %>% .generate_cells_predict_state()
+  
+  # perform dimred
+  model <- model %>% calculate_dimred()
+  
+  # return
+  model
 }
 
 .generate_cells_simulate_cell <- function(model, simulation_i) {
@@ -121,4 +127,43 @@ generate_cells <- function(
   out$timeseries %>%
     filter(t <= final_time) %>%
     mutate(t = ifelse(row_number() == n(), final_time, t))
+}
+
+.generate_cells_predict_state <- function(model) {
+  # fetch gold standard data
+  gs_meta <- model$gold_standard$meta
+  gold_ix <- !gs_meta$burn
+  gs_meta <- gs_meta[gold_ix, , drop = FALSE]
+  gs_counts <- model$gold_standard$counts[gold_ix, , drop = FALSE]
+  gs_dimred <- model$gold_standard$dimred[gold_ix, , drop = FALSE]
+  
+  # fetch simulation data
+  # (gold standard counts only contains TFs, so filter those)
+  sim_meta <- model$simulations$meta
+  sim_counts <- model$simulations$counts[, colnames(gs_counts), drop = FALSE]
+  
+  # calculate 1NN -> a full distance matrix could be avoided
+  dis <- dynutils::calculate_distance(gs_counts, sim_counts, metric = model$distance_metric)
+  best_match <- apply(dis, 2, which.min)
+  
+  # add predictions to sim_meta
+  sim_meta <- 
+    bind_cols(
+      sim_meta %>% select(simulation_i, t),
+      gs_meta[best_match, , drop = FALSE] %>% select(from, to, time)
+    ) %>% 
+    group_by(from, to) %>% 
+    mutate(time = dynutils::scale_minmax(time)) %>% 
+    ungroup()
+  
+  # check if all branches are present
+  sim_edges <- sim_meta %>% group_by(from, to) %>% summarise(n = n())
+  network <- full_join(model$gold_standard$network, sim_edges, by = c("from", "to"))
+  
+  if (any(is.na(network$n))) {
+    warning("Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.")
+  }
+  
+  # return output^
+  sim_meta
 }

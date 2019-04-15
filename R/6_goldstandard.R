@@ -23,10 +23,6 @@ generate_gold_standard <- function(model) {
   # do combined dimred
   model <- model %>% calculate_dimred()
   
-  # predict simulation edge and time with gold standard
-  if (model$verbose) cat("Predicting simulation states from gold simulations\n")
-  model$simulations$meta <- .generate_gold_standard_predict_state(model)
-  
   # construct simulation network from dimred
   model$gold_standard$network <- .generate_gold_standard_generate_network(model)
   
@@ -66,14 +62,24 @@ generate_gold_standard <- function(model) {
 }
 
 .generate_gold_standard_simulations <- function(model) {
+  # fetch paraneters and settings
   time_per_edge <- model$gold_standard_params$time_per_edge
   mod_changes <- model$gold_standard$mod_changes
   sim_system <- model$simulation_system
+  tf_info <- model$feature_info %>% filter(is_tf)
   
+  # select relevant functions
+  tf_molecules <- tf_info %>% select(x, y) %>% gather(col, val) %>% pull(val)
+  
+  # filter propensity functions
   propensity_funs <-
     sim_system$formulae %>% 
+    filter(molecule %in% tf_molecules) %>% 
     select(formula_id, formula) %>% 
     deframe
+  
+  # filter nus
+  nus <- sim_system$nus[tf_molecules, names(propensity_funs), drop = FALSE]
   
   # start constructing golds
   gold_sim_outputs <- list()
@@ -82,28 +88,31 @@ generate_gold_standard <- function(model) {
   
   start_state <- mod_changes$from[[1]]
   
-  gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state %>% as.matrix
+  gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state[tf_molecules] %>% as.matrix
   gold_sim_modules[[start_state]] <- c()
   
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
     to_ <- mod_changes$to_[[i]]
-    mod_on <- mod_changes$mod_on[[i]]
-    mod_off <- mod_changes$mod_off[[i]]
-    prev_mods <- gold_sim_modules[[from_]]
-    mods <- union(prev_mods, mod_on) %>% setdiff(mod_off)
     
-    # if (model$verbose) cat("Generating gold for ", from_, "->", to_, "; modules on: ", paste(mods, collapse = ","), "\n", sep = "")
+    # which modules are on
+    mods <- 
+      gold_sim_modules[[from_]] %>% 
+      union(mod_changes$mod_on[[i]]) %>% 
+      setdiff(mod_changes$mod_off[[i]])
+    
+    # which tfs are on
+    tfs_on <- tf_info %>% filter(module_id %in% mods)
+    molecules_on <- tfs_on %>% select(x, y) %>% gather(col, val) %>% pull(val)
     
     # fetch initial state
     new_initial_state <- rowMeans(gold_sim_vectors[[from_]])
     
     # generate nus
-    new_nus <- sim_system$nus
-    filt <- colnames(new_nus) %>% purrr:::discard(grepl(paste0("_(", paste(mods, collapse = "|"), ")_"), .))
-    new_nus[, filt] <- new_nus[, filt] * 0
+    new_nus <- nus
+    new_nus[!rownames(new_nus) %in% molecules_on] <- 0
     
-    # actual simulation
+    # simulation of gold standard edge
     out <- fastgssa::ssa(
       initial.state = new_initial_state,
       propensity.funs = propensity_funs,
@@ -126,7 +135,7 @@ generate_gold_standard <- function(model) {
     end_state <-
       simulation %>%
       slice(n()) %>%
-      select(one_of(sim_system$molecule_ids)) %>%
+      select(one_of(tf_molecules)) %>%
       .[1, , drop = TRUE] %>%
       unlist() %>%
       as.matrix()
@@ -153,48 +162,6 @@ generate_gold_standard <- function(model) {
     ungroup() %>% 
     select(-i, -substate) %>% 
     select(simulation_i, t, burn, from, to, from_, to_, time, everything())
-}
-
-.generate_gold_standard_predict_state <- function(model) {
-  # fetch gold standard data
-  gs_meta <- model$gold_standard$meta
-  gold_ix <- !gs_meta$burn
-  gs_meta <- gs_meta[gold_ix, , drop = FALSE]
-  gs_counts <- model$gold_standard$counts[gold_ix, , drop = FALSE]
-  gs_dimred <- model$gold_standard$dimred[gold_ix, , drop = FALSE]
-  
-  # only use TFs to make predictions
-  tf_names <- grep("TF", colnames(gs_counts))
-  gs_counts <- gs_counts[, tf_names, drop = FALSE]
-  
-  # fetch simulation data
-  sim_meta <- model$simulations$meta
-  sim_counts <- model$simulations$counts[, tf_names, drop = FALSE]
-  
-  # calculate 1NN -> a full distance matrix could be avoided
-  dis <- dynutils::calculate_distance(gs_counts, sim_counts, metric = model$distance_metric)
-  best_match <- apply(dis, 2, which.min)
-  
-  # add predictions to sim_meta
-  sim_meta <- 
-    bind_cols(
-      sim_meta %>% select(simulation_i, t),
-      gs_meta[best_match, , drop = FALSE] %>% select(from, to, time)
-    ) %>% 
-    group_by(from, to) %>% 
-    mutate(time = dynutils::scale_minmax(time)) %>% 
-    ungroup()
-  
-  # check if all branches are present
-  sim_edges <- sim_meta %>% group_by(from, to) %>% summarise(n = n())
-  network <- full_join(model$gold_standard$network, sim_edges, by = c("from", "to"))
-  
-  if (any(is.na(network$n))) {
-    warning("Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.")
-  }
-  
-  # return output^
-  sim_meta
 }
 
 .generate_gold_standard_generate_network <- function(model) {
