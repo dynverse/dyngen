@@ -162,7 +162,7 @@ plot_gold_simulations <- function(model, detailed = FALSE) {
 
 
 #' @export
-plot_gold_mappings <- function(model) {
+plot_gold_mappings <- function(model, selected_simulations = NULL) {
   plot_df <- 
     bind_rows(
       bind_cols(
@@ -174,6 +174,10 @@ plot_gold_mappings <- function(model) {
         model$gold_standard$dimred %>% as.data.frame
       ) %>% filter(!burn)
     )
+  
+  if (!is.null(selected_simulations)) {
+    plot_df <- plot_df %>% filter(simulation_i %in% selected_simulations)
+  }
   
   ggplot(plot_df %>% mutate(edge = paste0(from, "->", to)), aes(comp_1, comp_2)) +
     geom_point(aes(colour = edge)) +
