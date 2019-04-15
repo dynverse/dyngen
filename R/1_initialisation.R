@@ -44,4 +44,4 @@ initialise_model <- function(
     download_cache_dir
   )
 }
-formals(initialise_model)$distance_metric <- dynutils::list_distance_metrics()
+formals(initialise_model)$distance_metric <- dynutils::list_distance_methods()

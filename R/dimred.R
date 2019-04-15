@@ -59,7 +59,7 @@ calculate_dimred <- function(model) {
   dist_2lm <- as.matrix(dynutils::calculate_distance(
     x = counts[landmark_ix, , drop = FALSE], 
     y = counts, 
-    metric = model$distance_metric
+    method = model$distance_metric
   ))
   
   # calculate distances between landmarks

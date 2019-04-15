@@ -143,7 +143,7 @@ generate_cells <- function(
   sim_counts <- model$simulations$counts[, colnames(gs_counts), drop = FALSE]
   
   # calculate 1NN -> a full distance matrix could be avoided
-  dis <- dynutils::calculate_distance(gs_counts, sim_counts, metric = model$distance_metric)
+  dis <- dynutils::calculate_distance(gs_counts, sim_counts, method = model$distance_metric)
   best_match <- apply(dis, 2, which.min)
   
   # add predictions to sim_meta
