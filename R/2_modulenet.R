@@ -1,4 +1,4 @@
-#' Module network models for creating a gene regulatory network
+#' Backbone of the simulation model
 #' 
 #' A module is a group of genes which, to some extent, shows the same
 #' expression behaviour. Several modules are connected together such that
@@ -6,7 +6,7 @@
 #' another module. By creating chains of modules, a dynamic behaviour in gene 
 #' regulation can be created.
 #' 
-#' A modulenet model contains three tibbles, namely `module_info`,
+#' A backbone model contains three tibbles, namely `module_info`,
 #' `module_network`, and `expression_patterns`.
 #' 
 #' `module_info` contains meta information on the modules themselves.
@@ -39,7 +39,7 @@
 #'   not get sampled from these cell states.
 #'   
 #' @export
-modulenet <- function(
+backbone <- function(
   module_info,
   module_network,
   expression_patterns
@@ -68,30 +68,30 @@ modulenet <- function(
     module_network, 
     expression_patterns
   ) %>% 
-    add_class("dyngen::modulenet")
+    add_class("dyngen::backbone")
 }
 
 #' @export
-#' @rdname modulenet
-list_modulenet_generators <- function() {
+#' @rdname backbone
+list_backbones <- function() {
   list(
-    bifurcating = modulenet_bifurcating,
-    bifurcating_converging = modulenet_bifurcating_converging,
-    bifurcating_cycle = modulenet_bifurcating_cycle,
-    bifurcating_loop = modulenet_bifurcating_loop,
-    binary_tree = modulenet_binary_tree,
-    consecutive_bifurcating = modulenet_consecutive_bifurcating,
-    converging = modulenet_converging,
-    cycle = modulenet_cycle,
-    linear = modulenet_linear,
-    linear_long = modulenet_linear_long,
-    trifurcating = modulenet_trifurcating
+    bifurcating = backbone_bifurcating,
+    bifurcating_converging = backbone_bifurcating_converging,
+    bifurcating_cycle = backbone_bifurcating_cycle,
+    bifurcating_loop = backbone_bifurcating_loop,
+    binary_tree = backbone_binary_tree,
+    consecutive_bifurcating = backbone_consecutive_bifurcating,
+    converging = backbone_converging,
+    cycle = backbone_cycle,
+    linear = backbone_linear,
+    linear_long = backbone_linear_long,
+    trifurcating = backbone_trifurcating
   )
 }
 
 #' @export
-#' @rdname modulenet
-modulenet_bifurcating <- function() {
+#' @rdname backbone
+backbone_bifurcating <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -127,13 +127,13 @@ modulenet_bifurcating <- function() {
     "S2", "S4", "+M4|-M1|-M8|-M2", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_bifurcating_converging <- function() {
+#' @rdname backbone
+backbone_bifurcating_converging <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -192,13 +192,13 @@ modulenet_bifurcating_converging <- function() {
     "S5", "S6", "+M9|+M10", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_bifurcating_cycle <- function() {
+#' @rdname backbone
+backbone_bifurcating_cycle <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -249,13 +249,13 @@ modulenet_bifurcating_cycle <- function() {
     "S5", "S1", "-M2,-M8|-M3,-M9|-M10|+M1", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_bifurcating_loop <- function() {
+#' @rdname backbone
+backbone_bifurcating_loop <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -305,13 +305,13 @@ modulenet_bifurcating_loop <- function() {
     "S2", "S3", "+M5|+M11", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_binary_tree <- function() {
+#' @rdname backbone
+backbone_binary_tree <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1A", 1, TRUE,
@@ -407,13 +407,13 @@ modulenet_binary_tree <- function() {
     "S5", "S12", "+M11A|+M11B|+M11C", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_consecutive_bifurcating <- function() {
+#' @rdname backbone
+backbone_consecutive_bifurcating <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -461,13 +461,13 @@ modulenet_consecutive_bifurcating <- function() {
     "S3", "S6", "+M6|+M9", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_converging <- function() {
+#' @rdname backbone
+backbone_converging <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -517,13 +517,13 @@ modulenet_converging <- function() {
     "S5", "S6", "+M11,-M1,-M8|-M9,-M2|-M10,-M3", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_cycle <- function() {
+#' @rdname backbone
+backbone_cycle <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -552,13 +552,13 @@ modulenet_cycle <- function() {
     "S3", "S1", "+M1,-M2|+M6|+M3", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_linear <- function() {
+#' @rdname backbone
+backbone_linear <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -588,13 +588,13 @@ modulenet_linear <- function() {
     "S1", "S2", "+M2|+M3|+M4|+M5|+M6|+M7|-M1|-M2|-M3|-M4|-M5|-M6", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_linear_long <- function() {
+#' @rdname backbone
+backbone_linear_long <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -646,13 +646,13 @@ modulenet_linear_long <- function() {
     "S1", "S2", "+M2|+M3|+M4|+M5|+M6|+M7|+M8|+M9|+M10|+M11|+M12|+M13|+M14|+M15|+M16|+M17|+M18|-M1|-M2|-M3|-M4|-M5|-M6|-M7|-M8|-M9|-M10|-M11|-M12|-M13|-M14|-M15|-M16|-M17", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
 #' @export
-#' @rdname modulenet
-modulenet_trifurcating <- function() {
+#' @rdname backbone
+backbone_trifurcating <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "M1", 1, TRUE,
@@ -697,6 +697,6 @@ modulenet_trifurcating <- function() {
     "S2", "S5", "+M5|+M6|-M1|-M8|-M2", FALSE, FALSE
   )
   
-  modulenet(module_info, module_network, expression_patterns)
+  backbone(module_info, module_network, expression_patterns)
 }
 

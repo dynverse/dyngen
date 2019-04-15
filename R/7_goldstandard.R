@@ -35,7 +35,7 @@ generate_gold_standard <- function(model) {
 
 .generate_gold_standard_mod_changes <- function(model) {
   mod_changes <- 
-    model$modulenet$expression_patterns %>% 
+    model$backbone$expression_patterns %>% 
     mutate(
       mod_diff = module_progression %>% strsplit("\\|"),
       substate = map(mod_diff, seq_along)
@@ -163,6 +163,7 @@ generate_gold_standard <- function(model) {
   gs_counts <- model$gold_standard$counts[gold_ix, , drop = FALSE]
   gs_dimred <- model$gold_standard$dimred[gold_ix, , drop = FALSE]
   
+  # only use TFs to make predictions
   tf_names <- grep("TF", colnames(gs_counts))
   gs_counts <- gs_counts[, tf_names, drop = FALSE]
   
@@ -170,9 +171,11 @@ generate_gold_standard <- function(model) {
   sim_meta <- model$simulations$meta
   sim_counts <- model$simulations$counts[, tf_names, drop = FALSE]
   
-  dis <- dynutils::calculate_distance(gs_counts, sim_counts, metric = model$dist_metric)
+  # calculate 1NN -> a full distance matrix could be avoided
+  dis <- dynutils::calculate_distance(gs_counts, sim_counts, metric = model$distance_metric)
   best_match <- apply(dis, 2, which.min)
   
+  # add predictions to sim_meta
   sim_meta <- 
     bind_cols(
       sim_meta %>% select(simulation_i, t),
@@ -182,6 +185,15 @@ generate_gold_standard <- function(model) {
     mutate(time = dynutils::scale_minmax(time)) %>% 
     ungroup()
   
+  # check if all branches are present
+  sim_edges <- sim_meta %>% group_by(from, to) %>% summarise(n = n())
+  network <- full_join(model$gold_standard$network, sim_edges, by = c("from", "to"))
+  
+  if (any(is.na(network$n))) {
+    warning("Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.")
+  }
+  
+  # return output^
   sim_meta
 }
 

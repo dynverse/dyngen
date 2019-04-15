@@ -8,8 +8,8 @@ initialise_model <- function(
   num_tfs,
   num_targets,
   num_hks,
-  dist_metric,
-  modulenet = modulenet_linear(),
+  distance_metric,
+  backbone,
   tf_network_params = tf_network_random(),
   feature_network_params = feature_network_realnet(),
   kinetics_params = kinetics_default(),
@@ -20,7 +20,7 @@ initialise_model <- function(
   num_cores = 1,
   download_cache_dir = NULL
 ) {
-  dist_metric <- match.arg(dist_metric)
+  distance_metric <- match.arg(distance_metric)
   
   lst(
     numbers = lst(
@@ -29,10 +29,10 @@ initialise_model <- function(
       num_targets,
       num_hks,
       num_features = num_tfs + num_targets + num_hks,
-      num_modules = nrow(modulenet$module_info)
+      num_modules = nrow(backbone$module_info)
     ),
-    dist_metric,
-    modulenet,
+    distance_metric,
+    backbone,
     tf_network_params,
     feature_network_params,
     kinetics_params,
@@ -44,4 +44,4 @@ initialise_model <- function(
     download_cache_dir
   )
 }
-formals(initialise_model)$dist_metric <- dynutils::list_distance_metrics()
+formals(initialise_model)$distance_metric <- dynutils::list_distance_metrics()

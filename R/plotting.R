@@ -11,14 +11,14 @@ effect_colour <- function(effect) {
 
 #' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
 #' @export
-plot_module_network <- function(model) {
+plot_backbone <- function(model) {
   graph <- igraph::graph_from_data_frame(
-    model$modulenet$module_network %>%
+    model$backbone$module_network %>%
       mutate(
         color = effect_colour(effect),
         width = dynutils::scale_minmax(log10(strength)) * 4 + .5
       ),
-    vertices = model$modulenet$module_info
+    vertices = model$backbone$module_info
   )
   
   layout <- igraph::layout.graphopt(graph, charge = 0.01, niter = 10000)

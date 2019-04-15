@@ -110,7 +110,8 @@ generate_experiment <- function(model) {
   params <- model$experiment_params
   
   if (params$sampler_type == "snapshot") {
-    network <- network %>%
+    network <- 
+      network %>%
       mutate(
         pct = length / sum(length), 
         cum_pct = cumsum(pct),
@@ -164,16 +165,22 @@ generate_experiment <- function(model) {
 }
 
 .generate_experiment_fetch_realcount <- function(model) {
+  realcount_ <- model$experiment_params$realcount
   
   # download realcount if needed-
-  if (is.character(realcount)) {
-    data(realcounts, package = "dyngen", envir = environment())
-    assert_that(realcount %all_in% realcounts$name)
-
-    url <- realcounts$url[[match(realcount, realcounts$name)]]
-    
-    realcount <- .download_cacheable_file(url, model)
-  }
+  realcount <- 
+    if (is.character(realcount)) {
+      data(realcounts, package = "dyngen", envir = environment())
+      assert_that(realcount %all_in% realcounts$name)
+      
+      url <- realcounts$url[[match(realcount_, realcounts$name)]]
+      
+      .download_cacheable_file(url, model)
+    } else if (is.matrix(realcount) || is_sparse(realcount)) {
+      realcount_
+    } else {
+      stop("realcount should be a url from dyngen::realcounts, or a sparse count matrix.")
+    }
   
   realcount
 }

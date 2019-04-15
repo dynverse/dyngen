@@ -5,9 +5,8 @@
 \title{Initial settings for simulating a dyngen dataset}
 \usage{
 initialise_model(num_cells, num_tfs, num_targets, num_hks,
-  dist_metric = c("spearman", "pearson", "cosine", "euclidean",
-  "manhattan"), modulenet = modulenet_linear(),
-  tf_network_params = tf_network_random(),
+  distance_metric = c("spearman", "pearson", "cosine", "euclidean",
+  "manhattan"), backbone, tf_network_params = tf_network_random(),
   feature_network_params = feature_network_realnet(),
   kinetics_params = kinetics_default(),
   simulation_params = simulation_default(),

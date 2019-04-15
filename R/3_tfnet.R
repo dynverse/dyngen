@@ -21,8 +21,8 @@ generate_tf_network <- function(
 }
 
 .generate_tf_info <- function(model) {
-  module_info <- model$modulenet$module_info
-  module_network <- model$modulenet$module_network
+  module_info <- model$backbone$module_info
+  module_network <- model$backbone$module_network
   numbers <- model$numbers
   
   module_info <- 
@@ -46,7 +46,7 @@ generate_tf_network <- function(
 }
 
 .generate_tf_network <- function(model) {
-  module_network <- model$modulenet$module_network
+  module_network <- model$backbone$module_network
   tf_info <- model$feature_info
   
   # initialise model structures

@@ -8,8 +8,8 @@ model <-
     num_tfs = 50,
     num_targets = 200,
     num_hks = 300,
-    dist_metric = "pearson",
-    modulenet = modulenet_bifurcating_converging(),
+    distance_metric = "pearson",
+    backbone = backbone_bifurcating_converging(),
     tf_network_params = tf_network_random(min_tfs_per_module = 3),
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_default(),
@@ -27,10 +27,7 @@ model <-
   generate_gold_standard() %>% 
   generate_experiment()
 
-# model$dist_metric <- "pearson"
-# model <- model %>% calculate_dimred()
-
-plot_module_network(model)
+plot_backbone(model)
 plot_feature_network(model)
 plot_simulations(model)
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")

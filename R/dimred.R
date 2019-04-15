@@ -23,7 +23,7 @@ calculate_dimred <- function(model) {
   dist_2lm <- as.matrix(dynutils::calculate_distance(
     x = counts[landmark_ix, , drop = FALSE], 
     y = counts, 
-    metric = model$dist_metric
+    metric = model$distance_metric
   ))
   dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
   dimred <- as.matrix(dyndimred:::.lmds_cmdscale(

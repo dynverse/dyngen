@@ -4,15 +4,9 @@ feature_network_default <- function(
   min_targets_per_tf = 0L,
   damping = 0.05
 ) {
-  data(realnets, package = "dyngen", envir = environment())
-  assert_that(realnet_name %all_in% realnets$name)
-  
-  realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
-  
   lst(
     type = "realnet_sampler",
     realnet_name,
-    realnet_url,
     min_targets_per_tf,
     damping
   )
@@ -63,7 +57,14 @@ generate_feature_network <- function(
 }
 
 .feature_network_fetch_realnet <- function(model) {
-  realnet <- .download_cacheable_file(model$feature_network_params$realnet_url, model)
+  realnet_name <- model$feature_network_params$realnet_name
+  
+  data(realnets, package = "dyngen", envir = environment())
+  assert_that(realnet_name %all_in% realnets$name)
+  
+  realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
+  
+  realnet <- .download_cacheable_file(realnet_url, model)
   
   assert_that(
     nrow(model$feature_info) <= nrow(realnet),
