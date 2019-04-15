@@ -169,14 +169,14 @@ generate_experiment <- function(model) {
   
   # download realcount if needed-
   realcount <- 
-    if (is.character(realcount)) {
+    if (is.character(realcount_)) {
       data(realcounts, package = "dyngen", envir = environment())
-      assert_that(realcount %all_in% realcounts$name)
+      assert_that(realcount_ %all_in% realcounts$name)
       
       url <- realcounts$url[[match(realcount_, realcounts$name)]]
       
       .download_cacheable_file(url, model)
-    } else if (is.matrix(realcount) || is_sparse(realcount)) {
+    } else if (is.matrix(realcount_) || is_sparse(realcount_)) {
       realcount_
     } else {
       stop("realcount should be a url from dyngen::realcounts, or a sparse count matrix.")

@@ -42,7 +42,7 @@ generate_cells <- function(
   )
   
   # predict state
-  model <- model %>% .generate_cells_predict_state()
+  model$simulations$meta <- .generate_cells_predict_state(model)
   
   # perform dimred
   model <- model %>% calculate_dimred()
@@ -164,6 +164,6 @@ generate_cells <- function(
     warning("Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.")
   }
   
-  # return output^
+  # return output
   sim_meta
 }
