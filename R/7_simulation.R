@@ -42,9 +42,11 @@ generate_cells <- function(
   )
   
   # predict state
+  if (model$verbose) cat("Mapping simulations to gold standard\n", sep = "")
   model$simulations$meta <- .generate_cells_predict_state(model)
   
   # perform dimred
+  if (model$verbose) cat("Performing dimred\n", sep = "")
   model <- model %>% calculate_dimred()
   
   # return
