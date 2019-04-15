@@ -45,7 +45,7 @@ generate_gold_standard <- function(model) {
     ) %>% 
     group_by(from, to) %>% 
     mutate(
-      from_ = ifelse(row_number() == 1, from, c("", paste0(from, to, letters[row_number() - 1]))),
+      from_ = ifelse(row_number() == 1, from, c("", paste0(from, to, "p", (row_number() - 1)))),
       to_ = ifelse(row_number() == n(), to, from_[row_number() + 1])
     ) %>% 
     ungroup()
@@ -90,6 +90,8 @@ generate_gold_standard <- function(model) {
   
   gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state[tf_molecules] %>% as.matrix
   gold_sim_modules[[start_state]] <- c()
+  
+  # model$gold_standard$mod_changes %>% mutate(mod_on_str = map_chr(mod_on, paste, collapse = ","), mod_off_str = map_chr(mod_off, paste, collapse = ","))
   
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
