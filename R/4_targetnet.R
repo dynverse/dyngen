@@ -136,8 +136,8 @@ generate_feature_network <- function(
     target_regnet %>% 
     # can contain duplicates
     unique() %>% 
-    # remove connections between tfs (to avoid ruining the given module network)
-    filter(!(from %in% tf_names & to %in% tf_names))
+    # remove connections to tfs (to avoid ruining the given module network)
+    filter(!to %in% tf_names)
   
   # rename non-tf features
   if (nrow(target_regnet) > 0) {
