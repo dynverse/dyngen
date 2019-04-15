@@ -131,22 +131,32 @@ plot_simulations <- function(model) {
 }
 
 #' @export
-plot_gold_simulations <- function(model) {
+plot_gold_simulations <- function(model, detailed = FALSE) {
   plot_df <- 
-    bind_rows(
-      bind_cols(
-        model$simulations$meta,
-        model$simulations$dimred %>% as.data.frame
-      ) %>% filter(t >= 0),
-      bind_cols(
-        model$gold_standard$meta,
-        model$gold_standard$dimred %>% as.data.frame
-      ) %>% filter(!burn)
-    )
+    bind_cols(
+      model$gold_standard$meta,
+      model$gold_standard$dimred %>% as.data.frame
+    ) %>% filter(!burn)
+  
+  if (!detailed && model %has_names% "simulations" && model$simulations %has_names% "dimred") {
+    plot_df <- plot_df %>% 
+      bind_rows(
+        bind_cols(
+          model$simulations$meta,
+          model$simulations$dimred %>% as.data.frame
+        ) %>% filter(t >= 0)
+      )
+  }
+  
+  if (detailed) {
+    plot_df <- plot_df %>% mutate(edge = paste0(from_, "_", to_))
+  } else {
+    plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
+  }
   
   ggplot(mapping = aes(comp_1, comp_2)) +
     geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
-    geom_path(aes(colour = paste0(from, "_", to), group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == 0), size = 2) +
+    geom_path(aes(colour = edge, group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == 0), size = 2) +
     theme_bw()
 }
 
