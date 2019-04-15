@@ -74,21 +74,27 @@ generate_experiment <- function(model) {
   
   # generate housekeeping expression
   num_hks <- model$numbers$num_hks
-  hk_count <- 
-    realcount[
-      sample.int(nrow(realcount), nrow(trafo_count), replace = TRUE),
-      sample.int(ncol(realcount), num_hks, replace = TRUE),
-      drop = FALSE
-      ]
-  rownames(hk_count) <- rownames(trafo_count)
-  colnames(hk_count) <- paste0("HK", seq_len(num_hks))
+  if (num_hks > 0) {
+    hk_count <- 
+      realcount[
+        sample.int(nrow(realcount), nrow(trafo_count), replace = TRUE),
+        sample.int(ncol(realcount), num_hks, replace = TRUE),
+        drop = FALSE
+        ]
+    rownames(hk_count) <- rownames(trafo_count)
+    colnames(hk_count) <- paste0("HK", seq_len(num_hks))
+    hk_info <- tibble(feature_id = colnames(hk_count), is_tf = FALSE, is_hk = TRUE)
+  } else {
+    hk_count <- NULL
+    hk_info <- NULL
+  }
   
   # combine into final count matrix
   model$experiment <- list(
     counts = cbind(trafo_count, hk_count),
     feature_info = bind_rows(
       model$feature_info,
-      tibble(feature_id = colnames(hk_count), is_tf = FALSE, is_hk = TRUE)
+      hk_info
     ),
     cell_info = sim_meta
   )
