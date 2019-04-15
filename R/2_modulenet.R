@@ -178,10 +178,10 @@ backbone_bifurcating_converging <- function() {
     ~from, ~to, ~module_progression, ~start, ~burn,
     "s0", "sA", "+A1", TRUE, TRUE,
     "sA", "sA2", "+A2|+A3", FALSE, FALSE,
-    "sA", "sB", "+B1|+B2|+B3", FALSE, FALSE,
-    "sA", "sC", "+C1|+C2|+C3", FALSE, FALSE,
-    "sB", "sD", "+D1", FALSE, FALSE,
-    "sC", "sD", "+D1", FALSE, FALSE,
+    "sA2", "sB", "+B1|+B2|+B3", FALSE, FALSE,
+    "sA2", "sC", "+C1|+C2|+C3", FALSE, FALSE,
+    "sB", "sD", "+D1|+D1", FALSE, FALSE,
+    "sC", "sD", "+D1|+D1", FALSE, FALSE,
     "sD", "sEnd", "+D2|+D3", FALSE, FALSE
   )
   
