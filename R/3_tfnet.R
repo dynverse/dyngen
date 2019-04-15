@@ -1,11 +1,13 @@
 #' @export
 tf_network_random <- function(
   min_tfs_per_module = 1L,
-  sample_num_regulators = function() sample.int(3)
+  sample_num_regulators = function() sample.int(3),
+  weighted_sampling = FALSE
 ) {
   lst(
     min_tfs_per_module,
-    sample_num_regulators
+    sample_num_regulators,
+    weighted_sampling
   )
 }
 
@@ -76,10 +78,14 @@ generate_tf_network <- function(
             min(length(candidate_regulating_tfs)) %>%
             max(1L)
           
-          # do weighted sampling based on the number of 
-          # targes the candidate regulator already has
-          weights <- num_targets[candidate_regulating_tfs] + 1
-          
+          weights <- 
+            if (model$tf_network_params$weighted_sampling) {
+              # do weighted sampling based on the number of
+              # targes the candidate regulator already has
+              num_targets[candidate_regulating_tfs] + 1
+            } else {
+              NULL
+            }
           regulating_tfs <- sample(candidate_regulating_tfs, num_regulating_tfs, replace = FALSE, prob = weights)
           
           tibble(
