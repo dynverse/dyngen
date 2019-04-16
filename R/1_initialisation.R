@@ -11,7 +11,7 @@ initialise_model <- function(
   distance_metric,
   backbone,
   tf_network_params = tf_network_random(),
-  feature_network_params = feature_network_realnet(),
+  feature_network_params = feature_network_default(),
   kinetics_params = kinetics_default(),
   simulation_params = simulation_default(),
   gold_standard_params = gold_standard_default(),
