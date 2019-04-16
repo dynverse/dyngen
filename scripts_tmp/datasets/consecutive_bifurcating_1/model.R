@@ -1,3 +1,7 @@
+#!/usr/bin/Rscript
+
+library(dyngen)
+
 set.seed(1)
 model <- 
   initialise_model(
@@ -17,3 +21,4 @@ model <-
     num_cores = 8,
     download_cache_dir = "~/.cache/dyngen"
   )
+dyngen:::complete_function(model, ".")
