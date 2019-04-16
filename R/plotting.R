@@ -132,7 +132,7 @@ plot_simulations <- function(model) {
 }
 
 #' @export
-plot_gold_simulations <- function(model, detailed = FALSE) {
+plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2)) {
   plot_df <- 
     bind_cols(
       model$gold_standard$meta,
@@ -155,7 +155,7 @@ plot_gold_simulations <- function(model, detailed = FALSE) {
     plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
   }
   
-  ggplot(mapping = aes(comp_1, comp_2)) +
+  ggplot(mapping = mapping) +
     geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
     geom_path(aes(colour = edge, group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == 0), size = 2) +
     theme_bw()
@@ -180,8 +180,11 @@ plot_gold_mappings <- function(model, selected_simulations = NULL) {
     plot_df <- plot_df %>% filter(simulation_i %in% selected_simulations)
   }
   
-  ggplot(plot_df %>% mutate(edge = paste0(from, "->", to)), aes(comp_1, comp_2)) +
-    geom_point(aes(colour = edge)) +
+  plot_df <- plot_df %>% mutate(edge = paste0(from, "->", to))
+  
+  ggplot(mapping = aes(comp_1, comp_2)) +
+    geom_path(aes(colour = edge), plot_df %>% filter(simulation_i == 0)) +
+    geom_path(aes(colour = edge, group = simulation_i), plot_df %>% filter(simulation_i != 0)) +
     theme_bw() +
     facet_wrap(~ simulation_i)
 }
