@@ -94,37 +94,37 @@ list_backbones <- function() {
 backbone_bifurcating <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "M1", 1, TRUE,
-    "M2", 0, FALSE,
-    "M3", 0, FALSE,
-    "M4", 0, FALSE,
-    "M6", 0, FALSE,
-    "M7", 1, TRUE,
-    "M8", 0, FALSE
+    "A1", 1, TRUE,
+    "A2", 0, FALSE,
+    "A3", 0, FALSE,
+    "B1", 0, FALSE,
+    "B2", 0, FALSE,
+    "C1", 0, FALSE,
+    "C2", 1, TRUE
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M8", 1, 1, 2,
-    "M8", "M2", 1, 0.2, 2,
-    "M2", "M3", 1, 1, 2,
-    "M2", "M4", 1, 1, 2,
-    "M3", "M3", 1, 10, 2,
-    "M4", "M4", 1, 10, 2,
-    "M4", "M3", -1, 10, 2,
-    "M3", "M4", -1, 10, 2,
-    "M4", "M1", -1, 10, 2,
-    "M3", "M1", -1, 10, 2,
-    "M3", "M6", 1, 1, 2,
-    "M3", "M7", -1, 10, 2
+    "A1", "A2", 1, 1, 2,
+    "A2", "A3", 1, 1, 2,
+    "A3", "B1", 1, 1, 2,
+    "A3", "C1", 1, 1, 2,
+    "B1", "B1", 1, 10, 2,
+    "C1", "C1", 1, 10, 2,
+    "B1", "C1", -1, 10, 2,
+    "C1", "B1", -1, 10, 2,
+    "B1", "A1", -1, 10, 2,
+    "C1", "A1", -1, 10, 2,
+    "B1", "B2", 1, 1, 2,
+    "C1", "C2", -1, 10, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "S0", "S1", "+M1,+M7", TRUE, TRUE,
-    "S1", "S2", "+M8|+M2", FALSE, FALSE,
-    "S2", "S3", "+M3|-M1|-M8,+M6|-M7,-M2", FALSE, FALSE,
-    "S2", "S4", "+M4|-M1|-M8|-M2", FALSE, FALSE
+    "sBurn", "sStart", "+A1,+C2|-C2", TRUE, TRUE,
+    "sStart", "sA", "+A2|+A3", FALSE, FALSE,
+    "sA", "sB", "+B1|+B2", FALSE, FALSE,
+    "sA", "sC", "+C1|+C2", FALSE, FALSE
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -194,52 +194,61 @@ backbone_bifurcating_converging <- function() {
 backbone_bifurcating_cycle <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "M1", 1, TRUE,
-    "M2", 0, FALSE,
-    "M3", 0, FALSE,
-    "M4", 0, FALSE,
-    "M5", 0, FALSE,
-    "M6", 0, FALSE,
-    "M7", 0, FALSE,
-    "M8", 0, FALSE,
-    "M9", 0, FALSE,
-    "M10", 0, FALSE
+    "A1", 1, TRUE,
+    "A2", 0, FALSE,
+    "A3", 0, FALSE,
+    "A4", 1, TRUE,
+    "A5", 1, TRUE,
+    "B1", 0, TRUE,
+    "B2", 0, TRUE,
+    "B3", 0, TRUE,
+    "C1", 0, TRUE,
+    "C2", 0, TRUE,
+    "C3", 0, TRUE,
+    "D1", 0, TRUE,
+    "D2", 0, TRUE,
+    "D3", 0, TRUE
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M2", 1, 1, 2,
-    "M2", "M3", 1, 1, 2,
-    "M3", "M4", 1, 1, 2,
-    "M4", "M4", 1, 10, 2,
-    "M3", "M5", 1, 1, 2,
-    "M5", "M5", 1, 10, 2,
-    "M4", "M5", -1, 100, 2,
-    "M5", "M4", -1, 100, 2,
-    "M4", "M6", 1, 0.1, 5,
-    "M5", "M7", 1, 0.1, 5,
-    "M6", "M8", 1, 1, 2,
-    "M7", "M8", 1, 1, 2,
-    "M8", "M8", 1, 10, 2,
-    "M8", "M4", -1, 10, 2,
-    "M8", "M5", -1, 10, 2,
-    "M8", "M9", 1, 1, 2,
-    "M9", "M1", -1, 10, 2,
-    "M9", "M10", 1, 1, 2,
-    "M10", "M8", -1, 100, 2,
-    "M10", "M4", -1, 100, 2,
-    "M10", "M5", -1, 100, 2
+    "A1", "A2", 1, 1, 2,
+    "A2", "A3", 1, 1, 2,
+    "A2", "A4", -1, 10, 2,
+    "A3", "A5", -1, 10, 2,
+    "A3", "B1", 1, 1, 2, 
+    "A3", "C1", 1, 1, 2,
+    "B1", "B1", 1, 10, 2,
+    "C1", "C1", 1, 10, 2,
+    "B1", "C1", -1, 100, 2,
+    "C1", "B1", -1, 100, 2,
+    "B1", "B2", 1, 1, 2,
+    "B2", "B3", 1, 1, 2,
+    "C1", "C2", 1, 1, 2,
+    "C2", "C3", 1, 1, 2,
+    "B3", "D1", 1, 1, 2,
+    "C3", "D1", 1, 1, 2,
+    "D1", "D1", 1, 5, 2,
+    "D1", "A1", -1, 10, 2,
+    "D1", "B1", -1, 20, 2,
+    "D1", "C1", -1, 20, 2,
+    "D1", "D2", 1, 1, 2,
+    "D2", "D3", 1, 1, 2,
+    "D3", "D1", -1, 10, 2,
+    "D3", "B1", -1, 20, 2,
+    "D3", "C1", -1, 20, 2,
+    "D3", "A1", 1, 2, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn,
-    "S0", "S1", "+M1", TRUE, TRUE,
-    "S1", "S2", "+M2|+M3", FALSE, FALSE,
-    "S2", "S3", "+M4|+M6|+M8", FALSE, FALSE,
-    "S2", "S4", "+M5|+M7|+M8", FALSE, FALSE,
-    "S3", "S5", "-M4,+M9,-M6|+M10,-M1", FALSE, FALSE,
-    "S4", "S5", "-M5,+M9,-M7|+M10,-M1", FALSE, FALSE,
-    "S5", "S1", "-M2,-M8|-M3,-M9|-M10|+M1", FALSE, FALSE
+    "sBurn", "sStart", "+A1,+A4,+A5", TRUE, TRUE,
+    "sStart", "sA", "+A2|+A3,-A4", FALSE, FALSE,
+    "sA", "sB", "+B1,-A5|+B2|+B3", FALSE, FALSE,
+    "sA", "sC", "+C1,-A5|+C2|+C3", FALSE, FALSE,
+    "sB", "sD", "+D1,+A4", FALSE, FALSE,
+    "sC", "sD", "+D1,+A4", FALSE, FALSE,
+    "sD", "sStart", "+D2,+A5|+D3,-A2,-A3|+A1|-D1,-B1,-B2,-B3,-C1,-C2,-C3", FALSE, FALSE
   )
   
   backbone(module_info, module_network, expression_patterns)
