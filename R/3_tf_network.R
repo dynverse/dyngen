@@ -1,7 +1,7 @@
 #' @export
 tf_network_random <- function(
   min_tfs_per_module = 1L,
-  sample_num_regulators = function() sample.int(3),
+  sample_num_regulators = function() sample.int(3, 1),
   weighted_sampling = FALSE
 ) {
   lst(
