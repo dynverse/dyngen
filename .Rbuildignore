@@ -8,3 +8,4 @@
 ^appveyor\.yml$
 ^README\.Rmd$
 ^example_script\.R$
+^scripts_tmp
