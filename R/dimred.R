@@ -40,6 +40,13 @@ calculate_dimred <- function(model) {
   
   # combine data and select landmarks
   counts <- rbind(sim_counts, gs_counts)
+  
+  # normalise
+  max_cols <- apply(counts, 2, quantile, .99)
+  max_cols[max_cols == 0] <- 1
+  counts <- sweep(counts, 2, max_cols, "/") %>% 
+    Matrix::Matrix(sparse = TRUE)
+  
   landmark_ix <- 
     if (length(gs_ix) > 0) {
       if (length(gs_ix) > 1000) {
