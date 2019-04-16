@@ -29,7 +29,7 @@ kinetics_custom <- function(
   sample_q = function(n) rnorm(n, 3, .5) %>% pmax(1),
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
-  sample_strength = function(n) rexp(n, rate = .1),
+  sample_strength = function(n) runif(n, 10, 40),
   sample_cooperativity = function(n) runif(n, 0.5, 2)
 ) {
   lst(
