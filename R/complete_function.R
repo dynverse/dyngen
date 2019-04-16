@@ -59,9 +59,10 @@ complete_function <- function(model, directory) {
   # :scream:
   g <- patchwork::wrap_plots(
     g1, g2, g3, g4, g5, g6, g7, g8, g9, g10,
+    byrow = FALSE,
     ncol = 4
   )
-  ggsave(paste0(directory, "/plot_all.pdf"), g, width = 30, height = 12)
+  ggsave(paste0(directory, "/plot_all.pdf"), g, width = 40, height = 30)
   
   return()
 }
