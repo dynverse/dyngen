@@ -9,30 +9,46 @@ effect_colour <- function(effect) {
   )[index]
 }
 
-#' @importFrom igraph layout.graphopt graph_from_data_frame plot.igraph
+#' @importFrom grid arrow unit
+#' @importFrom tidygraph tbl_graph
+#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
+#' @importFrom igraph layout.graphopt V E
 #' @export
 plot_backbone <- function(model) {
-  graph <- igraph::graph_from_data_frame(
-    model$backbone$module_network %>%
-      mutate(
-        color = effect_colour(effect),
-        width = dynutils::scale_minmax(log10(strength)) * 4 + .5
-      ),
-    vertices = model$backbone$module_info
-  )
+  node_legend <- model$backbone$module_info %>% select(module_id, color) %>% deframe()
   
-  layout <- igraph::layout.graphopt(graph, charge = 0.01, niter = 10000)
+  nodes <- model$backbone$module_info %>% rename(name = module_id)
+  edges <- model$backbone$module_network %>% arrange(from == to)
   
-  igraph::plot.igraph(
-    graph,
-    layout = layout,
-    vertex.size = 20, 
-    edge.arrow.size = 0.5,
-    edge.loop.angle = 0.1, 
-    vertex.label.color = "black"
-  )
+  gr <- tbl_graph(nodes = nodes, edges = edges)
+  layout <- 
+    gr %>% 
+    igraph::layout.graphopt(charge = .01, niter = 10000) %>% 
+    dynutils::scale_minmax() %>% 
+    magrittr::set_rownames(nodes$name) %>% 
+    magrittr::set_colnames(c("x", "y")) %>% 
+    as.data.frame() 
+  
+  r <- .03
+  cap <- circle(8, "mm")
+  str <- .2
+  arrow <- grid::arrow(type = "closed", angle = ifelse(igraph::E(gr)$effect == 1, 30, 89), length = grid::unit(3, "mm"))
+  
+  ggraph(gr, layout = "manual", node.positions = layout) +
+    geom_edge_loop(aes(width = strength, strength = str), arrow = arrow, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(width = strength), arrow = arrow, start_cap = cap, end_cap = cap) +
+    geom_node_circle(aes(r = r, fill = name)) +
+    geom_node_text(aes(label = name)) +
+    theme_graph(base_family = 'Helvetica') +
+    scale_fill_manual(values = node_legend) +
+    scale_edge_width_continuous(trans = "log10", range = c(.5, 3)) +
+    coord_equal()
 }
 
+#' @importFrom grid arrow unit
+#' @importFrom tidygraph tbl_graph activate
+#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
+#' @importFrom igraph layout.fruchterman.reingold V E
 #' @export
 plot_feature_network <- function(
   model,
@@ -44,25 +60,25 @@ plot_feature_network <- function(
   
   # get feature info
   feature_info <- 
-    model$feature_info %>% 
-    mutate(
-      main_index = match(is_hk, c(FALSE, TRUE, NA)),
-      size = c(4, 1, 1)[main_index],
-      label = ifelse(label, feature_id, "")
-    )
+    model$feature_info
   
   if (color_by == "main") {
-    feature_info <- feature_info %>% mutate(color = c("white", "black", "gray")[main_index])
+    feature_info <- feature_info %>% mutate(color_by = is_hk)
+    color_legend <- c("FALSE" = "white", "TRUE" = "black", "NA" = "gray")
   } else if (color_by == "module") {
-    feature_info <- feature_info %>% mutate(color = ifelse(is.na(color), "lightgray", color))
+    feature_info <- feature_info %>% mutate(color_by = module_id)
+    color_legend <- model$backbone$module_info %>% select(module_id, color) %>% deframe() %>% c("NA" = "lightgray")
   }
   
   if (tfs_only) feature_info <- feature_info %>% filter(is_tf)
   
+  feature_info <- feature_info %>% mutate(color_by = ifelse(is.na(color_by), "NA", color_by))
+  
   # get feature network
   feature_network <- 
     model$feature_network %>% 
-    filter(from %in% feature_info$feature_id & to %in% feature_info$feature_id)
+    filter(from %in% feature_info$feature_id & to %in% feature_info$feature_id) %>% 
+    arrange(from == to)
   
   # add extra edges invisible between regulators from the same module
   feature_network <- 
@@ -80,39 +96,24 @@ plot_feature_network <- function(
         filter(from < to)
     )
   
-  # determine colors
-  feature_network <-
-    feature_network %>% 
-    mutate(
-      color = effect_colour(effect)
-    )
+  gr <- tbl_graph(nodes = feature_info, edges = feature_network)
+  layout <- igraph::layout.fruchterman.reingold(gr) %>% 
+    dynutils::scale_minmax() %>%
+    magrittr::set_rownames(feature_info$feature_id) %>%
+    magrittr::set_colnames(c("x", "y")) %>%
+    as.data.frame()
+  gr <- gr %>% activate(edges) %>% filter(effect != -2)
   
-  if (!any(is.na(feature_network$strength))) {
-    # determine widths
-    feature_network <-
-      feature_network %>% 
-      mutate(
-        width = dynutils::scale_minmax(log10(strength)) * 4 + .5
-      )
-  }
+  cap <- circle(2.5, "mm")
+  arrow <- grid::arrow(type = "closed", angle = ifelse(igraph::E(gr)$effect == 1, 30, 89), length = grid::unit(3, "mm"))
   
-  # construct graph
-  graph <- igraph::graph_from_data_frame(
-    feature_network,
-    vertices = feature_info
-  )
-  
-  # layout
-  layout <- igraph::layout.fruchterman.reingold(graph)
-  
-  # out <- capture.output( # avoid igraph printing nonsense
-  igraph::plot.igraph(
-    graph,
-    layout = layout,
-    edge.arrow.size = 0.5,
-    edge.loop.angle = 0.1
-  )
-  # )
+  ggraph(gr, layout = "manual", node.positions = layout) +
+    geom_edge_fan(arrow = arrow, start_cap = cap, end_cap = cap) +
+    geom_node_point(aes(colour = color_by, size = as.character(is_tf))) +
+    theme_graph(base_family = 'Helvetica') +
+    scale_colour_manual(values = color_legend) +
+    scale_size_manual(values = c("TRUE" = 5, "FALSE" = 3)) +
+    coord_equal()
 }
 
 # todo: this should be updated to look more like the functions below at some point in time
