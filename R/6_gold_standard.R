@@ -39,10 +39,11 @@ generate_gold_standard <- function(model) {
     select(-module_progression) %>% 
     unnest(mod_diff, substate) %>% 
     mutate(
-      mod_diff = strsplit(mod_diff, ","),
-      mod_on = map(mod_diff, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
-      mod_off = map(mod_diff, function(x) x %>% keep(grepl("-", .)) %>% gsub("-", "", .))
+      mod_diff2 = strsplit(mod_diff, ","),
+      mod_on = map(mod_diff2, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
+      mod_off = map(mod_diff2, function(x) x %>% keep(grepl("-", .)) %>% gsub("-", "", .)),
     ) %>% 
+    select(-mod_diff2) %>% 
     group_by(from, to) %>% 
     mutate(
       from_ = ifelse(row_number() == 1, from, c("", paste0(from, to, "p", (row_number() - 1)))),
@@ -50,15 +51,8 @@ generate_gold_standard <- function(model) {
     ) %>% 
     ungroup()
 
-  # order edges
-  order <- 
-    mod_changes %>%
-    select(from_, to_) %>% 
-    igraph::graph_from_data_frame() %>% 
-    igraph::make_line_graph() %>%
-    igraph::topo_sort()
   
-  mod_changes[order, ]
+  mod_changes
 }
 
 .generate_gold_standard_simulations <- function(model) {
