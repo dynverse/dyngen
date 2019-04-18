@@ -109,22 +109,22 @@ backbone_bifurcating <- function() {
     "A2", "A3", 1, 1, 2,
     "A3", "B1", 1, 1, 2,
     "A3", "C1", 1, 1, 2,
-    "B1", "B1", 1, 10, 2,
-    "C1", "C1", 1, 10, 2,
+    "B1", "B1", 1, 2, 2,
+    "C1", "C1", 1, 2, 2,
     "B1", "C1", -1, 10, 2,
     "C1", "B1", -1, 10, 2,
-    "B1", "A1", -1, 10, 2,
-    "C1", "A1", -1, 10, 2,
+    "B1", "A1", -1, 3, 2,
+    "C1", "A1", -1, 3, 2,
     "B1", "B2", 1, 1, 2,
-    "C1", "C2", -1, 10, 2
+    "C1", "C2", -1, 3, 2
   )
   
   expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn,
-    "sBurn", "sStart", "+A1,+C2|-C2", TRUE, TRUE,
-    "sStart", "sA", "+A2|+A3", FALSE, FALSE,
-    "sA", "sB", "+B1|+B2", FALSE, FALSE,
-    "sA", "sC", "+C1|+C2", FALSE, FALSE
+    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+    "sBurn", "sStart", "+A1,+C2", TRUE, TRUE, 2,
+    "sStart", "sA", "-C2,+A2,+A3", FALSE, FALSE, 2,
+    "sA", "sB", "+B1,+B2", FALSE, FALSE, 2,
+    "sA", "sC", "+C1,+C2", FALSE, FALSE, 2
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -137,52 +137,52 @@ backbone_bifurcating_converging <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "A1", 1, TRUE,
-    "A2", 0, FALSE,
-    "A3", 0, FALSE,
     "B1", 0, FALSE,
     "B2", 0, FALSE,
-    "B3", 0, FALSE,
     "C1", 0, FALSE,
     "C2", 0, FALSE,
     "C3", 0, FALSE,
     "D1", 0, FALSE,
     "D2", 0, FALSE,
-    "D3", 0, FALSE
+    "D3", 0, FALSE,
+    "E1", 0, FALSE,
+    "F1", 0, FALSE,
+    "F2", 0, FALSE
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "A2", 1, 1, 2,
-    "A2", "A3", 1, 1, 2,
-    "A3", "B1", 1, 1, 2,
-    "A3", "C1", 1, 1, 2,
-    "B1", "B1", 1, 10, 2,
-    "B1", "B2", 1, 1, 5,
-    "B1", "C1", -1, 100, 2,
-    "B2", "B3", 1, 1, 5,
-    "B3", "D1", 1, 1, 2,
+    "A1", "B1", 1, 1, 2,
+    "B1", "B2", 1, 1, 2,
+    "B2", "C1", 1, 1, 2,
+    "B2", "D1", 1, 1, 2,
     "C1", "C1", 1, 10, 2,
-    "C1", "B1", -1, 100, 2,
     "C1", "C2", 1, 1, 5,
+    "C1", "D1", -1, 100, 2,
     "C2", "C3", 1, 1, 5,
-    "C3", "D1", 1, 1, 2,
+    "C3", "E1", 1, 1, 2,
     "D1", "D1", 1, 10, 2,
-    "D1", "B1", -1, 100, 2,
     "D1", "C1", -1, 100, 2,
-    "D1", "D2", 1, 1, 2,
-    "D2", "A3", -1, 10, 2,
-    "D2", "D3", 1, 1, 2
+    "D1", "D2", 1, 1, 5,
+    "D2", "D3", 1, 1, 5,
+    "D3", "E1", 1, 1, 2,
+    "E1", "E1", 1, 10, 2,
+    "E1", "C1", -1, 100, 2,
+    "E1", "D1", -1, 100, 2,
+    "E1", "F1", 1, 1, 2,
+    "F1", "B2", -1, 10, 2,
+    "F1", "F2", 1, 1, 2
   )
   
   expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn,
-    "s0", "sA", "+A1", TRUE, TRUE,
-    "sA", "sA2", "+A2|+A3", FALSE, FALSE,
-    "sA2", "sB", "+B1|+B2|+B3", FALSE, FALSE,
-    "sA2", "sC", "+C1|+C2|+C3", FALSE, FALSE,
-    "sB", "sD", "+D1|+D1", FALSE, FALSE,
-    "sC", "sD", "+D1|+D1", FALSE, FALSE,
-    "sD", "sEnd", "+D2|+D3", FALSE, FALSE
+    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+    "sBurn", "sA", "+A1", TRUE, TRUE, 2,
+    "sA", "sB", "+A2,+A3", FALSE, FALSE, 2,
+    "sB", "sC", "+B1,+B2,+B3", FALSE, FALSE, 2,
+    "sB", "sD", "+C1,+C2,+C3", FALSE, FALSE, 2,
+    "sC", "sE", "+D1", FALSE, FALSE, 4,
+    "sD", "sE", "+D1", FALSE, FALSE, 4,
+    "sE", "sF", "+D2,+D3", FALSE, FALSE, 2
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -241,14 +241,14 @@ backbone_bifurcating_cycle <- function() {
   )
   
   expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn,
-    "sBurn", "sStart", "+A1,+A4,+A5", TRUE, TRUE,
-    "sStart", "sA", "+A2|+A3,-A4", FALSE, FALSE,
-    "sA", "sB", "+B1,-A5|+B2|+B3", FALSE, FALSE,
-    "sA", "sC", "+C1,-A5|+C2|+C3", FALSE, FALSE,
-    "sB", "sD", "+D1,+A4", FALSE, FALSE,
-    "sC", "sD", "+D1,+A4", FALSE, FALSE,
-    "sD", "sStart", "+D2,+A5|+D3,-A2,-A3|+A1|-D1,-B1,-B2,-B3,-C1,-C2,-C3", FALSE, FALSE
+    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+    "sBurn", "sA", "+A1,+A2,+A3,+A4,+A5", TRUE, TRUE, 2,
+    "sA", "sB", "+B1,+B2,+B3", FALSE, FALSE, 2,
+    "sA", "sC", "+C1,+C2,+C3", FALSE, FALSE, 2,
+    "sB", "sD", "+D1", FALSE, FALSE, 4,
+    "sC", "sD", "+D1", FALSE, FALSE, 4,
+    "sD", "sE", "+D2,+D3,-B1,-B2,-B3,-C1,-C2,-C3", FALSE, FALSE, 2,
+    "sE", "sA", "+A2,+A3", FALSE, FALSE, 2
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -260,42 +260,42 @@ backbone_bifurcating_cycle <- function() {
 backbone_bifurcating_loop <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
-    "M1", 1, TRUE,
-    "M2", 0, FALSE,
-    "M3", 0, FALSE,
-    "M4", 0, FALSE,
-    "M5", 0, FALSE,
-    "M6", 0, FALSE,
-    "M7", 0, FALSE,
-    "M8", 0, FALSE,
-    "M9", 0, FALSE,
-    "M10", 0, FALSE,
-    "M11", 0, FALSE
+    "A1", 1, TRUE,
+    "A2", 0, FALSE,
+    "A3", 0, FALSE,
+    "B1", 0, FALSE,
+    "B2", 0, FALSE,
+    "B3", 0, FALSE,
+    "B4", 0, FALSE,
+    "B5", 0, FALSE,
+    "B6", 0, FALSE,
+    "C1", 0, FALSE,
+    "C2", 0, FALSE
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M2", 1, 1, 2,
-    "M2", "M3", 1, 1, 2,
-    "M3", "M4", 1, 1, 2,
-    "M4", "M4", 1, 10, 2,
-    "M3", "M5", 1, 1, 2,
-    "M5", "M5", 1, 10, 2,
-    "M4", "M5", -1, 100, 2,
-    "M5", "M4", -1, 100, 2,
-    "M4", "M6", 1, 0.1, 5,
-    "M6", "M8", 1, 1, 2,
-    "M7", "M8", 1, 1, 2,
-    "M8", "M8", 1, 10, 2,
-    "M8", "M4", -1, 10, 2,
-    "M8", "M9", 1, 1, 2,
-    "M9", "M1", -1, 10, 2,
-    "M9", "M10", 1, 1, 2,
-    "M10", "M8", -1, 100, 2,
-    "M10", "M4", -1, 100, 2,
-    "M5", "M11", 1, 10, 2,
-    "M5", "M8", -1, 100, 2,
-    "M10", "M5", -1, 100, 2
+    "A1", "A2", 1, 1, 2,
+    "A2", "A3", 1, 1, 2,
+    "A3", "B1", 1, 1, 2,
+    "B1", "B1", 1, 10, 2,
+    "A3", "C1", 1, 1, 2,
+    "C1", "C1", 1, 10, 2,
+    "B1", "C1", -1, 100, 2,
+    "C1", "B1", -1, 100, 2,
+    "B1", "B2", 1, 0.1, 5,
+    "B2", "B3", 1, 1, 2,
+    "B4", "B3", 1, 1, 2,
+    "B3", "B3", 1, 10, 2,
+    "B3", "B1", -1, 10, 2,
+    "B3", "B5", 1, 1, 2,
+    "B5", "A1", -1, 10, 2,
+    "B5", "B6", 1, 1, 2,
+    "B6", "B3", -1, 100, 2,
+    "B6", "B1", -1, 100, 2,
+    "C1", "C2", 1, 10, 2,
+    "C1", "B3", -1, 100, 2,
+    "B6", "C1", -1, 100, 2
   )
   
   expression_patterns <- tribble(
