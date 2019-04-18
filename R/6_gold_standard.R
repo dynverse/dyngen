@@ -1,9 +1,7 @@
 #' @export
 gold_standard_default <- function(
-  time_per_edge = 2
 ) {
   lst(
-    time_per_edge
   )
 }
 
@@ -18,7 +16,8 @@ generate_gold_standard <- function(model) {
   # run gold standard simulations
   simulations <- .generate_gold_standard_simulations(model)
   model$gold_standard$meta <- simulations %>% select(simulation_i:time)
-  model$gold_standard$counts <- simulations %>% select(-simulation_i:-time) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
+  model$gold_standard$counts <- simulations %>% select(-simulation_i:-time) %>% 
+    as.matrix %>% Matrix::Matrix(sparse = TRUE)
   
   # do combined dimred
   model <- model %>% calculate_dimred()
@@ -41,7 +40,7 @@ generate_gold_standard <- function(model) {
     mutate(
       mod_diff2 = strsplit(mod_diff, ","),
       mod_on = map(mod_diff2, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
-      mod_off = map(mod_diff2, function(x) x %>% keep(grepl("-", .)) %>% gsub("-", "", .)),
+      mod_off = map(mod_diff2, function(x) x %>% keep(grepl("-", .)) %>% gsub("-", "", .))
     ) %>% 
     select(-mod_diff2) %>% 
     group_by(from, to) %>% 
@@ -55,9 +54,9 @@ generate_gold_standard <- function(model) {
   mod_changes
 }
 
+#' @importFrom pbapply timerProgressBar setTimerProgressBar
 .generate_gold_standard_simulations <- function(model) {
   # fetch paraneters and settings
-  time_per_edge <- model$gold_standard_params$time_per_edge
   mod_changes <- model$gold_standard$mod_changes
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
@@ -87,9 +86,11 @@ generate_gold_standard <- function(model) {
   
   # model$gold_standard$mod_changes %>% mutate(mod_on_str = map_chr(mod_on, paste, collapse = ","), mod_off_str = map_chr(mod_off, paste, collapse = ","))
   
+  timer <- pbapply::timerProgressBar(min = 0, max = nrow(mod_changes))
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
     to_ <- mod_changes$to_[[i]]
+    time <- mod_changes$time[[i]]
     
     # which modules are on
     mods <- 
@@ -113,7 +114,7 @@ generate_gold_standard <- function(model) {
       initial.state = new_initial_state,
       propensity.funs = propensity_funs,
       nu = new_nus %>% as.matrix,
-      final.time = time_per_edge,
+      final.time = time,
       parms = sim_system$parameters,
       method = fastgssa::ssa.em(noise_strength = 0),
       recalculate.all = TRUE,
@@ -145,18 +146,20 @@ generate_gold_standard <- function(model) {
     } else {
       gold_sim_vectors[[to_]] <- cbind(gold_sim_vectors[[to_]], end_state)
     }
+    
+    pbapply::setTimerProgressBar(timer, value = i)
   }
   
   
   bind_rows(gold_sim_outputs) %>% 
-    left_join(mod_changes %>% select(from, to, from_, to_, substate, burn), by = c("from_", "to_")) %>% 
+    left_join(mod_changes %>% select(from, to, from_, to_, substate, burn, time_per_edge = time), by = c("from_", "to_")) %>% 
     group_by(from, to) %>%
     mutate(
       simulation_i = 0,
       time = ((substate - 1) * time_per_edge + t) / time_per_edge / max(substate)
     ) %>% 
     ungroup() %>% 
-    select(-i, -substate) %>% 
+    select(-i, -substate, -time_per_edge) %>% 
     select(simulation_i, t, burn, from, to, from_, to_, time, everything())
 }
 
