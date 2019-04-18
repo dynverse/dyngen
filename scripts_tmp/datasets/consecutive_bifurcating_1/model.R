@@ -11,7 +11,7 @@ model <-
     num_hks = 500,
     distance_metric = "pearson",
     backbone = backbone_bifurcating_converging(),
-    tf_network_params = tf_network_random(min_tfs_per_module = 3),
+    tf_network_params = tf_network_random(),
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_custom(),
     gold_standard_params = gold_standard_default(),
