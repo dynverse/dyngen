@@ -189,6 +189,59 @@ plot_gold_mappings <- function(model, selected_simulations = NULL) {
     facet_wrap(~ simulation_i)
 }
 
+#' @export
+plot_gold_expression <- function(model) {
+  edge_levels <- 
+    model$gold_standard$mod_changes %>% 
+    mutate(edge = paste0(from_, "->", to_)) %>% 
+    pull(edge)
+  
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, x, y) %>% pull(val)
+  df <- bind_cols(
+    model$gold_standard$meta,
+    as.data.frame(as.matrix(model$gold_standard$counts))[,molecules]
+  ) %>% 
+    gather(molecule, value, one_of(molecules)) %>% 
+    mutate(edge = factor(paste0(from_, "->", to_), levels = edge_levels)) %>% 
+    left_join(model$feature_info %>% select(x, y, module_id) %>% gather(type, molecule, x, y), by = "molecule") %>% 
+    group_by(module_id, t, simulation_i, burn, from, to, from_, to_, time, edge, type) %>% 
+    summarise(value = mean(value)) %>% 
+    ungroup()
+  
+  ggplot(df) +
+    geom_line(aes(t, value, colour = module_id, linetype = type), size = 2) +
+    facet_wrap(~edge) +
+    theme_bw()
+}
+
+
+
+#' @export
+plot_simulation_expression <- function(model, simulation_i = 1) {
+  edge_levels <-
+    model$gold_standard$network %>%
+    mutate(edge = paste0(from, "->", to)) %>%
+    pull(edge)
+  
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, x, y) %>% pull(val)
+  df <- bind_cols(
+    model$simulations$meta,
+    as.data.frame(as.matrix(model$simulations$counts))[,molecules]
+  ) %>% 
+    gather(molecule, value, one_of(molecules)) %>% 
+    mutate(edge = factor(paste0(from, "->", to), levels = edge_levels)) %>%
+    left_join(model$feature_info %>% select(x, y, module_id) %>% gather(type, molecule, x, y), by = "molecule") %>% 
+    group_by(module_id, t, simulation_i, from, to, time, edge, type) %>% 
+    summarise(value = mean(value)) %>% 
+    ungroup() %>% 
+    mutate(module_group = gsub("[0-9]*$", "", module_id))
+  
+  ggplot(df %>% filter(simulation_i == 1)) +
+    geom_line(aes(t, value, linetype = type, colour = module_id), size = 1) +
+    facet_wrap(~module_group, ncol = 1) +
+    theme_bw()
+}
+
 #' #' @rdname plot_model
 #' #' @importFrom pheatmap pheatmap
 #' #' @export
