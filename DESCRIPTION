@@ -32,6 +32,7 @@ Imports:
   purrr,
   reshape2,
   stats,
+  stringr,
   tibble,
   tidygraph,
   viridis

@@ -127,7 +127,7 @@ fastgssa <- function(
   
 }
 
-
+#' @importFrom stringr str_count str_replace_all str_extract_all str_replace
 parse_propensity_funs <- function(propensity.funs, state, params, env = parent.frame()) {
   buffer_size <- max(str_count(propensity.funs, "="))
   rcpp_prop_funs <- map_chr(
