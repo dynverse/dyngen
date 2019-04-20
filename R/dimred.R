@@ -28,7 +28,7 @@ calculate_dimred <- function(model) {
   
   # use only tf data
   tf_info <- model$feature_info %>% filter(is_tf)
-  tf_molecules <- tf_info %>% select(x, y) %>% gather(col, val) %>% pull(val)
+  tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
   
   if (!is.null(sim_counts)) {
     sim_counts <- sim_counts[, tf_molecules, drop = FALSE]

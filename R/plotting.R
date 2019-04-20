@@ -125,8 +125,8 @@ plot_simulations <- function(model) {
       model$simulations$dimred %>% as.data.frame
     )
   
-  ggplot(plot_df %>% filter(t >= 0)) +
-    geom_path(aes(comp_1, comp_2, colour = t, group = simulation_i)) +
+  ggplot(plot_df %>% filter(sim_time >= 0)) +
+    geom_path(aes(comp_1, comp_2, colour = sim_time, group = simulation_i)) +
     viridis::scale_color_viridis() +
     theme_bw()
 }
@@ -145,7 +145,7 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
         bind_cols(
           model$simulations$meta,
           model$simulations$dimred %>% as.data.frame
-        ) %>% filter(t >= 0)
+        ) %>% filter(sim_time >= 0)
       )
   }
   
@@ -169,7 +169,7 @@ plot_gold_mappings <- function(model, selected_simulations = NULL) {
       bind_cols(
         model$simulations$meta,
         model$simulations$dimred %>% as.data.frame
-      ) %>% filter(t >= 0),
+      ) %>% filter(sim_time >= 0),
       bind_cols(
         model$gold_standard$meta,
         model$gold_standard$dimred %>% as.data.frame
@@ -196,20 +196,21 @@ plot_gold_expression <- function(model) {
     mutate(edge = paste0(from_, "->", to_)) %>% 
     pull(edge)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, x, y) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
   df <- bind_cols(
     model$gold_standard$meta,
     as.data.frame(as.matrix(model$gold_standard$counts))[,molecules]
   ) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
     mutate(edge = factor(paste0(from_, "->", to_), levels = edge_levels)) %>% 
-    left_join(model$feature_info %>% select(x, y, module_id) %>% gather(type, molecule, x, y), by = "molecule") %>% 
-    group_by(module_id, t, simulation_i, burn, from, to, from_, to_, time, edge, type) %>% 
+    left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
+    group_by(module_id, sim_time, simulation_i, burn, from, to, from_, to_, time, edge, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup()
   
   ggplot(df) +
-    geom_line(aes(t, value, colour = module_id, linetype = type), size = 2) +
+    geom_line(aes(sim_time, value, colour = module_id, linetype = type, size = type)) +
+    scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
     facet_wrap(~edge) +
     theme_bw()
 }
@@ -223,21 +224,23 @@ plot_simulation_expression <- function(model, simulation_i = 1) {
     mutate(edge = paste0(from, "->", to)) %>%
     pull(edge)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, x, y) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
   df <- bind_cols(
     model$simulations$meta,
-    as.data.frame(as.matrix(model$simulations$counts))[,molecules]
+    as.data.frame(as.matrix(model$simulations$counts)[,molecules])
   ) %>% 
+    filter(simulation_i == !!simulation_i) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
     mutate(edge = factor(paste0(from, "->", to), levels = edge_levels)) %>%
-    left_join(model$feature_info %>% select(x, y, module_id) %>% gather(type, molecule, x, y), by = "molecule") %>% 
-    group_by(module_id, t, simulation_i, from, to, time, edge, type) %>% 
+    left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
+    group_by(module_id, sim_time, simulation_i, from, to, time, edge, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
     mutate(module_group = gsub("[0-9]*$", "", module_id))
   
-  ggplot(df %>% filter(simulation_i == 1)) +
-    geom_line(aes(t, value, linetype = type, colour = module_id), size = 1) +
+  ggplot(df) +
+    geom_line(aes(sim_time, value, linetype = type, colour = module_id, size = type)) +
+    scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
     facet_wrap(~module_group, ncol = 1) +
     theme_bw()
 }

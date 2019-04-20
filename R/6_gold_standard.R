@@ -15,9 +15,8 @@ generate_gold_standard <- function(model) {
   
   # run gold standard simulations
   simulations <- .generate_gold_standard_simulations(model)
-  model$gold_standard$meta <- simulations %>% select(simulation_i:time)
-  model$gold_standard$counts <- simulations %>% select(-simulation_i:-time) %>% 
-    as.matrix %>% Matrix::Matrix(sparse = TRUE)
+  model$gold_standard$meta <- simulations$meta
+  model$gold_standard$counts <- simulations$counts
   
   # do combined dimred
   model <- model %>% calculate_dimred()
@@ -62,7 +61,7 @@ generate_gold_standard <- function(model) {
   tf_info <- model$feature_info %>% filter(is_tf)
   
   # select relevant functions
-  tf_molecules <- tf_info %>% select(x, y) %>% gather(col, val) %>% pull(val)
+  tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
   
   # filter propensity functions
   propensity_funs <-
@@ -84,8 +83,6 @@ generate_gold_standard <- function(model) {
   gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state[tf_molecules] %>% as.matrix
   gold_sim_modules[[start_state]] <- c()
   
-  # model$gold_standard$mod_changes %>% mutate(mod_on_str = map_chr(mod_on, paste, collapse = ","), mod_off_str = map_chr(mod_off, paste, collapse = ","))
-  
   timer <- pbapply::timerProgressBar(min = 0, max = nrow(mod_changes))
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
@@ -100,7 +97,7 @@ generate_gold_standard <- function(model) {
     
     # which tfs are on
     tfs_on <- tf_info %>% filter(module_id %in% mods)
-    molecules_on <- tfs_on %>% select(x, y) %>% gather(col, val) %>% pull(val)
+    molecules_on <- tfs_on %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
     
     # fetch initial state
     new_initial_state <- rowMeans(gold_sim_vectors[[from_]])
@@ -110,34 +107,25 @@ generate_gold_standard <- function(model) {
     new_nus[!rownames(new_nus) %in% molecules_on] <- 0
     
     # simulation of gold standard edge
-    out <- fastgssa::ssa(
+    out <- fastgssa(
       initial.state = new_initial_state,
       propensity.funs = propensity_funs,
-      nu = new_nus %>% as.matrix,
+      nu = new_nus,
       final.time = time,
-      parms = sim_system$parameters,
-      method = fastgssa::ssa.em(noise_strength = 0),
-      recalculate.all = TRUE,
-      stop.on.negstate = FALSE,
-      stop.on.propensity = FALSE,
+      params = sim_system$parameters,
+      method = ssa_em(noise_strength = 0),
+      stop.on.neg.state = TRUE,
+      stop.on.neg.propensity = TRUE,
       verbose = FALSE
     )
     
-    # add both burnin as normal simulation together
-    simulation <-
-      .generate_cells_process_ssa(out) %>%
-      mutate(i, from_, to_) %>% 
-      select(i, from_, to_, everything())
+    meta <- out$timeseries %>% transmute(time = ifelse(n() == row_number(), !!time, time), from_, to_)
+    counts <- do.call(rbind, out$timeseries$state) %>% Matrix::Matrix(sparse = TRUE)
     
     end_state <-
-      simulation %>%
-      slice(n()) %>%
-      select(one_of(tf_molecules)) %>%
-      .[1, , drop = TRUE] %>%
-      unlist() %>%
-      as.matrix()
+      out$timeseries$state %>% last() %>% as.matrix()
     
-    gold_sim_outputs[[i]] <- simulation
+    gold_sim_outputs[[i]] <- lst(meta, counts)
     
     gold_sim_modules[[to_]] <- mods
     
@@ -150,17 +138,22 @@ generate_gold_standard <- function(model) {
     pbapply::setTimerProgressBar(timer, value = i)
   }
   
+  meta <- map_df(gold_sim_outputs, "meta")
+  counts <- do.call(rbind, map(gold_sim_outputs, "counts")) %>% Matrix::Matrix(sparse = TRUE)
   
-  bind_rows(gold_sim_outputs) %>% 
+  meta <- meta %>% 
     left_join(mod_changes %>% select(from, to, from_, to_, substate, burn, time_per_edge = time), by = c("from_", "to_")) %>% 
     group_by(from, to) %>%
     mutate(
       simulation_i = 0,
-      time = ((substate - 1) * time_per_edge + t) / time_per_edge / max(substate)
+      sim_time = time,
+      time = ((substate - 1) * time_per_edge + time) / time_per_edge / max(substate)
     ) %>% 
     ungroup() %>% 
-    select(-i, -substate, -time_per_edge) %>% 
-    select(simulation_i, t, burn, from, to, from_, to_, time, everything())
+    select(-substate, -time_per_edge) %>% 
+    select(simulation_i, sim_time, burn, from, to, from_, to_, time)
+  
+  lst(meta, counts)
 }
 
 .generate_gold_standard_generate_network <- function(model) {

@@ -4,7 +4,7 @@ simulation_default <- function(
   total_time = 20,
   num_simulations = 32,
   seeds = seq(1, num_simulations),
-  ssa_algorithm = fastgssa::ssa.em(noise_strength = 4)
+  ssa_algorithm = ssa_em(noise_strength = 4) #fastgssa::ssa.em(noise_strength = 4)
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -27,18 +27,16 @@ generate_cells <- function(
   
   # simulate cells one by one
   simulations <- 
-    bind_rows(pbapply::pblapply(
-      seq_len(sim_params$num_simulations),
+    pbapply::pblapply(
+      X = seq_len(sim_params$num_simulations),
       cl = model$num_cores,
-      function(i) {
-        .generate_cells_simulate_cell(model, i)
-      }
-    ))
+      FUN = function(i) .generate_cells_simulate_cell(i, model = model)
+    )
   
   # split up simulation data
   model$simulations <- lst(
-    meta = simulations %>% select(simulation_i, t), 
-    counts = simulations %>% select(-simulation_i, -t) %>% as.matrix %>% Matrix::Matrix(sparse = TRUE)
+    meta = map_df(simulations, "meta"),
+    counts = do.call(rbind, map(simulations, "counts"))
   )
   
   # predict state
@@ -53,7 +51,7 @@ generate_cells <- function(
   model
 }
 
-.generate_cells_simulate_cell <- function(model, simulation_i) {
+.generate_cells_simulate_cell <- function(simulation_i, model) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
@@ -69,58 +67,55 @@ generate_cells <- function(
     nus_burn[setdiff(rownames(nus_burn), sim_system$burn_variables),] <- 0
     
     # burn in
-    out <- fastgssa::ssa(
-      initial.state = sim_system$initial_state, 
+    out <- fastgssa(
+      initial.state = sim_system$initial_state,
       propensity.funs = propensity_funs,
-      nu = nus_burn %>% as.matrix,
-      final.time = sim_params$burn_time, 
-      parms = sim_system$parameters,
+      nu = nus_burn,
+      final.time = sim_params$burn_time,
+      params = sim_system$parameters,
       method = sim_params$ssa_algorithm,
-      recalculate.all = TRUE, 
-      stop.on.negstate = FALSE,
-      stop.on.propensity = FALSE,
+      stop.on.neg.state = FALSE,
+      stop.on.neg.propensity = FALSE,
       verbose = FALSE
     )
     
-    burn_out <- .generate_cells_process_ssa(out)
+    burn_meta <- out$timeseries %>%
+      transmute(time = ifelse(n() == row_number(), sim_params$burn_time, time)) %>%
+      mutate(time = time - max(time))
+    burn_counts <- do.call(rbind, out$timeseries$state) %>% Matrix::Matrix(sparse = TRUE)
     
-    new_initial_state <- 
-      burn_out %>% 
-      slice(n()) %>% 
-      select(one_of(sim_system$molecule_ids)) %>% 
-      .[1, , drop = TRUE] %>% 
-      unlist()
+    new_initial_state <-
+      out$timeseries$state %>% last()
   } else {
-    burn_out <- NULL
+    burn_meta <- NULL
+    burn_counts <- NULL
     new_initial_state <- system$initial_state
   }
   
   # actual simulation
-  out <- fastgssa::ssa(
-    initial.state = new_initial_state,
+  out <- fastgssa(
+    initial.state = new_initial_state, 
     propensity.funs = propensity_funs,
-    nu = sim_system$nus %>% as.matrix,
-    final.time = sim_params$total_time,
-    parms = sim_system$parameters,
+    nu = sim_system$nus,
+    final.time = sim_params$total_time, 
+    params = sim_system$parameters,
     method = sim_params$ssa_algorithm,
-    recalculate.all = TRUE, 
-    stop.on.negstate = FALSE,
-    stop.on.propensity = FALSE,
+    stop.on.neg.state = FALSE,
+    stop.on.neg.propensity = FALSE,
     verbose = FALSE
   )
   
-  # add both burnin as normal simulation together
-  sim_out <- .generate_cells_process_ssa(out)
+  meta <- out$timeseries %>%
+    transmute(time = ifelse(n() == row_number(), sim_params$total_time, time))
+  counts <- do.call(rbind, out$timeseries$state) %>%
+    Matrix::Matrix(sparse = TRUE)
   
-  simulation <- 
-    bind_rows(
-      burn_out %>% mutate(t = t - max(t)), 
-      sim_out
-    ) %>% 
-    mutate(simulation_i = simulation_i) %>% 
-    select(simulation_i, t, everything())
+  if (!is.null(burn_meta)) {
+    meta <- bind_rows(burn_meta, meta) %>% mutate(simulation_i)
+    counts <- rbind(burn_counts, counts)
+  }
   
-  simulation
+  lst(meta, counts)
 }
 
 .generate_cells_process_ssa <- function(out) {
@@ -151,7 +146,7 @@ generate_cells <- function(
   # add predictions to sim_meta
   sim_meta <- 
     bind_cols(
-      sim_meta %>% select(simulation_i, t),
+      sim_meta %>% select(simulation_i, sim_time = time),
       gs_meta[best_match, , drop = FALSE] %>% select(from, to, time)
     ) %>% 
     group_by(from, to) %>% 

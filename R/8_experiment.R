@@ -143,7 +143,7 @@ generate_experiment <- function(model) {
     sim_meta2 <- 
       sim_meta %>% 
       mutate(
-        t_scale = t / (max(t)+1e-10) * params$num_timepoints,
+        t_scale = sim_time / (max(sim_time)+1e-10) * params$num_timepoints,
         timepoint_group = floor(t_scale),
         selectable = (t_scale - timepoint_group) < (1 - params$pct_between)
       ) %>% 
