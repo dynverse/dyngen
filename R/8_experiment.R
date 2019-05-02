@@ -44,7 +44,7 @@ generate_experiment <- function(model) {
       cell_id = paste0("cell", row_number()),
       step_ix = step_ixs
     ) %>% 
-    select(cell_id, step_ix, simulation_i, t, from, to, time)
+    select(cell_id, step_ix, simulation_i, sim_time, from, to, time)
   sim_counts <- model$simulations$counts[step_ixs, model$feature_info$x, drop = FALSE]
   rownames(sim_counts) <- sim_meta$cell_id
   colnames(sim_counts) <- model$feature_info$feature_id
@@ -111,7 +111,7 @@ generate_experiment <- function(model) {
   sim_meta <-
     model$simulations$meta %>%
     mutate(orig_ix = row_number()) %>% 
-    filter(t >= 0, !to %in% end_states | time < 1)
+    filter(sim_time >= 0, !to %in% end_states | time < 1)
   
   params <- model$experiment_params
   
