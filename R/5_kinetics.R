@@ -52,6 +52,33 @@ kinetics_custom <- function(
   )
 }
 
+#' @export
+kinetics_fixed <- function(
+  sample_wpr = function(n) rep(20, n),
+  sample_wdr = function(n) rep(10, n),
+  sample_xpr = function(n) rep(10, n),
+  sample_xdr = function(n) rep(10, n),
+  sample_ypr = function(n) rep(10, n),
+  sample_ydr = function(n) rep(1, n),
+  
+  sample_effect = function(n) rep(1, n),
+  sample_strength = function(n) rep(1, n),
+  sample_cooperativity = function(n) rep(2, n)
+) {
+  lst(
+    sample_wpr,
+    sample_wdr,
+    sample_xpr,
+    sample_xdr,
+    sample_ypr,
+    sample_ydr,
+    
+    sample_effect,
+    sample_strength,
+    sample_cooperativity
+  )
+}
+
 # why rlang %|%
 `%|||%` <- function(x, y) {
   ifelse(is.na(x), y, x)
@@ -143,7 +170,7 @@ generate_kinetics <- function(model) {
       effect = effect %|||% params$sample_effect(n()),
       cooperativity = cooperativity %|||% params$sample_cooperativity(n()),
       strength = strength %|||% params$sample_strength(n()),
-      k = .kinetics_calculate_k(max_protein, strength)
+      k = max_protein / 2 / strength
     )
   
   # calculate a0 and a
@@ -220,16 +247,17 @@ generate_kinetics <- function(model) {
           reg_ys <- paste0("y_", rid)
           reg_ks <- paste0("k_", fid, "_", rid)
           reg_cs <- paste0("c_", fid, "_", rid)
-          cache_var <- paste0("cache_", fid, "_", rid)
+          buffer_var <- paste0("buffer_", fid, "_", rid)
           
-          reg_affinity_calc <- paste(paste0(cache_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
+          reg_affinity_calc <- paste(paste0(buffer_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
           
-          numerator <- if (sum(eff == 1) > 0) {
-            paste0(a0, " - 1 + ", paste(cache_var[eff == 1], collapse = " * "))
-          } else {
-            a0
-          }
-          denominator <- paste(cache_var, collapse = " * ")
+          numerator <-
+            if (sum(eff > 0) > 0) {
+              paste0(a0, " - 1 + ", paste(buffer_var[eff > 0], collapse = " * "))
+            } else {
+              a0
+            }
+          denominator <- paste(buffer_var, collapse = " * ")
           
           paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
         } else {
@@ -319,10 +347,6 @@ generate_kinetics <- function(model) {
     deframe()
   
   c(feature_params, edge_params)
-}
-
-.kinetics_calculate_k <- function(max_protein, strength) {
-  max_protein / 2 / strength
 }
 
 .kinetics_calculate_a0 <- function(effects) {
