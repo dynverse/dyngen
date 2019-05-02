@@ -137,6 +137,7 @@ generate_gold_standard <- function(model) {
     
     pbapply::setTimerProgressBar(timer, value = i)
   }
+  cat("\n")
   
   meta <- map_df(gold_sim_outputs, "meta")
   counts <- do.call(rbind, map(gold_sim_outputs, "counts")) %>% Matrix::Matrix(sparse = TRUE)
