@@ -1,29 +1,31 @@
 library(tidyverse)
 library(dyngen)
 
-set.seed(2)
+set.seed(1)
 model <- 
   initialise_model(
     num_cells = 1000,
-    num_tfs = 60,
-    num_targets = 200,
-    num_hks = 500,
+    num_tfs = 50,
+    num_targets = 0,
+    num_hks = 0,
     distance_metric = "pearson",
     backbone = backbone_bifurcating(),
     tf_network_params = tf_network_random(min_tfs_per_module = 3),
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_custom(),
-    gold_standard_params = gold_standard_default(time_per_edge = 2),
-    simulation_params = simulation_default(total_time = 20, num_simulations = 8),
+    gold_standard_params = gold_standard_default(),
+    simulation_params = simulation_default(total_time = 10, num_simulations = 16),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
     num_cores = 8,
     download_cache_dir = "~/.cache/dyngen"
-  ) %>% 
+  )
+
+model <- model %>% 
   generate_tf_network() %>% 
   generate_feature_network() %>% 
   generate_kinetics()
-  
+
 plot_backbone(model)
 plot_feature_network(model, tfs_only = TRUE)
 plot_feature_network(model)
@@ -34,13 +36,17 @@ model <- model %>%
 plot_gold_simulations(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewer(palette = "Dark2")
 plot_gold_expression(model)
 
+# model$num_cores <- 1
 model <- model %>% 
-  generate_cells() %>% 
+  generate_cells() %>%
   generate_experiment()
 
 plot_gold_mappings(model) + scale_colour_brewer(palette = "Dark2")
 plot_simulations(model)
-plot_simulation_expression(model)
+plot_simulation_expression(model, 1)
+plot_simulation_expression(model, 2)
+plot_simulation_expression(model, 3)
+plot_simulation_expression(model, 6)
 
 traj <- 
   model %>% 
