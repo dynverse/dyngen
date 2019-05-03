@@ -5,19 +5,19 @@ set.seed(1)
 model <- 
   initialise_model(
     num_cells = 1000,
-    num_tfs = 50,
+    num_tfs = 60,
     num_targets = 0,
     num_hks = 0,
     distance_metric = "pearson",
-    backbone = backbone_bifurcating(),
+    backbone = backbone_bifurcating_loop(),
     tf_network_params = tf_network_random(min_tfs_per_module = 3),
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_custom(),
     gold_standard_params = gold_standard_default(),
-    simulation_params = simulation_default(total_time = 10, num_simulations = 16),
+    simulation_params = simulation_default(total_time = 20, num_simulations = 8),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
-    num_cores = 8,
+    num_cores = 1,
     download_cache_dir = "~/.cache/dyngen"
   )
 
@@ -34,7 +34,7 @@ model <- model %>%
   generate_gold_standard()
 
 plot_gold_simulations(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewer(palette = "Dark2")
-plot_gold_expression(model)
+plot_gold_expression(model, "w")
 
 # model$num_cores <- 1
 model <- model %>% 
