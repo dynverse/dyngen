@@ -190,7 +190,7 @@ plot_gold_mappings <- function(model, selected_simulations = NULL) {
 }
 
 #' @export
-plot_gold_expression <- function(model) {
+plot_gold_expression <- function(model, what = c("w", "x", "y")) {
   edge_levels <- 
     model$gold_standard$mod_changes %>% 
     mutate(edge = paste0(from_, "->", to_)) %>% 
@@ -206,7 +206,8 @@ plot_gold_expression <- function(model) {
     left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
     group_by(module_id, sim_time, simulation_i, burn, from, to, from_, to_, time, edge, type) %>% 
     summarise(value = mean(value)) %>% 
-    ungroup()
+    ungroup() %>% 
+    filter(type %in% what)
   
   ggplot(df) +
     geom_line(aes(sim_time, value, colour = module_id, linetype = type, size = type)) +
@@ -218,7 +219,7 @@ plot_gold_expression <- function(model) {
 
 
 #' @export
-plot_simulation_expression <- function(model, simulation_i = 1) {
+plot_simulation_expression <- function(model, simulation_i = 1, what = c("w", "x", "y")) {
   edge_levels <-
     model$gold_standard$network %>%
     mutate(edge = paste0(from, "->", to)) %>%
@@ -236,7 +237,8 @@ plot_simulation_expression <- function(model, simulation_i = 1) {
     group_by(module_id, sim_time, simulation_i, from, to, time, edge, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
-    mutate(module_group = gsub("[0-9]*$", "", module_id))
+    mutate(module_group = gsub("[0-9]*$", "", module_id)) %>% 
+    filter(type %in% what)
   
   ggplot(df) +
     geom_line(aes(sim_time, value, linetype = type, colour = module_id, size = type)) +
