@@ -12,7 +12,6 @@
 \alias{backbone_converging}
 \alias{backbone_cycle}
 \alias{backbone_linear}
-\alias{backbone_linear_long}
 \alias{backbone_trifurcating}
 \title{Backbone of the simulation model}
 \usage{
@@ -36,9 +35,7 @@ backbone_converging()
 
 backbone_cycle()
 
-backbone_linear()
-
-backbone_linear_long()
+backbone_linear(num_modules = 5)
 
 backbone_trifurcating()
 }
