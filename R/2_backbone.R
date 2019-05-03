@@ -84,7 +84,6 @@ list_backbones <- function() {
     converging = backbone_converging,
     cycle = backbone_cycle,
     linear = backbone_linear,
-    linear_long = backbone_linear_long,
     trifurcating = backbone_trifurcating
   )
 }
@@ -175,12 +174,12 @@ backbone_bifurcating_converging <- function() {
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
     "sBurn", "sA", "+A1", TRUE, TRUE, 2,
-    "sA", "sB", "+A2,+A3", FALSE, FALSE, 2,
-    "sB", "sC", "+B1,+B2,+B3", FALSE, FALSE, 2,
-    "sB", "sD", "+C1,+C2,+C3", FALSE, FALSE, 2,
-    "sC", "sE", "+D1", FALSE, FALSE, 4,
-    "sD", "sE", "+D1", FALSE, FALSE, 4,
-    "sE", "sF", "+D2,+D3", FALSE, FALSE, 2
+    "sA", "sB", "+B1,+B2", FALSE, FALSE, 2,
+    "sB", "sC", "+C1,+C2,+C3", FALSE, FALSE, 2,
+    "sB", "sD", "+D1,+D2,+D3", FALSE, FALSE, 2,
+    "sC", "sE", "+E1", FALSE, FALSE, 4,
+    "sD", "sE", "+E1", FALSE, FALSE, 4,
+    "sE", "sF", "+F1,+F2", FALSE, FALSE, 2
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -245,7 +244,7 @@ backbone_bifurcating_cycle <- function() {
     "sB", "sD", "+D1,+D2,+D3", FALSE, FALSE, 2,
     "sC", "sE", "+E1", FALSE, FALSE, 4,
     "sD", "sE", "+E1", FALSE, FALSE, 4,
-    "sE", "sA", "+E2,+E3,-B1,-B2,-C1,-C2,-C3,-D1,-D2,-D3", FALSE, FALSE, 2,
+    "sE", "sA", "+E2,+E3,-B1,-B2,-C1,-C2,-C3,-D1,-D2,-D3", FALSE, FALSE, 4,
     "sA", "sB", "+B1,+B2", FALSE, FALSE, 2
   )
   
@@ -259,50 +258,48 @@ backbone_bifurcating_loop <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "A1", 1, TRUE,
+    "A2", 0, TRUE,
+    "A3", 1, TRUE,
     "B1", 0, FALSE,
-    "B2", 0, FALSE,
+    "B2", 1, TRUE,
     "C1", 0, FALSE,
     "C2", 0, FALSE,
     "C3", 0, FALSE,
-    "C4", 0, FALSE,
-    "C5", 0, FALSE,
-    "C6", 0, FALSE,
     "D1", 0, FALSE,
-    "D2", 0, FALSE
+    "D2", 0, FALSE,
+    "D3", 1, TRUE
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "B1", 1, 1, 2,
-    "B1", "B2", 1, 1, 2,
-    "B2", "C1", 1, 1, 2,
-    "C1", "C1", 1, 10, 2,
+    "A1", "A2", 1, 10, 2,
+    "A2", "A3", -1,  10, 2,
+    "A2", "B1", 1, 1, 2,
+    "B1", "B2", -1, 10, 2,
+    "B1", "C1", 1, 1, 2,
     "B1", "D1", 1, 1, 2,
-    "D1", "D1", 1, 10, 2,
+    "C1", "C1", 1, 10, 2,
     "C1", "D1", -1, 100, 2,
-    "D1", "C1", -1, 100, 2,
-    "C1", "C2", 1, 0.1, 5,
+    "C1", "C2", 1, 1, 2,
     "C2", "C3", 1, 1, 2,
-    "C4", "C3", 1, 1, 2,
-    "C3", "C3", 1, 10, 2,
+    "C2", "A2", -1, 10, 2,
+    "C2", "B1", -1, 10, 2,
+    "C3", "A1", -1, 10, 2,
     "C3", "C1", -1, 10, 2,
-    "C3", "C5", 1, 1, 2,
-    "C5", "A1", -1, 10, 2,
-    "C5", "C6", 1, 1, 2,
-    "C6", "C3", -1, 100, 2,
-    "C6", "C1", -1, 100, 2,
-    "D1", "D2", 1, 10, 2,
-    "D1", "D3", -1, 100, 2,
-    "C6", "D1", -1, 100, 2
+    "C3", "D1", -1, 10, 2,
+    "D1", "D1", 1, 10, 2,
+    "D1", "C1", -1, 100, 2,
+    "D1", "D2", 1, 1, 2,
+    "D1", "D3", -1, 10, 2
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn", "sA", "+A1", TRUE, TRUE, 2,
-    "sA", "sB", "+B1,+B2", FALSE, FALSE, 2,
-    "sB", "sC", "+C1,+C2,+C3,+C4|+C5,+C6", FALSE, FALSE, 3,
-    "sC", "sA", "", FALSE, FALSE,
-    "sB", "sD", "+M5|+M11", FALSE, FALSE
+    "sBurn", "sA", "+A1,+A2,+A3,+B2,+D3", TRUE, TRUE, 2,
+    "sA", "sB", "+B1", FALSE, FALSE, 2,
+    "sB", "sC", "+C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2", FALSE, FALSE, 3,
+    "sB", "sD", "+D1,+D2", FALSE, FALSE, 2,
+    "sC", "sA", "+A1,+A2", FALSE, FALSE, 2
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -558,92 +555,24 @@ backbone_cycle <- function() {
 
 #' @export
 #' @rdname backbone
-backbone_linear <- function() {
-  module_info <- tribble(
-    ~module_id, ~a0, ~burn,
-    "M1", 1, TRUE,
-    "M2", 0, FALSE,
-    "M3", 0, FALSE,
-    "M4", 0, FALSE,
-    "M5", 0, FALSE,
-    "M6", 0, FALSE,
-    "M7", 0, FALSE
+backbone_linear <- function(num_modules = 5) {
+  module_info <- bind_rows(
+    tibble(module_id = "A1", a0 = 1, burn = TRUE),
+    tibble(module_id = paste0("B", seq_len(num_modules-1)), a0 = 0, burn = FALSE)
   )
   
-  module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M2", 1, 1, 2,
-    "M2", "M3", 1, 1, 2,
-    "M3", "M4", 1, 1, 2,
-    "M4", "M5", 1, 1, 2,
-    "M5", "M6", 1, 1, 2,
-    "M6", "M7", 1, 1, 2,
-    "M7", "M7", 1, 5, 2,
-    "M7", "M1", -1, 5, 2
+  module_network <- tibble(
+    from = module_info$module_id[-num_modules],
+    to = module_info$module_id[-1],
+    effect = 1,
+    strength = 1,
+    cooperativity = 2
   )
   
   expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn,
-    "S0", "S1", "+M1", TRUE, TRUE,
-    "S1", "S2", "+M2|+M3|+M4|+M5|+M6|+M7|-M1|-M2|-M3|-M4|-M5|-M6", FALSE, FALSE
-  )
-  
-  backbone(module_info, module_network, expression_patterns)
-}
-
-
-#' @export
-#' @rdname backbone
-backbone_linear_long <- function() {
-  module_info <- tribble(
-    ~module_id, ~a0, ~burn,
-    "M1", 1, TRUE,
-    "M2", 0, FALSE,
-    "M3", 0, FALSE,
-    "M4", 0, FALSE,
-    "M5", 0, FALSE,
-    "M6", 0, FALSE,
-    "M7", 0, FALSE,
-    "M8", 0, FALSE,
-    "M9", 0, FALSE,
-    "M10", 0, FALSE,
-    "M11", 0, FALSE,
-    "M12", 0, FALSE,
-    "M13", 0, FALSE,
-    "M14", 0, FALSE,
-    "M15", 0, FALSE,
-    "M16", 0, FALSE,
-    "M17", 0, FALSE,
-    "M18", 0, FALSE
-  )
-  
-  module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M2", 1, 1, 2,
-    "M2", "M3", 1, 1, 2,
-    "M3", "M4", 1, 1, 2,
-    "M4", "M5", 1, 1, 2,
-    "M5", "M6", 1, 1, 2,
-    "M6", "M7", 1, 1, 2,
-    "M7", "M8", 1, 1, 2,
-    "M8", "M9", 1, 1, 2,
-    "M9", "M10", 1, 1, 2,
-    "M10", "M11", 1, 1, 2,
-    "M11", "M12", 1, 1, 2,
-    "M12", "M13", 1, 1, 2,
-    "M13", "M14", 1, 1, 2,
-    "M14", "M15", 1, 1, 2,
-    "M15", "M16", 1, 1, 2,
-    "M16", "M17", 1, 1, 2,
-    "M17", "M18", 1, 1, 2,
-    "M18", "M18", 1, 5, 2,
-    "M18", "M1", -1, 5, 2
-  )
-  
-  expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn,
-    "S0", "S1", "+M1", TRUE, TRUE,
-    "S1", "S2", "+M2|+M3|+M4|+M5|+M6|+M7|+M8|+M9|+M10|+M11|+M12|+M13|+M14|+M15|+M16|+M17|+M18|-M1|-M2|-M3|-M4|-M5|-M6|-M7|-M8|-M9|-M10|-M11|-M12|-M13|-M14|-M15|-M16|-M17", FALSE, FALSE
+    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+    "sBurn", "sA", "+A1", TRUE, TRUE, 2,
+    "sA", "sB", paste(paste0("+B", seq_len(num_modules-1)), collapse = ","), FALSE, FALSE, num_modules - 1
   )
   
   backbone(module_info, module_network, expression_patterns)
