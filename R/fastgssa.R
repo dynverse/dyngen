@@ -164,7 +164,9 @@ parse_propensity_funs <- function(propensity.funs, state, params, env = parent.f
     "}\n"
   )
   
-  Rcpp::cppFunction(rcpp_code, env = env)
+  tmpdir <- dynutils::safe_tempdir("fastgssa")
+  on.exit(unlink(tmpdir, recursive = TRUE, force = TRUE))
+  Rcpp::cppFunction(rcpp_code, env = env, cacheDir = tmpdir)
 }
 
 
