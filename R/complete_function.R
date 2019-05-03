@@ -42,7 +42,10 @@ complete_function <- function(model, directory) {
   pdf(paste0(directory, "/plot_6_simulation_expression.pdf"), width = 12, height = 12)
   tryCatch({
     for (sim_i in seq_len(model$simulation_params$num_simulations)) {
-      print(plot_simulation_expression(model, simulation_i = sim_i))
+      g <- 
+        plot_simulation_expression(model, simulation_i = sim_i) +
+        labs(title = paste0("Simulation ", sim_i))
+      print(g)
     }
   }, finally = {
     dev.off()
@@ -58,8 +61,9 @@ complete_function <- function(model, directory) {
     wrap_dyngen_dataset()
   
   g10 <- dynplot::plot_dimred(traj)
-  g11 <- dynplot::plot_default(traj)
-  g <- patchwork::wrap_plots(g10, g11, nrow = 1)
+  # g11 <- dynplot::plot_default(traj)
+  # g <- patchwork::wrap_plots(g10, g11, nrow = 1)
+  g <- g10
   g12 <- dynplot::plot_heatmap(traj, features_oi = 100)
   ggsave(paste0(directory, "/plot_7_dataset_dimred.pdf"), g, width = 12, height = 6)
   ggsave(paste0(directory, "/plot_8_heatmap.pdf"), g12, width = 12, height = 8)
@@ -70,11 +74,12 @@ complete_function <- function(model, directory) {
   
   # :scream:
   g <- patchwork::wrap_plots(
-    g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12,
+    g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, #g11,
+    g12,
     byrow = FALSE,
-    ncol = 1
+    ncol = 4
   ) +
-    patchwork::plot_annotation(tag_levels = "A")
+      patchwork::plot_annotation(tag_levels = "A")
   ggsave(paste0(directory, "/plot_all.pdf"), g, width = 40, height = 30)
   
   return()
