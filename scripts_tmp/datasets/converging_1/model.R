@@ -10,7 +10,7 @@ model <-
     num_targets = 300,
     num_hks = 500,
     distance_metric = "pearson",
-    backbone = backbone_consecutive_bifurcating(),
+    backbone = backbone_converging(),
     tf_network_params = tf_network_random(),
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_custom(),
@@ -18,7 +18,7 @@ model <-
     simulation_params = simulation_default(total_time = 10, num_simulations = 32),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
-    num_cores = 1,
+    num_cores = 8,
     download_cache_dir = "~/.cache/dyngen"
   )
 dyngen:::complete_function(model, ".")
