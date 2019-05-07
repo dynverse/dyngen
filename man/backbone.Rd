@@ -7,6 +7,7 @@
 \alias{backbone_bifurcating_converging}
 \alias{backbone_bifurcating_cycle}
 \alias{backbone_bifurcating_loop}
+\alias{backbone_branching}
 \alias{backbone_binary_tree}
 \alias{backbone_consecutive_bifurcating}
 \alias{backbone_converging}
@@ -27,7 +28,10 @@ backbone_bifurcating_cycle()
 
 backbone_bifurcating_loop()
 
-backbone_binary_tree()
+backbone_branching(num_modifications = rbinom(1, size = 6, 0.25) + 1,
+  max_degree = sample(3:5, 1))
+
+backbone_binary_tree(num_modifications = rbinom(1, size = 6, 0.25) + 1)
 
 backbone_consecutive_bifurcating()
 
