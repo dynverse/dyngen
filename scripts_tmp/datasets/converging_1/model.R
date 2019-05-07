@@ -18,7 +18,7 @@ model <-
     simulation_params = simulation_default(total_time = 10, num_simulations = 32),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
-    num_cores = 8,
+    num_cores = 1,
     download_cache_dir = "~/.cache/dyngen"
   )
 dyngen:::complete_function(model, ".")
