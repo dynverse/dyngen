@@ -10,10 +10,10 @@
 \alias{backbone_branching}
 \alias{backbone_binary_tree}
 \alias{backbone_consecutive_bifurcating}
+\alias{backbone_trifurcating}
 \alias{backbone_converging}
 \alias{backbone_cycle}
 \alias{backbone_linear}
-\alias{backbone_trifurcating}
 \title{Backbone of the simulation model}
 \usage{
 backbone(module_info, module_network, expression_patterns)
@@ -29,19 +29,19 @@ backbone_bifurcating_cycle()
 backbone_bifurcating_loop()
 
 backbone_branching(num_modifications = rbinom(1, size = 6, 0.25) + 1,
-  max_degree = sample(3:5, 1))
+  min_degree = 3, max_degree = sample(min_degree:5, 1))
 
 backbone_binary_tree(num_modifications = rbinom(1, size = 6, 0.25) + 1)
 
 backbone_consecutive_bifurcating()
+
+backbone_trifurcating()
 
 backbone_converging()
 
 backbone_cycle()
 
 backbone_linear(num_modules = 5)
-
-backbone_trifurcating()
 }
 \description{
 A module is a group of genes which, to some extent, shows the same
