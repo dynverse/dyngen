@@ -314,11 +314,14 @@ backbone_bifurcating_loop <- function() {
 #' @rdname backbone
 backbone_branching <- function(
   num_modifications = rbinom(1, size = 6, 0.25) + 1,
-  max_degree = sample(3:5, 1)
+  min_degree = 3,
+  max_degree = sample(min_degree:5, 1)
 ) {
   assert_that(
     num_modifications >= 0,
-    max_degree >= 3
+    min_degree >= 3,
+    max_degree >= 3,
+    min_degree <= max_degree
   )
 
   milnet <- tribble(
@@ -332,7 +335,7 @@ backbone_branching <- function(
     j <- if (nrow(milnet) == 2) 2 else sample(2:nrow(milnet), 1)
     from_ <- milnet$from[[j]]
     to_ <- milnet$to[[j]]
-    num_new_nodes <- rbinom(1, size = max_degree - 3, 0.25) + 2
+    num_new_nodes <- rbinom(1, size = max_degree - min_degree, 0.25) + min_degree - 1
     new_nodes <- paste0("s", LETTERS[num_nodes + seq_len(num_new_nodes)])
     num_nodes <- num_nodes + num_new_nodes
     milnet <-
@@ -340,16 +343,25 @@ backbone_branching <- function(
         milnet %>% slice(seq_len(j-1)),
         tibble(from = from_, to = new_nodes[[1]], modules = list(paste0(gsub("s", "", new_nodes[[1]]), seq_len(1)))),
         milnet %>% slice(j) %>% mutate(from = new_nodes[[1]]),
-        tibble(from = new_nodes[[1]], to = new_nodes[-1], modules = map(to, ~ paste0(gsub("s", "", .), seq_len(2)))),
+        tibble(from = new_nodes[[1]], to = new_nodes[-1], modules = map(to, ~ paste0(gsub("s", "", .), seq_len(sample(2:3, 1, prob = c(.75, .25)))))),
         if (j != nrow(milnet)) milnet %>% slice(seq(j+1, nrow(milnet))) else NULL
       )
   }
   
+  # determine which modules are repressing
+  milnet <- milnet %>% 
+    mutate(
+      double_repr =
+        from != "sBurn" &
+        map_int(modules, length) == 3
+    )
+  
   module_info <- 
-    tibble(
-      module_id = unlist(milnet$modules),
-      a0 = c(1, rep(0, length(module_id) - 1)),
-      # a0 = c(1, sample(c(1, 0), length(module_id) - 1, replace = TRUE, prob = c(.2, .8))),
+    milnet %>%
+    unnest(modules) %>% 
+    transmute(
+      module_id = modules,
+      a0 = ifelse(module_id == "A1" | (double_repr & !grepl("^.1$", module_id)), 1, 0),
       burn = a0 > 0
     )
   
@@ -376,8 +388,8 @@ backbone_branching <- function(
     left_join(
       module_info %>% transmute(
         to = module_id,
-        effect = ifelse(a0 == 0, 1, -1),
-        strength = ifelse(a0 == 0, 1, 5),
+        effect = ifelse(a0 > 0, -1, 1),
+        strength = ifelse(a0 > 0, 3, 1),
         cooperativity = 2
       ), by = "to")
   
@@ -387,9 +399,15 @@ backbone_branching <- function(
       milnet %>% transmute(buff = from, to = map_chr(modules, first)),
       by = "buff"
     ) %>% 
-    filter(from != to) %>% 
+    group_by(buff) %>% 
+    filter(n() > 1) %>% 
+    ungroup() %>% 
     select(-buff) %>% 
-    mutate(effect = -1, strength = 10, cooperativity = 2) %>% 
+    mutate(
+      effect = ifelse(from != to, -1, 1),
+      strength = ifelse(from != to, 20, 1),
+      cooperativity = 2
+    ) %>% 
     bind_rows(module_network)
   
   expression_patterns <- 
@@ -416,7 +434,7 @@ backbone_branching <- function(
 backbone_binary_tree <- function(
   num_modifications = rbinom(1, size = 6, 0.25) + 1
 ) {
-  backbone_branching(num_modifications = num_modifications, max_degree = 3)
+  backbone_branching(num_modifications = num_modifications, min_degree = 3, max_degree = 3)
 }
 
 
@@ -426,6 +444,11 @@ backbone_consecutive_bifurcating <- function() {
   backbone_branching(num_modifications = 2, max_degree = 3)
 }
 
+#' @export
+#' @rdname backbone
+backbone_trifurcating <- function() {
+  backbone_branching(num_modifications = 1, min_degree = 4, max_degree = 4)
+}
 
 #' @export
 #' @rdname backbone
@@ -543,55 +566,3 @@ backbone_linear <- function(num_modules = 5) {
   
   backbone(module_info, module_network, expression_patterns)
 }
-
-
-#' @export
-#' @rdname backbone
-backbone_trifurcating <- function() {
-  module_info <- tribble(
-    ~module_id, ~a0, ~burn,
-    "M1", 1, TRUE,
-    "M2", 0, FALSE,
-    "M3", 0, FALSE,
-    "M4", 0, FALSE,
-    "M5", 0, FALSE,
-    "M6", 0, FALSE,
-    "M7", 1, TRUE,
-    "M8", 0, FALSE
-  )
-  
-  module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M8", 1, 1, 2,
-    "M8", "M2", 1, 1, 2,
-    "M2", "M3", 1, 1, 2,
-    "M2", "M4", 1, 1, 2,
-    "M2", "M5", 1, 1, 2,
-    "M3", "M3", 1, 10, 2,
-    "M4", "M4", 1, 10, 2,
-    "M5", "M5", 1, 10, 2,
-    "M4", "M3", -1, 10, 2,
-    "M3", "M4", -1, 10, 2,
-    "M4", "M5", -1, 10, 2,
-    "M3", "M5", -1, 10, 2,
-    "M5", "M3", -1, 10, 2,
-    "M5", "M4", -1, 10, 2,
-    "M4", "M1", -1, 10, 2,
-    "M3", "M1", -1, 10, 2,
-    "M5", "M1", -1, 10, 2,
-    "M5", "M6", 1, 1, 2,
-    "M3", "M7", -1, 10, 2
-  )
-  
-  expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn,
-    "S0", "S1", "+M1,+M7", TRUE, TRUE,
-    "S1", "S2", "+M8|+M2", FALSE, FALSE,
-    "S2", "S3", "+M3|-M7|-M1|-M8|-M2", FALSE, FALSE,
-    "S2", "S4", "+M4|-M1|-M8|-M2", FALSE, FALSE,
-    "S2", "S5", "+M5|+M6|-M1|-M8|-M2", FALSE, FALSE
-  )
-  
-  backbone(module_info, module_network, expression_patterns)
-}
-
