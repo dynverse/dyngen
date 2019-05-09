@@ -4,7 +4,7 @@ simulation_default <- function(
   total_time = 20,
   num_simulations = 32,
   seeds = seq(1, num_simulations),
-  ssa_algorithm = ssa_em(noise_strength = 4) #fastgssa::ssa.em(noise_strength = 4)
+  ssa_algorithm = ssa_em(noise_strength = 10)
 ) {
   assert_that(length(seeds) == num_simulations)
   
