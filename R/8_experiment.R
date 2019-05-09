@@ -130,12 +130,18 @@ generate_experiment <- function(model) {
       function(i) {
         edge <- network %>% slice(i)
         meta <- 
-          inner_join(sim_meta, edge %>% select(from, to), c("from", "to")) %>%
-          mutate(
-            density = approxfun(density(time, bw = params$weight_bw))(time),
-            weight = 1 / density
-          )
-        sample(meta$orig_ix, size = edge$num_cells, replace = TRUE, prob = meta$weight)
+          inner_join(sim_meta, edge %>% select(from, to), c("from", "to"))
+        
+        if (nrow(meta) > 1) {
+          meta %>% 
+            mutate(
+              density = approxfun(density(time, bw = params$weight_bw))(time),
+              weight = 1 / density
+            ) %>% 
+            {sample(.$orig_ix, size = edge$num_cells, replace = TRUE, prob = .$weight)}
+        } else {
+          NULL
+        }
       }
     ) %>% 
       unlist()
