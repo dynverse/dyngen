@@ -389,7 +389,7 @@ backbone_branching <- function(
       module_info %>% transmute(
         to = module_id,
         effect = ifelse(a0 > 0, -1, 1),
-        strength = ifelse(a0 > 0, 3, 1),
+        strength = ifelse(a0 > 0, 10, 1),
         cooperativity = 2
       ), by = "to")
   
@@ -457,9 +457,9 @@ backbone_converging <- function() {
     ~module_id, ~a0, ~burn,
     "A1", 1, TRUE,
     "B1", 0, TRUE,
-    "C1", 0, TRUE,
     "B2", 0, TRUE,
     "B3", 0, FALSE,
+    "C1", 0, TRUE,
     "C2", 0, TRUE,
     "C3", 0, FALSE,
     "D1", 0, FALSE,

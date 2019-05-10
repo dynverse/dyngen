@@ -79,7 +79,8 @@ generate_cells <- function(
       verbose = FALSE
     )
     
-    burn_meta <- out$timeseries %>%
+    burn_meta <- 
+      out$timeseries %>%
       transmute(time = ifelse(n() == row_number(), sim_params$burn_time, time)) %>%
       mutate(time = time - max(time))
     burn_counts <- do.call(rbind, out$timeseries$state) %>% Matrix::Matrix(sparse = TRUE)

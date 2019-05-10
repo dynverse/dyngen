@@ -15,7 +15,7 @@ model <-
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_custom(),
     gold_standard_params = gold_standard_default(),
-    simulation_params = simulation_default(total_time = 10, num_simulations = 32),
+    simulation_params = simulation_default(burn_time = 5, total_time = 10, num_simulations = 32),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
     num_cores = 1,
