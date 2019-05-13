@@ -80,9 +80,11 @@ list_backbones <- function() {
     bifurcating_cycle = backbone_bifurcating_cycle,
     bifurcating_loop = backbone_bifurcating_loop,
     binary_tree = backbone_binary_tree,
+    branching = backbone_branching,
     consecutive_bifurcating = backbone_consecutive_bifurcating,
     converging = backbone_converging,
     cycle = backbone_cycle,
+    disconnected = backbone_disconnected,
     linear = backbone_linear,
     trifurcating = backbone_trifurcating
   )
@@ -412,7 +414,9 @@ backbone_branching <- function(
   
   expression_patterns <- 
     milnet %>% 
-    mutate(
+    transmute(
+      from,
+      to,
       module_progression = map_chr(modules, ~ paste0("+", ., collapse = ",")),
       start = from == "sBurn",
       burn = from == "sBurn",
@@ -565,4 +569,103 @@ backbone_linear <- function(num_modules = 5) {
   )
   
   backbone(module_info, module_network, expression_patterns)
+}
+
+
+#' @export
+#' @rdname backbone
+backbone_disconnected <- function(
+  
+) {
+  backbones <- list_backbones()
+  backbones <- backbones[names(backbones) != "disconnected"]
+  
+  left_name <- sample(names(backbones), 1)[[1]]
+  right_name <- sample(names(backbones), 1)[[1]]
+  
+  left <- backbones[[left_name]]()
+  right <- backbones[[right_name]]()
+  
+  leftpas <- function(x) paste0("left_", x)
+  rightpas <- function(x) paste0("right_", x)
+  
+  lmi <- left$module_info %>% mutate_at(vars(module_id), leftpas)
+  rmi <- right$module_info %>% mutate_at(vars(module_id), rightpas)
+  
+  lmn <- left$module_network %>% mutate_at(vars(from, to), leftpas)
+  rmn <- right$module_network %>% mutate_at(vars(from, to), rightpas)
+  
+  lep <- left$expression_patterns %>% mutate_at(vars(from, to), leftpas) %>% mutate(module_progression = gsub("([+-])", "\\1left_", module_progression))
+  rep <- right$expression_patterns %>% mutate_at(vars(from, to), rightpas) %>% mutate(module_progression = gsub("([+-])", "\\1right_", module_progression))
+  
+  # find starting modules and states; 
+  # assume there is only one starting module / state per backbone
+  lmis <- lmi %>% filter(a0 > 0) %>% pull(module_id)
+  rmis <- rmi %>% filter(a0 > 0) %>% pull(module_id)
+  leps <- lep %>% filter(start) %>% pull(from)
+  reps <- rep %>% filter(start) %>% pull(from)
+  
+  assert_that(
+    length(lmis) > 0,
+    length(rmis) > 0,
+    length(leps) == 1,
+    length(reps) == 1
+  )
+  
+  common_modules <- paste0("D", 1:5)
+  
+  module_info <- bind_rows(
+    tribble(
+      ~module_id, ~a0, ~burn,
+      "A1", 1, TRUE,
+      "B1", 0, TRUE,
+      "C1", 0, TRUE
+    ),
+    lmi %>% mutate(a0 = 0),
+    rmi %>% mutate(a0 = 0),
+    tibble(module_id = common_modules, a0 = 0, burn = FALSE)
+  ) %>% select(-color)
+  
+  module_network <- bind_rows(
+    tribble(
+      ~from, ~to, ~effect, ~strength, ~cooperativity,
+      "A1", "B1", 1, 1, 2,
+      "A1", "C1", 1, 1, 2,
+      "B1", "B1", 1, 1, 2,
+      "B1", "C1", -1, 100, 2,
+      "C1", "C1", 1, 1, 2,
+      "C1", "B1", -1, 100, 2
+    ),
+    lmi %>% filter(a0 > 0) %>% transmute(from = "B1", to = module_id, effect = 1, strength = a0, cooperativity = 2),
+    rmi %>% filter(a0 > 0) %>% transmute(from = "C1", to = module_id, effect = 1, strength = a0, cooperativity = 2),
+    lmn,
+    rmn,
+    tibble(
+      from = c(
+        sample(lmn$from, length(common_modules), replace = TRUE),
+        sample(rmn$from, length(common_modules), replace = TRUE)
+      ),
+      to = c(common_modules, common_modules),
+      effect = 1,
+      strength = 1,
+      cooperativity = 2
+    )
+  )
+  
+  expression_patterns <-
+    bind_rows(
+      tribble(
+        ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+        "sBurn", "sA", paste0("+", c("A1", common_modules), collapse = ","), TRUE, TRUE, 2,
+        "sA", leps, "+B1", FALSE, TRUE, 2,
+        "sA", reps, "+C1", FALSE, TRUE, 2
+      ),
+      lep %>% mutate(start = FALSE),
+      rep %>% mutate(start = FALSE)
+    )
+  
+  out <- backbone(module_info, module_network, expression_patterns)
+  out$left_backbone <- left_name
+  out$right_backbone <- right_name
+  out
 }

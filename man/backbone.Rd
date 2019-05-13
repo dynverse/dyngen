@@ -14,6 +14,7 @@
 \alias{backbone_converging}
 \alias{backbone_cycle}
 \alias{backbone_linear}
+\alias{backbone_disconnected}
 \title{Backbone of the simulation model}
 \usage{
 backbone(module_info, module_network, expression_patterns)
@@ -42,6 +43,8 @@ backbone_converging()
 backbone_cycle()
 
 backbone_linear(num_modules = 5)
+
+backbone_disconnected()
 }
 \description{
 A module is a group of genes which, to some extent, shows the same
