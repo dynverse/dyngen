@@ -2,7 +2,7 @@
 
 library(dyngen)
 
-set.seed(1)
+set.seed(123)
 model <- 
   initialise_model(
     backbone = backbone_bifurcating(),

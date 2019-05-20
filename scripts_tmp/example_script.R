@@ -5,19 +5,18 @@ set.seed(1)
 model <- 
   initialise_model(
     num_cells = 1000,
-    num_tfs = 60,
+    num_tfs = 80,
     num_targets = 0,
     num_hks = 0,
     distance_metric = "pearson",
-    backbone = backbone_converging(),
-    tf_network_params = tf_network_random(min_tfs_per_module = 3),
+    backbone = backbone_disconnected(),
+    tf_network_params = tf_network_random(min_tfs_per_module = 2),
     feature_network_params = feature_network_default(),
     kinetics_params = kinetics_custom(),
     gold_standard_params = gold_standard_default(),
-    simulation_params = simulation_default(burn_time = 4, total_time = 10, num_simulations = 32, ssa_algorithm = ssa_em(noise_strength = 6)),
+    simulation_params = simulation_default(burn_time = 6, total_time = 10, num_simulations = 50, ssa_algorithm = ssa_em(noise_strength = 6)),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
-    num_cores = 1,
     download_cache_dir = "~/.cache/dyngen"
   )
 
@@ -37,7 +36,6 @@ plot_gold_simulations(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewe
 plot_gold_expression(model, "w")
 
 # model$num_cores <- 1
-model <- model %>% 
   generate_cells() %>%
   generate_experiment()
 
@@ -47,6 +45,8 @@ plot_simulation_expression(model, 1)
 plot_simulation_expression(model, 2)
 plot_simulation_expression(model, 3)
 plot_simulation_expression(model, 6)
+
+plot_simulation_expression(model, 5, "w") + facet_wrap(~module_group, ncol = 3) + geom_vline(aes(xintercept = 0))
 
 traj <- 
   model %>% 
