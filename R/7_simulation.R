@@ -3,7 +3,7 @@ simulation_default <- function(
   burn_time = 2,
   total_time = 20,
   num_simulations = 32,
-  seeds = seq(1, num_simulations),
+  seeds = sample.int(10 * num_simulations, num_simulations),
   ssa_algorithm = ssa_em(noise_strength = 10)
 ) {
   assert_that(length(seeds) == num_simulations)
@@ -29,7 +29,6 @@ generate_cells <- function(
   simulations <- 
     pbapply::pblapply(
       X = seq_len(sim_params$num_simulations),
-      cl = model$num_cores,
       FUN = function(i) .generate_cells_simulate_cell(i, model = model)
     )
   

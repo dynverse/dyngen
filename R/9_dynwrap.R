@@ -1,4 +1,5 @@
 #' @export
+#' @importFrom dynwrap wrap_expression add_trajectory add_dimred
 wrap_dyngen_dataset <- function(model) {
   traj <- 
     dynwrap::wrap_expression(

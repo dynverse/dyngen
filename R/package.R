@@ -13,6 +13,8 @@
 #' @importFrom viridis scale_color_viridis
 #' @importFrom purrr %>% map map_df map_chr map_lgl map_int map_dbl keep discard invoke pmap map2 map2_df set_names imap
 #' @importFrom magrittr %<>%
+#' @importFrom Matrix t Matrix sparseMatrix
+#' @importFrom pbapply pblapply 
 #'
 #' @docType package
 #' @name dyngen

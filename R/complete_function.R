@@ -1,5 +1,9 @@
-
+#' @importFrom dynplot plot_dimred plot_default plot_heatmap
+#' @importFrom patchwork wrap_plots plot_annotation
+#' @export
 complete_function <- function(model, directory) {
+  print(model$numbers)
+  
   sink(paste0(directory, "/log.txt"))
   on.exit(sink())
   

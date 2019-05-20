@@ -219,7 +219,6 @@ generate_kinetics <- function(model) {
   # generate formula per feature
   bind_rows(pbapply::pblapply(
     seq_len(nrow(feature_info)),
-    cl = model$num_cores,
     function(i) {
       formulae <- list()
       

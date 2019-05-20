@@ -4,15 +4,18 @@
 \alias{initialise_model}
 \title{Initial settings for simulating a dyngen dataset}
 \usage{
-initialise_model(num_cells, num_tfs, num_targets, num_hks,
-  distance_metric = c("pearson", "spearman", "cosine", "euclidean",
-  "manhattan"), backbone, tf_network_params = tf_network_random(),
+initialise_model(num_cells = round(10^runif(1, 2, 4)),
+  num_tfs = round(10^runif(1, 1, log10(200))),
+  num_targets = round(10^runif(1, 1, 4)), num_hks = round(10^runif(1,
+  1, 3)), distance_metric = c("pearson", "spearman", "cosine",
+  "euclidean", "manhattan"), backbone,
+  tf_network_params = tf_network_random(),
   feature_network_params = feature_network_default(),
   kinetics_params = kinetics_default(),
   simulation_params = simulation_default(),
   gold_standard_params = gold_standard_default(),
-  experiment_params = experiment_snapshot(), verbose = FALSE,
-  num_cores = 1, download_cache_dir = NULL)
+  experiment_params = experiment_snapshot(), verbose = TRUE,
+  download_cache_dir = NULL)
 }
 \arguments{
 \item{num_cells}{The number of cells to sample.}

@@ -73,8 +73,11 @@ generate_feature_network <- function(
   
   realnet
 }
-
+#' @importFrom Matrix summary
+#' @importFrom igraph graph_from_data_frame page_rank E
 .feature_network_sample_from_realnet <- function(model, tf_info, realnet) {
+  requireNamespace("igraph")
+  
   tf_names <- tf_info$feature_id
   
   # convert to igraph

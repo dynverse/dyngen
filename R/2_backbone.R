@@ -37,7 +37,8 @@
 #' * start (logical): Whether or not this from cell state is the start of the trajectory
 #' * burn (logical): Whether these cell states are part of the burn in phase. Cells will 
 #'   not get sampled from these cell states.
-#'   
+#' 
+#' @importFrom grDevices rainbow
 #' @export
 backbone <- function(
   module_info,

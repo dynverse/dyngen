@@ -32,6 +32,8 @@ experiment_synchronised <- function(
   )
 }
 
+#' @importFrom dynutils scale_minmax
+#' @importFrom stats rnorm
 #' @export
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")

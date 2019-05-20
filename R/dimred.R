@@ -1,3 +1,4 @@
+#' @importFrom dyndimred dimred_landmark_mds
 #' @export
 calculate_dimred <- function(model) {
   # check whether the simulations have been run
