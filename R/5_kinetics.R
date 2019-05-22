@@ -2,7 +2,7 @@
 kinetics_default <- function(
   sample_wpr = function(n) runif(n, 10, 200),
   sample_wdr = function(n) runif(n, 2, 8),
-  sample_xpr = function(n) runif(n, 2, 8),
+  sample_xpr = function(n) runif(n, 10, 40),
   sample_xdr = function(n) runif(n, 2, 8),
   sample_ydr = function(n) runif(n, 2, 8),
   sample_ypr = function(n) runif(n, 1, 5),
@@ -29,7 +29,7 @@ kinetics_default <- function(
 kinetics_custom <- function(
   sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
   sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_xpr = function(n) rnorm(n, 5, 1) %>% pmax(2),
+  sample_xpr = function(n) rnorm(n, 25, 5) %>% pmax(5),
   sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
@@ -54,11 +54,11 @@ kinetics_custom <- function(
 
 #' @export
 kinetics_fixed <- function(
-  sample_wpr = function(n) rep(20, n),
-  sample_wdr = function(n) rep(10, n),
-  sample_xpr = function(n) rep(10, n),
-  sample_xdr = function(n) rep(10, n),
-  sample_ypr = function(n) rep(10, n),
+  sample_wpr = function(n) rep(40, n),
+  sample_wdr = function(n) rep(5, n),
+  sample_xpr = function(n) rep(20, n),
+  sample_xdr = function(n) rep(5, n),
+  sample_ypr = function(n) rep(5, n),
   sample_ydr = function(n) rep(1, n),
   
   sample_effect = function(n) rep(1, n),
@@ -300,8 +300,8 @@ generate_kinetics <- function(model) {
           molecule = x
         )
       
-      # add protein synthesis if target gene also regulates other genes
-      if (!is.na(info$num_targets) && info$num_targets > 0) {
+      # # add protein synthesis if target gene also regulates other genes
+      # if (!is.na(info$num_targets) && info$num_targets > 0) {
         # protein production
         formulae[[length(formulae)+1]] <- 
           tibble(
@@ -319,7 +319,7 @@ generate_kinetics <- function(model) {
             effect = -1,
             molecule = y
           )
-      }
+      # }
       
       bind_rows(formulae)
     }
