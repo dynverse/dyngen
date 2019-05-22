@@ -5,7 +5,9 @@ calculate_dimred <- function(model) {
   has_sim <- model %has_name% "simulations" && model$simulations %has_name% "counts"
   if (has_sim) {
     sim_counts <- model$simulations$counts
-    sim_ix <- seq_len(nrow(sim_counts))
+    sim_ix <- seq_len(2 * nrow(sim_counts))
+    simw_ix <- seq_len(nrow(sim_counts))
+    simx_ix <- simw_ix + length(simw_ix)
   } else {
     sim_counts <- NULL
     sim_ix <- numeric(0)
@@ -15,8 +17,9 @@ calculate_dimred <- function(model) {
   has_gs <- model %has_name% "gold_standard" && model$gold_standard %has_name% "counts"
   if (has_gs) {
     gs_counts <- model$gold_standard$counts
-    gs_ix <- seq(length(sim_ix) + 1, length(sim_ix) + nrow(gs_counts))
-    
+    gs_ix <- seq(length(sim_ix) + 1, length(sim_ix) + 2 * nrow(gs_counts))
+    gsw_ix <- seq(length(sim_ix) + 1, length(sim_ix) + nrow(gs_counts))
+    gsx_ix <- gsw_ix + length(gsw_ix)
   } else {
     gs_counts <- NULL
     gs_ix <- numeric(0)
@@ -29,18 +32,27 @@ calculate_dimred <- function(model) {
   
   # use only tf data
   tf_info <- model$feature_info %>% filter(is_tf)
-  tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
   
   if (!is.null(sim_counts)) {
-    sim_counts <- sim_counts[, tf_molecules, drop = FALSE]
+    sim_wcounts <- sim_counts[, tf_info$w, drop = FALSE]
+    sim_xcounts <- sim_counts[, tf_info$x, drop = FALSE]
+    sim_ycounts <- sim_counts[, tf_info$y, drop = FALSE]
   }
   
   if (!is.null(gs_counts)) {
-    gs_counts <- gs_counts[, tf_molecules, drop = FALSE]
+    gs_wcounts <- gs_counts[, tf_info$w, drop = FALSE]
+    gs_xcounts <- gs_counts[, tf_info$x, drop = FALSE]
+    gs_ycounts <- gs_counts[, tf_info$y, drop = FALSE]
   }
   
   # combine data and select landmarks
-  counts <- rbind(sim_counts, gs_counts)
+  # do not change the order of this rbind without changing the sim_ix and gs_ix objects
+  counts <- rbind(
+    sim_wcounts, 
+    sim_xcounts,
+    gs_wcounts,
+    gs_xcounts
+  )
   
   # normalise
   max_cols <- apply(counts, 2, quantile, .99)
@@ -48,6 +60,7 @@ calculate_dimred <- function(model) {
   counts <- sweep(counts, 2, max_cols, "/") %>% 
     Matrix::Matrix(sparse = TRUE)
   
+  # TODO: sample from matching gs_ix and sim_ix
   landmark_ix <- 
     if (length(gs_ix) > 0) {
       if (length(gs_ix) > 1000) {
@@ -82,12 +95,16 @@ calculate_dimred <- function(model) {
   ))
   dimnames(dimred) <- list(rownames(counts), paste0("comp_", seq_len(ncol(dimred))))
   
+  
+  
   # separate out sim dimred and gs dimred
   if (has_sim) {
-    model$simulations$dimred <- dimred[sim_ix, , drop = FALSE]
+    model$simulations$dimred <- dimred[simx_ix, , drop = FALSE]
+    model$simulations$dimred_projected <- dimred[simw_ix, , drop = FALSE]
   }
   if (has_gs) {
-    model$gold_standard$dimred <- dimred[gs_ix, , drop = FALSE]
+    model$gold_standard$dimred <- dimred[gsx_ix, , drop = FALSE]
+    model$gold_standard$dimred_projected <- dimred[gsw_ix, , drop = FALSE]
   }
   
   # return model
