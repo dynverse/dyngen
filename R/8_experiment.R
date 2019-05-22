@@ -47,57 +47,75 @@ generate_experiment <- function(model) {
       step_ix = step_ixs
     ) %>% 
     select(cell_id, step_ix, simulation_i, sim_time, from, to, time)
-  sim_counts <- model$simulations$counts[step_ixs, model$feature_info$x, drop = FALSE]
-  rownames(sim_counts) <- sim_meta$cell_id
-  colnames(sim_counts) <- model$feature_info$feature_id
+  
+  sim_wcounts <- model$simulations$counts[step_ixs, model$feature_info$w, drop = FALSE]
+  rownames(sim_wcounts) <- sim_meta$cell_id
+  colnames(sim_wcounts) <- model$feature_info$feature_id
+  
+  sim_xcounts <- model$simulations$counts[step_ixs, model$feature_info$x, drop = FALSE]
+  rownames(sim_xcounts) <- sim_meta$cell_id
+  colnames(sim_xcounts) <- model$feature_info$feature_id
+  
+  sim_ycounts <- model$simulations$counts[step_ixs, model$feature_info$y, drop = FALSE]
+  rownames(sim_ycounts) <- sim_meta$cell_id
+  colnames(sim_ycounts) <- model$feature_info$feature_id
   
   # fetch real expression data
   realcount <- .generate_experiment_fetch_realcount(model)
   
-  # map simulated counts to real counts
-  trafo_counts <- map(
-    sim_meta$cell_id,
-    function(cid) {
-      realcell <- sample.int(nrow(realcount), size = 1, replace = TRUE)
-      real_expr <- sort(realcount[realcell, ])
-      orig_expr <- sim_counts[cid, ]
-      # add a bit of noise to the percentages to make duplicate cells a bit different
-      pct_order <- 
-        dynutils::scale_minmax(rank(orig_expr, ties.method = "random")) + 
-        stats::rnorm(length(orig_expr), 0, .001) 
-      pct_order[pct_order <= 0] <- 0
-      pct_order[pct_order >= 1] <- 1
-      trafo_expr <- real_expr[floor(pct_order * (length(real_expr) - 1e-10)) + 1]
-      trafo_expr %>% set_names(names(orig_expr)) %>% Matrix::Matrix(sparse = TRUE) %>% Matrix::t()
-    }
-  )
-  trafo_count <- do.call(rbind, trafo_counts)
-  dimnames(trafo_count) <- dimnames(sim_counts)
-  
-  # generate housekeeping expression
-  num_hks <- model$numbers$num_hks
-  if (num_hks > 0) {
-    hk_count <- 
-      realcount[
-        sample.int(nrow(realcount), nrow(trafo_count), replace = TRUE),
-        sample.int(ncol(realcount), num_hks, replace = TRUE),
-        drop = FALSE
-        ]
-    rownames(hk_count) <- rownames(trafo_count)
-    colnames(hk_count) <- paste0("HK", seq_len(num_hks))
-    hk_info <- tibble(feature_id = colnames(hk_count), is_tf = FALSE, is_hk = TRUE)
-  } else {
-    hk_count <- NULL
-    hk_info <- NULL
-  }
+  # # map simulated counts to real counts
+  # trafo_xcounts <- map(
+  #   sim_meta$cell_id,
+  #   function(cid) {
+  #     realcell <- sample.int(nrow(realcount), size = 1, replace = TRUE)
+  #     real_expr <- sort(realcount[realcell, ])
+  #     orig_expr <- sim_xcounts[cid, ]
+  #     # add a bit of noise to the percentages to make duplicate cells a bit different
+  #     pct_order <- 
+  #       dynutils::scale_minmax(rank(orig_expr, ties.method = "random")) + 
+  #       stats::rnorm(length(orig_expr), 0, .001) 
+  #     pct_order[pct_order <= 0] <- 0
+  #     pct_order[pct_order >= 1] <- 1
+  #     trafo_expr <- real_expr[floor(pct_order * (length(real_expr) - 1e-10)) + 1]
+  #     trafo_expr %>% set_names(names(orig_expr)) %>% Matrix::Matrix(sparse = TRUE) %>% Matrix::t()
+  #   }
+  # )
+  # trafo_xcount <- do.call(rbind, trafo_xcounts)
+  # dimnames(trafo_xcount) <- dimnames(sim_xcounts)
+  # 
+  # # generate housekeeping expression
+  # num_hks <- model$numbers$num_hks
+  # if (num_hks > 0) {
+  #   hk_count <- 
+  #     realcount[
+  #       sample.int(nrow(realcount), nrow(trafo_count), replace = TRUE),
+  #       sample.int(ncol(realcount), num_hks, replace = TRUE),
+  #       drop = FALSE
+  #       ]
+  #   rownames(hk_count) <- rownames(trafo_count)
+  #   colnames(hk_count) <- paste0("HK", seq_len(num_hks))
+  #   hk_info <- tibble(feature_id = colnames(hk_count), is_tf = FALSE, is_hk = TRUE)
+  # } else {
+  #   hk_count <- NULL
+  #   hk_info <- NULL
+  # }
+  # 
+  # # combine into final count matrix
+  # model$experiment <- list(
+  #   counts = cbind(trafo_count, hk_count),
+  #   feature_info = bind_rows(
+  #     model$feature_info,
+  #     hk_info
+  #   ),
+  #   cell_info = sim_meta
+  # )
   
   # combine into final count matrix
   model$experiment <- list(
-    counts = cbind(trafo_count, hk_count),
-    feature_info = bind_rows(
-      model$feature_info,
-      hk_info
-    ),
+    wcounts = sim_wcounts,
+    xcounts = sim_xcounts,
+    ycounts = sim_ycounts,
+    feature_info =  model$feature_info,
     cell_info = sim_meta
   )
   
