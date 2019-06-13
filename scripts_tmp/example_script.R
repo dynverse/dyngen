@@ -26,16 +26,19 @@ model <- model %>%
   generate_kinetics()
 
 plot_backbone(model)
-plot_feature_network(model, tfs_only = TRUE)
+plot_feature_network(model, show_targets = FALSE)
 plot_feature_network(model)
+plot_feature_network(model, show_hks = TRUE)
 
 model <- model %>% 
   generate_gold_standard()
 
 plot_gold_simulations(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewer(palette = "Dark2")
 plot_gold_expression(model, "w")
+plot_gold_expression(model)
 
 # model$num_cores <- 1
+model <- model %>% 
   generate_cells() %>%
   generate_experiment()
 
@@ -52,14 +55,28 @@ traj <-
   model %>% 
   wrap_dyngen_dataset()
 
+library(dynplot)
+g1 <- dynplot(traj) +
+  geom_cell_point(color = "grey80") +
+  new_scale_fillcolour() +
+  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
+  geom_milestone_label(aes(fill = milestone_id)) +
+  scale_milestones_fillcolour() +
+  geom_velocity_arrow(stat = stat_velocity_grid(grid_n = 20))
+
+g2 <- dynplot(dataset) +
+  geom_cell_point(color = "grey80") +
+  new_scale_fillcolour() +
+  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
+  geom_milestone_label(aes(fill = milestone_id)) +
+  scale_milestones_fillcolour() +
+  geom_velocity_arrow(stat = stat_velocity_cells()) 
+
 g1 <- dynplot::plot_dimred(traj)
 g2 <- dynplot::plot_default(traj)
 patchwork::wrap_plots(g1, g2, nrow = 1)
 dynplot::plot_heatmap(traj, features_oi = 100)
 
-
-
-
-
+dynplot::plot_dimred(traj)
 
 # TODO: also make plot for simulations
