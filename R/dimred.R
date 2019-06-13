@@ -1,6 +1,6 @@
 #' @importFrom dyndimred dimred_landmark_mds
 #' @export
-calculate_dimred <- function(model) {
+calculate_dimred <- function(model, num_landmarks = 1000) {
   # check whether the simulations have been run
   has_sim <- model %has_name% "simulations" && model$simulations %has_name% "counts"
   if (has_sim) {
@@ -17,8 +17,8 @@ calculate_dimred <- function(model) {
   has_gs <- model %has_name% "gold_standard" && model$gold_standard %has_name% "counts"
   if (has_gs) {
     gs_counts <- model$gold_standard$counts
-    gs_ix <- seq(length(sim_ix) + 1, length(sim_ix) + 2 * nrow(gs_counts))
-    gsw_ix <- seq(length(sim_ix) + 1, length(sim_ix) + nrow(gs_counts))
+    gs_ix <- length(sim_ix) + seq_len(2 * nrow(gs_counts))
+    gsw_ix <- length(sim_ix) + seq_len(nrow(gs_counts))
     gsx_ix <- gsw_ix + length(gsw_ix)
   } else {
     gs_counts <- NULL
@@ -50,7 +50,8 @@ calculate_dimred <- function(model) {
   }
   
   # combine data and select landmarks
-  # do not change the order of this rbind without changing the sim_ix and gs_ix objects
+  # WARNING: do not change the order of this rbind without changing the sim_ix and gs_ix objects
+  # (and vice versa)
   counts <- rbind(
     sim_wcounts, 
     sim_xcounts,
@@ -58,26 +59,33 @@ calculate_dimred <- function(model) {
     gs_xcounts
   )
   
+  # log2 transformation
+  counts@x <- log2(counts@x + 1)
+  
   # normalise
   max_cols <- apply(counts, 2, quantile, .99)
   max_cols[max_cols == 0] <- 1
-  counts <- sweep(counts, 2, max_cols, "/") %>% 
+  counts <- sweep(counts, 2, max_cols, "/") %>%
     Matrix::Matrix(sparse = TRUE)
-  
-  # TODO: sample from matching gs_ix and sim_ix
+
+  # sample matching indices from w and x  
+  # WARNING: do not change the order of this rbind without changing the sim_ix and gs_ix objects
   landmark_ix <- 
     if (length(gs_ix) > 0) {
-      if (length(gs_ix) > 1000) {
-        sample(gs_ix, 1000)
+      if (length(gs_ix) > num_landmarks) {
+        ix <- sample(gsw_ix, num_landmarks / 2)
+        c(ix, ix + length(gsw_ix))
       } else {
         gs_ix
       }
     } else {
-      if (length(sim_ix) > 1000) {
-        sample(sim_ix, 1000)
+      if (length(sim_ix) > num_landmarks) {
+        ix <- sample(simw_ix, num_landmarks / 2)
+        c(ix, ix + length(simw_ix))
       } else {
         sim_ix
       }
+      
     }
   
   # calculate distances to lndmarks
