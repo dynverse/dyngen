@@ -83,30 +83,10 @@ generate_experiment <- function(model) {
   # trafo_xcount <- do.call(rbind, trafo_xcounts)
   # dimnames(trafo_xcount) <- dimnames(sim_xcounts)
   # 
-  # # generate housekeeping expression
-  # num_hks <- model$numbers$num_hks
-  # if (num_hks > 0) {
-  #   hk_count <- 
-  #     realcount[
-  #       sample.int(nrow(realcount), nrow(trafo_count), replace = TRUE),
-  #       sample.int(ncol(realcount), num_hks, replace = TRUE),
-  #       drop = FALSE
-  #       ]
-  #   rownames(hk_count) <- rownames(trafo_count)
-  #   colnames(hk_count) <- paste0("HK", seq_len(num_hks))
-  #   hk_info <- tibble(feature_id = colnames(hk_count), is_tf = FALSE, is_hk = TRUE)
-  # } else {
-  #   hk_count <- NULL
-  #   hk_info <- NULL
-  # }
-  # 
   # # combine into final count matrix
   # model$experiment <- list(
-  #   counts = cbind(trafo_count, hk_count),
-  #   feature_info = bind_rows(
-  #     model$feature_info,
-  #     hk_info
-  #   ),
+  #   counts = trafo_count,
+  #   feature_info = model$feature_info,
   #   cell_info = sim_meta
   # )
   
