@@ -53,7 +53,9 @@ plot_backbone <- function(model) {
 plot_feature_network <- function(
   model,
   color_by = c("module", "main"), 
-  tfs_only = FALSE,
+  show_tfs = TRUE,
+  show_targets = TRUE,
+  show_hks = FALSE,
   label = FALSE
 ) {
   color_by <- match.arg(color_by)
@@ -66,15 +68,35 @@ plot_feature_network <- function(
     feature_info <- feature_info %>% mutate(color_by = is_hk)
     color_legend <- c("FALSE" = "white", "TRUE" = "black", "NA" = "gray")
   } else if (color_by == "module") {
-    feature_info <- feature_info %>% mutate(color_by = module_id)
-    color_legend <- model$backbone$module_info %>% select(module_id, color) %>% deframe() %>% c("NA" = "lightgray")
+    feature_info <- feature_info %>%
+      mutate(
+        color_by = case_when(
+          !is.na(module_id) ~ module_id,
+          is_tf ~ "TF",
+          !is_hk ~ "Target",
+          is_hk ~ "HK"
+        )
+      )
+    color_legend <- c(
+      "TF" = "black",
+      "Target" = "darkgray",
+      "HK" = "lightgray",
+      model$backbone$module_info %>% select(module_id, color) %>% deframe()
+    )
   }
   
-  if (tfs_only) feature_info <- feature_info %>% filter(is_tf)
+  # remove unwanted features and convert NA into "NA"
+  feature_info <- feature_info %>% 
+    filter(
+      show_tfs & is_tf |
+      show_targets & !is_tf & !is_hk |
+      show_hks & is_hk
+    ) %>% 
+    mutate(
+      color_by = ifelse(is.na(color_by), "NA", color_by)
+    )
   
-  feature_info <- feature_info %>% mutate(color_by = ifelse(is.na(color_by), "NA", color_by))
-  
-  # get feature network
+  # filter feature network
   feature_network <- 
     model$feature_network %>% 
     filter(from %in% feature_info$feature_id & to %in% feature_info$feature_id) %>% 
@@ -113,7 +135,8 @@ plot_feature_network <- function(
     theme_graph(base_family = 'Helvetica') +
     scale_colour_manual(values = color_legend) +
     scale_size_manual(values = c("TRUE" = 5, "FALSE" = 3)) +
-    coord_equal()
+    coord_equal() +
+    labs(size = "is TF", color = "Module group")
 }
 
 # todo: this should be updated to look more like the functions below at some point in time
