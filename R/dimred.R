@@ -37,12 +37,16 @@ calculate_dimred <- function(model) {
     sim_wcounts <- sim_counts[, tf_info$w, drop = FALSE]
     sim_xcounts <- sim_counts[, tf_info$x, drop = FALSE]
     sim_ycounts <- sim_counts[, tf_info$y, drop = FALSE]
+  } else {
+    sim_wcounts <- sim_xcounts <- sim_ycounts <- NULL
   }
   
   if (!is.null(gs_counts)) {
     gs_wcounts <- gs_counts[, tf_info$w, drop = FALSE]
     gs_xcounts <- gs_counts[, tf_info$x, drop = FALSE]
     gs_ycounts <- gs_counts[, tf_info$y, drop = FALSE]
+  } else {
+    gs_wcounts <- gs_xcounts <- gs_ycounts <- NULL
   }
   
   # combine data and select landmarks
@@ -94,8 +98,6 @@ calculate_dimred <- function(model) {
     rescale = TRUE
   ))
   dimnames(dimred) <- list(rownames(counts), paste0("comp_", seq_len(ncol(dimred))))
-  
-  
   
   # separate out sim dimred and gs dimred
   if (has_sim) {
