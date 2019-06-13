@@ -18,8 +18,15 @@ generate_feature_network <- function(
 ) {
   if (model$verbose) cat("Sampling feature network from real network\n")
   
+  # verify that this function has all the data it needs
+  assert_that(
+    model %has_names% c("feature_info", "feature_network"),
+    msg = "Execute generate_tf_network() before executing generate_feature_network()"
+  )
+  
   # determine number of targets for each tf
-  tf_info <- model$feature_info %>% 
+  tf_info <- 
+    model$feature_info %>% 
     mutate(
       num_targets = .generate_partitions(
         num_elements = model$numbers$num_targets,
@@ -32,25 +39,34 @@ generate_feature_network <- function(
   # download realnet (~2MB)
   realnet <- .feature_network_fetch_realnet(model)
   
+  # verify that realnet is large enough
+  assert_that(
+    nrow(model$feature_info) <= nrow(realnet),
+    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", nrow(model$feature_info))
+  )
+  
   # map tfs to rownames of realnet randomly
   tf_mapper <- set_names(tf_names, sample(rownames(realnet), length(tf_names)))
   rownames(realnet) <- ifelse(rownames(realnet) %in% names(tf_mapper), tf_mapper[rownames(realnet)], rownames(realnet))
   colnames(realnet) <- ifelse(colnames(realnet) %in% names(tf_mapper), tf_mapper[colnames(realnet)], colnames(realnet))
   
   # sample target network from realnet
-  out <- .feature_network_sample_from_realnet(model, tf_info, realnet)
-
+  downstream <- .feature_network_sample_downstream(model, tf_info, realnet)
+  housekeeping <- .feature_network_sample_housekeeping(model, realnet)
+  
   # return output
   model$feature_info <- 
     bind_rows(
       model$feature_info,
-      out$target_info
+      downstream$target_info,
+      housekeeping$hk_info
     )
   
   model$feature_network <- 
     bind_rows(
       model$feature_network,
-      out$target_network
+      downstream$target_network,
+      housekeeping$hk_network
     )
   
   model
@@ -64,18 +80,11 @@ generate_feature_network <- function(
   
   realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
   
-  realnet <- .download_cacheable_file(realnet_url, model)
-  
-  assert_that(
-    nrow(model$feature_info) <= nrow(realnet),
-    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", nrow(model$feature_info))
-  )
-  
-  realnet
+  .download_cacheable_file(realnet_url, model)
 }
 #' @importFrom Matrix summary
 #' @importFrom igraph graph_from_data_frame page_rank E
-.feature_network_sample_from_realnet <- function(model, tf_info, realnet) {
+.feature_network_sample_downstream <- function(model, tf_info, realnet) {
   requireNamespace("igraph")
   
   tf_names <- tf_info$feature_id
@@ -170,5 +179,68 @@ generate_feature_network <- function(
   lst(
     target_network = target_regnet,
     target_info = target_info
+  )
+}
+
+#' @importFrom Matrix summary
+#' @importFrom igraph graph_from_data_frame page_rank E
+.feature_network_sample_housekeeping <- function(model, realnet) {
+  requireNamespace("igraph")
+  
+  num_hks <- model$numbers$num_hks
+  
+  # convert to igraph
+  gr <- 
+    realnet %>% 
+    Matrix::summary() %>% 
+    as.data.frame() %>% 
+    transmute(
+      i = rownames(realnet)[i], 
+      j = colnames(realnet)[j],
+      weight = x
+    ) %>%
+    igraph::graph_from_data_frame(vertices = colnames(realnet))
+  
+  hk_names <- gr %>% 
+    igraph::bfs(sample.int(ncol(realnet), 1), neimode = "all") %>% 
+    .[["order"]] %>% 
+    .[seq_len(num_hks)] %>% 
+    names()
+  
+  hk_regnet <- 
+    gr %>% 
+    igraph::induced_subgraph(hk_names) %>% 
+    igraph::as_data_frame() %>% 
+    as_tibble() %>% 
+    select(from, to) %>% 
+    filter(from != to)
+  
+  # rename hk features
+  if (nrow(hk_regnet) > 0) {
+    hk_mapper <- 
+      set_names(
+        paste0("HK", seq_along(hk_names)),
+        hk_names
+      )
+    
+    hk_regnet <- 
+      hk_regnet %>% 
+      mutate(from = hk_mapper[from], to = hk_mapper[to])
+  } else {
+    hk_mapper <- character(0)
+  }
+  
+  # create target info
+  hk_info <- 
+    tibble(
+      feature_id = hk_mapper,
+      is_tf = FALSE,
+      is_hk = TRUE,
+      burn = TRUE # extra genes should be available during burn in
+    )
+  
+  lst(
+    hk_network = hk_regnet,
+    hk_info = hk_info
   )
 }
