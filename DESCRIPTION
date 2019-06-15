@@ -45,4 +45,6 @@ Suggests:
 Remotes:
   dynverse/dynutils,
   dynverse/dynwrap
+LinkingTo: 
+  Rcpp
 VignetteBuilder: knitr

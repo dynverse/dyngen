@@ -158,29 +158,29 @@ parse_propensity_funs <- function(propensity_funs, state, params, env = parent.f
   )
   
   buffers <- rcpp_prop_funs %>% str_replace(";[^=]*$", ";") %>% {ifelse(grepl("=", .), ., "")} %>% str_replace_all("([^;]*;)", "  \\1\n")
-  calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  out[", seq_along(.)-1, "] = ", ., ";\n")}
-  # calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  transition_rates[", seq_along(.)-1, "] = ", ., ";\n")}
-  
-  rcpp_code <- paste0(
-    "NumericVector activation(NumericVector state, NumericVector params, double time) {\n",
-    ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
-    "  NumericVector out = no_init(", length(propensity_funs), ");\n",
-    paste(paste0(buffers, calculations), collapse = ""),
-    "  return out;\n",
-    "}\n"
-  )
+  # calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  out[", seq_along(.)-1, "] = ", ., ";\n")}
+  calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  transition_rates[", seq_along(.)-1, "] = ", ., ";\n")}
   
   # rcpp_code <- paste0(
-  #   "void SSA::calculate_transition_rates(\n",
-  #   "  const NumericVector& state,\n",
-  #   "  const NumericVector& params,\n",
-  #   "  const double time,\n",
-  #   "  NumericVector& transition_rates\n", 
-  #   ") {\n",
+  #   "NumericVector activation(NumericVector state, NumericVector params, double time) {\n",
   #   ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
+  #   "  NumericVector out = no_init(", length(propensity_funs), ");\n",
   #   paste(paste0(buffers, calculations), collapse = ""),
+  #   "  return out;\n",
   #   "}\n"
   # )
+  
+  rcpp_code <- paste0(
+    "void SSA::calculate_transition_rates(\n",
+    "  const NumericVector& state,\n",
+    "  const NumericVector& params,\n",
+    "  const double time,\n",
+    "  NumericVector& transition_rates\n",
+    ") {\n",
+    ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
+    paste(paste0(buffers, calculations), collapse = ""),
+    "}\n"
+  )
   
   tmpdir <- dynutils::safe_tempdir("fastgssa")
   on.exit(unlink(tmpdir, recursive = TRUE, force = TRUE))
