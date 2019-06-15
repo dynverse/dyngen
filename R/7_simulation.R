@@ -67,14 +67,14 @@ generate_cells <- function(
     
     # burn in
     out <- fastgssa(
-      initial.state = sim_system$initial_state,
-      propensity.funs = propensity_funs,
+      initial_state = sim_system$initial_state,
+      propensity_funs = propensity_funs,
       nu = nus_burn,
-      final.time = sim_params$burn_time,
+      final_time = sim_params$burn_time,
       params = sim_system$parameters,
       method = sim_params$ssa_algorithm,
-      stop.on.neg.state = FALSE,
-      stop.on.neg.propensity = FALSE,
+      stop_on_neg_state = FALSE,
+      stop_on_neg_propensity = FALSE,
       verbose = FALSE
     )
     
@@ -94,14 +94,14 @@ generate_cells <- function(
   
   # actual simulation
   out <- fastgssa(
-    initial.state = new_initial_state, 
-    propensity.funs = propensity_funs,
+    initial_state = new_initial_state, 
+    propensity_funs = propensity_funs,
     nu = sim_system$nus,
-    final.time = sim_params$total_time, 
+    final_time = sim_params$total_time, 
     params = sim_system$parameters,
     method = sim_params$ssa_algorithm,
-    stop.on.neg.state = FALSE,
-    stop.on.neg.propensity = FALSE,
+    stop_on_neg_state = FALSE,
+    stop_on_neg_propensity = FALSE,
     verbose = FALSE
   )
   
@@ -119,7 +119,7 @@ generate_cells <- function(
 }
 
 .generate_cells_process_ssa <- function(out) {
-  final_time <- out$args$final.time
+  final_time <- out$args$final_time
   
   out$timeseries %>%
     filter(t <= final_time) %>%

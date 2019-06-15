@@ -1,50 +1,54 @@
+# @useDynLib dyngen, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib dyngen
+#' 
 #' @importFrom utils flush.console
 fastgssa <- function(
-  initial.state,
-  propensity.funs,
+  initial_state,
+  propensity_funs,
   nu,
-  final.time,
+  final_time,
   params = NULL,
   method = ssa_direct(),
-  stop.on.neg.state = TRUE,
-  stop.on.neg.propensity = TRUE,
+  stop_on_neg_state = TRUE,
+  stop_on_neg_propensity = TRUE,
   verbose = FALSE,
-  max.duration = Inf,
-  time.next.console = 1
+  max_duration = Inf,
+  time_next_console = 1
 ) {
   # check parameters
   assert_that(
-    is.numeric(initial.state),
-    !is.null(names(initial.state)),
-    is.character(propensity.funs),
+    is.numeric(initial_state),
+    !is.null(names(initial_state)),
+    is.character(propensity_funs),
     dynutils::is_sparse(nu),
-    is.numeric(final.time),
-    is.numeric(time.next.console),
+    is.numeric(final_time),
+    is.numeric(time_next_console),
     is.logical(verbose),
     is(method, "fastgssa::ssa_method"),
-    length(initial.state) == nrow(nu),
-    length(propensity.funs) == ncol(nu),
+    length(initial_state) == nrow(nu),
+    length(propensity_funs) == ncol(nu),
     is.numeric(params),
     length(params) == 0 || !is.null(names(params)),
     !any(c("state", "time", "params") %in% names(params)),
-    !any(c("state", "time", "params") %in% names(initial.state)),
-    !any(duplicated(c(names(initial.state), names(params))))
+    !any(c("state", "time", "params") %in% names(initial_state)),
+    !any(duplicated(c(names(initial_state), names(params))))
   )
   
-  state <- initial.state
+  state <- initial_state
   time <- 0
   
   # compile propensity funs
-  parse_propensity_funs(propensity.funs, state, params, env = environment())
+  parse_propensity_funs(propensity_funs, state, params, env = environment())
   
-  transition_rates <- activation(state, params, time) %>% set_names(names(propensity.funs))
+  transition_rates <- activation(state, params, time) %>% set_names(names(propensity_funs))
   
   # Initialise output
   output <- list()
   output[[length(output) + 1]] <- tibble(time, state = list(state), transition_rates = list(transition_rates))
   
   # # Start the timer
-  time.next.console <- time.curr <- time.start <- Sys.time()
+  time_next_console <- time.curr <- time.start <- Sys.time()
   
   if (verbose) {
     cat("Running ", method$name, " method with console output every ", console.interval, " time step\n", sep = "")
@@ -52,13 +56,13 @@ fastgssa <- function(
     utils::flush.console()
   }
   
-  while (time < final.time && (time.curr - time.start) <= max.duration)  {
+  while (time < final_time && (time.curr - time.start) <= max_duration)  {
     time.curr <- Sys.time()
     
-    if (verbose && time.next.console <= time.curr) {
+    if (verbose && time_next_console <= time.curr) {
       cat(format(time.curr), " | time = ", time, " : ", paste(round(state, 2), collapse = ","), "\n", sep = "")
       utils::flush.console()
-      time.next.console <- time.next.console + console.interval
+      time_next_console <- time_next_console + console.interval
     }
     
     method_out <- method$fun(state = state, transition_rates = transition_rates, nu = nu)
@@ -71,18 +75,18 @@ fastgssa <- function(
     # Check that no states are negative (can occur in some tau-leaping methods)
     invalid_ix <- is.na(state) | state < 0
     if (any(invalid_ix)) {
-      if (stop.on.neg.state) {
+      if (stop_on_neg_state) {
         stop("state vector contains negative values\n", paste(names(state)[invalid_ix], collapse = ", "))
       } else {
         state[invalid_ix] <- 0
       }
     }
     
-    transition_rates <- activation(state, params, time) %>% set_names(names(propensity.funs))
+    transition_rates <- activation(state, params, time) %>% set_names(names(propensity_funs))
     
     invalid_ix <- is.na(transition_rates) | transition_rates < 0
     if (any(invalid_ix)) {
-      if (stop.on.neg.propensity) {
+      if (stop_on_neg_propensity) {
         stop("transition rate contains negative values\n", paste(names(transition_rates)[invalid_ix], collapse = ", "))
       } else {
         transition_rates[invalid_ix] <- 0
@@ -105,11 +109,11 @@ fastgssa <- function(
   # Calculate some stats for the used method
   stats <- tibble(
     method             = method$name,
-    final.time.reached = time >= final.time,
+    final_time.reached = time >= final_time,
     extinction         = all(state == 0),
     negative.state     = any(state < 0),
     zero.prop          = all(transition_rates == 0),
-    max.duration       = elapsed.time >= max.duration,
+    max_duration       = elapsed.time >= max_duration,
     start.time         = time.start,
     end.time           = time.end,
     elapsed.time       = elapsed.time
@@ -129,10 +133,10 @@ fastgssa <- function(
 
 #' @importFrom stringr str_count str_replace_all str_extract_all str_replace
 #' @importFrom Rcpp cppFunction
-parse_propensity_funs <- function(propensity.funs, state, params, env = parent.frame()) {
-  buffer_size <- max(str_count(propensity.funs, "="))
+parse_propensity_funs <- function(propensity_funs, state, params, env = parent.frame()) {
+  buffer_size <- max(str_count(propensity_funs, "="))
   rcpp_prop_funs <- map_chr(
-    propensity.funs,
+    propensity_funs,
     function(prop_fun) {
       buffer_names <- prop_fun %>% str_extract_all("[A-Za-z_0-9]* *=") %>% first() %>% str_replace_all("[ =]", "")
       prop_split <- gsub("([A-Za-z][A-Za-z0-9_]*)", " \\1 ", prop_fun) %>% strsplit(" ") %>% first() %>% discard(~ .=="")
@@ -155,15 +159,28 @@ parse_propensity_funs <- function(propensity.funs, state, params, env = parent.f
   
   buffers <- rcpp_prop_funs %>% str_replace(";[^=]*$", ";") %>% {ifelse(grepl("=", .), ., "")} %>% str_replace_all("([^;]*;)", "  \\1\n")
   calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  out[", seq_along(.)-1, "] = ", ., ";\n")}
+  # calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  transition_rates[", seq_along(.)-1, "] = ", ., ";\n")}
   
   rcpp_code <- paste0(
     "NumericVector activation(NumericVector state, NumericVector params, double time) {\n",
     ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
-    "  NumericVector out = no_init(", length(propensity.funs), ");\n",
+    "  NumericVector out = no_init(", length(propensity_funs), ");\n",
     paste(paste0(buffers, calculations), collapse = ""),
     "  return out;\n",
     "}\n"
   )
+  
+  # rcpp_code <- paste0(
+  #   "void SSA::calculate_transition_rates(\n",
+  #   "  const NumericVector& state,\n",
+  #   "  const NumericVector& params,\n",
+  #   "  const double time,\n",
+  #   "  NumericVector& transition_rates\n", 
+  #   ") {\n",
+  #   ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
+  #   paste(paste0(buffers, calculations), collapse = ""),
+  #   "}\n"
+  # )
   
   tmpdir <- dynutils::safe_tempdir("fastgssa")
   on.exit(unlink(tmpdir, recursive = TRUE, force = TRUE))
@@ -189,7 +206,7 @@ ssa_method <- function(name, fun) {
 #'
 #' @importFrom stats rnorm
 #'
-# @export
+#' @export
 ssa_em <- function(h = 0.01, noise_strength = 2) {
   ssa_method(
     name = "em",
@@ -213,7 +230,7 @@ ssa_em <- function(h = 0.01, noise_strength = 2) {
 #' Direct method implementation of the \acronym{SSA} as described by Gillespie (1977).
 #'
 #' @return an object of to be used by \code{\link{ssa}}.
-# @export
+#' @export
 ssa_direct <- function() {
   ssa_method(
     name = "direct",

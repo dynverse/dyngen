@@ -108,14 +108,14 @@ generate_gold_standard <- function(model) {
     
     # simulation of gold standard edge
     out <- fastgssa(
-      initial.state = new_initial_state,
-      propensity.funs = propensity_funs,
+      initial_state = new_initial_state,
+      propensity_funs = propensity_funs,
       nu = new_nus,
-      final.time = time,
+      final_time = time,
       params = sim_system$parameters,
       method = ssa_em(noise_strength = 0),
-      stop.on.neg.state = TRUE,
-      stop.on.neg.propensity = TRUE,
+      stop_on_neg_state = FALSE,
+      stop_on_neg_propensity = FALSE,
       verbose = FALSE
     )
     
