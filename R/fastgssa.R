@@ -1,5 +1,4 @@
 # @useDynLib dyngen, .registration = TRUE
-#' @importFrom Rcpp sourceCpp
 #' @useDynLib dyngen
 #' 
 #' @importFrom utils flush.console
@@ -14,7 +13,7 @@ fastgssa <- function(
   stop_on_neg_propensity = TRUE,
   verbose = FALSE,
   max_duration = Inf,
-  time_next_console = 1
+  console_interval = 1
 ) {
   # check parameters
   assert_that(
@@ -23,7 +22,7 @@ fastgssa <- function(
     is.character(propensity_funs),
     dynutils::is_sparse(nu),
     is.numeric(final_time),
-    is.numeric(time_next_console),
+    is.numeric(console_interval),
     is.logical(verbose),
     is(method, "fastgssa::ssa_method"),
     length(initial_state) == nrow(nu),
@@ -38,102 +37,26 @@ fastgssa <- function(
   state <- initial_state
   time <- 0
   
-  # compile propensity funs
-  parse_propensity_funs(propensity_funs, state, params, env = environment())
+  sim <- create_simulator(propensity_funs, state, params, env = environment())
   
-  transition_rates <- activation(state, params, time) %>% set_names(names(propensity_funs))
-  
-  # Initialise output
-  output <- list()
-  output[[length(output) + 1]] <- tibble(time, state = list(state), transition_rates = list(transition_rates))
-  
-  # # Start the timer
-  time_next_console <- time.curr <- time.start <- Sys.time()
-  
-  if (verbose) {
-    cat("Running ", method$name, " method with console output every ", console.interval, " time step\n", sep = "")
-    cat("Start wall time: ", format(time.start), "\n" , sep = "")
-    utils::flush.console()
-  }
-  
-  while (time < final_time && (time.curr - time.start) <= max_duration)  {
-    time.curr <- Sys.time()
-    
-    if (verbose && time_next_console <= time.curr) {
-      cat(format(time.curr), " | time = ", time, " : ", paste(round(state, 2), collapse = ","), "\n", sep = "")
-      utils::flush.console()
-      time_next_console <- time_next_console + console.interval
-    }
-    
-    method_out <- method$fun(state = state, transition_rates = transition_rates, nu = nu)
-    
-    state_prev <- state
-    
-    time <- time + method_out$dtime
-    state <- state + method_out$dstate
-    
-    # Check that no states are negative (can occur in some tau-leaping methods)
-    invalid_ix <- is.na(state) | state < 0
-    if (any(invalid_ix)) {
-      if (stop_on_neg_state) {
-        stop("state vector contains negative values\n", paste(names(state)[invalid_ix], collapse = ", "))
-      } else {
-        state[invalid_ix] <- 0
-      }
-    }
-    
-    transition_rates <- activation(state, params, time) %>% set_names(names(propensity_funs))
-    
-    invalid_ix <- is.na(transition_rates) | transition_rates < 0
-    if (any(invalid_ix)) {
-      if (stop_on_neg_propensity) {
-        stop("transition rate contains negative values\n", paste(names(transition_rates)[invalid_ix], collapse = ", "))
-      } else {
-        transition_rates[invalid_ix] <- 0
-      }
-    }
-    
-    output[[length(output) + 1]] <- tibble(time, state = list(state), transition_rates = list(transition_rates))
-  }
-  
-  # Display the last time step on the console
-  if (verbose) {
-    cat("time = ", time, " : ", paste(round(state, 2), collapse = ","), "\n", sep = "")
-    utils::flush.console()
-  }
-  
-  # Stop timer
-  time.end <- Sys.time()
-  elapsed.time <- difftime(time.start, time.end, units = "secs")
-  
-  # Calculate some stats for the used method
-  stats <- tibble(
-    method             = method$name,
-    final_time.reached = time >= final_time,
-    extinction         = all(state == 0),
-    negative.state     = any(state < 0),
-    zero.prop          = all(transition_rates == 0),
-    max_duration       = elapsed.time >= max_duration,
-    start.time         = time.start,
-    end.time           = time.end,
-    elapsed.time       = elapsed.time
+  output <- sim$simulate(
+    initial_state,
+    params,
+    as.matrix(nu),
+    final_time,
+    max_duration,
+    stop_on_neg_state,
+    stop_on_neg_propensity,
+    verbose,
+    console_interval
   )
-  if (verbose) {
-    print(stats)
-  }
   
-  
-  # Output results
-  list(
-    timeseries = bind_rows(output),
-    stats = stats
-  )
   
 }
 
 #' @importFrom stringr str_count str_replace_all str_extract_all str_replace
-#' @importFrom Rcpp cppFunction
-parse_propensity_funs <- function(propensity_funs, state, params, env = parent.frame()) {
+#' @importFrom Rcpp sourceCpp
+create_simulator <- function(propensity_funs, state, params, env = parent.frame()) {
   buffer_size <- max(str_count(propensity_funs, "="))
   rcpp_prop_funs <- map_chr(
     propensity_funs,
@@ -157,35 +80,57 @@ parse_propensity_funs <- function(propensity_funs, state, params, env = parent.f
     }
   )
   
-  buffers <- rcpp_prop_funs %>% str_replace(";[^=]*$", ";") %>% {ifelse(grepl("=", .), ., "")} %>% str_replace_all("([^;]*;)", "  \\1\n")
-  # calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  out[", seq_along(.)-1, "] = ", ., ";\n")}
+  buffers <- rcpp_prop_funs %>% str_replace(";[^=]*$", ";") %>% {ifelse(grepl("=", .), ., "")} %>% str_replace_all("([^;]*;)", "    \\1\n")
   calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  transition_rates[", seq_along(.)-1, "] = ", ., ";\n")}
   
-  # rcpp_code <- paste0(
-  #   "NumericVector activation(NumericVector state, NumericVector params, double time) {\n",
-  #   ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
-  #   "  NumericVector out = no_init(", length(propensity_funs), ");\n",
-  #   paste(paste0(buffers, calculations), collapse = ""),
-  #   "  return out;\n",
-  #   "}\n"
-  # )
+  rcpp_code <- paste0("// [[Rcpp::depends(dyngen)]]
+#include <Rcpp.h>
+#include <ssa.hpp>
+#include <ssa_em.hpp>
+
+using namespace Rcpp;
+
+class Instance : public SSA_EM {
+public:
+  Instance(double h_, double noise_strength_) : SSA_EM(h_, noise_strength_) {} 
   
-  rcpp_code <- paste0(
-    "void SSA::calculate_transition_rates(\n",
-    "  const NumericVector& state,\n",
-    "  const NumericVector& params,\n",
-    "  const double time,\n",
-    "  NumericVector& transition_rates\n",
-    ") {\n",
-    ifelse(buffer_size == 0, "", paste0("  NumericVector buffer = no_init(", buffer_size, ");\n")),
-    paste(paste0(buffers, calculations), collapse = ""),
-    "}\n"
-  )
-  
+  virtual void calculate_transition_rates(
+    const NumericVector& state,
+    const NumericVector& params,
+    const double time,
+    NumericVector& transition_rates
+  ) {
+",
+  ifelse(buffer_size == 0, "", paste0("    NumericVector buffer = no_init(", buffer_size, ");\n")),
+  paste(paste0(buffers, calculations), collapse = ""),
+"  }
+};
+
+RCPP_EXPOSED_CLASS(Instance)
+RCPP_MODULE(Instance){
+  Rcpp::class_<SSA>(\"SSA\")
+    .method(\"simulate\", &SSA::simulate)
+  ;
+  Rcpp::class_<SSA_EM>(\"SSA_EM\")
+    .derives<SSA>(\"SSA\")
+    .constructor<double, double>()
+    .field(\"h\", &SSA_EM::h) 
+    .field(\"noise_strength\", &SSA_EM::noise_strength) 
+  ;
+  Rcpp::class_<Instance>(\"Instance\")
+    .derives<SSA_EM>(\"SSA_EM\")
+    .constructor<double, double>()
+ ;
+}
+")
   tmpdir <- dynutils::safe_tempdir("fastgssa")
   on.exit(unlink(tmpdir, recursive = TRUE, force = TRUE))
-  Rcpp::cppFunction(rcpp_code, env = env, cacheDir = tmpdir)
+
+  Rcpp::sourceCpp(code = rcpp_code, env = env, cacheDir = tmpdir)
+  new(Instance, .01, 2)
 }
+
+
 
 
 ssa_method <- function(name, fun) {
