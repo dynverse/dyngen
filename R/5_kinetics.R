@@ -186,7 +186,9 @@ generate_kinetics <- function(model) {
       by = "feature_id"
     ) %>% 
     mutate(
-      a0 = a0 %|||% a0_2
+      # 1 for genes that are not being regulated by any other genes,
+      # yet did not already have an a0 defined
+      a0 = a0 %|||% a0_2 %|||% 1 
     ) %>% 
     select(-a0_2)
   
