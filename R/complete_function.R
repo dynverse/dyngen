@@ -14,7 +14,7 @@ complete_function <- function(model, directory) {
     generate_kinetics()
   
   g1 <- plot_backbone(model)
-  g2 <- plot_feature_network(model, tfs_only = TRUE)
+  g2 <- plot_feature_network(model, show_targets = FALSE)
   g3 <- plot_feature_network(model)
   g <- patchwork::wrap_plots(
     patchwork::wrap_plots(g1, g2, ncol = 1),
