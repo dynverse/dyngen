@@ -186,6 +186,52 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
 
 
 #' @export
+plot_gold_simulations_proj <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2)) {
+  plot_df <- 
+    bind_rows(
+      bind_cols(
+        model$gold_standard$meta,
+        model$gold_standard$dimred %>% as.data.frame
+      ) %>% mutate(type = "normal"),
+      bind_cols(
+        model$gold_standard$meta,
+        model$gold_standard$dimred_projected %>% as.data.frame
+      ) %>% mutate(type = "projected")
+    ) %>% 
+    filter(!burn)
+  
+  if (!detailed && model %has_names% "simulations" && model$simulations %has_names% "dimred") {
+    plot_df <- plot_df %>%
+      bind_rows(
+        bind_cols(
+          model$simulations$meta,
+          model$simulations$dimred %>% as.data.frame
+        ) %>%
+          filter(sim_time >= 0) %>%
+          mutate(type = "normal"),
+        bind_cols(
+          model$simulations$meta,
+          model$simulations$dimred_projected %>% as.data.frame
+        ) %>% 
+          filter(sim_time >= 0) %>% 
+          mutate(type = "projected")
+      )
+  }
+  
+  if (detailed) {
+    plot_df <- plot_df %>% mutate(edge = paste0(from_, "_", to_))
+  } else {
+    plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
+  }
+  
+  ggplot(mapping = mapping) +
+    geom_path(aes(group = paste0(simulation_i, "_", type), linetype = type), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
+    geom_path(aes(colour = edge, group = paste0(from_, "_", to_, "_", type), linetype = type), plot_df %>% filter(simulation_i == 0), size = 2) +
+    theme_bw()
+}
+
+
+#' @export
 plot_gold_mappings <- function(model, selected_simulations = NULL) {
   plot_df <- 
     bind_rows(
