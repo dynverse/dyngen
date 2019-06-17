@@ -4,8 +4,21 @@ Title: Synthetic single cell data
 Version: 0.1
 Date: 2016-04-06
 Authors@R: c(
-  person("Wouter", "Saelens", email = "wouter.saelens@ugent.be", role = c("aut", "cre")),
-  person("Robrecht", "Cannoodt", email = "rcannood@gmail.com", role = c("aut")))
+    person(
+      "Robrecht", 
+      "Cannoodt", 
+      email = "rcannood@gmail.com", 
+      role = c("aut"),
+      comment = c(ORCID = "0000-0003-3641-729X")
+    ),
+    person(
+      "Wouter", 
+      "Saelens", 
+      email = "wouter.saelens@ugent.be", 
+      role = c("aut", "cre"), 
+      comment = c(ORCID = "0000-0002-7114-6248")
+    )
+  )
 Description: A toolkit for generating synthetic single cell data.
 License: GPL-3
 LazyData: TRUE
