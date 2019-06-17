@@ -33,6 +33,7 @@ Imports:
   dyndimred (>= 1.0.0),
   dynutils (>= 1.0.2.9000),
   dynwrap (>= 1.0.0),
+  fastgssa,
   ggplot2,
   ggraph,
   grDevices,
@@ -57,7 +58,6 @@ Suggests:
   rmarkdown
 Remotes:
   dynverse/dynutils,
-  dynverse/dynwrap
-LinkingTo: 
-  Rcpp
+  dynverse/dynwrap,
+  dynverse/fastgssa@devel
 VignetteBuilder: knitr
