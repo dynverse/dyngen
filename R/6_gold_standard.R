@@ -1,7 +1,9 @@
 #' @export
 gold_standard_default <- function(
+  ssa_algorithm = ssa_direct()
 ) {
   lst(
+    ssa_algorithm
   )
 }
 
@@ -113,17 +115,17 @@ generate_gold_standard <- function(model) {
       nu = new_nus,
       final_time = time,
       params = sim_system$parameters,
-      method = ssa_em(noise_strength = 0),
+      method = model$gold_standard_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
       stop_on_neg_propensity = FALSE,
       verbose = FALSE
     )
     
-    meta <- out$timeseries %>% transmute(time = ifelse(n() == row_number(), !!time, time), from_, to_)
-    counts <- do.call(rbind, out$timeseries$state) %>% Matrix::Matrix(sparse = TRUE)
+    meta <- out$output %>% transmute(time = ifelse(n() == row_number(), !!time, time), from_, to_)
+    counts <- do.call(rbind, out$output$state) %>% Matrix::Matrix(sparse = TRUE)
     
     end_state <-
-      out$timeseries$state %>% last() %>% as.matrix()
+      out$output$state %>% last() %>% as.matrix()
     
     gold_sim_outputs[[i]] <- lst(meta, counts)
     

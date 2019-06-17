@@ -8,8 +8,8 @@ using namespace Rcpp;
 
 class SSA_EM : public SSA {
 public:
-  //  SSA_EM(double h_, double noise_strength_) : SSA("em"), h(h_), noise_strength(noise_strength_) {}
-  SSA_EM(double h_, double noise_strength_) : SSA(), h(h_), noise_strength(noise_strength_) {}
+   SSA_EM(double h_, double noise_strength_) : SSA("EM"), h(h_), noise_strength(noise_strength_) {}
+  // SSA_EM(double h_, double noise_strength_) : SSA(), h(h_), noise_strength(noise_strength_) {}
   // SSA_EM(TR_FUN fun, double h_, double noise_strength_) : SSA(fun), h(h_), noise_strength(noise_strength_) {}
 
   double h ;
@@ -34,5 +34,13 @@ public:
     }
   }
 } ;
+
+//' @export
+// [[Rcpp::export]]
+SEXP ssa_em(double h = .01, double noise_strength = 2.0) {
+  SSA_EM *ssa = new SSA_EM(h, noise_strength);
+  XPtr<SSA_EM> ptr(ssa);
+  return ptr;
+}
 
 #endif

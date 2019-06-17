@@ -10,7 +10,7 @@ calculate_dimred <- function(model, num_landmarks = 1000) {
     simx_ix <- simw_ix + length(simw_ix)
   } else {
     sim_counts <- NULL
-    sim_ix <- numeric(0)
+    sim_ix <- simw_ix <- simx_ix <- numeric(0)
   }
   
   # check whether the gold standard has been run
@@ -22,7 +22,7 @@ calculate_dimred <- function(model, num_landmarks = 1000) {
     gsx_ix <- gsw_ix + length(gsw_ix)
   } else {
     gs_counts <- NULL
-    gs_ix <- numeric(0)
+    gs_ix <- gsw_ix <- gsx_ix <- numeric(0)
   }
   
   # throw error if neither have run
@@ -68,24 +68,20 @@ calculate_dimred <- function(model, num_landmarks = 1000) {
   counts <- sweep(counts, 2, max_cols, "/") %>%
     Matrix::Matrix(sparse = TRUE)
 
+  # TODO: sample gold standard ix with dynwrap
+  # waypoint selection method?
+  
   # sample matching indices from w and x  
   # WARNING: do not change the order of this rbind without changing the sim_ix and gs_ix objects
+  wix <- c(gsw_ix, simw_ix)
+  xix <- c(gsx_ix, simx_ix)
+  
   landmark_ix <- 
-    if (length(gs_ix) > 0) {
-      if (length(gs_ix) > num_landmarks) {
-        ix <- sample(gsw_ix, num_landmarks / 2)
-        c(ix, ix + length(gsw_ix))
-      } else {
-        gs_ix
-      }
+    if (length(wix) > num_landmarks / 2) {
+      ix <- sample.int(length(wix), num_landmarks / 2)
+      c(wix[ix], xix[ix])
     } else {
-      if (length(sim_ix) > num_landmarks) {
-        ix <- sample(simw_ix, num_landmarks / 2)
-        c(ix, ix + length(simw_ix))
-      } else {
-        sim_ix
-      }
-      
+      c(wix, xix)
     }
   
   # calculate distances to lndmarks

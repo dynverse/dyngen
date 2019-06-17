@@ -1,26 +1,14 @@
+#ifndef DYNGEN_SSA_ALGORITHM_H
+#define DYNGEN_SSA_ALGORITHM_H
+
 #include <Rcpp.h>
 #include "ssa.hpp"
 #include "ssa_em.hpp"
 #include "ssa_direct.hpp"
-#include "utils.hpp"
 
 using namespace Rcpp;
 
 typedef void (*TR_FUN)(const NumericVector&, const NumericVector&, const NumericVector&, NumericVector&);
-
-// [[Rcpp::export]]
-SEXP make_ssa_em(double h, double noise_strength) {
-  SSA_EM *ssa = new SSA_EM(h, noise_strength);
-  XPtr<SSA_EM> ptr(ssa);
-  return ptr;
-}
-
-// [[Rcpp::export]]
-SEXP make_ssa_direct() {
-  SSA_direct *ssa = new SSA_direct();
-  XPtr<SSA_direct> ptr(ssa);
-  return ptr;
-}
 
 // [[Rcpp::export]]
 List simulate(
@@ -49,7 +37,7 @@ List simulate(
   transition_fun_(state, params, sim_time, transition_rates);
   
   output(0) = List::create(
-    _["time"] = sim_time,
+    _["time"] = clone(sim_time),
     _["state"] = clone(state),
     _["transition_rates"] = clone(transition_rates)
   );
@@ -59,7 +47,7 @@ List simulate(
   int realtime_nextconsole = realtime_start, realtime_nextinterrupt = realtime_start, realtime_curr = realtime_start;
   
   if (verbose) {
-    Rcout << "Running SSA with console output every " << console_interval << " seconds" << std::endl;
+    Rcout << "Running SSA " << ssa_alg_->name << " with console output every " << console_interval << " seconds" << std::endl;
     Rcout << "Start time: " << "CURRTIME" << std::endl;
   }
   /*if (verbose) {
@@ -89,6 +77,7 @@ List simulate(
     // step(state, transition_rates, nu, dtime, dstate);
     
     state += dstate;
+    
     sim_time[0] += dtime[0];
     
     // Rcout << "sim_time: " << sim_time << ", dtime: " << dtime << std::endl;
@@ -122,7 +111,7 @@ List simulate(
     }
     
     output(output_nexti) = List::create(
-      _["time"] = sim_time,
+      _["time"] = clone(sim_time),
       _["state"] = clone(state),
       _["transition_rates"] = clone(transition_rates)
     );
@@ -134,29 +123,29 @@ List simulate(
     Rcout << "sim_time = " << sim_time[0] << " : " << "STATE" << std::endl;
   }
   
-  /*
-   int realtime_end = time(NULL);
-   int realtime_elapsed = realtime_end - realtime_start;
-   
-   DataFrame stats = DataFrame::create(
-   // _["method"] = name,
-   _["final_time_reached"] = sim_time >= final_time,
-   // _["extinction"] = all(state == 0),
-   // _["negative_state"] = any(state < 0),
-   // _["zero_prop"] = all(transition_rates == 0),
-   _["max_duration"] = realtime_elapsed >= max_duration,
-   _["realtime_start"] = realtime_start,
-   _["realtime_end"] = realtime_end,
-   _["realtime_elapsed"] = realtime_elapsed,
-   );
-   // if (verbose) {
-   //   //print(stats)
-   // }
-   
-   return List::create(
-   _["output"] = output,
-   _["stats"] = stats
-   );
-   */
-  return(output);
+  int realtime_end = time(NULL);
+  int realtime_elapsed = realtime_end - realtime_start;
+  
+  DataFrame stats = DataFrame::create(
+    _["method"] = ssa_alg_->name,
+    _["final_time_reached"] = sim_time >= final_time,
+    // _["extinction"] = all(state == 0),
+    // _["negative_state"] = any(state < 0),
+    // _["zero_prop"] = all(transition_rates == 0),
+    _["max_duration"] = realtime_elapsed >= max_duration,
+    _["realtime_start"] = realtime_start,
+    _["realtime_end"] = realtime_end,
+    _["realtime_elapsed"] = realtime_elapsed
+  );
+  // if (verbose) {
+  //   //print(stats)
+  // }
+  
+  return List::create(
+    _["output"] = output,
+    _["stats"] = stats
+  );
+  // return(output);
 }
+
+#endif

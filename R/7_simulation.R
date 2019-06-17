@@ -4,7 +4,7 @@ simulation_default <- function(
   total_time = 20,
   num_simulations = 32,
   seeds = sample.int(10 * num_simulations, num_simulations),
-  ssa_algorithm = ssa_em(noise_strength = 10)
+  ssa_algorithm = ssa_direct()
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -79,13 +79,13 @@ generate_cells <- function(
     )
     
     burn_meta <- 
-      out$timeseries %>%
+      out$output %>%
       transmute(time = ifelse(n() == row_number(), sim_params$burn_time, time)) %>%
       mutate(time = time - max(time))
-    burn_counts <- do.call(rbind, out$timeseries$state) %>% Matrix::Matrix(sparse = TRUE)
+    burn_counts <- do.call(rbind, out$output$state) %>% Matrix::Matrix(sparse = TRUE)
     
     new_initial_state <-
-      out$timeseries$state %>% last()
+      out$output$state %>% last()
   } else {
     burn_meta <- NULL
     burn_counts <- NULL
@@ -105,9 +105,9 @@ generate_cells <- function(
     verbose = FALSE
   )
   
-  meta <- out$timeseries %>%
+  meta <- out$output %>%
     transmute(time = ifelse(n() == row_number(), sim_params$total_time, time))
-  counts <- do.call(rbind, out$timeseries$state) %>%
+  counts <- do.call(rbind, out$output$state) %>%
     Matrix::Matrix(sparse = TRUE)
   
   if (!is.null(burn_meta)) {
@@ -116,14 +116,6 @@ generate_cells <- function(
   }
   
   lst(meta, counts)
-}
-
-.generate_cells_process_ssa <- function(out) {
-  final_time <- out$args$final_time
-  
-  out$timeseries %>%
-    filter(t <= final_time) %>%
-    mutate(t = ifelse(row_number() == n(), final_time, t))
 }
 
 .generate_cells_predict_state <- function(model) {

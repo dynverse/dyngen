@@ -5,28 +5,6 @@
 
 using namespace Rcpp;
 
-// make_ssa_em
-SEXP make_ssa_em(double h, double noise_strength);
-RcppExport SEXP _dyngen_make_ssa_em(SEXP hSEXP, SEXP noise_strengthSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type h(hSEXP);
-    Rcpp::traits::input_parameter< double >::type noise_strength(noise_strengthSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_ssa_em(h, noise_strength));
-    return rcpp_result_gen;
-END_RCPP
-}
-// make_ssa_direct
-SEXP make_ssa_direct();
-RcppExport SEXP _dyngen_make_ssa_direct() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(make_ssa_direct());
-    return rcpp_result_gen;
-END_RCPP
-}
 // simulate
 List simulate(SEXP transition_fun, SEXP ssa_alg, const NumericVector& initial_state, const NumericVector& params, const NumericMatrix& nu, const double final_time, const double max_duration, const bool stop_on_neg_state, const bool stop_on_neg_propensity, const bool verbose, const double console_interval);
 RcppExport SEXP _dyngen_simulate(SEXP transition_funSEXP, SEXP ssa_algSEXP, SEXP initial_stateSEXP, SEXP paramsSEXP, SEXP nuSEXP, SEXP final_timeSEXP, SEXP max_durationSEXP, SEXP stop_on_neg_stateSEXP, SEXP stop_on_neg_propensitySEXP, SEXP verboseSEXP, SEXP console_intervalSEXP) {
@@ -48,11 +26,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ssa_direct
+SEXP ssa_direct();
+RcppExport SEXP _dyngen_ssa_direct() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(ssa_direct());
+    return rcpp_result_gen;
+END_RCPP
+}
+// ssa_em
+SEXP ssa_em(double h, double noise_strength);
+RcppExport SEXP _dyngen_ssa_em(SEXP hSEXP, SEXP noise_strengthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
+    Rcpp::traits::input_parameter< double >::type noise_strength(noise_strengthSEXP);
+    rcpp_result_gen = Rcpp::wrap(ssa_em(h, noise_strength));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dyngen_make_ssa_em", (DL_FUNC) &_dyngen_make_ssa_em, 2},
-    {"_dyngen_make_ssa_direct", (DL_FUNC) &_dyngen_make_ssa_direct, 0},
     {"_dyngen_simulate", (DL_FUNC) &_dyngen_simulate, 11},
+    {"_dyngen_ssa_direct", (DL_FUNC) &_dyngen_ssa_direct, 0},
+    {"_dyngen_ssa_em", (DL_FUNC) &_dyngen_ssa_em, 2},
     {NULL, NULL, 0}
 };
 

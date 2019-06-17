@@ -9,7 +9,7 @@ fastgssa <- function(
   nu,
   final_time,
   params = NULL,
-  method = ssa_direct(),
+  method = ssa_em(.01, 2),
   stop_on_neg_state = TRUE,
   stop_on_neg_propensity = TRUE,
   verbose = FALSE,
@@ -25,7 +25,7 @@ fastgssa <- function(
     is.numeric(final_time),
     is.numeric(console_interval),
     is.logical(verbose),
-    is(method, "fastgssa::ssa_method"),
+    # is(method, "fastgssa::ssa_method"),
     length(initial_state) == nrow(nu),
     length(propensity_funs) == ncol(nu),
     is.numeric(params),
@@ -40,9 +40,9 @@ fastgssa <- function(
   
   prop_fun_comp <- compile_propensity_functions(propensity_funs, state, params, env = environment())
   
-  output <- dyngen:::simulate(
+  output <- simulate(
     transition_fun = prop_fun_comp,
-    ssa_alg = dyngen:::make_ssa_em(h = .01, noise_strength = 2),
+    ssa_alg = method,
     initial_state = initial_state,
     params = params,
     nu = as.matrix(nu),
@@ -54,7 +54,19 @@ fastgssa <- function(
     console_interval = console_interval
   )
   
+  output$output <- 
+    output$output[map_int(output$output, length) > 0] %>% 
+    map_df(
+      function(l) {
+        tibble(
+          time = l$time, 
+          state = list(l$state),
+          transition_rates = list(l$transition_rates)
+        )
+      }
+    )
   
+  output
 }
 
 #' @importFrom stringr str_count str_replace_all str_extract_all str_replace
@@ -103,69 +115,4 @@ compile_propensity_functions <- function(propensity_funs, state, params, env = p
   transition_functon <- RcppXPtrUtils::cppXPtr(rcpp_code, cacheDir = tmpdir)
 
   transition_functon
-}
-
-
-
-
-ssa_method <- function(name, fun) {
-  l <- lst(
-    name,
-    fun
-  )
-  class(l) <- "fastgssa::ssa_method"
-  l
-}
-
-#' Euler-Maruyama method (EM)
-#'
-#' Euler-Maruyama method implementation
-#'
-#' @param h h parameter
-#' @param noise_strength noise_strength parameter
-#'
-#' @importFrom stats rnorm
-#'
-#' @export
-ssa_em <- function(h = 0.01, noise_strength = 2) {
-  ssa_method(
-    name = "em",
-    fun = function(state, transition_rates, nu) {
-      dtime <- h
-      
-      dstate <- (nu %*% transition_rates)[,1] * h + sqrt(abs(state)) * noise_strength * stats::rnorm(length(state), 0, h)
-      
-      list(
-        dtime = dtime,
-        dstate = dstate,
-        j = which(dstate != 0)
-      )
-    }
-  )
-}
-
-
-#' Direct method (D)
-#'
-#' Direct method implementation of the \acronym{SSA} as described by Gillespie (1977).
-#'
-#' @return an object of to be used by \code{\link{ssa}}.
-#' @export
-ssa_direct <- function() {
-  ssa_method(
-    name = "direct",
-    fun = function(state, transition_rates, nu) {
-      
-      j <- sample.int(length(transition_rates), size = 1, prob = transition_rates)
-      dstate <- nu[,j]
-      
-      dtime <- -log(stats::runif(1)) / sum(transition_rates)
-      
-      list(
-        dtime = dtime,
-        dstate = dstate,
-        j = which(dstate != 0)
-      )
-    }
-  )
 }
