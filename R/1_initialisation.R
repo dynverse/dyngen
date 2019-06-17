@@ -17,7 +17,8 @@ initialise_model <- function(
   gold_standard_params = gold_standard_default(),
   experiment_params = experiment_snapshot(),
   verbose = TRUE,
-  download_cache_dir = NULL
+  download_cache_dir = NULL,
+  num_cores = 8
 ) {
   distance_metric <- match.arg(distance_metric)
   
@@ -39,7 +40,8 @@ initialise_model <- function(
     gold_standard_params,
     experiment_params,
     verbose,
-    download_cache_dir
+    download_cache_dir,
+    num_cores
   )
 }
 formals(initialise_model)$distance_metric <- dynutils::list_distance_methods()

@@ -15,7 +15,7 @@ initialise_model(num_cells = round(10^runif(1, 2, 4)),
   simulation_params = simulation_default(),
   gold_standard_params = gold_standard_default(),
   experiment_params = experiment_snapshot(), verbose = TRUE,
-  download_cache_dir = NULL)
+  download_cache_dir = NULL, num_cores = 8)
 }
 \arguments{
 \item{num_cells}{The number of cells to sample.}
