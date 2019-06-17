@@ -8,21 +8,22 @@ using namespace Rcpp;
 
 class SSA_EM : public SSA {
 public:
-  // SSA_EM(double h_, double noise_strength_) : SSA("em"), h(h_), noise_strength(noise_strength_) {}
-  SSA_EM(double h_, double noise_strength_) : SSA(), h(h_), noise_strength(noise_strength_) {} 
-  
+  //  SSA_EM(double h_, double noise_strength_) : SSA("em"), h(h_), noise_strength(noise_strength_) {}
+  SSA_EM(double h_, double noise_strength_) : SSA(), h(h_), noise_strength(noise_strength_) {}
+  // SSA_EM(TR_FUN fun, double h_, double noise_strength_) : SSA(fun), h(h_), noise_strength(noise_strength_) {}
+
   double h ;
   double noise_strength ;
-  
+
   void step(
-      const NumericVector& state, 
-      const NumericVector& transition_rates, 
+      const NumericVector& state,
+      const NumericVector& transition_rates,
       const NumericMatrix& nu,
       NumericVector& dtime,
       NumericVector& dstate
   ) {
     dtime(0) = h;
-    
+
     for (int i = 0; i < dstate.size(); i++) {
       double out = 0.0;
       for (int j = 0; j < transition_rates.size(); j++) {

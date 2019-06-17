@@ -22,4 +22,5 @@ int weighted_sample(const NumericVector& weight) {
   return j;
 }
 
+
 #endif

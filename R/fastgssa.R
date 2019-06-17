@@ -2,6 +2,7 @@
 #' @useDynLib dyngen
 #' 
 #' @importFrom utils flush.console
+#' @importFrom RcppXPtrUtils cppXPtr
 fastgssa <- function(
   initial_state,
   propensity_funs,
@@ -37,18 +38,20 @@ fastgssa <- function(
   state <- initial_state
   time <- 0
   
-  sim <- create_simulator(propensity_funs, state, params, env = environment())
+  prop_fun_comp <- compile_propensity_functions(propensity_funs, state, params, env = environment())
   
-  output <- sim$simulate(
-    initial_state,
-    params,
-    as.matrix(nu),
-    final_time,
-    max_duration,
-    stop_on_neg_state,
-    stop_on_neg_propensity,
-    verbose,
-    console_interval
+  output <- dyngen:::simulate(
+    transition_fun = prop_fun_comp,
+    ssa_alg = dyngen:::make_ssa_em(h = .01, noise_strength = 2),
+    initial_state = initial_state,
+    params = params,
+    nu = as.matrix(nu),
+    final_time = final_time,
+    max_duration = max_duration,
+    stop_on_neg_state = stop_on_neg_state,
+    stop_on_neg_propensity = stop_on_neg_propensity,
+    verbose = verbose,
+    console_interval = console_interval
   )
   
   
@@ -56,7 +59,7 @@ fastgssa <- function(
 
 #' @importFrom stringr str_count str_replace_all str_extract_all str_replace
 #' @importFrom Rcpp sourceCpp
-create_simulator <- function(propensity_funs, state, params, env = parent.frame()) {
+compile_propensity_functions <- function(propensity_funs, state, params, env = parent.frame()) {
   buffer_size <- max(str_count(propensity_funs, "="))
   rcpp_prop_funs <- map_chr(
     propensity_funs,
@@ -82,52 +85,24 @@ create_simulator <- function(propensity_funs, state, params, env = parent.frame(
   
   buffers <- rcpp_prop_funs %>% str_replace(";[^=]*$", ";") %>% {ifelse(grepl("=", .), ., "")} %>% str_replace_all("([^;]*;)", "    \\1\n")
   calculations <- rcpp_prop_funs %>% str_replace("^.*;", "") %>% {paste0("  transition_rates[", seq_along(.)-1, "] = ", ., ";\n")}
-  
-  rcpp_code <- paste0("// [[Rcpp::depends(dyngen)]]
-#include <Rcpp.h>
-#include <ssa.hpp>
-#include <ssa_em.hpp>
 
-using namespace Rcpp;
-
-class Instance : public SSA_EM {
-public:
-  Instance(double h_, double noise_strength_) : SSA_EM(h_, noise_strength_) {} 
-  
-  virtual void calculate_transition_rates(
-    const NumericVector& state,
-    const NumericVector& params,
-    const double time,
-    NumericVector& transition_rates
-  ) {
+  rcpp_code <- paste0("void calculate_transition_rates(
+  const NumericVector& state,
+  const NumericVector& params,
+  const NumericVector& time,
+  NumericVector& transition_rates
+) {
 ",
   ifelse(buffer_size == 0, "", paste0("    NumericVector buffer = no_init(", buffer_size, ");\n")),
   paste(paste0(buffers, calculations), collapse = ""),
-"  }
-};
-
-RCPP_EXPOSED_CLASS(Instance)
-RCPP_MODULE(Instance){
-  Rcpp::class_<SSA>(\"SSA\")
-    .method(\"simulate\", &SSA::simulate)
-  ;
-  Rcpp::class_<SSA_EM>(\"SSA_EM\")
-    .derives<SSA>(\"SSA\")
-    .constructor<double, double>()
-    .field(\"h\", &SSA_EM::h) 
-    .field(\"noise_strength\", &SSA_EM::noise_strength) 
-  ;
-  Rcpp::class_<Instance>(\"Instance\")
-    .derives<SSA_EM>(\"SSA_EM\")
-    .constructor<double, double>()
- ;
-}
+"}
 ")
   tmpdir <- dynutils::safe_tempdir("fastgssa")
   on.exit(unlink(tmpdir, recursive = TRUE, force = TRUE))
+  
+  transition_functon <- RcppXPtrUtils::cppXPtr(rcpp_code, cacheDir = tmpdir)
 
-  Rcpp::sourceCpp(code = rcpp_code, env = env, cacheDir = tmpdir)
-  new(Instance, .01, 2)
+  transition_functon
 }
 
 
