@@ -224,8 +224,13 @@ plot_gold_simulations_proj <- function(model, detailed = FALSE, mapping = aes(co
     plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
   }
   
-  ggplot(mapping = mapping) +
-    geom_path(aes(group = paste0(simulation_i, "_", type), linetype = type), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
+  g <- ggplot(mapping = mapping)
+  
+  if (any(plot_df$simulation_i > 0)) {
+    g <- g + geom_path(aes(group = paste0(simulation_i, "_", type), linetype = type), plot_df %>% filter(simulation_i > 0), colour = "darkgray")
+  }
+    
+  g +
     geom_path(aes(colour = edge, group = paste0(from_, "_", to_, "_", type), linetype = type), plot_df %>% filter(simulation_i == 0), size = 2) +
     theme_bw()
 }
