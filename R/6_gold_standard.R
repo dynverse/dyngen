@@ -1,3 +1,4 @@
+#' @importFrom fastgssa ssa_em ssa_direct
 #' @export
 gold_standard_default <- function(
   ssa_algorithm = ssa_direct()
@@ -12,11 +13,16 @@ generate_gold_standard <- function(model) {
   model$gold_standard <- list()
   
   # compute changes in modules along the edges
-  if (model$verbose) cat("Running gold simulations\n")
+  if (model$verbose) cat("Generating gold standard mod changes\n")
   model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model)
   
+  # precompile propensity functions
+  if (model$verbose) cat("Precompiling propensity functions for gold standard\n")
+  prep_data <- .generate_gold_precompile_propensity_funs(model, env = environment())
+  
   # run gold standard simulations
-  simulations <- .generate_gold_standard_simulations(model)
+  if (model$verbose) cat("Running gold simulations\n")
+  simulations <- .generate_gold_standard_simulations(model, prep_data)
   model$gold_standard$meta <- simulations$meta
   model$gold_standard$counts <- simulations$counts
   
@@ -55,10 +61,9 @@ generate_gold_standard <- function(model) {
   mod_changes
 }
 
-#' @importFrom pbapply timerProgressBar setTimerProgressBar
-.generate_gold_standard_simulations <- function(model) {
+#' @importFrom fastgssa compile_propensity_functions
+.generate_gold_precompile_propensity_funs <- function(model, env = parent.frame()) {
   # fetch paraneters and settings
-  mod_changes <- model$gold_standard$mod_changes
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
   
@@ -74,6 +79,33 @@ generate_gold_standard <- function(model) {
   
   # filter nus
   nus <- sim_system$nus[tf_molecules, names(propensity_funs), drop = FALSE]
+  
+  comp_funs <- fastgssa::compile_propensity_functions(
+    propensity_funs = propensity_funs,
+    state = sim_system$initial_state[tf_molecules],
+    params = sim_system$parameters,
+    env = env
+  )
+  
+  lst(
+    tf_molecules,
+    nus,
+    propensity_funs = comp_funs
+  )
+}
+
+#' @importFrom pbapply timerProgressBar setTimerProgressBar
+#' @importFrom fastgssa ssa
+.generate_gold_standard_simulations <- function(model, prep_data) {
+  # fetch paraneters and settings
+  mod_changes <- model$gold_standard$mod_changes
+  sim_system <- model$simulation_system
+  tf_info <- model$feature_info %>% filter(is_tf)
+  
+  # select relevant functions
+  tf_molecules <- prep_data$tf_molecules
+  nus <- prep_data$nus
+  propensity_funs <- prep_data$propensity_funs
   
   # start constructing golds
   gold_sim_outputs <- list()
@@ -109,7 +141,7 @@ generate_gold_standard <- function(model) {
     new_nus[!rownames(new_nus) %in% molecules_on] <- 0
     
     # simulation of gold standard edge
-    out <- fastgssa(
+    out <- fastgssa::ssa(
       initial_state = new_initial_state,
       propensity_funs = propensity_funs,
       nu = new_nus,
@@ -117,7 +149,6 @@ generate_gold_standard <- function(model) {
       params = sim_system$parameters,
       method = model$gold_standard_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
-      stop_on_neg_propensity = FALSE,
       verbose = FALSE
     )
     
