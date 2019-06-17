@@ -213,7 +213,10 @@ generate_feature_network <- function(
     igraph::as_data_frame() %>% 
     as_tibble() %>% 
     select(from, to) %>% 
-    filter(from != to)
+    filter(from != to) %>% 
+    group_by(to) %>% 
+    slice(1:4) %>% 
+    ungroup()
   
   # rename hk features
   if (nrow(hk_regnet) > 0) {
