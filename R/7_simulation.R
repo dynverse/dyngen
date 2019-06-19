@@ -27,7 +27,7 @@ generate_cells <- function(
 ) {
   if (!qsub) {
     if (model$verbose) cat("Precompiling propensity functions for simulations\n")
-    propensity_funs <- .generate_cells_precompile_propensity_funs(model, env = environment())
+    propensity_funs <- .generate_cells_precompile_propensity_funs(model)
     
     # simulate cells one by one
     if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")

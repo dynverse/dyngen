@@ -18,7 +18,7 @@ generate_gold_standard <- function(model) {
   
   # precompile propensity functions
   if (model$verbose) cat("Precompiling propensity functions for gold standard\n")
-  prep_data <- .generate_gold_precompile_propensity_funs(model, env = environment())
+  prep_data <- .generate_gold_precompile_propensity_funs(model)
   
   # run gold standard simulations
   if (model$verbose) cat("Running gold simulations\n")
