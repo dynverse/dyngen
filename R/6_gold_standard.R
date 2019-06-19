@@ -62,7 +62,7 @@ generate_gold_standard <- function(model) {
 }
 
 #' @importFrom fastgssa compile_propensity_functions
-.generate_gold_precompile_propensity_funs <- function(model, env = parent.frame()) {
+.generate_gold_precompile_propensity_funs <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
@@ -71,20 +71,19 @@ generate_gold_standard <- function(model) {
   tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
   
   # filter propensity functions
-  propensity_funs <-
+  formulae <-
     sim_system$formulae %>% 
-    filter(molecule %in% tf_molecules) %>% 
-    select(formula_id, formula) %>% 
-    deframe
+    filter(molecule %in% tf_molecules)
   
   # filter nus
-  nus <- sim_system$nus[tf_molecules, names(propensity_funs), drop = FALSE]
+  nus <- sim_system$nus[tf_molecules, formulae$formula_id, drop = FALSE]
   
   comp_funs <- fastgssa::compile_propensity_functions(
-    propensity_funs = propensity_funs,
-    state = sim_system$initial_state[tf_molecules],
+    propensity_funs = formulae$formula,
+    buffer_ids = unlist(formulae$buffer_ids),
+    state_ids = tf_molecules,
     params = sim_system$parameters,
-    env = env
+    hardcode_params = TRUE
   )
   
   lst(
@@ -148,15 +147,16 @@ generate_gold_standard <- function(model) {
       final_time = time,
       params = sim_system$parameters,
       method = model$gold_standard_params$ssa_algorithm,
+      hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
-      verbose = FALSE
+      verbose = FALSE,
+      use_singular_optimisation = model$simulation_params$use_singular_optimisation
     )
     
-    meta <- out$output %>% transmute(time = ifelse(n() == row_number(), !!time, time), from_, to_)
-    counts <- do.call(rbind, out$output$state) %>% Matrix::Matrix(sparse = TRUE)
+    meta <- tibble(time = c(head(out$time, -1), !!time), from_, to_)
+    counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
     
-    end_state <-
-      out$output$state %>% last() %>% as.matrix()
+    end_state <- out$state[nrow(out$state), ] %>% as.matrix()
     
     gold_sim_outputs[[i]] <- lst(meta, counts)
     

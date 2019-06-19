@@ -5,7 +5,8 @@ simulation_default <- function(
   census_interval = .01,
   num_simulations = 32,
   seeds = sample.int(10 * num_simulations, num_simulations),
-  ssa_algorithm = ssa_direct()
+  ssa_algorithm = ssa_direct(),
+  use_singular_optimisation = TRUE
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -15,32 +16,51 @@ simulation_default <- function(
     census_interval,
     num_simulations,
     seeds,
-    ssa_algorithm
+    ssa_algorithm,
+    use_singular_optimisation
   )
 }
 
 #' @export
 generate_cells <- function(
-  model
+  model, qsub = FALSE
 ) {
-  sim_params <- model$simulation_params
-  
-  if (model$verbose) cat("Precompiling propensity functions for simulations\n")
-  propensity_funs <- .generate_cells_precompile_propensity_funs(model, env = environment())
-  
-  # simulate cells one by one
-  if (model$verbose) cat("Running ", sim_params$num_simulations, " simulations\n", sep = "")
-  simulations <- 
-    pbapply::pblapply(
-      X = seq_len(sim_params$num_simulations),
-      cl = model$num_cores,
-      FUN = function(i) .generate_cells_simulate_cell(i, model = model, propensity_funs = propensity_funs)
-    )
+  if (!qsub) {
+    if (model$verbose) cat("Precompiling propensity functions for simulations\n")
+    propensity_funs <- .generate_cells_precompile_propensity_funs(model, env = environment())
+    
+    # simulate cells one by one
+    if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")
+    simulations <- 
+      pbapply::pblapply(
+        X = seq_len(model$simulation_params$num_simulations),
+        cl = model$num_cores,
+        FUN = .generate_cells_simulate_cell,
+        model = model,
+        propensity_funs = propensity_funs
+      )
+  } else {
+    simulations <- 
+      qsub::qsub_lapply(
+        X = seq_len(model$simulation_params$num_simulations),
+        FUN = function(i) {
+          propensity_funs <- dyngen:::.generate_cells_precompile_propensity_funs(model, env = environment())
+          dyngen:::.generate_cells_simulate_cell(i, model = model, propensity_funs = propensity_funs)
+        },
+        qsub_environment = "model",
+        qsub_config = qsub::override_qsub_config(
+          memory = "10G",
+          name = "dyngen"
+        ),
+        qsub_packages = c("dyngen", "fastgssa", "tidyverse")
+      )
+  }
   
   # split up simulation data
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
-    counts = do.call(rbind, map(simulations, "counts"))
+    counts = do.call(rbind, map(simulations, "counts")),
+    buffers = do.call(rbind, map(simulations, "buffer"))
   )
   
   # predict state
@@ -57,22 +77,18 @@ generate_cells <- function(
 
 
 #' @importFrom fastgssa compile_propensity_functions
-.generate_cells_precompile_propensity_funs <- function(model, env = parent.frame()) {
+.generate_cells_precompile_propensity_funs <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
-  
-  # filter propensity functions
-  propensity_funs <-
-    sim_system$formulae %>% 
-    select(formula_id, formula) %>% 
-    deframe
+  formulae <- sim_system$formulae
   
   # compile prop funs
   comp_funs <- fastgssa::compile_propensity_functions(
-    propensity_funs = propensity_funs,
-    state = sim_system$initial_state,
+    propensity_funs = formulae$formula,
+    buffer_ids = unlist(formulae$buffer_ids),
+    state_ids = names(sim_system$initial_state),
     params = sim_system$parameters,
-    env = env
+    hardcode_params = TRUE
   )
   
   comp_funs
@@ -97,22 +113,26 @@ generate_cells <- function(
       census_interval = sim_params$census_interval,
       params = sim_system$parameters,
       method = sim_params$ssa_algorithm,
+      hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
-      verbose = FALSE
+      verbose = FALSE,
+      use_singular_optimisation = model$simulation_params$use_singular_optimisation
     )
     
     burn_meta <- 
-      out$output %>%
-      transmute(time = ifelse(n() == row_number(), sim_params$burn_time, time)) %>%
+      tibble(
+        time = c(head(out$time, -1), sim_params$burn_time)
+      ) %>%
       mutate(time = time - max(time))
-    burn_counts <- do.call(rbind, out$output$state) %>% Matrix::Matrix(sparse = TRUE)
+    burn_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
+    burn_buffer <- out$buffer
     
-    new_initial_state <-
-      out$output$state %>% last()
+    new_initial_state <- out$state[nrow(out$state), ]
   } else {
     burn_meta <- NULL
     burn_counts <- NULL
     new_initial_state <- system$initial_state
+    burn_buffer <- NULL
   }
   
   # actual simulation
@@ -124,21 +144,28 @@ generate_cells <- function(
     census_interval = sim_params$census_interval,
     params = sim_system$parameters,
     method = sim_params$ssa_algorithm,
+    hardcode_params = TRUE,
     stop_on_neg_state = FALSE,
-    verbose = FALSE
+    verbose = FALSE,
+    use_singular_optimisation = model$simulation_params$use_singular_optimisation
   )
   
-  meta <- out$output %>%
-    transmute(time = ifelse(n() == row_number(), sim_params$total_time, time))
-  counts <- do.call(rbind, out$output$state) %>%
-    Matrix::Matrix(sparse = TRUE)
+  meta <- 
+    tibble(
+      time = c(head(out$time, -1), sim_params$total_time)
+    )
+  counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
+  buffer <- out$buffer
   
   if (!is.null(burn_meta)) {
-    meta <- bind_rows(burn_meta, meta) %>% mutate(simulation_i)
+    meta <- bind_rows(burn_meta, meta)
     counts <- rbind(burn_counts, counts)
+    buffer <- rbind(burn_buffer, buffer)
   }
   
-  lst(meta, counts)
+  meta <- meta %>% mutate(simulation_i) %>% select(simulation_i, everything())
+  
+  lst(meta, counts, buffer)
 }
 
 .generate_cells_predict_state <- function(model) {

@@ -242,87 +242,122 @@ generate_kinetics <- function(model) {
       
       a0 <- paste0("a0_", fid)
       
-      wpr_function <- 
-        if (!is.null(info$regulators)) {
-          rid <- info$regulators$from
-          eff <- info$regulators$effect
-          reg_ys <- paste0("y_", rid)
-          reg_ks <- paste0("k_", fid, "_", rid)
-          reg_cs <- paste0("c_", fid, "_", rid)
-          buffer_var <- paste0("buffer_", fid, "_", rid)
-          
-          reg_affinity_calc <- paste(paste0(buffer_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
-          
-          numerator <-
-            if (sum(eff > 0) > 0) {
-              paste0(a0, " - 1 + ", paste(buffer_var[eff > 0], collapse = " * "))
-            } else {
-              a0
-            }
-          denominator <- paste(buffer_var, collapse = " * ")
-          
-          paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
-        } else {
-          paste0(wpr, " * ", a0)
-        }
+      wpr_id <- paste0("premrna_production_", fid)
       
+      if (!is.null(info$regulators)) {
+        rid <- info$regulators$from
+        eff <- info$regulators$effect
+        reg_ys <- paste0("y_", rid)
+        reg_ks <- paste0("k_", fid, "_", rid)
+        reg_cs <- paste0("c_", fid, "_", rid)
+        buffer_var <- paste0("buffer_", fid, "_", rid)
+        
+        reg_affinity_calc <- paste(paste0(buffer_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
+        
+        # # Several optimisations have been applied.
+        # # 
+        # # original:
+        # #   [a0 + x0 + x0x1 + x1] / [x0 + x0x1 + x1 + 1]
+        # # 
+        # # factorise:
+        # #   [a0 + (x0 + 1) * (x1 + 1) - 1] / (x0 + 1) / (x1 + 1) / (x2 + 1)
+        # # 
+        # # use buffer to remember calculations:
+        # #   [a0 - 1 + buf0 * buf1] / buf0 / buf1 / buf2,
+        # # with buf0 = x0 + 1, buf1 = x1 + 1, buf2 = x2 + 1
+        # # 
+        # # split fraction into two to avoid loss of accuracy
+        # #   [a0 - 1] / buf0 / buf1 / buf2 + 1 / buf2
+        # 
+        # form <-
+        #   if (sum(eff > 0) > 0) {
+        #     form <- paste0(a0, paste0(" / ", buffer_var, collapse = ""))
+        #   } else {
+        #     first <- paste0("(", a0, " - 1) ", paste0(" / ", buffer_var, collapse = ""))
+        #     second <- paste0("1", paste0(" / ", buffer_var[eff < 0], collapse = ""))
+        #     paste0(first, " + ", second)
+        #   }
+        # 
+        # wpr_function <- paste0(reg_affinity_calc, wpr_id, " = ", wpr, " * (", form, ")")
+        
+        numerator <-
+          if (sum(eff > 0) > 0) {
+            paste0(a0, " - 1 + ", paste(buffer_var[eff > 0], collapse = " * "))
+          } else {
+            a0
+          }
+        denominator <- paste(buffer_var, collapse = " * ")
+        
+        wpr_function <- paste0(reg_affinity_calc, wpr_id, " = ", wpr, " * (", numerator, ")/(", denominator, ")")
+      } else {
+        wpr_function <- paste0(wpr_id, " = ", wpr, " * ", a0)
+        buffer_var <- character()
+      }
       
       # pre-mRNA production
       formulae[[length(formulae)+1]] <- 
         tibble(
-          formula_id = paste0("premrna_production_", fid),
+          formula_id = wpr_id,
           formula = wpr_function,
           effect = 1,
-          molecule = w
+          molecule = w,
+          buffer_ids = list(buffer_var)
         )
       
       # pre-mRNA degradation
+      wdr_id <- paste0("premrna_degradation_", fid)
       formulae[[length(formulae)+1]] <- 
         tibble(
-          formula_id = paste0("premrna_degradation_", fid),
-          formula = paste0(wdr, " * ", w),
+          formula_id = wdr_id,
+          formula = paste0(wdr_id, " = ", wdr, " * ", w),
           effect = -1,
-          molecule = w
+          molecule = w,
+          buffer_ids = list(character())
         )
       
       # mRNA production
+      xpr_id <- paste0("mrna_production_", fid)
       formulae[[length(formulae)+1]] <- 
         tibble(
-          formula_id = paste0("mrna_production_", fid),
-          formula = paste0(xpr, " * ", w),
+          formula_id = xpr_id,
+          formula = paste0(xpr_id, " = ", xpr, " * ", w),
           effect = 1,
-          molecule = x
+          molecule = x,
+          buffer_ids = list(character())
         )
       
       # mRNA degradation
+      xdr_id <- paste0("mrna_degradation_", fid)
       formulae[[length(formulae)+1]] <- 
         tibble(
-          formula_id = paste0("mrna_degradation_", fid),
-          formula = paste0(xdr, " * ", x),
+          formula_id = xdr_id,
+          formula = paste0(xdr_id, " = ", xdr, " * ", x),
           effect = -1,
-          molecule = x
+          molecule = x,
+          buffer_ids = list(character())
         )
       
-      # # add protein synthesis if target gene also regulates other genes
-      # if (!is.na(info$num_targets) && info$num_targets > 0) {
-        # protein production
-        formulae[[length(formulae)+1]] <- 
-          tibble(
-            formula_id = paste0("protein_production_", fid),
-            formula = paste0(ypr, " * ", x),
-            effect = 1,
-            molecule = y
-          )
-        
-        # protein degradation
-        formulae[[length(formulae)+1]] <- 
-          tibble(
-            formula_id = paste0("protein_degradation_", fid),
-            formula = paste0(ydr, " * ", y),
-            effect = -1,
-            molecule = y
-          )
-      # }
+      # protein production
+      ypr_id <- paste0("protein_production_", fid)
+      formulae[[length(formulae)+1]] <- 
+        tibble(
+          formula_id = ypr_id,
+          formula = paste0(ypr_id, " = ", ypr, " * ", x),
+          effect = 1,
+          molecule = y,
+          buffer_ids = list(character())
+        )
+      
+      # protein degradation
+      ydr_id <- paste0("protein_degradation_", fid)
+      formulae[[length(formulae)+1]] <- 
+        tibble(
+          formula_id = ydr_id,
+          formula = paste0(ydr_id, " = ", ydr, " * ", y),
+          effect = -1,
+          molecule = y,
+          buffer_ids = list(character())
+        )
       
       bind_rows(formulae)
     }
