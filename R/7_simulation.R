@@ -46,7 +46,7 @@ generate_cells <- function(
         X = seq_len(model$simulation_params$num_simulations),
         FUN = function(i) {
           propensity_funs <- dyngen:::.generate_cells_precompile_propensity_funs(submodel)
-          dyngen:::.generate_cells_simulate_cell(i, model = submodel, propensity_funs = propensity_funs)
+          dyngen:::.generate_cells_simulate_cell(i, model = submodel, propensity_funs = propensity_funs, verbose = TRUE)
         },
         qsub_environment = "model",
         qsub_config = qsub::override_qsub_config(
@@ -148,7 +148,7 @@ generate_cells <- function(
     method = sim_params$ssa_algorithm,
     hardcode_params = TRUE,
     stop_on_neg_state = FALSE,
-    verbose = FALSE,
+    verbose = verbose,
     use_singular_optimisation = model$simulation_params$use_singular_optimisation
   )
   
