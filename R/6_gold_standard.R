@@ -149,8 +149,7 @@ generate_gold_standard <- function(model) {
       method = model$gold_standard_params$ssa_algorithm,
       hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
-      verbose = FALSE,
-      use_vector_optimisation = model$simulation_params$use_vector_optimisation
+      verbose = FALSE
     )
     
     meta <- tibble(time = c(head(out$time, -1), !!time), from_, to_)

@@ -5,8 +5,7 @@ simulation_default <- function(
   census_interval = .01,
   num_simulations = 32,
   seeds = sample.int(10 * num_simulations, num_simulations),
-  ssa_algorithm = ssa_direct(),
-  use_vector_optimisation = TRUE
+  ssa_algorithm = ssa_direct()
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -16,8 +15,7 @@ simulation_default <- function(
     census_interval,
     num_simulations,
     seeds,
-    ssa_algorithm,
-    use_vector_optimisation
+    ssa_algorithm
   )
 }
 
@@ -128,8 +126,7 @@ generate_cells <- function(
       method = sim_params$ssa_algorithm,
       hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
-      verbose = verbose,
-      use_vector_optimisation = model$simulation_params$use_vector_optimisation
+      verbose = verbose
     )
     
     burn_meta <- 
@@ -159,8 +156,7 @@ generate_cells <- function(
     method = sim_params$ssa_algorithm,
     hardcode_params = TRUE,
     stop_on_neg_state = FALSE,
-    verbose = verbose,
-    use_vector_optimisation = model$simulation_params$use_vector_optimisation
+    verbose = verbose
   )
   
   meta <- 

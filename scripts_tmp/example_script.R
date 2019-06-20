@@ -8,14 +8,14 @@ model <-
     num_cells = 10000,
     num_tfs = 100,
     num_targets = 4900,
-    num_hks = 0,
+    num_hks = 5000,
     distance_metric = "pearson",
     backbone = backbone_bifurcating_loop(),
     tf_network_params = tf_network_random(min_tfs_per_module = 3),
     feature_network_params = feature_network_default(target_resampling = 5000),
     kinetics_params = kinetics_custom(),
     gold_standard_params = gold_standard_default(ssa_algorithm = ssa_em(tau = .005, noise_strength = 0)),
-    simulation_params = simulation_default(burn_time = 2, total_time = 20, num_simulations = 24, ssa_algorithm = ssa_etl(.05), census_interval = .05, use_vector_optimisation = TRUE),
+    simulation_params = simulation_default(burn_time = 2, total_time = 20, num_simulations = 4, ssa_algorithm = ssa_etl(.05), census_interval = .05),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
     download_cache_dir = "~/.cache/dyngen",
@@ -43,7 +43,6 @@ plot_gold_expression(model)
 
 # model$simulation_params$ssa_algorithm <- ssa_em(.01, 6)
 # model$simulation_params$ssa_algorithm <- ssa_etl(.01)
-# model$simulation_params$use_vector_optimisation <- FALSE
 # model <- model %>% generate_cells(qsub = FALSE)
 handle <- generate_cells(model, qsub = TRUE)
 class(handle) <- c("qsub::qsub_config", "list")
