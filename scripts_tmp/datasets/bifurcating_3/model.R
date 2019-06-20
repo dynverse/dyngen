@@ -5,6 +5,7 @@ library(dyngen)
 set.seed(6)
 model <- 
   initialise_model(
+    num_cells = 5000, num_tfs = 200, num_targets = 2400, num_hks = 2400,
     backbone = backbone_bifurcating(),
     tf_network_params = tf_network_random(min_tfs_per_module = 5),
     feature_network_params = feature_network_default(),
