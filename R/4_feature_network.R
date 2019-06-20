@@ -47,7 +47,7 @@ generate_feature_network <- function(
   )
   
   # sample target network from realnet
-  if (sample_tfs_per >= 0) {
+  if (sample_tfs_per > 0) {
     num_target_start <- seq(1, model$numbers$num_targets, by = sample_tfs_per)
     num_target_stop <- c((num_target_start - 1) %>% tail(-1), model$numbers$num_targets)
     downstreams <- 
@@ -62,7 +62,7 @@ generate_feature_network <- function(
   }
   
   # sample house keeping
-  if (sample_hks_per >= 0) {
+  if (sample_hks_per > 0) {
     num_hk_start <- seq(1, model$numbers$num_hks, by = sample_hks_per)
     num_hk_stop <- c((num_hk_start - 1) %>% tail(-1), model$numbers$num_hks)
     housekeepings <- 
