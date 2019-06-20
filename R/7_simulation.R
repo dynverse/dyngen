@@ -40,17 +40,19 @@ generate_cells <- function(
         propensity_funs = propensity_funs
       )
   } else {
+    submodel <- model[c("simulation_system", "simulation_params", "verbose")]
     simulations <- 
       qsub::qsub_lapply(
         X = seq_len(model$simulation_params$num_simulations),
         FUN = function(i) {
-          propensity_funs <- dyngen:::.generate_cells_precompile_propensity_funs(model, env = environment())
-          dyngen:::.generate_cells_simulate_cell(i, model = model, propensity_funs = propensity_funs)
+          propensity_funs <- dyngen:::.generate_cells_precompile_propensity_funs(submodel)
+          dyngen:::.generate_cells_simulate_cell(i, model = submodel, propensity_funs = propensity_funs)
         },
         qsub_environment = "model",
         qsub_config = qsub::override_qsub_config(
           memory = "10G",
-          name = "dyngen"
+          name = "dyngen",
+          compress = "gz"
         ),
         qsub_packages = c("dyngen", "fastgssa", "tidyverse")
       )

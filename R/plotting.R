@@ -48,7 +48,7 @@ plot_backbone <- function(model) {
 #' @importFrom grid arrow unit
 #' @importFrom tidygraph tbl_graph activate
 #' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
-#' @importFrom igraph layout.fruchterman.reingold V E
+#' @importFrom igraph layout_with_fr V E
 #' @export
 plot_feature_network <- function(
   model,
@@ -86,7 +86,8 @@ plot_feature_network <- function(
   }
   
   # remove unwanted features and convert NA into "NA"
-  feature_info <- feature_info %>% 
+  feature_info <- 
+    feature_info %>% 
     filter(
       show_tfs & is_tf |
       show_targets & !is_tf & !is_hk |
@@ -119,7 +120,7 @@ plot_feature_network <- function(
     )
   
   gr <- tbl_graph(nodes = feature_info, edges = feature_network)
-  layout <- igraph::layout.fruchterman.reingold(gr) %>% 
+  layout <- igraph::layout_with_fr(gr) %>% 
     dynutils::scale_minmax() %>%
     magrittr::set_rownames(feature_info$feature_id) %>%
     magrittr::set_colnames(c("x", "y")) %>%

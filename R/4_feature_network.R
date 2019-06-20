@@ -1,14 +1,16 @@
 #' @export
 feature_network_default <- function(
   realnet_name = sample(realnets$name, 1),
-  min_targets_per_tf = 0L,
-  damping = 0.05
+  damping = 0.05,
+  target_resampling = Inf,
+  max_in_degree = 5
 ) {
   lst(
     type = "realnet_sampler",
     realnet_name,
-    min_targets_per_tf,
-    damping
+    damping,
+    target_resampling,
+    max_in_degree
   )
 }
 
@@ -24,49 +26,69 @@ generate_feature_network <- function(
     msg = "Execute generate_tf_network() before executing generate_feature_network()"
   )
   
-  # determine number of targets for each tf
-  tf_info <- 
-    model$feature_info %>% 
-    mutate(
-      num_targets = .generate_partitions(
-        num_elements = model$numbers$num_targets,
-        num_groups = model$numbers$num_tfs, 
-        min_elements_per_group = model$feature_network_params$min_targets_per_tf
-      )
-    )
-  tf_names <- tf_info$feature_id
-  
   # download realnet (~2MB)
   realnet <- .feature_network_fetch_realnet(model)
   
   # verify that realnet is large enough
   assert_that(
     nrow(model$feature_info) <= nrow(realnet),
-    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough; should be >= ", nrow(model$feature_info))
+    msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough (>= ", nrow(model$feature_info), ")")
   )
   
-  # map tfs to rownames of realnet randomly
-  tf_mapper <- set_names(tf_names, sample(rownames(realnet), length(tf_names)))
-  rownames(realnet) <- ifelse(rownames(realnet) %in% names(tf_mapper), tf_mapper[rownames(realnet)], rownames(realnet))
-  colnames(realnet) <- ifelse(colnames(realnet) %in% names(tf_mapper), tf_mapper[colnames(realnet)], colnames(realnet))
+  sample_tfs_per <- min(model$feature_network_params$target_resampling, model$numbers$num_targets)
+  sample_hks_per <- min(model$feature_network_params$target_resampling, model$numbers$num_hks)
+  ncol_at_least <- model$numbers$num_tfs + max(sample_tfs_per, sample_hks_per)
+  assert_that(
+    ncol(realnet) >= ncol_at_least,
+    msg = paste0(
+      "Number of genes in realnet (", ncol(realnet), ") is not large enough (>= ", ncol_at_least, "). ",
+      "Choose a larger realnet or make use of the `feature_network_params$target_resampling` parameter."
+    )
+  )
   
   # sample target network from realnet
-  downstream <- .feature_network_sample_downstream(model, tf_info, realnet)
-  housekeeping <- .feature_network_sample_housekeeping(model, realnet)
+  if (sample_tfs_per >= 0) {
+    num_target_start <- seq(1, model$numbers$num_targets, by = sample_tfs_per)
+    num_target_stop <- c((num_target_start - 1) %>% tail(-1), model$numbers$num_targets)
+    downstreams <- 
+      pmap(lst(start = num_target_start, stop = num_target_stop), function(start, stop) {
+        .feature_network_sample_downstream(model, realnet, num_targets = stop - start + 1, target_index_offset = start - 1)
+      })
+    target_info <- map_df(downstreams, "target_info")
+    target_network <- map_df(downstreams, "target_network")
+  } else {
+    target_info <- NULL
+    target_network <- NULL
+  }
+  
+  # sample house keeping
+  if (sample_hks_per >= 0) {
+    num_hk_start <- seq(1, model$numbers$num_hks, by = sample_hks_per)
+    num_hk_stop <- c((num_hk_start - 1) %>% tail(-1), model$numbers$num_hks)
+    housekeepings <- 
+      pmap(lst(start = num_hk_start, stop = num_hk_stop), function(start, stop) {
+        .feature_network_sample_housekeeping(model, realnet, num_hks = stop - start + 1, hk_index_offset = start - 1)
+      })
+    hk_info <- map_df(housekeepings, "hk_info")
+    hk_network <- map_df(housekeepings, "hk_network")
+  } else {
+    hk_info <- NULL
+    hk_network <- NULL
+  }
   
   # return output
   model$feature_info <- 
     bind_rows(
       model$feature_info,
-      downstream$target_info,
-      housekeeping$hk_info
+      target_info,
+      hk_info
     )
   
   model$feature_network <- 
     bind_rows(
       model$feature_network,
-      downstream$target_network,
-      housekeeping$hk_network
+      target_network,
+      hk_network
     )
   
   model
@@ -84,16 +106,39 @@ generate_feature_network <- function(
 }
 #' @importFrom Matrix summary
 #' @importFrom igraph graph_from_data_frame page_rank E
-.feature_network_sample_downstream <- function(model, tf_info, realnet) {
+.feature_network_sample_downstream <- function(
+  model,
+  realnet,
+  num_targets = model$numbers$num_targets, 
+  target_index_offset = 0
+) {
   requireNamespace("igraph")
   
+  # determine desired number of targets for each tf
+  tf_info <- 
+    model$feature_info %>% 
+    mutate(
+      num_targets = .generate_partitions(
+        num_elements = num_targets,
+        num_groups = n(), 
+        min_elements_per_group = 0
+      )
+    )
   tf_names <- tf_info$feature_id
+  
+  # map tfs to rownames of realnet randomly
+  tf_mapper <- set_names(tf_names, sample(rownames(realnet), length(tf_names)))
+  rownames(realnet) <- ifelse(rownames(realnet) %in% names(tf_mapper), tf_mapper[rownames(realnet)], rownames(realnet))
+  colnames(realnet) <- ifelse(colnames(realnet) %in% names(tf_mapper), tf_mapper[colnames(realnet)], colnames(realnet))
   
   # convert to igraph
   gr <- 
     realnet %>% 
     Matrix::summary() %>% 
     as.data.frame() %>% 
+    group_by(j) %>% 
+    sample_n(min(n(), sample(1:model$feature_network_params$max_in_degree, 1)), weight = x) %>% 
+    ungroup() %>% 
     transmute(
       i = rownames(realnet)[i], 
       j = colnames(realnet)[j],
@@ -101,72 +146,59 @@ generate_feature_network <- function(
     ) %>%
     igraph::graph_from_data_frame(vertices = colnames(realnet))
   
-  # derive targets per tf
-  target_regnet <- map2_df(
-    tf_info$feature_id,
-    tf_info$num_targets,
-    function(tf_name, num_targets) {
-      if (num_targets > 0) {
-        personalized <- rep(0, ncol(realnet)) %>% set_names(colnames(realnet))
-        personalized[[tf_name]] <- 1
-        
-        # calculate page rank from regulator
-        page_rank <- igraph::page_rank(
-          gr,
-          personalized = personalized, 
-          directed = TRUE,
-          weights = igraph::E(gr)$weight,
-          damping = model$feature_network_params$damping
-        )
-        
-        # select top targets
-        features_sel <- 
-          enframe(page_rank$vector, "feature_id", "score") %>% 
-          mutate(score = score + stats::runif(n(), 0, 1e-15)) %>% 
-          sample_n(num_targets, weight = score) %>% 
-          pull(feature_id) %>% 
-          c(tf_name)
-        
-        # get induced subgraph
-        gr %>% 
-          igraph::induced_subgraph(features_sel) %>% 
-          igraph::ego(10, tf_name, mode = "out") %>% 
-          first() %>% 
-          names() %>% 
-          igraph::induced_subgraph(gr, .) %>% 
-          igraph::as_data_frame() %>% 
-          as_tibble() %>% 
-          select(from, to)
-      } else {
-        tibble(from = character(0), to = character(0))
-      }
-    }
+  personalized <- rep(0, ncol(realnet)) %>% set_names(colnames(realnet))
+  personalized[tf_info$feature_id] <- tf_info$num_targets
+  page_rank <- igraph::page_rank(
+    gr,
+    personalized = personalized, 
+    directed = TRUE,
+    weights = igraph::E(gr)$weight,
+    damping = model$feature_network_params$damping
   )
+  features_sel <- 
+    enframe(page_rank$vector, "feature_id", "score") %>% 
+    mutate(score = score + stats::runif(n(), 0, 1e-15)) %>% 
+    filter(!feature_id %in% tf_names) %>% 
+    sample_n(num_targets, weight = score) %>% 
+    pull(feature_id) %>% 
+    unique()
   
-  # filter duplicates and connections between tfs
+  # get induced subgraph
+  subgr <-
+    gr %>% 
+    igraph::induced_subgraph(c(features_sel, tf_names))
   target_regnet <- 
-    target_regnet %>% 
-    # can contain duplicates
-    unique() %>% 
+    subgr %>% 
+    igraph::as_data_frame() %>% 
+    as_tibble() %>% 
+    select(from, to) %>% 
     # remove connections to tfs (to avoid ruining the given module network)
     filter(!to %in% tf_names)
   
-  # rename non-tf features
-  if (nrow(target_regnet) > 0) {
-    target_names <- unique(c(target_regnet$from, target_regnet$to)) %>% setdiff(tf_names)
-    target_mapper <- 
-      set_names(
-        paste0("Target", seq_along(target_names)),
-        target_names
-      )
-    
+  # some targets may be missing
+  missing_targets <- setdiff(features_sel, target_regnet$to)
+  if (length(missing_targets) > 0) {
+    deg <- igraph::degree(subgr)
+    new_regs <- sample(names(deg), length(missing_targets), prob = deg, replace = TRUE)
     target_regnet <- 
-      target_regnet %>% 
-      mutate_all(~ ifelse(. %in% names(target_mapper), target_mapper[.], .))
-  } else {
-    target_mapper <- character(0)
+      bind_rows(
+        target_regnet, 
+        tibble(from = new_regs, to = missing_targets)
+      )
   }
   
+  # rename non-tf features
+  target_names <- unique(c(target_regnet$from, target_regnet$to)) %>% setdiff(tf_names)
+  target_mapper <- 
+    set_names(
+      paste0("Target", seq_along(target_names) + target_index_offset),
+      target_names
+    )
+  
+  target_regnet <- 
+    target_regnet %>% 
+    mutate_all(~ ifelse(. %in% names(target_mapper), target_mapper[.], .))
+
   # create target info
   target_info <- 
     tibble(
@@ -184,16 +216,22 @@ generate_feature_network <- function(
 
 #' @importFrom Matrix summary
 #' @importFrom igraph graph_from_data_frame page_rank E
-.feature_network_sample_housekeeping <- function(model, realnet) {
+.feature_network_sample_housekeeping <- function(
+  model,
+  realnet,
+  num_hks = model$numbers$num_hks, 
+  hk_index_offset = 0
+) {
   requireNamespace("igraph")
-  
-  num_hks <- model$numbers$num_hks
   
   # convert to igraph
   gr <- 
     realnet %>% 
     Matrix::summary() %>% 
     as.data.frame() %>% 
+    group_by(j) %>% 
+    sample_n(min(n(), sample(1:model$feature_network_params$max_in_degree, 1)), weight = x) %>% 
+    ungroup() %>% 
     transmute(
       i = rownames(realnet)[i], 
       j = colnames(realnet)[j],
@@ -213,25 +251,18 @@ generate_feature_network <- function(
     igraph::as_data_frame() %>% 
     as_tibble() %>% 
     select(from, to) %>% 
-    filter(from != to) %>% 
-    group_by(to) %>% 
-    slice(1:4) %>% 
-    ungroup()
+    filter(from != to)
   
   # rename hk features
-  if (nrow(hk_regnet) > 0) {
-    hk_mapper <- 
-      set_names(
-        paste0("HK", seq_along(hk_names)),
-        hk_names
-      )
-    
-    hk_regnet <- 
-      hk_regnet %>% 
-      mutate(from = hk_mapper[from], to = hk_mapper[to])
-  } else {
-    hk_mapper <- character(0)
-  }
+  hk_mapper <- 
+    set_names(
+      paste0("HK", seq_along(hk_names) + hk_index_offset),
+      hk_names
+    )
+  
+  hk_regnet <- 
+    hk_regnet %>% 
+    mutate(from = hk_mapper[from], to = hk_mapper[to])
   
   # create target info
   hk_info <- 
