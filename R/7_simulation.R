@@ -96,7 +96,7 @@ generate_cells <- function(
   comp_funs
 }
 
-.generate_cells_simulate_cell <- function(simulation_i, model, propensity_funs) {
+.generate_cells_simulate_cell <- function(simulation_i, model, propensity_funs, verbose = FALSE) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
@@ -117,7 +117,7 @@ generate_cells <- function(
       method = sim_params$ssa_algorithm,
       hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
-      verbose = FALSE,
+      verbose = verbose,
       use_singular_optimisation = model$simulation_params$use_singular_optimisation
     )
     
