@@ -6,7 +6,7 @@ simulation_default <- function(
   num_simulations = 32,
   seeds = sample.int(10 * num_simulations, num_simulations),
   ssa_algorithm = ssa_direct(),
-  use_singular_optimisation = TRUE
+  use_vector_optimisation = TRUE
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -17,7 +17,7 @@ simulation_default <- function(
     num_simulations,
     seeds,
     ssa_algorithm,
-    use_singular_optimisation
+    use_vector_optimisation
   )
 }
 
@@ -25,7 +25,7 @@ simulation_default <- function(
 generate_cells <- function(
   model, qsub = FALSE
 ) {
-  if (!qsub) {
+  if (is.logical(qsub) && !qsub) {
     if (model$verbose) cat("Precompiling propensity functions for simulations\n")
     propensity_funs <- .generate_cells_precompile_propensity_funs(model)
     
@@ -39,23 +39,33 @@ generate_cells <- function(
         model = model,
         propensity_funs = propensity_funs
       )
-  } else {
+  } else if (is.logical(qsub) && qsub) {
     submodel <- model[c("simulation_system", "simulation_params", "verbose")]
-    simulations <- 
+    handle <- 
       qsub::qsub_lapply(
         X = seq_len(model$simulation_params$num_simulations),
         FUN = function(i) {
+          cat("Compiling propensity functions\n")
           propensity_funs <- dyngen:::.generate_cells_precompile_propensity_funs(submodel)
+          cat("Compiling simulation\n")
           dyngen:::.generate_cells_simulate_cell(i, model = submodel, propensity_funs = propensity_funs, verbose = TRUE)
         },
         qsub_environment = "model",
         qsub_config = qsub::override_qsub_config(
           memory = "10G",
           name = "dyngen",
-          compress = "gz"
+          compress = "gz",
+          remove_tmp_folder = TRUE,
+          wait = FALSE,
+          max_wall_time = "24:00:00"
         ),
         qsub_packages = c("dyngen", "fastgssa", "tidyverse")
       )
+    return(handle)
+  } else if (qsub::is_qsub_config(qsub)) {
+    simulations <- qsub::qsub_retrieve(qsub)
+  } else {
+    stop("Unexpected qsub parameter")
   }
   
   # split up simulation data
@@ -90,7 +100,8 @@ generate_cells <- function(
     buffer_ids = unlist(formulae$buffer_ids),
     state_ids = names(sim_system$initial_state),
     params = sim_system$parameters,
-    hardcode_params = TRUE
+    hardcode_params = TRUE,
+    write_rcpp = "~/fastgssa.cpp"
   )
   
   comp_funs
@@ -118,7 +129,7 @@ generate_cells <- function(
       hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
       verbose = verbose,
-      use_singular_optimisation = model$simulation_params$use_singular_optimisation
+      use_vector_optimisation = model$simulation_params$use_vector_optimisation
     )
     
     burn_meta <- 
@@ -149,7 +160,7 @@ generate_cells <- function(
     hardcode_params = TRUE,
     stop_on_neg_state = FALSE,
     verbose = verbose,
-    use_singular_optimisation = model$simulation_params$use_singular_optimisation
+    use_vector_optimisation = model$simulation_params$use_vector_optimisation
   )
   
   meta <- 

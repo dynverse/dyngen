@@ -150,7 +150,7 @@ generate_gold_standard <- function(model) {
       hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
       verbose = FALSE,
-      use_singular_optimisation = model$simulation_params$use_singular_optimisation
+      use_vector_optimisation = model$simulation_params$use_vector_optimisation
     )
     
     meta <- tibble(time = c(head(out$time, -1), !!time), from_, to_)
