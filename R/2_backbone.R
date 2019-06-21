@@ -242,13 +242,13 @@ backbone_bifurcating_cycle <- function() {
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn", "sB", "+A1,+A2,+A3,+B1,+B2", TRUE, TRUE, 2,
+    "sBurn", "sB", "+A1,+A2,+A3,+B1,+B2", TRUE, TRUE, 3,
     "sB", "sC", "+C1,+C2,+C3", FALSE, FALSE, 2,
     "sB", "sD", "+D1,+D2,+D3", FALSE, FALSE, 2,
     "sC", "sE", "+E1", FALSE, FALSE, 4,
     "sD", "sE", "+E1", FALSE, FALSE, 4,
     "sE", "sA", "+E2,+E3,-B1,-B2,-C1,-C2,-C3,-D1,-D2,-D3", FALSE, FALSE, 4,
-    "sA", "sB", "+B1,+B2", FALSE, FALSE, 2
+    "sA", "sB", "+B1,+B2,-E1,-E2|-E3", FALSE, FALSE, 2
   )
   
   backbone(module_info, module_network, expression_patterns)
