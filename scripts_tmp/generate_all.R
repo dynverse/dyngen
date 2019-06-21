@@ -2,76 +2,7 @@ library(tidyverse)
 library(dyngen)
 library(fastgssa)
 
-base_model <- function(num_cells, num_tfs, num_targets, num_hks) {
-  initialise_model(
-    num_cells = num_cells,
-    num_tfs = num_tfs,
-    num_targets = num_targets,
-    num_hks = num_hks,
-    backbone = backbone_linear(),
-    tf_network_params = tf_network_random(min_tfs_per_module = max(floor(num_tfs / 20), 1)),
-    feature_network_params = feature_network_default(target_resampling = 5000),
-    simulation_params = simulation_default(num_simulations = 100, census_interval = .025),
-    verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
-  )
-}
-
-backbone_modifiers <- list(
-  bifurcating = function(model) {
-    model$backbone <- backbone_bifurcating()
-    model
-  },
-  bifurcating_converging = function(model) {
-    model$backbone <- backbone_bifurcating_converging()
-    model
-  },
-  bifurcating_cycle = function(model) {
-    model$backbone <- backbone_bifurcating_cycle()
-    model$simulation_params$total_time <- 20
-    model
-  },
-  bifurcating_loop = function(model) {
-    model$backbone <- backbone_bifurcating_loop()
-    model
-  },
-  binary_tree = function(model) {
-    model$backbone <- backbone_binary_tree()
-    model
-  },
-  branching = function(model) {
-    model$backbone <- backbone_branching()
-    model
-  },
-  consecutive_bifurcating = function(model) {
-    model$backbone <- backbone_consecutive_bifurcating()
-    model
-  },
-  converging = function(model) {
-    model$backbone <- backbone_converging()
-    model$simulation_params$burn_time <- 5
-    model
-  },
-  cycle = function(model) {
-    model$backbone <- backbone_cycle()
-    model$simulation_params$total_time <- 20
-    model
-  },
-  disconnected = function(model) {
-    model$backbone <- backbone_disconnected()
-    model$simulation_params$burn_time <- 6
-    model
-  },
-  linear = function(model) {
-    model$backbone <- backbone_linear()
-    model
-  },
-  trifurcating = function(model) {
-    model$backbone <- backbone_trifurcating()
-    model
-  }
-)
+backbone_models <- list_backbones()
 
 size_cats <- tribble(
   ~size_cat, ~num_cells, ~num_tfs, ~num_targets, ~num_hks,
@@ -93,14 +24,48 @@ step_funs <- list(
     orig_params <- cross_df %>% dynutils::extract_row_to_list(i)
     cat(paste0("  ", names(orig_params), " = ", orig_params, collapse = "\n"), "\n", sep = "")
     
-    model <- 
-      base_model(num_cells = num_cells, num_tfs = num_tfs, num_targets = num_targets, num_hks = num_hks) %>% 
-      backbone_modifiers[[backbone_name]]()
+    # generate backbone
+    backbone <- backbone_models[[backbone_name]]()
     
-    # fixing num_modules value for new backbone
-    model$numbers$num_modules <- nrow(model$backbone$module_info)
+    # determine burn time
+    burn_time <- 
+      case_when(
+        backbone_name == "converging" ~ 5,
+        backbone_name == "disconnected" ~ 6,
+        TRUE ~ 2
+      )
+    cat("  burn_time=", burn_time, "\n", sep = "")
     
-    model
+    # determine final time
+    exp_pat <- backbone$expression_patterns
+    sim_time_sum <- exp_pat %>% filter(start) %>% pull(from) %>% set_names(rep(0, length(.)), .)
+    for (i in seq_len(nrow(exp_pat))) {
+      sim_time_sum[[exp_pat$to[[i]]]] <- sim_time_sum[[exp_pat$from[[i]]]] + exp_pat$time[[i]]
+    }
+    total_time <- max(sim_time_sum * 1.2)
+    cat("  total_time=", total_time, "\n", sep = "")
+    
+    # generate model parameters
+    initialise_model(
+      num_cells = num_cells,
+      num_tfs = num_tfs,
+      num_targets = num_targets,
+      num_hks = num_hks,
+      backbone = backbone,
+      tf_network_params = tf_network_random(
+        min_tfs_per_module = max(floor(num_tfs / 20), 1)
+      ),
+      feature_network_params = feature_network_default(target_resampling = 5000),
+      simulation_params = simulation_default(
+        num_simulations = 100, 
+        census_interval = .025, 
+        burn_time = burn_time, 
+        total_time = total_time
+      ),
+      verbose = TRUE,
+      download_cache_dir = "~/.cache/dyngen",
+      num_cores = 8
+    )
   },
   features = function(...) {
     list2env(list(...), environment())
@@ -200,7 +165,7 @@ cross_df <-
     size_cats,
     step = seq_along(step_funs),
     rep = 1:3,
-    backbone_name = names(backbone_modifiers)
+    backbone_name = names(backbone_models)
   ) %>% 
   mutate(
     name = paste0(backbone_name, "_rep", rep, "_", size_cat),
