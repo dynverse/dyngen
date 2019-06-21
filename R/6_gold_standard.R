@@ -1,10 +1,14 @@
 #' @importFrom fastgssa ssa_em ssa_direct
 #' @export
 gold_standard_default <- function(
-  ssa_algorithm = ssa_direct()
+  ssa_algorithm = ssa_em(.001, 0),
+  census_interval = .01,
+  num_simulations = 1
 ) {
   lst(
-    ssa_algorithm
+    ssa_algorithm,
+    census_interval,
+    num_simulations
   )
 }
 
@@ -98,6 +102,7 @@ generate_gold_standard <- function(model) {
 .generate_gold_standard_simulations <- function(model, prep_data) {
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
+  gold_params <- model$gold_standard_params
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
   
@@ -116,7 +121,11 @@ generate_gold_standard <- function(model) {
   gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state[tf_molecules] %>% as.matrix
   gold_sim_modules[[start_state]] <- c()
   
-  timer <- pbapply::timerProgressBar(min = 0, max = nrow(mod_changes))
+  timer <- pbapply::timerProgressBar(
+    min = 0, 
+    max = nrow(mod_changes) * gold_params$num_simulations,
+    width = 50
+  )
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
     to_ <- mod_changes$to_[[i]]
@@ -127,6 +136,8 @@ generate_gold_standard <- function(model) {
       gold_sim_modules[[from_]] %>% 
       union(mod_changes$mod_on[[i]]) %>% 
       setdiff(mod_changes$mod_off[[i]])
+    
+    gold_sim_modules[[to_]] <- mods
     
     # which tfs are on
     tfs_on <- tf_info %>% filter(module_id %in% mods)
@@ -139,35 +150,52 @@ generate_gold_standard <- function(model) {
     new_nus <- nus
     new_nus[!rownames(new_nus) %in% molecules_on] <- 0
     
-    # simulation of gold standard edge
-    out <- fastgssa::ssa(
-      initial_state = new_initial_state,
-      propensity_funs = propensity_funs,
-      nu = new_nus,
-      final_time = time,
-      params = sim_system$parameters,
-      method = model$gold_standard_params$ssa_algorithm,
-      hardcode_params = TRUE,
-      stop_on_neg_state = FALSE,
-      verbose = FALSE
-    )
+    outs <- list()
+    for (j in seq_len(gold_params$num_simulations)) {
+      # simulation of gold standard edge
+      out <- fastgssa::ssa(
+        initial_state = new_initial_state,
+        propensity_funs = propensity_funs,
+        nu = new_nus,
+        final_time = time,
+        params = sim_system$parameters,
+        method = gold_params$ssa_algorithm,
+        census_interval = gold_params$census_interval,
+        hardcode_params = TRUE,
+        stop_on_neg_state = FALSE,
+        verbose = FALSE
+      )
+      
+      if (gold_params$num_simulations > 1) {
+        time_out <- seq(0, time, by = gold_params$census_interval)
+        state_out <- apply(out$state, 2, function(x) {
+          approx(out$time, x, time_out)$y
+        })
+      } else {
+        time_out <- out$time
+        state_out <- out$state
+      }
+      
+      meta <- tibble(from_, to_, time = time_out)
+      counts <- state_out %>% Matrix::Matrix(sparse = TRUE)
+      
+      outs[[j]] <- lst(meta, counts)
+      
+      pbapply::setTimerProgressBar(timer, value = (i - 1) * gold_params$num_simulations + j)
+    }
     
-    meta <- tibble(time = c(head(out$time, -1), !!time), from_, to_)
-    counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    
-    end_state <- out$state[nrow(out$state), ] %>% as.matrix()
+    countss <- map(outs, "counts")
+    counts <- Reduce("+", countss) / length(countss)
+    meta <- outs[[1]]$meta
     
     gold_sim_outputs[[i]] <- lst(meta, counts)
     
-    gold_sim_modules[[to_]] <- mods
-    
+    end_state <- counts[nrow(counts), ] %>% as.matrix()
     if (!to_ %in% gold_sim_vectors) {
       gold_sim_vectors[[to_]] <- end_state
     } else {
       gold_sim_vectors[[to_]] <- cbind(gold_sim_vectors[[to_]], end_state)
     }
-    
-    pbapply::setTimerProgressBar(timer, value = i)
   }
   cat("\n")
   
