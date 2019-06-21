@@ -87,6 +87,12 @@ size_cats <- tribble(
 
 step_funs <- list(
   base = function(...) {
+    list2env(list(...), environment())
+    
+    cat("Params:\n")
+    orig_params <- cross_df %>% dynutils::extract_row_to_list(i)
+    cat(paste0("  ", names(orig_params), " = ", orig_params, collapse = "\n"), "\n", sep = "")
+    
     model <- 
       base_model(num_cells = num_cells, num_tfs = num_tfs, num_targets = num_targets, num_hks = num_hks) %>% 
       backbone_modifiers[[backbone_name]]()
@@ -94,12 +100,11 @@ step_funs <- list(
     # fixing num_modules value for new backbone
     model$numbers$num_modules <- nrow(model$backbone$module_info)
     
-    cat("Params:\n")
-    cat(paste0("  ", names(params), " = ", params, collapse = "\n"), "\n", sep = "")
-    
     model
   },
   features = function(...) {
+    list2env(list(...), environment())
+    
     model <- model %>% 
       generate_tf_network() %>% 
       generate_feature_network() %>% 
@@ -117,7 +122,9 @@ step_funs <- list(
     model
   },
   gs = function(...) {
-    model <- read_rds(model2_file) %>% 
+    list2env(list(...), environment())
+    
+    model <- model %>% 
       generate_gold_standard()
     
     g4 <- plot_gold_simulations(model) + scale_colour_brewer(palette = "Set3")
@@ -128,7 +135,9 @@ step_funs <- list(
     model
   },
   simulations = function(...) {
-    model <- read_rds(model3_file) %>% 
+    list2env(list(...), environment())
+    
+    model <- model %>% 
       generate_cells()
     
     g6 <- plot_gold_simulations(model) + scale_colour_brewer(palette = "Set3")
@@ -154,12 +163,14 @@ step_funs <- list(
     model
   },
   experiment = function(...) {
-    model <- read_rds(model4_file) %>% 
+    list2env(list(...), environment())
+    
+    model %>% 
       generate_experiment()
-    model
   },
   traj = function(...) {
-    model <- read_rds(model5_file)
+    list2env(list(...), environment())
+    
     traj <- model %>% 
       wrap_dyngen_dataset()
     
@@ -204,12 +215,14 @@ catt <- function(..., sep = "") {
 walk(seq_len(nrow(cross_df)), function(i) {
   params <- cross_df %>% dynutils::extract_row_to_list(i)
   
+  params$i <- i
+  
   params$output_dir <- paste0("scripts_tmp/generate_all/", params$name)
   if (!dir.exists(params$output_dir)) dir.create(params$output_dir, recursive = TRUE)
   
   params$step_files <- paste0(params$output_dir, "/step", seq_along(step_funs), "_model_", names(step_funs), ".rds")
   
-  if (file.exists(params$step_files[[step]])) {
+  if (file.exists(params$step_files[[params$step]])) {
     return()
   }
   
