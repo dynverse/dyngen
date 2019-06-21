@@ -2,20 +2,20 @@
 simulation_default <- function(
   burn_time = 2,
   total_time = 20,
+  ssa_algorithm = ssa_etl(.001),
   census_interval = .01,
   num_simulations = 32,
-  seeds = sample.int(10 * num_simulations, num_simulations),
-  ssa_algorithm = ssa_direct()
+  seeds = sample.int(10 * num_simulations, num_simulations)
 ) {
   assert_that(length(seeds) == num_simulations)
   
   lst(
     burn_time,
     total_time,
+    ssa_algorithm,
     census_interval,
     num_simulations,
-    seeds,
-    ssa_algorithm
+    seeds
   )
 }
 
@@ -60,7 +60,7 @@ generate_cells <- function(
         qsub_packages = c("dyngen", "fastgssa", "tidyverse")
       )
     return(handle)
-  } else if (qsub::is_qsub_config(qsub)) {
+  } else if (is.list(qsub) && "num_tasks" %in% names(qsub)) {
     simulations <- qsub::qsub_retrieve(qsub)
   } else {
     stop("Unexpected qsub parameter")
@@ -70,7 +70,7 @@ generate_cells <- function(
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
     counts = do.call(rbind, map(simulations, "counts")),
-    buffers = do.call(rbind, map(simulations, "buffer"))
+    regulation = do.call(rbind, map(simulations, "buffer"))
   )
   
   # predict state
@@ -135,7 +135,7 @@ generate_cells <- function(
       ) %>%
       mutate(time = time - max(time))
     burn_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    burn_buffer <- out$buffer
+    burn_buffer <- (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE)
     
     new_initial_state <- out$state[nrow(out$state), ]
   } else {
