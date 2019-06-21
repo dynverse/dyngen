@@ -1,32 +1,5 @@
 #' @export
 kinetics_default <- function(
-  sample_wpr = function(n) runif(n, 10, 200),
-  sample_wdr = function(n) runif(n, 2, 8),
-  sample_xpr = function(n) runif(n, 10, 40),
-  sample_xdr = function(n) runif(n, 2, 8),
-  sample_ydr = function(n) runif(n, 2, 8),
-  sample_ypr = function(n) runif(n, 1, 5),
-  
-  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
-  sample_strength = function(n) runif(n, 1, 20),
-  sample_cooperativity = function(n) runif(n, 0.5, 2)
-) {
-  lst(
-    sample_wpr,
-    sample_wdr,
-    sample_xpr,
-    sample_xdr,
-    sample_ypr,
-    sample_ydr,
-    
-    sample_effect,
-    sample_strength,
-    sample_cooperativity
-  )
-}
-
-#' @export
-kinetics_custom <- function(
   sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
   sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_xpr = function(n) rnorm(n, 25, 5) %>% pmax(5),
@@ -35,7 +8,7 @@ kinetics_custom <- function(
   sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
-  sample_strength = function(n) runif(n, 10, 40),
+  sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
   sample_cooperativity = function(n) runif(n, 0.5, 2)
 ) {
   lst(
@@ -248,50 +221,36 @@ generate_kinetics <- function(model) {
         rid <- info$regulators$from
         eff <- info$regulators$effect
         reg_ys <- paste0("y_", rid)
-        reg_ks <- paste0("k_", fid, "_", rid)
-        reg_cs <- paste0("c_", fid, "_", rid)
-        buffer_var <- paste0("buffer_", fid, "_", rid)
+        reg_ks <- paste0("k_", rid, "_", fid)
+        reg_cs <- paste0("c_", rid, "_", fid)
+        regulation_var <- paste0("regulation_", rid, "_", fid)
         
-        reg_affinity_calc <- paste(paste0(buffer_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
+        reg_affinity_calc <- paste(paste0(regulation_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
         
-        # # Several optimisations have been applied.
-        # # 
-        # # original:
-        # #   [a0 + x0 + x0x1 + x1] / [x0 + x0x1 + x1 + 1]
-        # # 
-        # # factorise:
-        # #   [a0 + (x0 + 1) * (x1 + 1) - 1] / (x0 + 1) / (x1 + 1) / (x2 + 1)
-        # # 
-        # # use buffer to remember calculations:
-        # #   [a0 - 1 + buf0 * buf1] / buf0 / buf1 / buf2,
-        # # with buf0 = x0 + 1, buf1 = x1 + 1, buf2 = x2 + 1
-        # # 
-        # # split fraction into two to avoid loss of accuracy
-        # #   [a0 - 1] / buf0 / buf1 / buf2 + 1 / buf2
-        # 
-        # form <-
-        #   if (sum(eff > 0) > 0) {
-        #     form <- paste0(a0, paste0(" / ", buffer_var, collapse = ""))
-        #   } else {
-        #     first <- paste0("(", a0, " - 1) ", paste0(" / ", buffer_var, collapse = ""))
-        #     second <- paste0("1", paste0(" / ", buffer_var[eff < 0], collapse = ""))
-        #     paste0(first, " + ", second)
-        #   }
-        # 
-        # wpr_function <- paste0(reg_affinity_calc, wpr_id, " = ", wpr, " * (", form, ")")
+        # Several optimisations have been applied.
+        #
+        # original:
+        #   [a0 + x0 + x0x1 + x1] / [x0 + x0x1 + x1 + 1]
+        #
+        # factorise:
+        #   [a0 + (x0 + 1) * (x1 + 1) - 1] / (x0 + 1) / (x1 + 1) / (x2 + 1)
+        #
+        # use buffer to remember calculations:
+        #   [a0 - 1 + buf0 * buf1] / buf0 / buf1 / buf2,
+        # with buf0 = x0 + 1, buf1 = x1 + 1, buf2 = x2 + 1
         
         numerator <-
           if (sum(eff > 0) > 0) {
-            paste0(a0, " - 1 + ", paste(buffer_var[eff > 0], collapse = " * "))
+            paste0(a0, " - 1 + ", paste(regulation_var[eff > 0], collapse = " * "))
           } else {
             a0
           }
-        denominator <- paste(buffer_var, collapse = " * ")
+        denominator <- paste(regulation_var, collapse = " * ")
         
         wpr_function <- paste0(reg_affinity_calc, wpr_id, " = ", wpr, " * (", numerator, ")/(", denominator, ")")
       } else {
         wpr_function <- paste0(wpr_id, " = ", wpr, " * ", a0)
-        buffer_var <- character()
+        regulation_var <- character()
       }
       
       # pre-mRNA production
@@ -301,7 +260,7 @@ generate_kinetics <- function(model) {
           formula = wpr_function,
           effect = 1,
           molecule = w,
-          buffer_ids = list(buffer_var)
+          buffer_ids = list(regulation_var)
         )
       
       # pre-mRNA degradation
@@ -379,7 +338,7 @@ generate_kinetics <- function(model) {
     model$feature_network %>% 
     select(from, to, k, c = cooperativity) %>% 
     gather(param, value, -from, -to) %>% 
-    mutate(id = paste0(param, "_", to, "_", from)) %>% 
+    mutate(id = paste0(param, "_", from, "_", to)) %>% 
     select(id, value) %>% 
     deframe()
   

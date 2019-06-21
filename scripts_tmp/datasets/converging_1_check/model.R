@@ -13,7 +13,7 @@ model <-
     backbone = backbone_converging(),
     tf_network_params = tf_network_random(),
     feature_network_params = feature_network_default(),
-    kinetics_params = kinetics_custom(),
+    kinetics_params = kinetics_default(),
     gold_standard_params = gold_standard_default(),
     simulation_params = simulation_default(burn_time = 5, total_time = 10, num_simulations = 32),
     experiment_params = experiment_snapshot(),
