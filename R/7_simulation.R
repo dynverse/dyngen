@@ -1,7 +1,7 @@
 #' @export
 simulation_default <- function(
   burn_time = 2,
-  total_time = 20,
+  total_time = 10,
   ssa_algorithm = ssa_etl(.001),
   census_interval = .01,
   num_simulations = 32,
