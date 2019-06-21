@@ -60,35 +60,8 @@ generate_experiment <- function(model) {
   rownames(sim_ycounts) <- sim_meta$cell_id
   colnames(sim_ycounts) <- model$feature_info$feature_id
   
-  # fetch real expression data
-  realcount <- .generate_experiment_fetch_realcount(model)
-  
-  # # map simulated counts to real counts
-  # trafo_xcounts <- map(
-  #   sim_meta$cell_id,
-  #   function(cid) {
-  #     realcell <- sample.int(nrow(realcount), size = 1, replace = TRUE)
-  #     real_expr <- sort(realcount[realcell, ])
-  #     orig_expr <- sim_xcounts[cid, ]
-  #     # add a bit of noise to the percentages to make duplicate cells a bit different
-  #     pct_order <- 
-  #       dynutils::scale_minmax(rank(orig_expr, ties.method = "random")) + 
-  #       stats::rnorm(length(orig_expr), 0, .001) 
-  #     pct_order[pct_order <= 0] <- 0
-  #     pct_order[pct_order >= 1] <- 1
-  #     trafo_expr <- real_expr[floor(pct_order * (length(real_expr) - 1e-10)) + 1]
-  #     trafo_expr %>% set_names(names(orig_expr)) %>% Matrix::Matrix(sparse = TRUE) %>% Matrix::t()
-  #   }
-  # )
-  # trafo_xcount <- do.call(rbind, trafo_xcounts)
-  # dimnames(trafo_xcount) <- dimnames(sim_xcounts)
-  # 
-  # # combine into final count matrix
-  # model$experiment <- list(
-  #   counts = trafo_count,
-  #   feature_info = model$feature_info,
-  #   cell_info = sim_meta
-  # )
+  sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
+  rownames(sim_regulation) <- sim_meta$cell_id
   
   # combine into final count matrix
   model$experiment <- list(
@@ -96,7 +69,8 @@ generate_experiment <- function(model) {
     xcounts = sim_xcounts,
     ycounts = sim_ycounts,
     feature_info =  model$feature_info,
-    cell_info = sim_meta
+    cell_info = sim_meta,
+    regulation = sim_regulation
   )
   
   model
