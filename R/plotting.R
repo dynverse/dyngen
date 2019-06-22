@@ -238,7 +238,7 @@ plot_gold_simulations_proj <- function(model, detailed = FALSE, mapping = aes(co
 
 
 #' @export
-plot_gold_mappings <- function(model, selected_simulations = NULL) {
+plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE) {
   plot_df <- 
     bind_rows(
       bind_cols(
@@ -257,11 +257,17 @@ plot_gold_mappings <- function(model, selected_simulations = NULL) {
   
   plot_df <- plot_df %>% mutate(edge = paste0(from, "->", to))
   
-  ggplot(mapping = aes(comp_1, comp_2)) +
+  g <- ggplot(mapping = aes(comp_1, comp_2)) +
     geom_path(aes(colour = edge), plot_df %>% filter(simulation_i == 0)) +
     geom_path(aes(colour = edge, group = simulation_i), plot_df %>% filter(simulation_i != 0)) +
-    theme_bw() +
+    theme_bw() 
+  
+  if (do_facet) {
+    g <- g +
     facet_wrap(~ simulation_i)
+  }
+  
+  g
 }
 
 #' @export
