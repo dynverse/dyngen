@@ -145,7 +145,7 @@ step_funs <- list(
     g3 <- plot_feature_network(model)
     g4 <- plot_gold_simulations(model) + scale_colour_brewer(palette = "Set3")
     g5 <- plot_gold_expression(model)
-    g6 <- plot_gold_simulations(model) + scale_colour_brewer(palette = "Set3")
+    g6 <- plot_gold_mappings(model, do_facet = FALSE) + scale_colour_brewer(palette = "Set3")
     g8 <- plot_simulations(model)
     g9 <- plot_simulation_expression(model)
     g <- patchwork::wrap_plots(
@@ -154,7 +154,7 @@ step_funs <- list(
       ncol = 4
     ) +
       patchwork::plot_annotation(tag_levels = "A")
-    ggsave(paste0(output_dir, "/step6_plot_all.pdf"), g, width = 40, height = 30)
+    ggsave(paste0(output_dir, "/step6_plot_all.pdf"), g, width = 40, height = 20)
     
     traj
   }
@@ -171,7 +171,7 @@ cross_df <-
     name = paste0(backbone_name, "_rep", rep, "_", size_cat),
     seed = row_number()
   ) %>% 
-  filter(size_cat == "pico", step <= 4)
+  filter(size_cat %in% c("pico", "nano", "micro", "milli"))
 
 catt <- function(..., sep = "") {
   cat("[", format(Sys.time(), "%H:%M:%S"), "] ", ..., sep = sep)
@@ -199,7 +199,9 @@ walk(seq_len(nrow(cross_df)), function(i) {
   sink(paste0(params$output_dir, "/log.txt"), append = params$step != 1)
   on.exit(sink())
   
+  catt("Processing ", params$name, ", step ", params$step, "\n", sep = "")
   set.seed(params$seed)
   out <- do.call(step_funs[[params$step]], params)
   write_rds(out, params$step_files[[params$step]])
+  catt("Done!\n", sep = "")
 })
