@@ -53,7 +53,7 @@ step_funs <- list(
       num_hks = num_hks,
       backbone = backbone,
       tf_network_params = tf_network_random(
-        min_tfs_per_module = max(floor(num_tfs / 20), 1)
+        min_tfs_per_module = max(floor(num_tfs / 50), 1)
       ),
       feature_network_params = feature_network_default(target_resampling = 5000),
       simulation_params = simulation_default(
@@ -195,7 +195,7 @@ walk(seq_len(nrow(cross_df)), function(i) {
     params$model <- read_rds(params$step_files[[params$step - 1]])
   }
   
-  catt("Processing ", params$name, ", step ", params$step, "\n", sep = "")
+  catt("Processing row ", i, ", ", params$name, ", step ", params$step, "\n", sep = "")
   sink(paste0(params$output_dir, "/log.txt"), append = params$step != 1)
   on.exit(sink())
   
