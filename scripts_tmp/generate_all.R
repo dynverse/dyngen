@@ -5,16 +5,21 @@ library(fastgssa)
 backbone_models <- list_backbones()
 
 size_cats <- tribble(
-  ~size_cat, ~num_cells, ~num_tfs, ~num_targets, ~num_hks,
-  "pico", 100, 20, 40, 40,
-  "nano", 200, 30, 85, 85,
-  "micro", 500, 40, 230, 230,
-  "milli", 1000, 50, 475, 475,
-  "one", 5000, 100, 1450, 1450,
-  "kilo", 10000, 200, 4900, 4900,
-  "mega", 20000, 200, 4900, 4900,
-  "giga", 50000, 200, 4900, 4900
-)
+  ~size_cat, ~num_cells, ~num_genes, ~pct_tfs, ~pct_targets,
+  "pico", 100, 100, .5, .5,
+  "nano", 200, 200, .3, .8,
+  "micro", 500, 500, .15, .7,
+  "milli", 1000, 1000, .1, .6,
+  "one", 5000, 5000, .02, .5,
+  "kilo", 10000, 6500, .02, .5,
+  "mega", 20000, 8000, .02, .5,
+  "giga", 50000, 10000, .02, .5
+) %>% 
+  mutate(
+    num_tfs = ceiling(num_genes * pct_tfs),
+    num_targets = ceiling((num_genes - num_tfs) * pct_targets),
+    num_hks = num_genes - num_tfs - num_targets
+  )
 
 step_funs <- list(
   base = function(...) {
@@ -64,7 +69,7 @@ step_funs <- list(
       ),
       verbose = TRUE,
       download_cache_dir = "~/.cache/dyngen",
-      num_cores = 8
+      num_cores = 4
     )
   },
   features = function(...) {
@@ -163,7 +168,6 @@ step_funs <- list(
 cross_df <- 
   crossing(
     size_cats,
-    step = seq_along(step_funs),
     rep = 1:3,
     backbone_name = names(backbone_models)
   ) %>% 
@@ -171,37 +175,54 @@ cross_df <-
     name = paste0(backbone_name, "_rep", rep, "_", size_cat),
     seed = row_number()
   ) %>% 
-  filter(size_cat %in% c("pico", "nano", "micro", "milli"))
+  filter(size_cat %in% c("pico", "nano", "micro", "milli", "one"))
 
 catt <- function(..., sep = "") {
   cat("[", format(Sys.time(), "%H:%M:%S"), "] ", ..., sep = sep)
 }
 
-walk(seq_len(nrow(cross_df)), function(i) {
-  params <- cross_df %>% dynutils::extract_row_to_list(i)
-  
-  params$i <- i
-  
-  params$output_dir <- paste0("scripts_tmp/generate_all/", params$name)
-  if (!dir.exists(params$output_dir)) dir.create(params$output_dir, recursive = TRUE)
-  
-  params$step_files <- paste0(params$output_dir, "/step", seq_along(step_funs), "_model_", names(step_funs), ".rds")
-  
-  if (file.exists(params$step_files[[params$step]])) {
-    return()
+handle <- qsub::qsub_lapply(
+  X = seq_len(nrow(cross_df)), 
+  qsub_environment = c("cross_df", "catt", "step_funs", "backbone_models", "size_cats"),
+  qsub_packages = c("tidyverse", "fastgssa", "dyngen"),
+  qsub_config = qsub::override_qsub_config(
+    wait = FALSE,
+    memory = "10G",
+    name = "dyngen",
+    max_wall_time = NULL,
+    compress = "gz",
+    stop_on_error = FALSE,
+    remove_tmp_folder = FALSE,
+    num_cores = 4
+  ),
+  FUN = function(i) {
+    params <- cross_df %>% dynutils::extract_row_to_list(i)
+    
+    params$i <- i
+    
+    # params$output_dir <- paste0("scripts_tmp/generate_all/", params$name)
+    params$output_dir <- paste0("/scratch/irc/shared/dyngen_datasets/", params$name)
+    if (!dir.exists(params$output_dir)) dir.create(params$output_dir, recursive = TRUE)
+    
+    params$step_files <- paste0(params$output_dir, "/step", seq_along(step_funs), "_model_", names(step_funs), ".rds")
+    
+    for (step_i in seq_along(step_funs)) {
+      if (!file.exists(params$step_files[[step_i]])) {
+        
+        if (step_i > 1) {
+          params$model <- read_rds(params$step_files[[step_i - 1]])
+        }
+        
+        catt("Processing row ", i, ", ", params$name, ", step ", step_i, "\n", sep = "")
+        
+        set.seed(params$seed)
+        out <- do.call(step_funs[[step_i]], params)
+        write_rds(out, params$step_files[[step_i]], compress = "gz")
+        catt("Done!\n", sep = "")
+      }
+      
+    }
   }
-  
-  if (params$step > 1) {
-    params$model <- read_rds(params$step_files[[params$step - 1]])
-  }
-  
-  catt("Processing row ", i, ", ", params$name, ", step ", params$step, "\n", sep = "")
-  sink(paste0(params$output_dir, "/log.txt"), append = params$step != 1)
-  on.exit(sink())
-  
-  catt("Processing ", params$name, ", step ", params$step, "\n", sep = "")
-  set.seed(params$seed)
-  out <- do.call(step_funs[[params$step]], params)
-  write_rds(out, params$step_files[[params$step]])
-  catt("Done!\n", sep = "")
-})
+)
+
+write_rds(handle, "scripts_tmp/generate_all_handle.rds", compress = "gz")
