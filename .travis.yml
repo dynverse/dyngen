@@ -1,11 +1,25 @@
 language: r
 dist: trusty
-cache: packages
+warnings_are_errors: true
+cache:
+  directories:
+    - $HOME/.cache/hdf5
+    - $HOME/R/Library
+services:
+  - docker
+addons:
+  apt:
+    packages:
+      - libssh-dev  # PRISM > ssh > libssh-dev
 before_install:
-- source <(curl -sSL https://raw.githubusercontent.com/dynverse/travis_scripts/master/helper.sh)
+  - source <(curl -sSL https://raw.githubusercontent.com/dynverse/travis_scripts/master/helper.sh)
+  - install_hdf5
+  - install_dynverse
 install:
-- use_dynverse_devel
-- install_cran devtools covr
-- install_withdeps
+ - use_dynverse_devel
+ - install_cran devtools covr
+ - install_cran covr
+ - install_withdeps
+>>>>>>> devel
 after_success:
  - R -e 'covr::codecov()'
