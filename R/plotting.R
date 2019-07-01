@@ -16,6 +16,10 @@ effect_colour <- function(effect) {
   )[index]
 }
 
+#' Visualise the backbone of a model
+#' 
+#' @param model A dyngen initial model created with [initialise_model()].
+#' 
 #' @importFrom igraph layout.graphopt V E
 #' @export
 plot_backbone <- function(model) {
@@ -49,42 +53,39 @@ plot_backbone <- function(model) {
     coord_equal()
 }
 
+#' Visualise the feature network of a model
+#' 
+#' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
+#' @param show_tfs Whether or not to show the transcription factors.
+#' @param show_targets Whether or not to show the targets.
+#' @param show_hks Whether or not to show the housekeeping genes.
+#' 
 #' @importFrom igraph layout_with_fr V E
 #' @export
 plot_feature_network <- function(
   model,
-  color_by = c("module", "main"), 
   show_tfs = TRUE,
   show_targets = TRUE,
-  show_hks = FALSE,
-  label = FALSE
+  show_hks = FALSE
 ) {
-  color_by <- match.arg(color_by)
-  
   # get feature info
   feature_info <- 
-    model$feature_info
-  
-  if (color_by == "main") {
-    feature_info <- feature_info %>% mutate(color_by = is_hk)
-    color_legend <- c("FALSE" = "white", "TRUE" = "black", "NA" = "gray")
-  } else if (color_by == "module") {
-    feature_info <- feature_info %>%
-      mutate(
-        color_by = case_when(
-          !is.na(module_id) ~ module_id,
-          is_tf ~ "TF",
-          !is_hk ~ "Target",
-          is_hk ~ "HK"
-        )
+    model$feature_info %>%
+    mutate(
+      color_by = case_when(
+        !is.na(module_id) ~ module_id,
+        is_tf ~ "TF",
+        !is_hk ~ "Target",
+        is_hk ~ "HK"
       )
-    color_legend <- c(
-      "TF" = "black",
-      "Target" = "darkgray",
-      "HK" = "lightgray",
-      model$backbone$module_info %>% select(module_id, color) %>% deframe()
     )
-  }
+  
+  color_legend <- c(
+    "TF" = "black",
+    "Target" = "darkgray",
+    "HK" = "lightgray",
+    model$backbone$module_info %>% select(module_id, color) %>% deframe()
+  )
   
   # remove unwanted features and convert NA into "NA"
   feature_info <- 
@@ -141,20 +142,31 @@ plot_feature_network <- function(
     labs(size = "is TF", color = "Module group")
 }
 
+#' Visualise the simulations using the dimred
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param mapping Which components to plot.
+#' 
 #' @export
-plot_simulations <- function(model) {
+plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
   plot_df <- 
     bind_cols(
       model$simulations$meta,
       model$simulations$dimred %>% as.data.frame
     )
   
-  ggplot(plot_df %>% filter(sim_time >= 0)) +
-    geom_path(aes(comp_1, comp_2, colour = sim_time, group = simulation_i)) +
+  ggplot(plot_df %>% filter(sim_time >= 0), mapping) +
+    geom_path(aes(colour = sim_time, group = simulation_i)) +
     viridis::scale_color_viridis() +
     theme_bw()
 }
 
+#' Visualise the simulations using the dimred
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param detailed Whether or not to colour according to each separate sub-edge in the gold standard.
+#' @param mapping Which components to plot.
+#' 
 #' @export
 plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2)) {
   plot_df <- 
@@ -185,7 +197,12 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
     theme_bw()
 }
 
-
+#' Visualise the simulations using mRNA and pre-mRNA information
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param detailed Whether or not to colour according to each separate sub-edge in the gold standard.
+#' @param mapping Which components to plot.
+#' 
 #' @export
 plot_gold_simulations_proj <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2)) {
   plot_df <- 
@@ -236,9 +253,15 @@ plot_gold_simulations_proj <- function(model, detailed = FALSE, mapping = aes(co
     theme_bw()
 }
 
-
+#' Visualise the mapping of the simulations to the gold standard
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param selected_simulations Which simulation indices to visualise.
+#' @param do_facet Whether or not to facet according to simulation index.
+#' @param mapping Which components to plot.
+#' 
 #' @export
-plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE) {
+plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes(comp_1, comp_2)) {
   plot_df <- 
     bind_rows(
       bind_cols(
@@ -257,7 +280,7 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
   
   plot_df <- plot_df %>% mutate(edge = paste0(from, "->", to))
   
-  g <- ggplot(mapping = aes(comp_1, comp_2)) +
+  g <- ggplot(mapping = mapping) +
     geom_path(aes(colour = edge), plot_df %>% filter(simulation_i == 0)) +
     geom_path(aes(colour = edge, group = simulation_i), plot_df %>% filter(simulation_i != 0)) +
     theme_bw() 
@@ -270,6 +293,12 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
   g
 }
 
+
+#' Visualise the expression of the gold standard over simulation time
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_gold_standard()].
+#' @param what Which molecule types to visualise.
+#' 
 #' @export
 plot_gold_expression <- function(model, what = c("w", "x", "y")) {
   edge_levels <- 
@@ -298,7 +327,11 @@ plot_gold_expression <- function(model, what = c("w", "x", "y")) {
 }
 
 
-
+#' Visualise the expression of the simulations over simulation time
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param what Which molecule types to visualise.
+#' 
 #' @export
 plot_simulation_expression <- function(model, simulation_i = 1, what = c("w", "x", "y")) {
   edge_levels <-
