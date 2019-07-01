@@ -209,62 +209,6 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
     theme_bw()
 }
 
-#' Visualise the simulations using mRNA and pre-mRNA information
-#' 
-#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
-#' @param detailed Whether or not to colour according to each separate sub-edge in the gold standard.
-#' @param mapping Which components to plot.
-#' 
-#' @export
-plot_gold_simulations_proj <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2)) {
-  plot_df <- 
-    bind_rows(
-      bind_cols(
-        model$gold_standard$meta,
-        model$gold_standard$dimred %>% as.data.frame
-      ) %>% mutate(type = "normal"),
-      bind_cols(
-        model$gold_standard$meta,
-        model$gold_standard$dimred_projected %>% as.data.frame
-      ) %>% mutate(type = "projected")
-    ) %>% 
-    filter(!burn)
-  
-  if (!detailed && model %has_names% "simulations" && model$simulations %has_names% "dimred") {
-    plot_df <- plot_df %>%
-      bind_rows(
-        bind_cols(
-          model$simulations$meta,
-          model$simulations$dimred %>% as.data.frame
-        ) %>%
-          filter(sim_time >= 0) %>%
-          mutate(type = "normal"),
-        bind_cols(
-          model$simulations$meta,
-          model$simulations$dimred_projected %>% as.data.frame
-        ) %>% 
-          filter(sim_time >= 0) %>% 
-          mutate(type = "projected")
-      )
-  }
-  
-  if (detailed) {
-    plot_df <- plot_df %>% mutate(edge = paste0(from_, "_", to_))
-  } else {
-    plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
-  }
-  
-  g <- ggplot(mapping = mapping)
-  
-  if (any(plot_df$simulation_i > 0)) {
-    g <- g + geom_path(aes(group = paste0(simulation_i, "_", type), linetype = type), plot_df %>% filter(simulation_i > 0), colour = "darkgray")
-  }
-    
-  g +
-    geom_path(aes(colour = edge, group = paste0(from_, "_", to_, "_", type), linetype = type), plot_df %>% filter(simulation_i == 0), size = 2) +
-    theme_bw()
-}
-
 #' Visualise the mapping of the simulations to the gold standard
 #' 
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
