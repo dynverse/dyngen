@@ -231,7 +231,7 @@ qsub::rsync_remote(
   "prism",
   "/scratch/irc/shared/dyngen_datasets/",
   FALSE, 
-  "scripts_tmp/datasets", 
+  "~/Workspace/dyngen_datasets", 
   verbose = TRUE,
   compress = FALSE,
   exclude = "*step5_model_experiment.rds"
