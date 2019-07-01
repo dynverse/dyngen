@@ -6,7 +6,6 @@
 #' 
 #' @param model A dyngen initial model created with [initialise_model()].
 #' 
-#' @importFrom patchwork wrap_plots plot_annotation
 #' @export
 generate_dataset <- function(model) {
   model <- model %>% 

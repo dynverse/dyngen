@@ -15,10 +15,10 @@ tf_network_default(min_tfs_per_module = 1L,
 
 \item{min_tfs_per_module}{The number of TFs to generate per module in the backbone.}
 
+\item{sample_num_regulators}{A function to generate the number of TFs per module each TF will be regulated by.}
+
 \item{weighted_sampling}{When determining what TFs another TF is regulated by, whether to perform weighted
 sampling (by rank) or not.}
-
-\item{sample_num_regulator}{A function to generate the number of TFs per module each TF will be regulated by.}
 }
 \description{
 \code{\link[=generate_tf_network]{generate_tf_network()}} generates the transcription factors (TFs) that

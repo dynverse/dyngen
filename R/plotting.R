@@ -330,6 +330,7 @@ plot_gold_expression <- function(model, what = c("w", "x", "y")) {
 #' Visualise the expression of the simulations over simulation time
 #' 
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param simulation_i Which simulation to visualise.
 #' @param what Which molecule types to visualise.
 #' 
 #' @export

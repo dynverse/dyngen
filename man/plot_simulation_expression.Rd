@@ -10,6 +10,8 @@ plot_simulation_expression(model, simulation_i = 1, what = c("w", "x",
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
 
+\item{simulation_i}{Which simulation to visualise.}
+
 \item{what}{Which molecule types to visualise.}
 }
 \description{

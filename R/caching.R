@@ -1,3 +1,4 @@
+#' @importFrom utils download.file
 .download_cacheable_file <- function(url, cache_dir, verbose) {
   file <- 
     if (is.null(cache_dir)) {

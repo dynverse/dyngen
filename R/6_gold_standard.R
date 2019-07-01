@@ -108,6 +108,7 @@ gold_standard_default <- function(
 
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
 #' @importFrom fastgssa ssa
+#' @importFrom stats approx
 .generate_gold_standard_simulations <- function(model, prep_data) {
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes

@@ -49,11 +49,13 @@ Imports:
   tibble,
   tidygraph,
   tidyr,
+  utils,
   viridis
 Suggests:
   covr,
   knitr,
-  rmarkdown
+  rmarkdown,
+  testthat
 Remotes:
   dynverse/dynwrap@devel,
   dynverse/fastgssa@devel

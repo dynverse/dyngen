@@ -6,7 +6,7 @@
 #' 
 #' @param model A dyngen initial model created with [initialise_model()].
 #' @param min_tfs_per_module The number of TFs to generate per module in the backbone.
-#' @param sample_num_regulator A function to generate the number of TFs per module each TF will be regulated by.
+#' @param sample_num_regulators A function to generate the number of TFs per module each TF will be regulated by.
 #' @param weighted_sampling When determining what TFs another TF is regulated by, whether to perform weighted
 #'  sampling (by rank) or not.
 #' 

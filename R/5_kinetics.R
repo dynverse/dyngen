@@ -73,6 +73,7 @@ generate_kinetics <- function(model) {
 
 #' @export
 #' @rdname generate_kinetics
+#' @importFrom stats rnorm runif
 kinetics_default <- function(
   sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
   sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),

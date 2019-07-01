@@ -327,6 +327,7 @@ backbone_bifurcating_loop <- function() {
 #' 
 #' @export
 #' @rdname backbone_models
+#' @importFrom stats rbinom
 backbone_branching <- function(
   num_modifications = rbinom(1, size = 6, 0.25) + 1,
   min_degree = 3,
@@ -448,6 +449,7 @@ backbone_branching <- function(
 
 #' @export
 #' @rdname backbone_models
+#' @importFrom stats rbinom
 backbone_binary_tree <- function(
   num_modifications = rbinom(1, size = 6, 0.25) + 1
 ) {

@@ -117,6 +117,7 @@ feature_network_default <- function(
   )
 }
 
+#' @importFrom utils data
 .feature_network_fetch_realnet <- function(model) {
   realnet <- model$feature_network_params$realnet
   
@@ -133,6 +134,7 @@ feature_network_default <- function(
 }
 #' @importFrom Matrix summary
 #' @importFrom igraph graph_from_data_frame page_rank E
+#' @importFrom stats runif
 .feature_network_sample_downstream <- function(
   model,
   realnet,
@@ -184,7 +186,7 @@ feature_network_default <- function(
   )
   features_sel <- 
     enframe(page_rank$vector, "feature_id", "score") %>% 
-    mutate(score = score + stats::runif(n(), 0, 1e-15)) %>% 
+    mutate(score = score + runif(n(), 0, 1e-15)) %>% 
     filter(!feature_id %in% tf_names) %>% 
     sample_n(num_targets, weight = score) %>% 
     pull(feature_id) %>% 
