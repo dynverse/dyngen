@@ -108,7 +108,6 @@ gold_standard_default <- function(
 
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
 #' @importFrom fastgssa ssa
-#' @importFrom stats approx
 .generate_gold_standard_simulations <- function(model, prep_data) {
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
@@ -177,15 +176,8 @@ gold_standard_default <- function(
       verbose = FALSE
     )
     
-    if (gold_params$num_simulations > 1) {
-      time_out <- seq(0, time, by = gold_params$census_interval)
-      state_out <- apply(out$state, 2, function(x) {
-        approx(out$time, x, time_out)$y
-      })
-    } else {
-      time_out <- out$time
-      state_out <- out$state
-    }
+    time_out <- out$time
+    state_out <- out$state
     
     meta <- tibble(from_, to_, time = time_out)
     counts <- state_out %>% Matrix::Matrix(sparse = TRUE)
