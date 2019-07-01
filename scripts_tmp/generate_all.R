@@ -226,3 +226,5 @@ handle <- qsub::qsub_lapply(
 )
 
 write_rds(handle, "scripts_tmp/generate_all_handle.rds", compress = "gz")
+
+qsub::rsync_remote("prism", "/scratch/irc/shared/dyngen_datasets/", FALSE, "scripts_tmp/datasets")
