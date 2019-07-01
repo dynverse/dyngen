@@ -1,5 +1,4 @@
 #' @importFrom dyndimred dimred_landmark_mds
-#' @export
 calculate_dimred <- function(model, num_landmarks = 1000) {
   # check whether the simulations have been run
   has_sim <- model %has_name% "simulations" && model$simulations %has_name% "counts"

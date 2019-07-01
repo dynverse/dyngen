@@ -52,5 +52,5 @@ normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisa
 
 Wrapping in a dynwrap dataset
 ```{r wrap}
-task <- wrap_dyngen_dataset("readme_dataset", params, model, simulation, gs, experiment, normalisation)
+task <- wrap_dataset("readme_dataset", params, model, simulation, gs, experiment, normalisation)
 ```

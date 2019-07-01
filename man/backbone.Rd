@@ -2,70 +2,20 @@
 % Please edit documentation in R/2_backbone.R
 \name{backbone}
 \alias{backbone}
-\alias{list_backbones}
-\alias{backbone_bifurcating}
-\alias{backbone_bifurcating_converging}
-\alias{backbone_bifurcating_cycle}
-\alias{backbone_bifurcating_loop}
-\alias{backbone_branching}
-\alias{backbone_binary_tree}
-\alias{backbone_consecutive_bifurcating}
-\alias{backbone_trifurcating}
-\alias{backbone_converging}
-\alias{backbone_cycle}
-\alias{backbone_linear}
-\alias{backbone_disconnected}
 \title{Backbone of the simulation model}
 \usage{
 backbone(module_info, module_network, expression_patterns)
-
-list_backbones()
-
-backbone_bifurcating()
-
-backbone_bifurcating_converging()
-
-backbone_bifurcating_cycle()
-
-backbone_bifurcating_loop()
-
-backbone_branching(num_modifications = rbinom(1, size = 6, 0.25) + 1,
-  min_degree = 3, max_degree = sample(min_degree:5, 1))
-
-backbone_binary_tree(num_modifications = rbinom(1, size = 6, 0.25) + 1)
-
-backbone_consecutive_bifurcating()
-
-backbone_trifurcating()
-
-backbone_converging()
-
-backbone_cycle()
-
-backbone_linear(num_modules = 5)
-
-backbone_disconnected()
 }
-\description{
-A module is a group of genes which, to some extent, shows the same
-expression behaviour. Several modules are connected together such that
-one or more genes from one module will regulate the expression of
-another module. By creating chains of modules, a dynamic behaviour in gene
-regulation can be created.
-}
-\details{
-A backbone model contains three tibbles, namely \code{module_info},
-\code{module_network}, and \code{expression_patterns}.
-
-\code{module_info} contains meta information on the modules themselves.
+\arguments{
+\item{module_info}{A tibble containing meta information on the modules themselves.
 \itemize{
 \item module_id (character): the name of the module
 \item a0 (numeric): basal expression level of genes in this module
 \item burn (logical): whether or not outgoing edges of this module will
 be active during the burn in phase
-}
+}}
 
-\code{module_network} describes which modules regulate which other modules.
+\item{module_network}{A tibble describing which modules regulate which other modules.
 \itemize{
 \item from (character): the regulating module
 \item to (character): the target module
@@ -74,9 +24,9 @@ the target module, \code{-1} if it downregulates
 \item strength (numeric): the strength of the interaction
 \item cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
 between 0 and 1 for negative cooperativity
-}
+}}
 
-\code{expression_patterns} describes the expected expression pattern
+\item{expression_patterns}{A tibble describing the expected expression pattern
 changes when a cell is simulated by dyngen.
 \itemize{
 \item from (character): name of a cell state
@@ -87,5 +37,15 @@ afterwards module 9 expression will go up, and afterwards module 4 expression wi
 \item start (logical): Whether or not this from cell state is the start of the trajectory
 \item burn (logical): Whether these cell states are part of the burn in phase. Cells will
 not get sampled from these cell states.
+}}
 }
+\description{
+A module is a group of genes which, to some extent, shows the same
+expression behaviour. Several modules are connected together such that
+one or more genes from one module will regulate the expression of
+another module. By creating chains of modules, a dynamic behaviour in gene
+regulation can be created.
+}
+\seealso{
+\code{\link[=list_backbones]{list_backbones()}} for a list of all backbone methods.
 }

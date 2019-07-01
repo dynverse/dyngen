@@ -1,39 +1,18 @@
-#' @export
-list_experiment_samplers <- function() {
-  lst(
-    snapshot = experiment_snapshot,
-    synchronised = experiment_synchronised
-  )
-}
-
-#' @export
-experiment_snapshot <- function(
-  realcount = sample(realcounts$name, 1),
-  weight_bw = 0.1
-) {
-  lst(
-    realcount,
-    sampler_type = "snapshot",
-    weight_bw
-  )
-}
-
-#' @export
-experiment_synchronised <- function(
-  realcount = sample(realcounts$name, 1),
-  num_timepoints = 8,
-  pct_between = .75
-) {
-  lst(
-    realcount,
-    sampler_type = "synchronised",
-    num_timepoints,
-    pct_between
-  )
-}
-
-#' @importFrom dynutils scale_minmax
-#' @importFrom stats rnorm
+#' Sample cells from the simulations
+#' 
+#' [generate_experiment()] runs samples cells along the different simulations.
+#' [experiment_snapshot()] assumes that cells are sampled from a heterogeneous pool of cells.
+#' Cells will thus be sampled uniformily from the trajectory.
+#' [experiment_synchronised()] assumes that all the cells are synchronised and 
+#' are sampled at different timepoints.
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
+#' @param weight_bw \[snapshot\] A bandwidth parameter for determining the distribution of 
+#'   cells along each edge in order to perform weighted sampling.
+#' @param num_timepoints \[synchronised\] The number of time points used in the experiment.
+#' @param pct_between \[synchronised\] The percentage of 'unused' simulation time.
+#' 
+#' @rdname generate_experiment
 #' @export
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
@@ -76,6 +55,40 @@ generate_experiment <- function(model) {
   model
 }
 
+#' @export
+#' @rdname generate_experiment
+#' @importFrom fastgssa ssa_etl
+list_experiment_samplers <- function() {
+  lst(
+    snapshot = experiment_snapshot,
+    synchronised = experiment_synchronised
+  )
+}
+
+#' @rdname generate_experiment
+#' @export
+experiment_snapshot <- function(
+  weight_bw = 0.1
+) {
+  lst(
+    fun = .generate_experiment_snapshot,
+    weight_bw
+  )
+}
+
+#' @rdname generate_experiment
+#' @export
+experiment_synchronised <- function(
+  num_timepoints = 8,
+  pct_between = .75
+) {
+  lst(
+    fun = .generate_experiment_synchronised,
+    num_timepoints,
+    pct_between
+  )
+}
+
 .generate_experiment_sample_cells <- function(model) {
   network <- 
     model$gold_standard$network
@@ -89,84 +102,84 @@ generate_experiment <- function(model) {
   
   params <- model$experiment_params
   
-  if (params$sampler_type == "snapshot") {
-    network <- 
-      network %>%
-      mutate(
-        pct = length / sum(length), 
-        cum_pct = cumsum(pct),
-        num_cells = diff(c(0, round(cum_pct * model$numbers$num_cells)))
-      ) %>% 
-      select(-pct, -cum_pct)
-    
-    map(
-      seq_len(nrow(network)),
-      function(i) {
-        edge <- network %>% slice(i)
-        meta <- 
-          inner_join(sim_meta, edge %>% select(from, to), c("from", "to"))
-        
-        if (nrow(meta) > 1) {
-          meta %>% 
-            mutate(
-              density = approxfun(density(time, bw = params$weight_bw))(time),
-              weight = 1 / density
-            ) %>% 
-            {sample(.$orig_ix, size = edge$num_cells, replace = TRUE, prob = .$weight)}
-        } else {
-          NULL
-        }
-      }
-    ) %>% 
-      unlist()
-  } else if (params$sampler_type == "synchronised") {
-    sim_meta2 <- 
-      sim_meta %>% 
-      mutate(
-        t_scale = sim_time / (max(sim_time)+1e-10) * params$num_timepoints,
-        timepoint_group = floor(t_scale),
-        selectable = (t_scale - timepoint_group) < (1 - params$pct_between)
-      ) %>% 
-      filter(selectable)
-    
-    numbers <-
-      sim_meta2 %>% 
-      group_by(timepoint_group) %>% 
-      summarise(n = n()) %>% 
-      mutate(
-        pct = n / sum(n), 
-        cum_pct = cumsum(pct),
-        num_cells = diff(c(0, round(cum_pct * model$numbers$num_cells)))
-      )
-    
-    map2(
-      numbers$timepoint_group,
-      numbers$num_cells,
-      function(gr, num) {
-        sim_meta2 %>% filter(timepoint_group == gr) %>% pull(orig_ix) %>% sample(size = num, replace = TRUE)
-      }
-    ) %>% 
-      unlist()
-  }
+  params$fun(
+    network = network, 
+    sim_meta = sim_meta, 
+    params = model$experiment_params,
+    num_cells = model$numbers$num_cells
+  )
 }
 
-.generate_experiment_fetch_realcount <- function(model) {
-  realcount_ <- model$experiment_params$realcount
+#' @importFrom stats approxfun density
+.generate_experiment_snapshot <- function(
+  network,
+  sim_meta,
+  params,
+  num_cells
+) {
+  network <- 
+    network %>%
+    mutate(
+      pct = length / sum(length), 
+      cum_pct = cumsum(pct),
+      num_cells = diff(c(0, round(cum_pct * num_cells)))
+    ) %>% 
+    select(-pct, -cum_pct)
   
-  # download realcount if needed-
-  realcount <- 
-    if (is.character(realcount_)) {
-      data(realcounts, package = "dyngen", envir = environment())
-      assert_that(realcount_ %all_in% realcounts$name)
+  map(
+    seq_len(nrow(network)),
+    function(i) {
+      edge <- network %>% slice(i)
+      meta <- 
+        inner_join(sim_meta, edge %>% select(from, to), c("from", "to"))
       
-      url <- realcounts$url[[match(realcount_, realcounts$name)]]
-      
-      .download_cacheable_file(url, model)
-    } else if (is.matrix(realcount_) || is_sparse(realcount_)) {
-      realcount_
-    } else {
-      stop("realcount should be a url from dyngen::realcounts, or a sparse count matrix.")
+      if (nrow(meta) > 1) {
+        meta %>% 
+          mutate(
+            density = approxfun(density(time, bw = params$weight_bw))(time),
+            weight = 1 / density
+          ) %>% 
+          {sample(.$orig_ix, size = edge$num_cells, replace = TRUE, prob = .$weight)}
+      } else {
+        NULL
+      }
     }
-  
-  realcount
+  ) %>% 
+    unlist()
 }
+
+.generate_experiment_synchronised <- function(
+  network,
+  sim_meta,
+  params,
+  num_cells
+) {
+  sim_meta2 <- 
+    sim_meta %>% 
+    mutate(
+      t_scale = sim_time / (max(sim_time)+1e-10) * params$num_timepoints,
+      timepoint_group = floor(t_scale),
+      selectable = (t_scale - timepoint_group) < (1 - params$pct_between)
+    ) %>% 
+    filter(selectable)
+  
+  numbers <-
+    sim_meta2 %>% 
+    group_by(timepoint_group) %>% 
+    summarise(n = n()) %>% 
+    mutate(
+      pct = n / sum(n), 
+      cum_pct = cumsum(pct),
+      num_cells = diff(c(0, round(cum_pct * num_cells)))
+    )
+  
+  map2(
+    numbers$timepoint_group,
+    numbers$num_cells,
+    function(gr, num) {
+      sim_meta2 %>% filter(timepoint_group == gr) %>% pull(orig_ix) %>% sample(size = num, replace = TRUE)
+    }
+  ) %>% 
+    unlist()
+}
+

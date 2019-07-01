@@ -57,7 +57,7 @@ step_funs <- list(
       num_targets = num_targets,
       num_hks = num_hks,
       backbone = backbone,
-      tf_network_params = tf_network_random(
+      tf_network_params = tf_network_default(
         min_tfs_per_module = max(floor(num_tfs / 50), 1)
       ),
       feature_network_params = feature_network_default(target_resampling = 5000),
@@ -142,7 +142,7 @@ step_funs <- list(
     list2env(list(...), environment())
     
     traj <- model %>% 
-      wrap_dyngen_dataset()
+      wrap_dataset()
     
     # :scream:
     g1 <- plot_backbone(model)
@@ -227,4 +227,12 @@ handle <- qsub::qsub_lapply(
 
 write_rds(handle, "scripts_tmp/generate_all_handle.rds", compress = "gz")
 
-qsub::rsync_remote("prism", "/scratch/irc/shared/dyngen_datasets/", FALSE, "scripts_tmp/datasets")
+qsub::rsync_remote(
+  "prism",
+  "/scratch/irc/shared/dyngen_datasets/",
+  FALSE, 
+  "scripts_tmp/datasets", 
+  verbose = TRUE,
+  compress = FALSE,
+  exclude = "*step5_model_experiment.rds"
+)

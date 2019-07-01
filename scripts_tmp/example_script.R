@@ -11,7 +11,7 @@ model <-
     num_hks = 400,
     distance_metric = "pearson",
     backbone = backbone_bifurcating_loop(),
-    tf_network_params = tf_network_random(min_tfs_per_module = 3, sample_num_regulators = function() 2),
+    tf_network_params = tf_network_default(min_tfs_per_module = 3, sample_num_regulators = function() 2),
     feature_network_params = feature_network_default(target_resampling = 5000),
     kinetics_params = kinetics_default(),
     gold_standard_params = gold_standard_default(),
@@ -75,7 +75,7 @@ model <- model %>%
 
 traj <- 
   model %>% 
-  wrap_dyngen_dataset()
+  wrap_dataset()
 
 library(dynplot)
 g1 <- dynplot(traj) +

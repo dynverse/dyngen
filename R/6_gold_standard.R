@@ -1,18 +1,15 @@
-#' @importFrom fastgssa ssa_em ssa_direct
+#' Simulate the gold standard
+#' 
+#' [generate_gold_standard()] runs simulations in order to determine the gold standard
+#' of the simulations.
+#' [gold_standard_default()] is used to configure parameters pertaining this process.
+#' 
+#' @param model A dyngen intermediary model for which the kinetics of the feature network has been generated with [generate_kinetics()].
+#' @param tau The time step of the ODE algorithm used to generate the gold standard.
+#' @param census_interval A granularity parameter of the gold standard time steps. Should be larger than or equal to `tau`.
+#' 
 #' @export
-gold_standard_default <- function(
-  ssa_algorithm = ssa_em(.001, 0),
-  census_interval = .01,
-  num_simulations = 1
-) {
-  lst(
-    ssa_algorithm,
-    census_interval,
-    num_simulations
-  )
-}
-
-#' @export
+#' @importFrom fastgssa ssa ssa_em
 generate_gold_standard <- function(model) {
   model$gold_standard <- list()
   
@@ -37,6 +34,18 @@ generate_gold_standard <- function(model) {
   model$gold_standard$network <- .generate_gold_standard_generate_network(model)
   
   model
+}
+
+#' @export
+#' @rdname generate_gold_standard
+gold_standard_default <- function(
+  tau = .001,
+  census_interval = .01
+) {
+  lst(
+    tau,
+    census_interval
+  )
 }
 
 .generate_gold_standard_mod_changes <- function(model) {
@@ -106,6 +115,9 @@ generate_gold_standard <- function(model) {
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
   
+  # determine ode algorithm
+  algo <- fastgssa::ssa_em(tau = gold_params$tau, noise_strength = 0)
+  
   # select relevant functions
   tf_molecules <- prep_data$tf_molecules
   nus <- prep_data$nus
@@ -123,7 +135,7 @@ generate_gold_standard <- function(model) {
   
   timer <- pbapply::timerProgressBar(
     min = 0, 
-    max = nrow(mod_changes) * gold_params$num_simulations,
+    max = nrow(mod_changes),
     width = 50
   )
   for (i in seq_len(nrow(mod_changes))) {
@@ -150,43 +162,34 @@ generate_gold_standard <- function(model) {
     new_nus <- nus
     new_nus[!rownames(new_nus) %in% molecules_on] <- 0
     
-    outs <- list()
-    for (j in seq_len(gold_params$num_simulations)) {
-      # simulation of gold standard edge
-      out <- fastgssa::ssa(
-        initial_state = new_initial_state,
-        propensity_funs = propensity_funs,
-        nu = new_nus,
-        final_time = time,
-        params = sim_system$parameters,
-        method = gold_params$ssa_algorithm,
-        census_interval = gold_params$census_interval,
-        hardcode_params = TRUE,
-        stop_on_neg_state = FALSE,
-        verbose = FALSE
-      )
-      
-      if (gold_params$num_simulations > 1) {
-        time_out <- seq(0, time, by = gold_params$census_interval)
-        state_out <- apply(out$state, 2, function(x) {
-          approx(out$time, x, time_out)$y
-        })
-      } else {
-        time_out <- out$time
-        state_out <- out$state
-      }
-      
-      meta <- tibble(from_, to_, time = time_out)
-      counts <- state_out %>% Matrix::Matrix(sparse = TRUE)
-      
-      outs[[j]] <- lst(meta, counts)
-      
-      pbapply::setTimerProgressBar(timer, value = (i - 1) * gold_params$num_simulations + j)
+    # simulation of gold standard edge
+    out <- fastgssa::ssa(
+      initial_state = new_initial_state,
+      propensity_funs = propensity_funs,
+      nu = new_nus,
+      final_time = time,
+      params = sim_system$parameters,
+      method = algo,
+      census_interval = gold_params$census_interval,
+      hardcode_params = TRUE,
+      stop_on_neg_state = FALSE,
+      verbose = FALSE
+    )
+    
+    if (gold_params$num_simulations > 1) {
+      time_out <- seq(0, time, by = gold_params$census_interval)
+      state_out <- apply(out$state, 2, function(x) {
+        approx(out$time, x, time_out)$y
+      })
+    } else {
+      time_out <- out$time
+      state_out <- out$state
     }
     
-    countss <- map(outs, "counts")
-    counts <- Reduce("+", countss) / length(countss)
-    meta <- outs[[1]]$meta
+    meta <- tibble(from_, to_, time = time_out)
+    counts <- state_out %>% Matrix::Matrix(sparse = TRUE)
+      
+    pbapply::setTimerProgressBar(timer, value = i)
     
     gold_sim_outputs[[i]] <- lst(meta, counts)
     

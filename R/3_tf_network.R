@@ -1,5 +1,30 @@
+#' Generate a transcription factor network from the backbone
+#' 
+#' [generate_tf_network()] generates the transcription factors (TFs) that 
+#' drive the dynamic process a cell undergoes. 
+#' [tf_network_default()] is used to configure parameters pertaining this process.
+#' 
+#' @param model A dyngen initial model created with [initialise_model()].
+#' @param min_tfs_per_module The number of TFs to generate per module in the backbone.
+#' @param sample_num_regulator A function to generate the number of TFs per module each TF will be regulated by.
+#' @param weighted_sampling When determining what TFs another TF is regulated by, whether to perform weighted
+#'  sampling (by rank) or not.
+#' 
 #' @export
-tf_network_random <- function(
+#' @rdname generate_tf_network
+generate_tf_network <- function(
+  model
+) {
+  if (model$verbose) cat("Generating TF network\n")
+  
+  model %>% 
+    .generate_tf_info() %>% 
+    .generate_tf_network()
+}
+
+#' @export
+#' @rdname generate_tf_network
+tf_network_default <- function(
   min_tfs_per_module = 1L,
   sample_num_regulators = function() 2,
   weighted_sampling = FALSE
@@ -9,17 +34,6 @@ tf_network_random <- function(
     sample_num_regulators,
     weighted_sampling
   )
-}
-
-#' @export
-generate_tf_network <- function(
-  model
-) {
-  if (model$verbose) cat("Generating TF network\n")
-  
-  model %>% 
-    .generate_tf_info() %>% 
-    .generate_tf_network()
 }
 
 .generate_tf_info <- function(model) {

@@ -1,70 +1,33 @@
+#' Simulate the cells
+#' 
+#' [generate_cells()] runs simulations in order to determine the gold standard
+#' of the simulations.
+#' [simulation_default()] is used to configure parameters pertaining this process.
+#' 
+#' @param model A dyngen intermediary model for which the gold standard been generated with [generate_gold_standard()].
+#' @param burn_time The burn in time of the system, used to determine an initial state vector.
+#' @param total_time The total simulation time of the system.
+#' @param ssa_algorithm Which SSA algorithm to use for simulating the cells with [fastgssa::ssa()]
+#' @param census_interval A granularity parameter for the outputted simulation.
+#' @param num_simulations The number of simulations to run.
+#' @param seeds A set of seeds for each of the simulations.
+#' 
+#' @importFrom fastgssa ssa
 #' @export
-simulation_default <- function(
-  burn_time = 2,
-  total_time = 10,
-  ssa_algorithm = ssa_etl(.001),
-  census_interval = .01,
-  num_simulations = 32,
-  seeds = sample.int(10 * num_simulations, num_simulations)
-) {
-  assert_that(length(seeds) == num_simulations)
+generate_cells <- function(model) {
+  if (model$verbose) cat("Precompiling propensity functions for simulations\n")
+  propensity_funs <- .generate_cells_precompile_propensity_funs(model)
   
-  lst(
-    burn_time,
-    total_time,
-    ssa_algorithm,
-    census_interval,
-    num_simulations,
-    seeds
-  )
-}
-
-#' @export
-generate_cells <- function(
-  model, qsub = FALSE
-) {
-  if (is.logical(qsub) && !qsub) {
-    if (model$verbose) cat("Precompiling propensity functions for simulations\n")
-    propensity_funs <- .generate_cells_precompile_propensity_funs(model)
-    
-    # simulate cells one by one
-    if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")
-    simulations <- 
-      pbapply::pblapply(
-        X = seq_len(model$simulation_params$num_simulations),
-        cl = model$num_cores,
-        FUN = .generate_cells_simulate_cell,
-        model = model,
-        propensity_funs = propensity_funs
-      )
-  } else if (is.logical(qsub) && qsub) {
-    submodel <- model[c("simulation_system", "simulation_params", "verbose")]
-    handle <- 
-      qsub::qsub_lapply(
-        X = seq_len(model$simulation_params$num_simulations),
-        FUN = function(i) {
-          cat("Compiling propensity functions\n")
-          propensity_funs <- dyngen:::.generate_cells_precompile_propensity_funs(submodel)
-          cat("Compiling simulation\n")
-          dyngen:::.generate_cells_simulate_cell(i, model = submodel, propensity_funs = propensity_funs, verbose = TRUE)
-        },
-        qsub_environment = "model",
-        qsub_config = qsub::override_qsub_config(
-          memory = "10G",
-          name = "dyngen",
-          compress = "gz",
-          remove_tmp_folder = TRUE,
-          wait = FALSE,
-          max_wall_time = "24:00:00"
-        ),
-        qsub_packages = c("dyngen", "fastgssa", "tidyverse")
-      )
-    return(handle)
-  } else if (is.list(qsub) && "num_tasks" %in% names(qsub)) {
-    simulations <- qsub::qsub_retrieve(qsub)
-  } else {
-    stop("Unexpected qsub parameter")
-  }
+  # simulate cells one by one
+  if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")
+  simulations <- 
+    pbapply::pblapply(
+      X = seq_len(model$simulation_params$num_simulations),
+      cl = model$num_cores,
+      FUN = .generate_cells_simulate_cell,
+      model = model,
+      propensity_funs = propensity_funs
+    )
   
   # split up simulation data
   model$simulations <- lst(
@@ -85,6 +48,28 @@ generate_cells <- function(
   model
 }
 
+#' @export
+#' @rdname generate_cells
+#' @importFrom fastgssa ssa_etl
+simulation_default <- function(
+  burn_time = 2,
+  total_time = 10,
+  ssa_algorithm = ssa_etl(tau = .001),
+  census_interval = .01,
+  num_simulations = 32,
+  seeds = sample.int(10 * num_simulations, num_simulations)
+) {
+  assert_that(length(seeds) == num_simulations)
+  
+  lst(
+    burn_time,
+    total_time,
+    ssa_algorithm,
+    census_interval,
+    num_simulations,
+    seeds
+  )
+}
 
 #' @importFrom fastgssa compile_propensity_functions
 .generate_cells_precompile_propensity_funs <- function(model) {

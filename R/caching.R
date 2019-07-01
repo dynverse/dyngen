@@ -1,12 +1,12 @@
-.download_cacheable_file <- function(url, model) {
+.download_cacheable_file <- function(url, cache_dir, verbose) {
   file <- 
-    if (is.null(model$download_cache_dir)) {
+    if (is.null(cache_dir)) {
       fil <- tempfile()
       on.exit(file.remove(fil))
       fil
     } else {
       file <- paste0(
-        sub("/*$", "/", model$download_cache_dir),
+        sub("/*$", "/", cache_dir),
         sub(".*/", "", url)
       )
     }
@@ -15,7 +15,7 @@
     if (!dir.exists(dirname(file))) {
       dir.create(dirname(file), recursive = TRUE)
     }
-    download.file(url, destfile = file, quiet = !model$verbose)
+    download.file(url, destfile = file, quiet = !verbose)
   }
   
   readRDS(file)

@@ -6,17 +6,14 @@
 #' another module. By creating chains of modules, a dynamic behaviour in gene 
 #' regulation can be created.
 #' 
-#' A backbone model contains three tibbles, namely `module_info`,
-#' `module_network`, and `expression_patterns`.
-#' 
-#' `module_info` contains meta information on the modules themselves.
+#' @param module_info A tibble containing meta information on the modules themselves.
 #' 
 #' * module_id (character): the name of the module
 #' * a0 (numeric): basal expression level of genes in this module
 #' * burn (logical): whether or not outgoing edges of this module will 
 #'   be active during the burn in phase
-#'     
-#' `module_network` describes which modules regulate which other modules.
+#'   
+#' @param module_network A tibble describing which modules regulate which other modules.
 #' 
 #' * from (character): the regulating module
 #' * to (character): the target module
@@ -25,8 +22,7 @@
 #' * strength (numeric): the strength of the interaction
 #' * cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
 #'   between 0 and 1 for negative cooperativity
-#' 
-#' `expression_patterns` describes the expected expression pattern
+#' @param expression_patterns A tibble describing the expected expression pattern
 #' changes when a cell is simulated by dyngen.
 #' 
 #' * from (character): name of a cell state
@@ -40,6 +36,8 @@
 #' 
 #' @importFrom grDevices rainbow
 #' @export
+#' 
+#' @seealso [list_backbones()] for a list of all backbone methods.
 backbone <- function(
   module_info,
   module_network,
@@ -72,8 +70,18 @@ backbone <- function(
     add_class("dyngen::backbone")
 }
 
+#' List of all predefined backbone models
+#' 
+#' A module is a group of genes which, to some extent, shows the same
+#' expression behaviour. Several modules are connected together such that
+#' one or more genes from one module will regulate the expression of
+#' another module. By creating chains of modules, a dynamic behaviour in gene 
+#' regulation can be created.
+#' 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
+#' 
+#' @seealso [backbone()] for more information on the data structures that define the backbone.
 list_backbones <- function() {
   list(
     bifurcating = backbone_bifurcating,
@@ -92,7 +100,7 @@ list_backbones <- function() {
 }
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_bifurcating <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
@@ -132,7 +140,7 @@ backbone_bifurcating <- function() {
 
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_bifurcating_converging <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
@@ -190,7 +198,7 @@ backbone_bifurcating_converging <- function() {
 
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_bifurcating_cycle <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
@@ -256,7 +264,7 @@ backbone_bifurcating_cycle <- function() {
 
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_bifurcating_loop <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
@@ -313,8 +321,12 @@ backbone_bifurcating_loop <- function() {
   backbone(module_info, module_network, expression_patterns)
 }
 
+#' @param num_modifications The number of branch points in the generated backbone.
+#' @param min_degree The minimum degree of each node in the backbone.
+#' @param max_degree The maximum degree of each node in the backbone.
+#' 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_branching <- function(
   num_modifications = rbinom(1, size = 6, 0.25) + 1,
   min_degree = 3,
@@ -435,7 +447,7 @@ backbone_branching <- function(
 }
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_binary_tree <- function(
   num_modifications = rbinom(1, size = 6, 0.25) + 1
 ) {
@@ -444,19 +456,19 @@ backbone_binary_tree <- function(
 
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_consecutive_bifurcating <- function() {
   backbone_branching(num_modifications = 2, max_degree = 3)
 }
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_trifurcating <- function() {
   backbone_branching(num_modifications = 1, min_degree = 4, max_degree = 4)
 }
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_converging <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
@@ -515,7 +527,7 @@ backbone_converging <- function() {
 
 
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_cycle <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
@@ -546,9 +558,9 @@ backbone_cycle <- function() {
   backbone(module_info, module_network, expression_patterns)
 }
 
-
+#' @param num_modules The number of modules in the generated backbone.
 #' @export
-#' @rdname backbone
+#' @rdname backbone_models
 backbone_linear <- function(num_modules = 5) {
   module_info <- bind_rows(
     tibble(module_id = "A1", a0 = 1, burn = TRUE),
@@ -574,10 +586,8 @@ backbone_linear <- function(num_modules = 5) {
 
 
 #' @export
-#' @rdname backbone
-backbone_disconnected <- function(
-  
-) {
+#' @rdname backbone_models
+backbone_disconnected <- function() {
   backbones <- list_backbones()
   backbones <- backbones[names(backbones) != "disconnected"]
   

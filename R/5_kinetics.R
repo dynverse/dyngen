@@ -1,62 +1,20 @@
-#' @export
-kinetics_default <- function(
-  sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
-  sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_xpr = function(n) rnorm(n, 25, 5) %>% pmax(5),
-  sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
-  
-  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
-  sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
-  sample_cooperativity = function(n) runif(n, 0.5, 2)
-) {
-  lst(
-    sample_wpr,
-    sample_wdr,
-    sample_xpr,
-    sample_xdr,
-    sample_ypr,
-    sample_ydr,
-    
-    sample_effect,
-    sample_strength,
-    sample_cooperativity
-  )
-}
-
-#' @export
-kinetics_fixed <- function(
-  sample_wpr = function(n) rep(40, n),
-  sample_wdr = function(n) rep(5, n),
-  sample_xpr = function(n) rep(20, n),
-  sample_xdr = function(n) rep(5, n),
-  sample_ypr = function(n) rep(5, n),
-  sample_ydr = function(n) rep(1, n),
-  
-  sample_effect = function(n) rep(1, n),
-  sample_strength = function(n) rep(1, n),
-  sample_cooperativity = function(n) rep(2, n)
-) {
-  lst(
-    sample_wpr,
-    sample_wdr,
-    sample_xpr,
-    sample_xdr,
-    sample_ypr,
-    sample_ydr,
-    
-    sample_effect,
-    sample_strength,
-    sample_cooperativity
-  )
-}
-
-# why rlang %|%
-`%|||%` <- function(x, y) {
-  ifelse(is.na(x), y, x)
-}
-
+#' Determine the kinetics of the feature network 
+#' 
+#' [generate_kinetics()] samples the kinetics of genes in the feature network for which 
+#'   the kinetics have not yet been defined.
+#' [kinetics_default()] is used to configure parameters pertaining this process.
+#' 
+#' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
+#' @param sample_wpr A function specifying the distribution from which to sample the pre-mRNA production rate.
+#' @param sample_wdr A function specifying the distribution from which to sample the pre-mRNA decay rate.
+#' @param sample_xpr A function specifying the distribution from which to sample the mRNA production rate.
+#' @param sample_xdr A function specifying the distribution from which to sample the mRNA decay rate.
+#' @param sample_ypr A function specifying the distribution from which to sample the protein production rate.
+#' @param sample_ydr A function specifying the distribution from which to sample the protein decay rate.
+#' @param sample_effect A function specifying the distribution from which to sample the effect of an interaction.
+#' @param sample_strength A function specifing the distribution from which to sample the strength of an interaction.
+#' @param sample_cooperativity A function specifing the distribution from which to sample the cooperativity of an interaction from.
+#' 
 #' @export
 generate_kinetics <- function(model) {
   # generate kinetics params
@@ -111,6 +69,34 @@ generate_kinetics <- function(model) {
   )
   
   model
+}
+
+#' @export
+#' @rdname generate_kinetics
+kinetics_default <- function(
+  sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
+  sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
+  sample_xpr = function(n) rnorm(n, 25, 5) %>% pmax(5),
+  sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
+  sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
+  sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
+  
+  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
+  sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
+  sample_cooperativity = function(n) runif(n, 0.5, 2)
+) {
+  lst(
+    sample_wpr,
+    sample_wdr,
+    sample_xpr,
+    sample_xdr,
+    sample_ypr,
+    sample_ydr,
+    
+    sample_effect,
+    sample_strength,
+    sample_cooperativity
+  )
 }
 
 .kinetics_generate_gene_kinetics <- function(model) {

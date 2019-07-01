@@ -4,23 +4,62 @@
 \alias{initialise_model}
 \title{Initial settings for simulating a dyngen dataset}
 \usage{
-initialise_model(num_cells = round(10^runif(1, 2, 4)),
-  num_tfs = round(10^runif(1, 1, log10(200))),
-  num_targets = round(10^runif(1, 1, 4)), num_hks = round(10^runif(1,
-  1, 3)), distance_metric = c("pearson", "spearman", "cosine",
-  "euclidean", "manhattan"), backbone,
-  tf_network_params = tf_network_random(),
+initialise_model(backbone, num_cells = 1000, num_tfs = 100,
+  num_targets = 500, num_hks = 400, distance_metric = c("pearson",
+  "spearman", "cosine", "euclidean", "manhattan"),
+  tf_network_params = tf_network_default(),
   feature_network_params = feature_network_default(),
   kinetics_params = kinetics_default(),
-  simulation_params = simulation_default(),
   gold_standard_params = gold_standard_default(),
+  simulation_params = simulation_default(),
   experiment_params = experiment_snapshot(), verbose = TRUE,
-  download_cache_dir = NULL, num_cores = 8)
+  download_cache_dir = NULL, num_cores = 1)
 }
 \arguments{
+\item{backbone}{The gene module configuration that determines the type of dynamic
+process being simulated. See \code{\link[=list_backbones]{list_backbones()}} for a full list of different backbones
+available in this package.}
+
 \item{num_cells}{The number of cells to sample.}
 
-\item{num_tfs}{The number of transcription factors to generate.}
+\item{num_tfs}{The number of transcription factors (TFs) to generate. TFs are the
+main drivers of the changes that occur in a cell. TFs are regulated only by other
+TFs.}
+
+\item{num_targets}{The number of target genes to generate. Target genes are
+regulated by TFs and sometimes by other target genes.}
+
+\item{num_hks}{The number of housekeeping genes (HKs) to generate. HKs are
+typically highly expressed, and are not regulated by the TFs or targets.}
+
+\item{distance_metric}{The distance metric to be used to calculate the distance
+between cells. See \code{\link[dynutils:calculate_distance]{dynutils::calculate_distance()}} for a list of possible
+distance metrics.}
+
+\item{tf_network_params}{Settings for generating the TF network with
+\code{\link[=generate_tf_network]{generate_tf_network()}}, see \code{\link[=tf_network_default]{tf_network_default()}}.}
+
+\item{feature_network_params}{Settings for generating the feature network with
+\code{\link[=generate_feature_network]{generate_feature_network()}}, see \code{\link[=feature_network_default]{feature_network_default()}}.}
+
+\item{kinetics_params}{Settings for determining the kinetics of the feature network
+with \code{\link[=generate_kinetics]{generate_kinetics()}}, see \code{\link[=kinetics_default]{kinetics_default()}}.}
+
+\item{gold_standard_params}{Settings pertaining simulating the gold standard with
+\code{\link[=generate_gold_standard]{generate_gold_standard()}}, see \code{\link[=gold_standard_default]{gold_standard_default()}}.}
+
+\item{simulation_params}{Settings pertaining the simulation itself with \code{\link[=generate_cells]{generate_cells()}},
+see \code{\link[=simulation_default]{simulation_default()}}.}
+
+\item{experiment_params}{Settings related to how the experiment is simulated with
+\code{\link[=generate_experiment]{generate_experiment()}}, see \code{\link[=experiment_snapshot]{experiment_snapshot()}} or \code{\link[=experiment_synchronised]{experiment_synchronised()}}.}
+
+\item{verbose}{Whether or not to print messages during the simulation.}
+
+\item{download_cache_dir}{If not \code{NULL}, temporary downloaded files will be
+cached in this directory.}
+
+\item{num_cores}{Parallellisation parameter for various steps in the pipeline.}
 }
 \description{
 Initial settings for simulating a dyngen dataset

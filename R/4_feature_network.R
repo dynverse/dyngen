@@ -1,19 +1,16 @@
-#' @export
-feature_network_default <- function(
-  realnet_name = sample(realnets$name, 1),
-  damping = 0.05,
-  target_resampling = Inf,
-  max_in_degree = 5
-) {
-  lst(
-    type = "realnet_sampler",
-    realnet_name,
-    damping,
-    target_resampling,
-    max_in_degree
-  )
-}
-
+#' Generate a target network 
+#' 
+#' [generate_feature_network()] generates a network of target genes that are regulated
+#' by the previously generated TFs, and also a separate network of housekeeping genes (HKs).
+#' [feature_network_default()] is used to configure parameters pertaining this process.
+#' 
+#' @param model A dyngen intermediary model for which the transcription network has been generated with [generate_tf_network()].
+#' @param realnet The name of a gene regulatory network (GRN) in [realnets]. 
+#'   Alternatively, a custom GRN can be used by passing a weighted sparse matrix.
+#' @param damping A damping factor used for the page rank algorithm used to subsample the realnet.
+#' @param target_resampling How many targets / HKs to sample from the realnet per iteration.
+#' @param max_in_degree The maximum in-degree of a target / HK.
+#' 
 #' @export
 generate_feature_network <- function(
   model
@@ -26,10 +23,20 @@ generate_feature_network <- function(
     msg = "Execute generate_tf_network() before executing generate_feature_network()"
   )
   
-  # download realnet (~2MB)
-  realnet <- .feature_network_fetch_realnet(model)
+  # process realnet
+  realnet <- model$feature_network_params$realnet
   
-  # verify that realnet is large enough
+  if (is.character(realnet)) {
+    # download realnet (~2MB)
+    realnet <- .feature_network_fetch_realnet(model)
+  }
+  
+  # check realnet
+  assert_that(
+    dynutils::is_sparse(realnet),
+    !is.null(rownames(realnet)),
+    !is.null(colnames(realnet))
+  )
   assert_that(
     nrow(model$feature_info) <= nrow(realnet),
     msg = paste0("Number of regulators in realnet (", nrow(realnet), ") is not large enough (>= ", nrow(model$feature_info), ")")
@@ -94,15 +101,35 @@ generate_feature_network <- function(
   model
 }
 
+#' @export
+#' @rdname generate_feature_network
+feature_network_default <- function(
+  realnet = sample(realnets$name, 1),
+  damping = 0.05,
+  target_resampling = Inf,
+  max_in_degree = 5
+) {
+  lst(
+    realnet,
+    damping,
+    target_resampling,
+    max_in_degree
+  )
+}
+
 .feature_network_fetch_realnet <- function(model) {
-  realnet_name <- model$feature_network_params$realnet_name
+  realnet <- model$feature_network_params$realnet
   
   data(realnets, package = "dyngen", envir = environment())
-  assert_that(realnet_name %all_in% realnets$name)
+  assert_that(realnet %all_in% realnets$name)
   
-  realnet_url <- realnets$url[[match(realnet_name, realnets$name)]]
+  realnet_url <- realnets$url[[match(realnet, realnets$name)]]
   
-  .download_cacheable_file(realnet_url, model)
+  .download_cacheable_file(
+    url = realnet_url, 
+    cache_dir = model$download_cache_dir, 
+    verbose = model$verbose
+  )
 }
 #' @importFrom Matrix summary
 #' @importFrom igraph graph_from_data_frame page_rank E

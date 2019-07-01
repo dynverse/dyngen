@@ -1,7 +1,7 @@
 Package: dyngen
 Type: Package
 Title: Synthetic single cell data
-Version: 0.1
+Version: 0.1.0
 Date: 2016-04-06
 Authors@R: c(
     person(
@@ -31,7 +31,7 @@ Imports:
   assertthat,
   dplyr,
   dyndimred (>= 1.0.0),
-  dynutils (>= 1.0.2.9000),
+  dynutils (>= 1.0.3),
   dynwrap (>= 1.0.0),
   fastgssa,
   ggplot2,
@@ -45,9 +45,7 @@ Imports:
   pbapply,
   purrr,
   readr,
-  reshape2,
   stats,
-  stringr,
   tibble,
   tidygraph,
   tidyr,
@@ -57,7 +55,6 @@ Suggests:
   knitr,
   rmarkdown
 Remotes:
-  dynverse/dynutils,
-  dynverse/dynwrap,
+  dynverse/dynwrap@devel,
   dynverse/fastgssa@devel
 VignetteBuilder: knitr
