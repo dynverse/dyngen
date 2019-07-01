@@ -14,43 +14,158 @@ knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=F
 A package to generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps:
 ![generation_overview](man/figures/README_generation_overview_v1.svg)
 
-```{r, message=F}
+## Example run
+
+### Step 1: Define backbone and other parameters
+A dyngen simulation can be started by providing a backbone to the `initialise_model()` function.
+The backbone of a `dyngen` model is what determines the overall dynamic process 
+that a cell will undergo during a simulation. It consists of a set of gene modules, which regulate
+eachother in such a way that expression of certain genes change over time in a specific manner.
+
+```{r, message=FALSE}
 library(tidyverse)
 library(dyngen)
 
-params <- simple_params
-options(ncores = 1)
+set.seed(1)
+model <- 
+  initialise_model(
+    num_tfs = 12,
+    num_targets = 30,
+    num_hks = 15,
+    backbone = backbone_bifurcating(),
+    verbose = TRUE
+  )
+
+plot_backbone(model)
 ```
 
-Generating a regulatory network and a system of differential equations
-```{r model}
-model <- invoke(generate_model_from_modulenet, params$model)
-plot_net(model)
+### Step 2: Generate transcription factors (TFs)
+Each gene module consists of a set of transcription factors.
+These can be generated and visualised as follows.
+```{r tf_network}
+model <- generate_tf_network(model)
+plot_feature_network(model, show_targets = FALSE)
 ```
 
-Simulating this system 
-```{r simulate}
-simulation <- invoke(simulate_multiple, params$simulation, model$system)
-plot_simulation_space_time(simulation)
+### Step 3: Sample target genes and housekeeping genes (HKs) 
+Next, target genes and housekeeping genes are added to the network by
+sampling a gold standard gene regulatory network using the Page Rank algorithm.
+Target genes are regulated by TFs or other target genes, while HKs are only regulated
+by themselves.
+```{r target_network}
+model <- generate_feature_network(model)
+plot_feature_network(model)
+plot_feature_network(model, show_hks = TRUE)
 ```
 
-Extracting the gold standard trajectory from the simulations
-```{r extract_goldstandard}
-gs <- invoke(extract_goldstandard, params$gs, simulation, model)
-plot_goldstandard_heatmap(simulation, gs)
+### Step 4: Generate kinetics
+Note that the target network does not show the effect of some interactions, 
+because these are generated along with other kinetics parameters of the 
+SSA simulation.
+
+```{r ssa}
+model <- generate_kinetics(model)
+plot_feature_network(model)
+plot_feature_network(model, show_hks = TRUE)
 ```
 
-Simulating the single-cell RNA-seq experiment
-```{r run_experiment}
-experiment <- invoke(run_experiment, params$experiment, simulation, gs)
+### Step 5: Simulate gold standard
+The gold standard is simulated by enabling certain parts of 
+the module network and performing ODE simulations. The gold standard
+are visualised by performing a dimensionality reduction on the 
+mRNA expression values.
+```{r gold standard}
+model <- generate_gold_standard(model)
+plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 ```
 
-Normalising the data
-```{r normalise}
-normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
+The expression of the modules (average of TFs) can be visualised as follows.
+```{r gold_pt, fig.width=10, fig.height=10}
+plot_gold_expression(model, what = "x") # mrna
+plot_gold_expression(model) # premrna, mrna, and protein
 ```
 
-Wrapping in a dynwrap dataset
+### Step 6: Simulate cells.
+Cells are simulated by running SSA simulations. The simulations are again
+using dimensionality reduction.
+```{r simulations}
+model <- generate_cells(model)
+plot_simulations(model)
+```
+
+The gold standard can be overlayed on top of the simulations.
+```{r overlay}
+plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
+```
+
+We can check how each segment of a simulation is mapped to the gold standard.
+```{r compare}
+plot_gold_mappings(model, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
+```
+
+The expression of the modules (average of TFs) of a single simulation can be visualised as follows.
+```{r expression_sim}
+plot_simulation_expression(model, 1, what = "x")
+```
+
+### Step 7: Experiment emulation
+Effects from performing a single-cell RNA-seq experiment can be emulated as follows.
+```{r experiment}
+model <- generate_experiment(model)
+```
+
+### Step 8: Convert to a dynwrap object
 ```{r wrap}
-task <- wrap_dyngen_dataset("readme_dataset", params, model, simulation, gs, experiment, normalisation)
+traj <- wrap_dataset(model)
+
+library(dynplot2)
+
+dynplot(traj) +
+  geom_cell_point(color = "grey80") +
+  new_scale_fillcolour() +
+  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
+  geom_milestone_label(aes(fill = milestone_id)) +
+  scale_milestones_fillcolour() +
+  geom_velocity_arrow(stat = stat_velocity_grid(grid_n = 20))
+
+dynplot(traj) +
+  geom_cell_point(color = "grey80") +
+  new_scale_fillcolour() +
+  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
+  geom_milestone_label(aes(fill = milestone_id)) +
+  scale_milestones_fillcolour() +
+  geom_velocity_arrow(stat = stat_velocity_cells()) 
+
+dynplot(traj, layout = layout_graph(traj)) +
+  geom_cell_point(color = "grey80") +
+  new_scale_fillcolour() +
+  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
+  geom_milestone_label(aes(fill = milestone_id)) +
+  scale_milestones_fillcolour()
+
+cell_layout <- layout_onedim(traj)
+feature_modules <- get_features(traj)
+feature_layout <- layout_modules(traj, feature_modules = feature_modules, cell_layout = cell_layout)
+layout <- layout_heatmap(traj, feature_layout = feature_layout)
+
+dynplot(traj, layout = layout) +
+  geom_trajectory_segments(aes(color = milestone_percentages)) +
+  geom_trajectory_connection() +
+  geom_milestone_label(aes(fill = milestone_id, hjust = as.integer(type == "end"))) +
+  scale_milestones_fillcolour() +
+  new_scale_fillcolour() +
+  geom_expression_raster() +
+  scale_expression_fillcolour() +
+  new_scale_fillcolour() +
+  geom_tile(aes(x = x, y = 1))
+
+# library(dyno)
+# out <- infer_trajectory(traj, ti_slingshot())
+# 
+# dynplot(out %>% dynwrap::add_dimred(dimred = dyndimred::dimred_landmark_mds(dynwrap::get_expression(traj), ndim = 2, distance_method = "spearman"))) +
+#   geom_cell_point(color = "grey80") +
+#   new_scale_fillcolour() +
+#   geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
+#   geom_milestone_label(aes(fill = milestone_id)) +
+#   scale_milestones_fillcolour()
 ```

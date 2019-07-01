@@ -1,6 +1,5 @@
 language: r
 dist: trusty
-bioc_required: true
 warnings_are_errors: true
 cache:
   directories:
@@ -21,5 +20,6 @@ install:
  - install_cran devtools covr
  - install_cran covr
  - install_withdeps
+>>>>>>> devel
 after_success:
  - R -e 'covr::codecov()'
