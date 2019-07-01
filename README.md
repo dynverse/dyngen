@@ -130,7 +130,7 @@ model <- generate_gold_standard(model)
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 ```
 
-![](man/figures/README_gold%20standard-1.png)<!-- -->
+![](man/figures/README_gold_standard-1.png)<!-- -->
 
 The expression of the modules (average of TFs) can be visualised as
 follows.

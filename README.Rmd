@@ -74,7 +74,7 @@ The gold standard is simulated by enabling certain parts of
 the module network and performing ODE simulations. The gold standard
 are visualised by performing a dimensionality reduction on the 
 mRNA expression values.
-```{r gold standard}
+```{r gold_standard}
 model <- generate_gold_standard(model)
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 ```
