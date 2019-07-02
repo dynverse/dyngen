@@ -208,71 +208,27 @@ model <- generate_experiment(model)
 
 ``` r
 traj <- wrap_dataset(model)
-
-library(dynplot2)
-
-dynplot(traj) +
-  geom_cell_point(color = "grey80") +
-  new_scale_fillcolour() +
-  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-  geom_milestone_label(aes(fill = milestone_id)) +
-  scale_milestones_fillcolour() +
-  geom_velocity_arrow(stat = stat_velocity_grid(grid_n = 20))
 ```
 
-![](man/figures/README_wrap-1.png)<!-- -->
+### Visualise with `dynplot`
 
 ``` r
-dynplot(traj) +
-  geom_cell_point(color = "grey80") +
-  new_scale_fillcolour() +
-  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-  geom_milestone_label(aes(fill = milestone_id)) +
-  scale_milestones_fillcolour() +
-  geom_velocity_arrow(stat = stat_velocity_cells()) 
+library(dynplot)
+plot_dimred(traj)
 ```
 
-![](man/figures/README_wrap-2.png)<!-- -->
+![](man/figures/README_unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
-dynplot(traj, layout = layout_graph(traj)) +
-  geom_cell_point(color = "grey80") +
-  new_scale_fillcolour() +
-  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-  geom_milestone_label(aes(fill = milestone_id)) +
-  scale_milestones_fillcolour()
+plot_graph(traj)
 ```
 
-![](man/figures/README_wrap-3.png)<!-- -->
+![](man/figures/README_unnamed-chunk-2-2.png)<!-- -->
 
-``` r
-cell_layout <- layout_onedim(traj)
-feature_modules <- get_features(traj)
-feature_layout <- layout_modules(traj, feature_modules = feature_modules, cell_layout = cell_layout)
-layout <- layout_heatmap(traj, feature_layout = feature_layout)
-
-dynplot(traj, layout = layout) +
-  geom_trajectory_segments(aes(color = milestone_percentages)) +
-  geom_trajectory_connection() +
-  geom_milestone_label(aes(fill = milestone_id, hjust = as.integer(type == "end"))) +
-  scale_milestones_fillcolour() +
-  new_scale_fillcolour() +
-  geom_expression_raster() +
-  scale_expression_fillcolour() +
-  new_scale_fillcolour() +
-  geom_tile(aes(x = x, y = 1))
-```
-
-![](man/figures/README_wrap-4.png)<!-- -->
+### Infer trajectory on expression data
 
 ``` r
 # library(dyno)
 # out <- infer_trajectory(traj, ti_slingshot())
-# 
-# dynplot(out %>% dynwrap::add_dimred(dimred = dyndimred::dimred_landmark_mds(dynwrap::get_expression(traj), ndim = 2, distance_method = "spearman"))) +
-#   geom_cell_point(color = "grey80") +
-#   new_scale_fillcolour() +
-#   geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-#   geom_milestone_label(aes(fill = milestone_id)) +
-#   scale_milestones_fillcolour()
+# plot_dimred(out)
 ```

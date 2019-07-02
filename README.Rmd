@@ -117,55 +117,18 @@ model <- generate_experiment(model)
 ### Step 8: Convert to a dynwrap object
 ```{r wrap}
 traj <- wrap_dataset(model)
+```
 
-library(dynplot2)
+### Visualise with `dynplot`
+```{r}
+library(dynplot)
+plot_dimred(traj)
+plot_graph(traj)
+```
 
-dynplot(traj) +
-  geom_cell_point(color = "grey80") +
-  new_scale_fillcolour() +
-  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-  geom_milestone_label(aes(fill = milestone_id)) +
-  scale_milestones_fillcolour() +
-  geom_velocity_arrow(stat = stat_velocity_grid(grid_n = 20))
-
-dynplot(traj) +
-  geom_cell_point(color = "grey80") +
-  new_scale_fillcolour() +
-  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-  geom_milestone_label(aes(fill = milestone_id)) +
-  scale_milestones_fillcolour() +
-  geom_velocity_arrow(stat = stat_velocity_cells()) 
-
-dynplot(traj, layout = layout_graph(traj)) +
-  geom_cell_point(color = "grey80") +
-  new_scale_fillcolour() +
-  geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-  geom_milestone_label(aes(fill = milestone_id)) +
-  scale_milestones_fillcolour()
-
-cell_layout <- layout_onedim(traj)
-feature_modules <- get_features(traj)
-feature_layout <- layout_modules(traj, feature_modules = feature_modules, cell_layout = cell_layout)
-layout <- layout_heatmap(traj, feature_layout = feature_layout)
-
-dynplot(traj, layout = layout) +
-  geom_trajectory_segments(aes(color = milestone_percentages)) +
-  geom_trajectory_connection() +
-  geom_milestone_label(aes(fill = milestone_id, hjust = as.integer(type == "end"))) +
-  scale_milestones_fillcolour() +
-  new_scale_fillcolour() +
-  geom_expression_raster() +
-  scale_expression_fillcolour() +
-  new_scale_fillcolour() +
-  geom_tile(aes(x = x, y = 1))
-
+### Infer trajectory on expression data
+```{r}
 # library(dyno)
 # out <- infer_trajectory(traj, ti_slingshot())
-# 
-# dynplot(out %>% dynwrap::add_dimred(dimred = dyndimred::dimred_landmark_mds(dynwrap::get_expression(traj), ndim = 2, distance_method = "spearman"))) +
-#   geom_cell_point(color = "grey80") +
-#   new_scale_fillcolour() +
-#   geom_trajectory_segments(aes(colour = milestone_percentages), size = 2) +
-#   geom_milestone_label(aes(fill = milestone_id)) +
-#   scale_milestones_fillcolour()
+# plot_dimred(out)
 ```
