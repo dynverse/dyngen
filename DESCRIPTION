@@ -31,7 +31,7 @@ Imports:
   assertthat,
   dplyr,
   dyndimred (>= 1.0.0),
-  dynutils (>= 1.0.3),
+  dynutils (>= 1.0.4),
   dynwrap (>= 1.0.0),
   fastgssa,
   ggplot2,
