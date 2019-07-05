@@ -127,9 +127,9 @@ kinetics_default <- function(
     model$feature_network %>% 
     left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
     mutate(
-      effect = effect %ifna% params$sample_effect(n()),
-      cooperativity = cooperativity %ifna% params$sample_cooperativity(n()),
-      strength = strength %ifna% params$sample_strength(n()),
+      effect = effect %|% params$sample_effect(n()),
+      cooperativity = cooperativity %|% params$sample_cooperativity(n()),
+      strength = strength %|% params$sample_strength(n()),
       k = max_protein / 2 / strength
     )
   
@@ -148,7 +148,7 @@ kinetics_default <- function(
     mutate(
       # 1 for genes that are not being regulated by any other genes,
       # yet did not already have an a0 defined
-      a0 = a0 %ifna% a0_2 %ifna% 1 
+      a0 = a0 %|% a0_2 %|% 1 
     ) %>% 
     select(-a0_2)
   
