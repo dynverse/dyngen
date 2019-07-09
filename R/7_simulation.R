@@ -149,7 +149,7 @@ simulation_default <- function(
       time = c(head(out$time, -1), sim_params$total_time)
     )
   counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-  buffer <- out$buffer
+  buffer <- (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE)
   
   if (!is.null(burn_meta)) {
     meta <- bind_rows(burn_meta, meta)
