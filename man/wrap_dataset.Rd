@@ -4,10 +4,12 @@
 \alias{wrap_dataset}
 \title{Wrap a simulation into a dynwrap object}
 \usage{
-wrap_dataset(model)
+wrap_dataset(model, store_grn = FALSE)
 }
 \arguments{
 \item{model}{A dyngen output model for which the experiment has been emulated with \code{\link[=generate_experiment]{generate_experiment()}}.}
+
+\item{store_grn}{Whether or not to also store GRN information.}
 }
 \description{
 The output of this object can be used with \pkg{dyno}.
