@@ -278,6 +278,7 @@ plot_gold_expression <- function(model, what = c("w", "x", "y")) {
   ggplot(df) +
     geom_line(aes(sim_time, value, colour = module_id, linetype = type, size = type)) +
     scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
+    scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~edge) +
     theme_bw()
 }
@@ -314,6 +315,7 @@ plot_simulation_expression <- function(model, simulation_i = 1, what = c("w", "x
   ggplot(df) +
     geom_line(aes(sim_time, value, linetype = type, colour = module_id, size = type)) +
     scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
+    scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~module_group, ncol = 1) +
     theme_bw()
 }

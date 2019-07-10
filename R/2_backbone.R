@@ -57,10 +57,39 @@ backbone <- function(
   assert_that(tmp_modules %all_in% module_info$module_id)
   
   if (! module_info %has_name% "color") {
-    module_info <-
-      module_info %>% 
-      mutate(color = grDevices::rainbow(n()))
+    if (all(grepl("^[a-zA-Z]*[0-9]*$", module_info$module_id))) {
+      # module names are divided up into groups
+      module_info <-
+        module_info %>% 
+        mutate(
+          group = gsub("[0-9]*$", "", module_id)
+        )
+      group_names <- unique(module_info$group)
+      group_colours <- grDevices::rainbow(length(group_names))
+      
+      module_info <- module_info %>% 
+        group_by(group) %>% 
+        mutate(
+          group_colour = group_colours[match(group, group_names)],
+          color = colour_brighten(group_colour, rev(seq(1, .4, length.out = n())))
+        ) %>% 
+        ungroup() %>% 
+        select(-group, -group_colour)
+    } else {
+      module_info <-
+        module_info %>% 
+        mutate(color = grDevices::rainbow(n()))
+    }
   }
+  
+  # add burn modules to burn transition
+  expression_patterns$module_progression[[1]] <- 
+    c(
+      strsplit(expression_patterns$module_progression[[1]], ",")[[1]],
+      paste0("+", module_info %>% filter(burn) %>% pull(module_id))
+    ) %>% 
+    unique() %>% 
+    paste(collapse = ",")
   
   lst(
     module_info, 
@@ -69,6 +98,7 @@ backbone <- function(
   ) %>% 
     add_class("dyngen::backbone")
 }
+
 
 #' List of all predefined backbone models
 #' 
