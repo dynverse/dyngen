@@ -8,6 +8,8 @@ simtime_from_backbone(backbone, burn = FALSE)
 }
 \arguments{
 \item{backbone}{A valid dyngen backbone object}
+
+\item{burn}{Whether or not to compute the simtime for only the burn phase}
 }
 \description{
 Determine simulation time from backbone

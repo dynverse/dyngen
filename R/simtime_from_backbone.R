@@ -1,6 +1,7 @@
 #' Determine simulation time from backbone
 #' 
 #' @param backbone A valid dyngen backbone object
+#' @param burn Whether or not to compute the simtime for only the burn phase
 #' 
 #' @export
 simtime_from_backbone <- function(backbone, burn = FALSE) {
