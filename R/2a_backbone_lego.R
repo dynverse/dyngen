@@ -8,9 +8,13 @@ backbone_lego <- function(...) {
   )
 }
 
-backbone_lego_linear <- function(from_name, to_name, num_modules, type = c("simple", "double_repression", "flipflop")) {
+backbone_lego_linear <- function(
+  from_name, 
+  to_name, 
+  type = sample(c("simple", "double_repression", "flipflop"), 1),
+  num_modules = c(simple = 2, double_repression = 3, flipflop = 4)[[type]]
+) {
   assert_that(num_modules >= 1)
-  type <- match.arg(type)
   
   module_ids <- c(
     paste0(from_name, seq_len(num_modules)),
@@ -93,7 +97,12 @@ backbone_lego_linear <- function(from_name, to_name, num_modules, type = c("simp
   lst(module_info, module_network, expression_patterns)
 }
 
-backbone_lego_branching <- function(from_name, to_name, num_modules, type = "simple") {
+backbone_lego_branching <- function(
+  from_name, 
+  to_name, 
+  type = "simple",
+  num_modules = length(to_name) + 1
+) {
   assert_that(
     length(to_name) >= 2,
     num_modules >= length(to_name) + 1
@@ -131,8 +140,22 @@ backbone_lego_branching <- function(from_name, to_name, num_modules, type = "sim
       cooperativity = 2
     ),
     tibble(
-      from = c(our_module_ids, our_module_ids),
-      to = c(our_module_ids, their_module_ids),
+      from = our_module_ids,
+      to = our_module_ids,
+      effect = 1,
+      strength = 5,
+      cooperativity = 2
+    ),
+    tibble(
+      from = our_module_ids,
+      to = first(my_module_ids),
+      effect = -1,
+      strength = 5,
+      cooperativity = 2
+    ),
+    tibble(
+      from = our_module_ids,
+      to = their_module_ids,
       effect = 1,
       strength = 1,
       cooperativity = 2
@@ -144,7 +167,7 @@ backbone_lego_branching <- function(from_name, to_name, num_modules, type = "sim
       filter(from != to) %>% 
       mutate(
         effect = -1,
-        strength = 10,
+        strength = 100,
         cooperativity = 2
       )
   )
@@ -170,8 +193,8 @@ backbone_lego_branching <- function(from_name, to_name, num_modules, type = "sim
 
 backbone_lego_burn <- dynutils::inherit_default_params(
   list(backbone_lego_linear), 
-  function(to_name, num_modules, type) {
-    out <- backbone_lego_linear("Burn", to_name, num_modules, type)
+  function(to_name, type, num_modules) {
+    out <- backbone_lego_linear("Burn", to_name, type = type, num_modules = num_modules)
     out$module_info <- out$module_info %>% mutate(
       a0 = ifelse(module_id == "Burn1", 1, a0),
       burn = TRUE
@@ -186,8 +209,8 @@ backbone_lego_burn <- dynutils::inherit_default_params(
 
 backbone_lego_end <- dynutils::inherit_default_params(
   list(backbone_lego_linear), 
-  function(from_name, num_modules, type) {
-    out <- backbone_lego_linear(from_name, paste0("End", from_name), num_modules, type)
+  function(from_name, type, num_modules) {
+    out <- backbone_lego_linear(from_name, paste0("End", from_name), type = type, num_modules = num_modules)
     out$module_network <- out$module_network %>% filter(!grepl("^End", to))
     out$expression_patterns <- out$expression_patterns %>% mutate(
       time = time - 1
