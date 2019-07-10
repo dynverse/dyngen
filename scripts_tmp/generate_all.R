@@ -42,13 +42,7 @@ step_funs <- list(
     cat("  burn_time=", burn_time, "\n", sep = "")
     
     # determine final time
-    exp_pat <- backbone$expression_patterns
-    sim_time_sum <- exp_pat %>% filter(start) %>% pull(from) %>% set_names(rep(0, length(.)), .)
-    for (i in seq_len(nrow(exp_pat))) {
-      sim_time_sum[[exp_pat$to[[i]]]] <- sim_time_sum[[exp_pat$from[[i]]]] + exp_pat$time[[i]]
-    }
-    total_time <- max(sim_time_sum * 1.2)
-    cat("  total_time=", total_time, "\n", sep = "")
+    total_time <- simtime_from_backbone(backbone)
     
     # generate model parameters
     initialise_model(
