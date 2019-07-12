@@ -16,6 +16,60 @@ effect_colour <- function(effect) {
   )[index]
 }
 
+#' Visualise the backbone state network of a model
+#' 
+#' @param model A dyngen initial model created with [initialise_model()].
+#' @param detailed Whether or not to also plot the substates of transitions.
+#' 
+#' @export
+plot_backbone_states <- function(model, detailed = FALSE) {
+  edges <- model$backbone$expression_patterns
+  
+  large_cap <- 4
+  small_cap <- 1
+  if (detailed) {
+    edges <- .generate_gold_standard_mod_changes(edges) %>% 
+      rename(from = from_, to = to_, from_ = from, to_ = to, module_progression = mod_diff) %>% 
+      mutate(
+        from_cap = ifelse(from == from_, large_cap, small_cap),
+        to_cap = ifelse(to == to_, large_cap, small_cap)
+      )
+    nodes <- tibble(
+      name = unique(c(edges$from, edges$to)),
+      main = name %in% c(edges$from_, edges$to_)
+    )
+  } else {
+    nodes <- tibble(
+      name = unique(c(edges$from, edges$to))
+    )
+    edges <- edges %>% mutate(
+      from_cap = large_cap,
+      to_cap = large_cap
+    )
+  }
+  
+  gr <- tbl_graph(edges = edges %>% rename(weight = time), nodes = nodes)
+  
+  r <- .05
+  arrow <- grid::arrow(type = "closed", length = grid::unit(3, "mm"))
+  
+  ggraph(gr, layout = "igraph", algorithm = "kk") +
+    geom_edge_fan(
+      aes(
+        label = module_progression,
+        start_cap = circle(from_cap, "mm"),
+        end_cap = circle(to_cap, "mm")
+      ), 
+      arrow = arrow, 
+      colour = "gray"
+    ) +
+    geom_node_circle(aes(r = r), fill = "white", function(df) df %>% filter(main)) +
+    geom_node_point(data = function(df) df %>% filter(!main)) +
+    geom_node_text(aes(label = name), function(df) df %>% filter(main)) +
+    theme_graph(base_family = 'Helvetica') +
+    coord_equal()
+}
+
 #' Visualise the backbone of a model
 #' 
 #' @param model A dyngen initial model created with [initialise_model()].

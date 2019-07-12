@@ -15,7 +15,7 @@ generate_gold_standard <- function(model) {
   
   # compute changes in modules along the edges
   if (model$verbose) cat("Generating gold standard mod changes\n")
-  model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model)
+  model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model$backbone$expression_patterns)
   
   # precompile propensity functions
   if (model$verbose) cat("Precompiling propensity functions for gold standard\n")
@@ -48,9 +48,8 @@ gold_standard_default <- function(
   )
 }
 
-.generate_gold_standard_mod_changes <- function(model) {
-  mod_changes <- 
-    model$backbone$expression_patterns %>% 
+.generate_gold_standard_mod_changes <- function(expression_patterns) {
+  expression_patterns %>% 
     mutate(
       mod_diff = module_progression %>% strsplit("\\|"),
       substate = map(mod_diff, seq_along)
@@ -69,9 +68,6 @@ gold_standard_default <- function(
       to_ = ifelse(row_number() == n(), to, from_[row_number() + 1])
     ) %>% 
     ungroup()
-
-  
-  mod_changes
 }
 
 #' @importFrom fastgssa compile_propensity_functions
