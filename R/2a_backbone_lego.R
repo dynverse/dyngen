@@ -1,4 +1,7 @@
-backbone_lego <- function(...) {
+#' Design your own custom backbone easily
+#' 
+#' 
+bblego <- function(...) {
   mods <- list(...)
   
   backbone(
@@ -8,7 +11,7 @@ backbone_lego <- function(...) {
   )
 }
 
-backbone_lego_linear <- function(
+bblego_linear <- function(
   from_name, 
   to_name, 
   type = sample(c("simple", "double_repression", "flipflop"), 1),
@@ -97,7 +100,7 @@ backbone_lego_linear <- function(
   lst(module_info, module_network, expression_patterns)
 }
 
-backbone_lego_branching <- function(
+bblego_branching <- function(
   from_name, 
   to_name, 
   type = "simple",
@@ -191,10 +194,10 @@ backbone_lego_branching <- function(
 }
 
 
-backbone_lego_burn <- dynutils::inherit_default_params(
-  list(backbone_lego_linear), 
+bblego_start <- dynutils::inherit_default_params(
+  list(bblego_linear), 
   function(to_name, type, num_modules) {
-    out <- backbone_lego_linear("Burn", to_name, type = type, num_modules = num_modules)
+    out <- bblego_linear("Burn", to_name, type = type, num_modules = num_modules)
     out$module_info <- out$module_info %>% mutate(
       a0 = ifelse(module_id == "Burn1", 1, a0),
       burn = TRUE
@@ -207,10 +210,10 @@ backbone_lego_burn <- dynutils::inherit_default_params(
   }
 )
 
-backbone_lego_end <- dynutils::inherit_default_params(
-  list(backbone_lego_linear), 
+bblego_end <- dynutils::inherit_default_params(
+  list(bblego_linear), 
   function(from_name, type, num_modules) {
-    out <- backbone_lego_linear(from_name, paste0("End", from_name), type = type, num_modules = num_modules)
+    out <- bblego_linear(from_name, paste0("End", from_name), type = type, num_modules = num_modules)
     out$module_network <- out$module_network %>% filter(!grepl("^End", to))
     out$expression_patterns <- out$expression_patterns %>% mutate(
       time = time - 1

@@ -1,12 +1,12 @@
 #' @export
 #' @rdname backbone_models
 backbone_bifurcating <- function() {
-  # backbone <- backbone_lego(
-  #   backbone_lego_burn("A", num_modules = 2, type = "simple"),
-  #   backbone_lego_linear("A", "B", num_modules = 5),
-  #   backbone_lego_branching("B", c("C", "D"), num_modules = 4, type = "simple"),
-  #   backbone_lego_end("C", num_modules = 4),
-  #   backbone_lego_end("D", num_modules = 4)
+  # backbone <- bblego(
+  #   bblego_start("A", num_modules = 2, type = "simple"),
+  #   bblego_linear("A", "B", num_modules = 5),
+  #   bblego_branching("B", c("C", "D"), num_modules = 4, type = "simple"),
+  #   bblego_end("C", num_modules = 4),
+  #   bblego_end("D", num_modules = 4)
   # )
   
   module_info <- tribble(
