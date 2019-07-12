@@ -9,7 +9,6 @@
 #' @param census_interval A granularity parameter of the gold standard time steps. Should be larger than or equal to `tau`.
 #' 
 #' @export
-#' @importFrom fastgssa ssa ssa_em
 generate_gold_standard <- function(model) {
   model$gold_standard <- list()
   
@@ -103,7 +102,7 @@ gold_standard_default <- function(
 }
 
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
-#' @importFrom fastgssa ssa
+#' @importFrom fastgssa ssa ode_em
 .generate_gold_standard_simulations <- function(model, prep_data) {
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
@@ -112,7 +111,7 @@ gold_standard_default <- function(
   tf_info <- model$feature_info %>% filter(is_tf)
   
   # determine ode algorithm
-  algo <- fastgssa::ssa_em(tau = gold_params$tau, noise_strength = 0)
+  algo <- fastgssa::ode_em(tau = gold_params$tau, noise_strength = 0)
   
   # select relevant functions
   tf_molecules <- prep_data$tf_molecules
