@@ -1,8 +1,49 @@
 #' Design your own custom backbone easily
 #' 
+#' You can use the `bblego` functions in order to create 
+#' custom backbones using various components. Please note that the `bblego` 
+#' functions currently only allow you to create tree-like backbones. 
 #' 
-bblego <- function(...) {
-  mods <- list(...)
+#' A backbone always needs to start with a single `bblego_start()` state and
+#' needs to end with one or more `bblego_end()` states.
+#' The order of the mentioned states needs to be such that a state is never
+#' specified in the first argument (except for `bblego_start()`) before
+#' having been specified as the second argument.
+#' 
+#' @param from The begin state of this component.
+#' @param to The end state of this component.
+#' @param type Some components have alternative module regulatory networks. 
+#' 
+#' `bblego_start()`, `bblego_linear()`, `bblego_end()`: 
+#' 
+#' * `"simple"`: a sequence of modules in which every module upregulates the next module.
+#' * `"double_repression"`: a sequence of modules in which every module downregulates the next
+#'   module, and each module has positive basal expression.
+#' * `"flipflop"`: a sequence of modules in which every module upregulates the next module.
+#'   In addition, the last module upregulates itself and strongly downregulates the first module.
+#'   
+#' `bblego_branching()`: 
+#' 
+#' * `"simple"`: a set of `n` modules (with `n = length(to)`) which all downregulate
+#'   one another and upregulate themselves. This causes a branching to occur in the trajectory.
+#'   
+#' @param num_modules The number of modules this component is allowed to use. 
+#'   Various components might require a minimum number of components in order to work properly.
+#' @param burn Whether or not these components are part of the warm-up simulation.
+#' @param ...,.list `bblego` components, either as separate args or as a list.
+#' 
+#' @export
+#' 
+#' @examples 
+#' backbone <- bblego(
+#'   bblego_start("A", type = "simple", num_modules = 2),
+#'   bblego_linear("A", "B", type = "simple", num_modules = 3),
+#'   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
+#'   bblego_end("C", type = "flipflop", num_modules = 4),
+#'   bblego_end("D", type = "double_repression", num_modules = 7)
+#' )
+bblego <- function(..., .list = NULL) {
+  mods <- c(list(...), .list)
   
   backbone(
     module_info = map_df(mods, "module_info"),
@@ -11,23 +52,26 @@ bblego <- function(...) {
   )
 }
 
+#' @rdname bblego
+#' @export
 bblego_linear <- function(
-  from_name, 
-  to_name, 
+  from, 
+  to, 
   type = sample(c("simple", "double_repression", "flipflop"), 1),
-  num_modules = c(simple = 2, double_repression = 3, flipflop = 4)[[type]]
+  num_modules = c(simple = 2, double_repression = 3, flipflop = 4)[[type]],
+  burn = FALSE
 ) {
   assert_that(num_modules >= 1)
   
   module_ids <- c(
-    paste0(from_name, seq_len(num_modules)),
-    paste0(to_name, 1)
+    paste0(from, seq_len(num_modules)),
+    paste0(to, 1)
   )
   
   module_info <- tibble(
     module_id = module_ids %>% head(-1),
     a0 = 0,
-    burn = FALSE
+    burn = burn
   )
   
   if (type == "simple") {
@@ -86,11 +130,11 @@ bblego_linear <- function(
   }
   
   expression_patterns <- tibble(
-    from = paste0("s", from_name),
-    to = paste0("s", to_name),
+    from = paste0("s", from),
+    to = paste0("s", to),
     module_progression = paste0("+", module_ids %>% head(-1), collapse = ","),
     start = FALSE,
-    burn = FALSE,
+    burn = burn,
     time = case_when(
       type == "flipflop" ~ num_modules * 2,
       TRUE ~ num_modules
@@ -100,31 +144,34 @@ bblego_linear <- function(
   lst(module_info, module_network, expression_patterns)
 }
 
+#' @rdname bblego
+#' @export
 bblego_branching <- function(
-  from_name, 
-  to_name, 
+  from, 
+  to, 
   type = "simple",
-  num_modules = length(to_name) + 1
+  num_modules = length(to) + 1,
+  burn = FALSE
 ) {
   assert_that(
-    length(to_name) >= 2,
-    num_modules >= length(to_name) + 1
+    length(to) >= 2,
+    num_modules >= length(to) + 1
   )
   
-  lin_length <- num_modules - length(to_name)
+  lin_length <- num_modules - length(to)
   
   my_module_ids <- 
-    paste0(from_name, seq_len(lin_length))
+    paste0(from, seq_len(lin_length))
   our_module_ids <- 
-    paste0(from_name, seq(lin_length + 1, num_modules))
+    paste0(from, seq(lin_length + 1, num_modules))
   their_module_ids <- 
-    paste0(to_name, 1)
+    paste0(to, 1)
   module_ids <- c(my_module_ids, our_module_ids, their_module_ids)
   
   module_info <- tibble(
     module_id = c(my_module_ids, our_module_ids),
     a0 = 0,
-    burn = FALSE
+    burn = burn
   )
   
   module_network <- bind_rows(
@@ -182,38 +229,45 @@ bblego_branching <- function(
   }
   
   expression_patterns <- tibble(
-    from = paste0("s", from_name),
-    to = paste0("s", to_name),
+    from = paste0("s", from),
+    to = paste0("s", to),
     module_progression = paste0(in_edge, "+", our_module_ids),
     start = FALSE,
-    burn = FALSE,
+    burn = burn,
     time = num_modules + 1
   )
   
   lst(module_info, module_network, expression_patterns)
 }
 
-
+#' @rdname bblego
+#' @export
 bblego_start <- dynutils::inherit_default_params(
   list(bblego_linear), 
-  function(to_name, type, num_modules) {
-    out <- bblego_linear("Burn", to_name, type = type, num_modules = num_modules)
-    out$module_info <- out$module_info %>% mutate(
-      a0 = ifelse(module_id == "Burn1", 1, a0),
+  function(to, type, num_modules) {
+    out <- bblego_linear(
+      from = "Burn", 
+      to = to,
+      type = type,
+      num_modules = num_modules,
       burn = TRUE
     )
-    out$expression_patterns <- out$expression_patterns %>% mutate(
-      start = TRUE,
-      burn = TRUE
-    )
+    out$module_info <- 
+      out$module_info %>% 
+      mutate(a0 = ifelse(module_id == "Burn1", 1, a0))
+    out$expression_patterns <-
+      out$expression_patterns %>% 
+      mutate(start = TRUE)
     out
   }
 )
 
+#' @rdname bblego
+#' @export
 bblego_end <- dynutils::inherit_default_params(
   list(bblego_linear), 
-  function(from_name, type, num_modules) {
-    out <- bblego_linear(from_name, paste0("End", from_name), type = type, num_modules = num_modules)
+  function(from, type, num_modules) {
+    out <- bblego_linear(from, paste0("End", from), type = type, num_modules = num_modules)
     out$module_network <- out$module_network %>% filter(!grepl("^End", to))
     out$expression_patterns <- out$expression_patterns %>% mutate(
       time = time - 1
