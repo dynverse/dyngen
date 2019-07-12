@@ -74,7 +74,7 @@ step_funs <- list(
       generate_feature_network() %>% 
       generate_kinetics()
     
-    g1 <- plot_backbone(model)
+    g1 <- plot_backbone_modulenet(model)
     g2 <- plot_feature_network(model, show_targets = FALSE)
     g3 <- plot_feature_network(model)
     g <- patchwork::wrap_plots(
@@ -139,7 +139,7 @@ step_funs <- list(
       wrap_dataset()
     
     # :scream:
-    g1 <- plot_backbone(model)
+    g1 <- plot_backbone_modulenet(model)
     g2 <- plot_feature_network(model, show_targets = FALSE)
     g3 <- plot_feature_network(model)
     g4 <- plot_gold_simulations(model) + scale_colour_brewer(palette = "Set3")

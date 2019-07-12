@@ -3,19 +3,31 @@ library(dyngen)
 library(fastgssa)
 
 set.seed(1)
+# backbone <- backbone_bifurcating()
+
+backbone <- bblego(
+  bblego_start("A", num_modules = 2, type = "simple"),
+  bblego_linear("A", "B", num_modules = 5),
+  bblego_branching("B", c("C", "D"), num_modules = 4, type = "simple"),
+  bblego_end("C", num_modules = 4),
+  bblego_end("D", num_modules = 4)
+)
 model <- 
   initialise_model(
-    num_cells = 10000,
+    num_cells = 1000,
     num_tfs = 100,
-    num_targets = 500,
-    num_hks = 400,
+    num_targets = 0,
+    num_hks = 0,
     distance_metric = "pearson",
-    backbone = backbone_bifurcating_loop(),
+    backbone = backbone,
     tf_network_params = tf_network_default(min_tfs_per_module = 3, sample_num_regulators = function() 2),
     feature_network_params = feature_network_default(target_resampling = 5000),
     kinetics_params = kinetics_default(),
     gold_standard_params = gold_standard_default(),
-    simulation_params = simulation_default(),
+    simulation_params = simulation_default(
+      burn_time = simtime_from_backbone(backbone, TRUE),
+      total_time = simtime_from_backbone(backbone)
+    ),
     experiment_params = experiment_snapshot(),
     verbose = TRUE,
     download_cache_dir = "~/.cache/dyngen",
@@ -27,7 +39,7 @@ model <- model %>%
   generate_feature_network() %>% 
   generate_kinetics()
 
-plot_backbone(model)
+plot_backbone_modulenet(model)
 plot_feature_network(model, show_targets = FALSE)
 plot_feature_network(model)
 plot_feature_network(model, show_hks = TRUE)
@@ -35,8 +47,7 @@ plot_feature_network(model, show_hks = TRUE)
 model <- model %>% 
   generate_gold_standard()
 
-plot_gold_simulations(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewer(palette = "Dark2")
-plot_gold_simulations_proj(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewer(palette = "Dark2")
+plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 plot_gold_expression(model, "w")
 plot_gold_expression(model, c("w", "x"))
 plot_gold_expression(model)
@@ -45,15 +56,16 @@ model <- model %>% generate_cells()
 # handle <- generate_cells(model, qsub = TRUE)
 # model <- generate_cells(model, qsub = handle)
 
-plot_gold_mappings(model) + scale_colour_brewer(palette = "Dark2")
+plot_gold_mappings(model, do_facet = T) + scale_colour_brewer(palette = "Dark2")
+plot_gold_mappings(model, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
 patchwork::wrap_plots(
   plot_simulations(model) + coord_equal(),
-  plot_gold_simulations(model, mapping = aes(comp_1, comp_2)) + scale_colour_brewer(palette = "Dark2") + coord_equal(),
+  plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2") + coord_equal(),
   nrow = 1
 )
-plot_simulation_expression(model, 1)
-plot_simulation_expression(model, 2)
-plot_simulation_expression(model, 3)
+plot_simulation_expression(model, 22, "w")
+plot_simulation_expression(model, 2, "w")
+plot_simulation_expression(model, 3, "w")
 plot_simulation_expression(model, 5)
 
 plot_simulation_expression(model, 5, "w") + facet_wrap(~module_group, ncol = 3) + geom_vline(aes(xintercept = 0))
