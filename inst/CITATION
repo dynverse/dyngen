@@ -1,0 +1,16 @@
+citEntry(
+  entry    = "Article",
+  author   = c(
+    person("Robrecht", "Cannoodt"),
+    person("Wouter", "Saelens"),
+    person("Yvan", "Saeys")
+  ),
+  author   = "Robrecht Cannoodt and Wouter Saelens and Yvan Saeys",
+  title    = "dyngen: Simulating single-cell data using gene regulatory networks",
+  journal  = "",
+  year     = "",
+  month    = "",
+  doi      = "",
+  url      = "",
+  textVersion = "dyngen: Simulating single-cell data using gene regulatory networks. Manuscript in preparation."
+)
