@@ -4,8 +4,8 @@
 \alias{plot_simulation_expression}
 \title{Visualise the expression of the simulations over simulation time}
 \usage{
-plot_simulation_expression(model, simulation_i = 1, what = c("w", "x",
-  "y"))
+plot_simulation_expression(model, simulation_i = 1:4, what = c("w",
+  "x", "y"), facet = c("simulation", "module_group", "none"))
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
@@ -13,6 +13,8 @@ plot_simulation_expression(model, simulation_i = 1, what = c("w", "x",
 \item{simulation_i}{Which simulation to visualise.}
 
 \item{what}{Which molecule types to visualise.}
+
+\item{facet}{What to facet on.}
 }
 \description{
 Visualise the expression of the simulations over simulation time

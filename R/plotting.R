@@ -344,33 +344,38 @@ plot_gold_expression <- function(model, what = c("w", "x", "y")) {
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
 #' @param simulation_i Which simulation to visualise.
 #' @param what Which molecule types to visualise.
+#' @param facet What to facet on.
 #' 
 #' @export
-plot_simulation_expression <- function(model, simulation_i = 1, what = c("w", "x", "y")) {
-  edge_levels <-
-    model$gold_standard$network %>%
-    mutate(edge = paste0(from, "->", to)) %>%
-    pull(edge)
+plot_simulation_expression <- function(model, simulation_i = 1:4, what = c("w", "x", "y"), facet = c("simulation", "module_group", "none")) {
+  facet <- match.arg(facet)
   
   molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
   df <- bind_cols(
     model$simulations$meta,
     as.data.frame(as.matrix(model$simulations$counts)[,molecules])
   ) %>% 
-    filter(simulation_i == !!simulation_i) %>% 
+    filter(simulation_i %in% !!simulation_i) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
-    mutate(edge = factor(paste0(from, "->", to), levels = edge_levels)) %>%
     left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
-    group_by(module_id, sim_time, simulation_i, from, to, time, edge, type) %>% 
+    group_by(module_id, sim_time, simulation_i, from, to, time, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
     mutate(module_group = gsub("[0-9]*$", "", module_id)) %>% 
     filter(type %in% what)
   
-  ggplot(df) +
+  g <- ggplot(df) +
     geom_line(aes(sim_time, value, linetype = type, colour = module_id, size = type)) +
     scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
-    facet_wrap(~module_group, ncol = 1) +
+    # facet_wrap(~module_group, ncol = 1) +
     theme_bw()
+  
+  if (facet == "simulation") {
+    g <- g + facet_wrap(~simulation_i, ncol = 1)
+  } else if (facet == "module_group") {
+    g <- g + facet_wrap(~module_group, ncol = 1)
+  }
+  
+  g
 }
