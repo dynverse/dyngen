@@ -33,7 +33,7 @@ Imports:
   dyndimred (>= 1.0.0),
   dynutils (>= 1.0.4),
   dynwrap (>= 1.0.0),
-  fastgssa,
+  fastgssa (>= 0.2.2),
   ggplot2,
   ggraph,
   grDevices,
