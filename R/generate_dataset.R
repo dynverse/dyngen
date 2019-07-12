@@ -53,13 +53,15 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
     
     if (!is.null(output_dir)) {
       ggsave(paste0(output_dir, "plot.pdf"), g, width = 30, height = 25)
-    } else {
-      print(g)
     }
   }
   
   if (is.null(output_dir)) {
-    list(dataset = dataset, model = model)
+    out <- list(dataset = dataset, model = model)
+    if (make_plots) {
+      out$plot <- g
+    }
+    out
   } else {
     invisible()
   }
