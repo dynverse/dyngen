@@ -35,8 +35,8 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
   
   if (make_plots) {
     # make plots :scream:
-    g1 <- plot_backbone_states(model) + labs(title = "Backbone state network")
-    g2 <- plot_backbone(model) + labs(title = "Backbone module reg. net.")
+    g1 <- plot_backbone_statenet(model) + labs(title = "Backbone state network")
+    g2 <- plot_backbone_modulenet(model) + labs(title = "Backbone module reg. net.")
     g3 <- plot_feature_network(model, show_targets = FALSE) + labs(title = "TF reg. net.")
     g4 <- plot_feature_network(model) + labs(title = "TF + target reg. net.")
     g5 <- plot_gold_simulations(model) + scale_colour_brewer(palette = "Set3") + labs(title = "Gold + simulations")

@@ -22,7 +22,7 @@ effect_colour <- function(effect) {
 #' @param detailed Whether or not to also plot the substates of transitions.
 #' 
 #' @export
-plot_backbone_states <- function(model, detailed = FALSE) {
+plot_backbone_statenet <- function(model, detailed = FALSE) {
   edges <- model$backbone$expression_patterns
   
   large_cap <- 4
@@ -77,7 +77,7 @@ plot_backbone_states <- function(model, detailed = FALSE) {
 #' 
 #' @importFrom igraph layout.graphopt V E
 #' @export
-plot_backbone <- function(model) {
+plot_backbone_modulenet <- function(model) {
   node_legend <- model$backbone$module_info %>% select(module_id, color) %>% deframe()
   
   nodes <- model$backbone$module_info %>% rename(name = module_id)
