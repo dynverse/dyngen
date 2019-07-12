@@ -42,6 +42,7 @@ Imports:
   magrittr,
   Matrix,
   methods,
+  patchwork,
   pbapply,
   purrr,
   readr,
