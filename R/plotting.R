@@ -40,7 +40,8 @@ plot_backbone_states <- function(model, detailed = FALSE) {
     )
   } else {
     nodes <- tibble(
-      name = unique(c(edges$from, edges$to))
+      name = unique(c(edges$from, edges$to)),
+      main = TRUE
     )
     edges <- edges %>% mutate(
       from_cap = large_cap,
