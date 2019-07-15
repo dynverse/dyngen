@@ -28,7 +28,7 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
   
   # write to file
   if (!is.null(output_dir)) {
-    dir.create(basename(output_dir), showWarnings = FALSE, recursive = FALSE)
+    dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
     write_rds(dataset, paste0(output_dir, "dataset.rds"), compress = "gz")
     write_rds(model, paste0(output_dir, "model.rds"), compress = "gz")
   }
