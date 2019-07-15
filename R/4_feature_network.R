@@ -104,7 +104,7 @@ generate_feature_network <- function(
 #' @export
 #' @rdname generate_feature_network
 feature_network_default <- function(
-  realnet = sample(realnets$name, 1),
+  realnet = .feature_network_random_realnet(),
   damping = 0.05,
   target_resampling = Inf,
   max_in_degree = 5
@@ -115,6 +115,13 @@ feature_network_default <- function(
     target_resampling,
     max_in_degree
   )
+}
+
+#' @export
+#' @rdname generate_feature_network
+feature_network_random_realnet <- function() {
+  data(realnets, package = "dyngen", envir = environment())
+  sample(realnets$name, 1)
 }
 
 #' @importFrom utils data
