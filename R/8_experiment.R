@@ -57,7 +57,7 @@ generate_experiment <- function(model) {
 
 #' @export
 #' @rdname generate_experiment
-#' @importFrom fastgssa ssa_etl
+#' @importFrom gillespie ssa_etl
 list_experiment_samplers <- function() {
   lst(
     snapshot = experiment_snapshot,

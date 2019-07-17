@@ -10,7 +10,7 @@ Complete rewrite from `dyngen` from the bottom up.
  
 * OPTIMISATION: All aspects of the pipeline have been optimised towards execution time and end-user usability.
 
-* OPTIMISATION: `dyngen` 0.2.0 uses `fastgssa` 0.2.0, which has also been rewritten entirely in `Rcpp`,
+* OPTIMISATION: `dyngen` 0.2.0 uses `gillespie` 0.2.0, which has also been rewritten entirely in `Rcpp`,
   thereby improving the speed significantly.
   
 * OPTIMISATION: The transcription factor propensity functions have been refactored to make it much more 
@@ -27,7 +27,7 @@ Complete rewrite from `dyngen` from the bottom up.
    
    - The cells undergo a dynamic process throughout the simulation.
    - Many different trajectory types are supported.
-   - `dyngen` 0.1.0 uses `fastgssa` 0.1.0, a clone of `GillespieSSA` that is much less
+   - `dyngen` 0.1.0 uses `gillespie` 0.1.0, a clone of `GillespieSSA` that is much less
      error-prone and more efficient than `GillespieSSA`.
 
 # dyngen 0.0.1 (2016-04-04)

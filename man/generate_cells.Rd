@@ -19,7 +19,7 @@ simulation_default(burn_time = 2, total_time = 10,
 
 \item{total_time}{The total simulation time of the system.}
 
-\item{ssa_algorithm}{Which SSA algorithm to use for simulating the cells with \code{\link[fastgssa:ssa]{fastgssa::ssa()}}}
+\item{ssa_algorithm}{Which SSA algorithm to use for simulating the cells with \code{\link[gillespie:ssa]{gillespie::ssa()}}}
 
 \item{census_interval}{A granularity parameter for the outputted simulation.}
 

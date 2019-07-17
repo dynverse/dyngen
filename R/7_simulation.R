@@ -7,12 +7,12 @@
 #' @param model A dyngen intermediary model for which the gold standard been generated with [generate_gold_standard()].
 #' @param burn_time The burn in time of the system, used to determine an initial state vector.
 #' @param total_time The total simulation time of the system.
-#' @param ssa_algorithm Which SSA algorithm to use for simulating the cells with [fastgssa::ssa()]
+#' @param ssa_algorithm Which SSA algorithm to use for simulating the cells with [gillespie::ssa()]
 #' @param census_interval A granularity parameter for the outputted simulation.
 #' @param num_simulations The number of simulations to run.
 #' @param seeds A set of seeds for each of the simulations.
 #' 
-#' @importFrom fastgssa ssa
+#' @importFrom gillespie ssa
 #' @export
 generate_cells <- function(model) {
   if (model$verbose) cat("Precompiling reactions for simulations\n")
@@ -50,7 +50,7 @@ generate_cells <- function(model) {
 
 #' @export
 #' @rdname generate_cells
-#' @importFrom fastgssa ssa_etl
+#' @importFrom gillespie ssa_etl
 simulation_default <- function(
   burn_time = 2,
   total_time = 10,
@@ -71,7 +71,7 @@ simulation_default <- function(
   )
 }
 
-#' @importFrom fastgssa compile_reactions
+#' @importFrom gillespie compile_reactions
 .generate_cells_precompile_reactions <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
@@ -80,7 +80,7 @@ simulation_default <- function(
   buffer_ids <- unique(unlist(map(reactions, "buffer_ids")))
   
   # compile prop funs
-  comp_funs <- fastgssa::compile_reactions(
+  comp_funs <- gillespie::compile_reactions(
     reactions = reactions,
     buffer_ids = buffer_ids,
     state_ids = names(sim_system$initial_state),
@@ -99,10 +99,13 @@ simulation_default <- function(
   
   if (sim_params$burn_time > 0) {
     burn_reactions <- reactions
-    burn_reactions$state_change[match(setdiff(sim_system$molecule_ids, sim_system$burn_variables), sim_system$molecule_ids), ] <- 0
+    rem <- setdiff(sim_system$molecule_ids, sim_system$burn_variables)
+    if (length(rem) > 0) {
+      burn_reactions$state_change[match(rem, sim_system$molecule_ids), ] <- 0
+    }
     
     # burn in
-    out <- fastgssa::ssa(
+    out <- gillespie::ssa(
       initial_state = sim_system$initial_state,
       reactions = burn_reactions,
       final_time = sim_params$burn_time,
@@ -131,7 +134,7 @@ simulation_default <- function(
   }
   
   # actual simulation
-  out <- fastgssa::ssa(
+  out <- gillespie::ssa(
     initial_state = new_initial_state, 
     reactions = reactions,
     final_time = sim_params$total_time, 

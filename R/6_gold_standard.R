@@ -69,7 +69,7 @@ gold_standard_default <- function(
     ungroup()
 }
 
-#' @importFrom fastgssa compile_reactions
+#' @importFrom gillespie compile_reactions
 .generate_gold_precompile_reactions <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
@@ -84,7 +84,7 @@ gold_standard_default <- function(
   
   buffer_ids <- unique(unlist(map(reactions, "buffer_ids")))
   
-  comp_funs <- fastgssa::compile_reactions(
+  comp_funs <- gillespie::compile_reactions(
     reactions = reactions,
     buffer_ids = buffer_ids,
     state_ids = tf_molecules,
@@ -99,7 +99,7 @@ gold_standard_default <- function(
 }
 
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
-#' @importFrom fastgssa ssa ode_em
+#' @importFrom gillespie ssa ode_em
 .generate_gold_standard_simulations <- function(model, prep_data) {
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
@@ -108,7 +108,7 @@ gold_standard_default <- function(
   tf_info <- model$feature_info %>% filter(is_tf)
   
   # determine ode algorithm
-  algo <- fastgssa::ode_em(tau = gold_params$tau, noise_strength = 0)
+  algo <- gillespie::ode_em(tau = gold_params$tau, noise_strength = 0)
   
   # select relevant functions
   tf_molecules <- prep_data$tf_molecules
@@ -151,10 +151,13 @@ gold_standard_default <- function(
     
     # generate nus
     new_reactions <- reactions
-    new_reactions$state_change[match(setdiff(tf_molecules, molecules_on), tf_molecules), ] <- 0
+    rem <- setdiff(tf_molecules, molecules_on)
+    if (length(rem) > 0) {
+      new_reactions$state_change[match(rem, tf_molecules), ] <- 0
+    }
     
     # simulation of gold standard edge
-    out <- fastgssa::ssa(
+    out <- gillespie::ssa(
       initial_state = new_initial_state,
       reactions = new_reactions,
       final_time = time,

@@ -483,7 +483,7 @@ Complete rewrite from `dyngen` from the bottom up.
   - OPTIMISATION: All aspects of the pipeline have been optimised
     towards execution time and end-user usability.
 
-  - OPTIMISATION: `dyngen` 0.2.0 uses `fastgssa` 0.2.0, which has also
+  - OPTIMISATION: `dyngen` 0.2.0 uses `gillespie` 0.2.0, which has also
     been rewritten entirely in `Rcpp`, thereby improving the speed
     significantly.
 
