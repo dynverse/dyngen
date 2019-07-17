@@ -138,7 +138,7 @@ model <- generate_gold_standard(model)
 ```
 
     ## Generating gold standard mod changes
-    ## Precompiling propensity functions for gold standard
+    ## Precompiling reactions for gold standard
     ## Running gold simulations
     ## 
       |                                                  | 0 % elapsed =00s  
@@ -177,7 +177,7 @@ again using dimensionality reduction.
 model <- generate_cells(model)
 ```
 
-    ## Precompiling propensity functions for simulations
+    ## Precompiling reactions for simulations
     ## Running 32 simulations
     ## Mapping simulations to gold standard
     ## Performing dimred
@@ -468,27 +468,30 @@ changes.
 
 <!-- This section gets automatically generated from inst/NEWS.md, and also generates inst/NEWS -->
 
+### Recent changes in dyngen 0.2.1 (2019-07-17)
+
+  - MAJOR CHANGES: Custom backbones can be defined using backbone lego
+    pieces. See `?bblego` for more information.
+
+  - MAJOR CHANGES: Splicing reactions have been reworked to better
+    reflect biology.
+
 ### Recent changes in dyngen 0.2.0 (2019-07-12)
 
-  - Complete rewrite of `dyngen`. Major improvements:
-    
-      - All aspects of the pipeline have been optimised towards
-        execution time and end-user usability.
-      - `dyngen` 0.2.0 uses `fastgssa` 0.2.0, which has also been
-        rewritten entirely in `Rcpp`, thereby improving the speed
-        significantly.
-      - Mapping of a simulation to the gold standard is greatly
-        improved.
-      - Custom backbones can be defined using backbone lego pieces. See
-        `?bblego` for more information.
+Complete rewrite from `dyngen` from the bottom up.
 
-### Recent changes in dyngen 0.1.0 (2017-04-27)
+  - OPTIMISATION: All aspects of the pipeline have been optimised
+    towards execution time and end-user usability.
 
-  - Initial release of `dyngen`, a package for generating synthetic
-    single-cell data from regulatory networks. Key features are:
-    
-      - The cells undergo a dynamic process throughout the simulation.
-      - Many different trajectory types are supported.
-      - `dyngen` 0.1.0 uses `fastgssa` 0.1.0, a clone of `GillespieSSA`
-        that is much less error-prone and more efficient than
-        `GillespieSSA`.
+  - OPTIMISATION: `dyngen` 0.2.0 uses `fastgssa` 0.2.0, which has also
+    been rewritten entirely in `Rcpp`, thereby improving the speed
+    significantly.
+
+  - OPTIMISATION: The transcription factor propensity functions have
+    been refactored to make it much more computationally efficient.
+
+  - OPTIMISATION: Mapping a simulation to the gold standard is more
+    automised and less error-prone.
+
+  - FEATURE: A splicing step has been added to the chain of reaction
+    events.
