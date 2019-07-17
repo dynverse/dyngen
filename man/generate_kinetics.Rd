@@ -8,8 +8,7 @@
 generate_kinetics(model)
 
 kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
-  pmax(10), sample_wdr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
-  sample_xpr = function(n) rnorm(n, 25, 5) \%>\% pmax(5),
+  pmax(10), sample_spl = function(n) rnorm(n, 10, 2) \%>\% pmax(2),
   sample_xdr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, 0.5) \%>\% pmax(1),
@@ -22,9 +21,7 @@ kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
 
 \item{sample_wpr}{A function specifying the distribution from which to sample the pre-mRNA production rate.}
 
-\item{sample_wdr}{A function specifying the distribution from which to sample the pre-mRNA decay rate.}
-
-\item{sample_xpr}{A function specifying the distribution from which to sample the mRNA production rate.}
+\item{sample_spl}{A function specifying the distribution from which to sample the splicing rate.}
 
 \item{sample_xdr}{A function specifying the distribution from which to sample the mRNA decay rate.}
 

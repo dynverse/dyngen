@@ -6,8 +6,7 @@
 #' 
 #' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
 #' @param sample_wpr A function specifying the distribution from which to sample the pre-mRNA production rate.
-#' @param sample_wdr A function specifying the distribution from which to sample the pre-mRNA decay rate.
-#' @param sample_xpr A function specifying the distribution from which to sample the mRNA production rate.
+#' @param sample_spl A function specifying the distribution from which to sample the splicing rate.
 #' @param sample_xdr A function specifying the distribution from which to sample the mRNA decay rate.
 #' @param sample_ypr A function specifying the distribution from which to sample the protein production rate.
 #' @param sample_ydr A function specifying the distribution from which to sample the protein decay rate.
@@ -64,8 +63,7 @@ generate_kinetics <- function(model) {
 #' @importFrom stats rnorm runif
 kinetics_default <- function(
   sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
-  sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_xpr = function(n) rnorm(n, 25, 5) %>% pmax(5),
+  sample_spl = function(n) rnorm(n, 10, 2) %>% pmax(2),
   sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
@@ -76,8 +74,7 @@ kinetics_default <- function(
 ) {
   lst(
     sample_wpr,
-    sample_wdr,
-    sample_xpr,
+    sample_spl,
     sample_xdr,
     sample_ypr,
     sample_ydr,
@@ -96,12 +93,11 @@ kinetics_default <- function(
     model$feature_info %>% 
     mutate(
       wpr = params$sample_wpr(n()),
-      wdr = params$sample_wdr(n()),
-      xpr = params$sample_xpr(n()),
+      spl = params$sample_spl(n()),
       xdr = params$sample_xdr(n()),
       ypr = params$sample_ypr(n()),
       ydr = params$sample_ydr(n()),
-      max_protein = wpr / wdr * xpr / xdr * ypr / ydr
+      max_protein = wpr / xdr * ypr / ydr
     )
   
   # remove previous 'as' if present
@@ -181,8 +177,7 @@ kinetics_default <- function(
       y <- paste0("y_", fid)
       
       wpr <- paste0("wpr_", fid)
-      wdr <- paste0("wdr_", fid)
-      xpr <- paste0("xpr_", fid)
+      spl <- paste0("spl_", fid)
       xdr <- paste0("xdr_", fid)
       ypr <- paste0("ypr_", fid)
       ydr <- paste0("ydr_", fid)
@@ -232,17 +227,11 @@ kinetics_default <- function(
           effect = set_names(1, w),
           propensity = wpr_function
         ),
-        # pre-mRNA degradation
+        # splicing
         reaction(
-          name = paste0("premrna_degradation_", fid),
-          effect = set_names(-1, w),
-          propensity = paste0(wdr, " * ", w)
-        ),
-        # mRNA production
-        reaction(
-          name = paste0("mrna_production_", fid),
-          effect = set_names(1, x),
-          propensity = paste0(xpr, " * ", w)
+          name = paste0("splicing_", fid),
+          effect = set_names(c(1, -1), c(x, w)),
+          propensity = paste0(spl, " * ", w)
         ),
         # mRNA degradation
         reaction(
@@ -277,7 +266,7 @@ kinetics_default <- function(
   # extract m to qr, d, p, q, and a0
   feature_params <- 
     model$feature_info %>% 
-    select(feature_id, wpr, wdr, xpr, xdr, ypr, ydr, a0) %>% 
+    select(feature_id, wpr, spl, xdr, ypr, ydr, a0) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 
