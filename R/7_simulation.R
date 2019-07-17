@@ -99,7 +99,7 @@ simulation_default <- function(
   
   if (sim_params$burn_time > 0) {
     burn_reactions <- reactions
-    burn_reactions$state_change[-match(sim_system$burn_variables, sim_system$molecule_ids), ] <- 0
+    burn_reactions$state_change[match(setdiff(sim_system$molecule_ids, sim_system$burn_variables), sim_system$molecule_ids), ] <- 0
     
     # burn in
     out <- fastgssa::ssa(

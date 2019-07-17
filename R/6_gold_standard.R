@@ -151,7 +151,7 @@ gold_standard_default <- function(
     
     # generate nus
     new_reactions <- reactions
-    new_reactions$state_change[-match(molecules_on, tf_molecules), ] <- 0
+    new_reactions$state_change[match(setdiff(tf_molecules, molecules_on), tf_molecules), ] <- 0
     
     # simulation of gold standard edge
     out <- fastgssa::ssa(
