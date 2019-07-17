@@ -119,7 +119,7 @@ feature_network_default <- function(
 
 #' @export
 #' @rdname generate_feature_network
-feature_network_random_realnet <- function() {
+.feature_network_random_realnet <- function() {
   data(realnets, package = "dyngen", envir = environment())
   sample(realnets$name, 1)
 }

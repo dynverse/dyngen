@@ -3,7 +3,7 @@
 \name{generate_feature_network}
 \alias{generate_feature_network}
 \alias{feature_network_default}
-\alias{feature_network_random_realnet}
+\alias{.feature_network_random_realnet}
 \title{Generate a target network}
 \usage{
 generate_feature_network(model)
@@ -11,7 +11,7 @@ generate_feature_network(model)
 feature_network_default(realnet = .feature_network_random_realnet(),
   damping = 0.05, target_resampling = Inf, max_in_degree = 5)
 
-feature_network_random_realnet()
+.feature_network_random_realnet()
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the transcription network has been generated with \code{\link[=generate_tf_network]{generate_tf_network()}}.}
