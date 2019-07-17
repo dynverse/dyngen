@@ -15,8 +15,8 @@
 #' @importFrom fastgssa ssa
 #' @export
 generate_cells <- function(model) {
-  if (model$verbose) cat("Precompiling propensity functions for simulations\n")
-  propensity_funs <- .generate_cells_precompile_propensity_funs(model)
+  if (model$verbose) cat("Precompiling reactions for simulations\n")
+  reactions <- .generate_cells_precompile_reactions(model)
   
   # simulate cells one by one
   if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")
@@ -26,7 +26,7 @@ generate_cells <- function(model) {
       cl = model$num_cores,
       FUN = .generate_cells_simulate_cell,
       model = model,
-      propensity_funs = propensity_funs
+      reactions = reactions
     )
   
   # split up simulation data
@@ -71,40 +71,40 @@ simulation_default <- function(
   )
 }
 
-#' @importFrom fastgssa compile_propensity_functions
-.generate_cells_precompile_propensity_funs <- function(model) {
+#' @importFrom fastgssa compile_reactions
+.generate_cells_precompile_reactions <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
-  formulae <- sim_system$formulae
+  reactions <- sim_system$reactions 
+  
+  buffer_ids <- unique(unlist(map(reactions, "buffer_ids")))
   
   # compile prop funs
-  comp_funs <- fastgssa::compile_propensity_functions(
-    propensity_funs = formulae$formula,
-    buffer_ids = unlist(formulae$buffer_ids),
+  comp_funs <- fastgssa::compile_reactions(
+    reactions = reactions,
+    buffer_ids = buffer_ids,
     state_ids = names(sim_system$initial_state),
     params = sim_system$parameters,
-    hardcode_params = TRUE,
-    write_rcpp = "~/fastgssa.cpp"
+    hardcode_params = TRUE
   )
   
   comp_funs
 }
 
-.generate_cells_simulate_cell <- function(simulation_i, model, propensity_funs, verbose = FALSE) {
+.generate_cells_simulate_cell <- function(simulation_i, model, reactions, verbose = FALSE) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
   set.seed(sim_params$seeds[[simulation_i]])
   
   if (sim_params$burn_time > 0) {
-    nus_burn <- sim_system$nus
-    nus_burn[setdiff(rownames(nus_burn), sim_system$burn_variables),] <- 0
+    burn_reactions <- reactions
+    burn_reactions$state_change[-match(sim_system$burn_variables, sim_system$molecule_ids), ] <- 0
     
     # burn in
     out <- fastgssa::ssa(
       initial_state = sim_system$initial_state,
-      propensity_funs = propensity_funs,
-      nu = nus_burn,
+      reactions = burn_reactions,
       final_time = sim_params$burn_time,
       census_interval = sim_params$census_interval,
       params = sim_system$parameters,
@@ -133,8 +133,7 @@ simulation_default <- function(
   # actual simulation
   out <- fastgssa::ssa(
     initial_state = new_initial_state, 
-    propensity_funs = propensity_funs,
-    nu = sim_system$nus,
+    reactions = reactions,
     final_time = sim_params$total_time, 
     census_interval = sim_params$census_interval,
     params = sim_system$parameters,

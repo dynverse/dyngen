@@ -17,8 +17,8 @@ generate_gold_standard <- function(model) {
   model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model$backbone$expression_patterns)
   
   # precompile propensity functions
-  if (model$verbose) cat("Precompiling propensity functions for gold standard\n")
-  prep_data <- .generate_gold_precompile_propensity_funs(model)
+  if (model$verbose) cat("Precompiling reactions for gold standard\n")
+  prep_data <- .generate_gold_precompile_reactions(model)
   
   # run gold standard simulations
   if (model$verbose) cat("Running gold simulations\n")
@@ -69,8 +69,8 @@ gold_standard_default <- function(
     ungroup()
 }
 
-#' @importFrom fastgssa compile_propensity_functions
-.generate_gold_precompile_propensity_funs <- function(model) {
+#' @importFrom fastgssa compile_reactions
+.generate_gold_precompile_reactions <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
@@ -78,17 +78,15 @@ gold_standard_default <- function(
   # select relevant functions
   tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
   
-  # filter propensity functions
-  formulae <-
-    sim_system$formulae %>% 
-    filter(molecule %in% tf_molecules)
+  # filter reactions
+  reactions <- sim_system$reactions %>% 
+    keep(~ all(names(.$effect) %in% tf_molecules))
   
-  # filter nus
-  nus <- sim_system$nus[tf_molecules, formulae$formula_id, drop = FALSE]
+  buffer_ids <- unique(unlist(map(reactions, "buffer_ids")))
   
-  comp_funs <- fastgssa::compile_propensity_functions(
-    propensity_funs = formulae$formula,
-    buffer_ids = unlist(formulae$buffer_ids),
+  comp_funs <- fastgssa::compile_reactions(
+    reactions = reactions,
+    buffer_ids = buffer_ids,
     state_ids = tf_molecules,
     params = sim_system$parameters,
     hardcode_params = TRUE
@@ -96,8 +94,7 @@ gold_standard_default <- function(
   
   lst(
     tf_molecules,
-    nus,
-    propensity_funs = comp_funs
+    reactions = comp_funs
   )
 }
 
@@ -115,8 +112,7 @@ gold_standard_default <- function(
   
   # select relevant functions
   tf_molecules <- prep_data$tf_molecules
-  nus <- prep_data$nus
-  propensity_funs <- prep_data$propensity_funs
+  reactions <- prep_data$reactions
   
   # start constructing golds
   gold_sim_outputs <- list()
@@ -154,14 +150,13 @@ gold_standard_default <- function(
     new_initial_state <- rowMeans(gold_sim_vectors[[from_]])
     
     # generate nus
-    new_nus <- nus
-    new_nus[!rownames(new_nus) %in% molecules_on] <- 0
+    new_reactions <- reactions
+    new_reactions$state_change[-match(molecules_on, tf_molecules), ] <- 0
     
     # simulation of gold standard edge
     out <- fastgssa::ssa(
       initial_state = new_initial_state,
-      propensity_funs = propensity_funs,
-      nu = new_nus,
+      reactions = new_reactions,
       final_time = time,
       params = sim_system$parameters,
       method = algo,

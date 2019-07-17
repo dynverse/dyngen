@@ -39,17 +39,6 @@ generate_kinetics <- function(model) {
   # extract params
   parameters <- .kinetics_extract_parameters(model)
   
-  # extract nus
-  nus <- 
-    formulae %>% 
-    {Matrix::sparseMatrix(
-      i = match(.$molecule, molecule_ids),
-      j = seq_len(nrow(.)),
-      x = .$effect, 
-      dims = c(length(molecule_ids), nrow(.)),
-      dimnames = list(molecule_ids, .$formula_id)
-    )}
-  
   # determine variables to be used during burn in
   burn_variables <- 
     model$feature_info %>% 
@@ -60,11 +49,10 @@ generate_kinetics <- function(model) {
     
   # return system
   model$simulation_system <- lst(
-    formulae, 
+    reactions = formulae, 
     molecule_ids,
     initial_state,
     parameters,
-    nus,
     burn_variables
   )
   
@@ -158,6 +146,7 @@ kinetics_default <- function(
   model
 }
 
+#' @importFrom fastgssa reaction
 .kinetics_generate_formulae <- function(model) {
   if (model$verbose) cat("Generating formulae\n")
   
@@ -179,12 +168,10 @@ kinetics_default <- function(
     )
   
   # generate formula per feature
-  bind_rows(pbapply::pblapply(
+  out <- pbapply::pblapply(
     seq_len(nrow(feature_info)),
     cl = model$num_cores,
     function(i) {
-      formulae <- list()
-      
       info <- feature_info %>% extract_row_to_list(i)
       
       fid <- info$feature_id
@@ -201,8 +188,6 @@ kinetics_default <- function(
       ydr <- paste0("ydr_", fid)
       
       a0 <- paste0("a0_", fid)
-      
-      wpr_id <- paste0("premrna_production_", fid)
       
       if (!is.null(info$regulators)) {
         rid <- info$regulators$from
@@ -234,80 +219,58 @@ kinetics_default <- function(
           }
         denominator <- paste(regulation_var, collapse = " * ")
         
-        wpr_function <- paste0(reg_affinity_calc, wpr_id, " = ", wpr, " * (", numerator, ")/(", denominator, ")")
+        wpr_function <- paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
       } else {
-        wpr_function <- paste0(wpr_id, " = ", wpr, " * ", a0)
+        wpr_function <- paste0(wpr, " * ", a0)
         regulation_var <- character()
       }
       
-      # pre-mRNA production
-      formulae[[length(formulae)+1]] <- 
-        tibble(
-          formula_id = wpr_id,
-          formula = wpr_function,
-          effect = 1,
-          molecule = w,
-          buffer_ids = list(regulation_var)
+      formulae <- list(
+        # pre-mRNA production
+        reaction(
+          name = paste0("premrna_production_", fid),
+          effect = set_names(1, w),
+          propensity = wpr_function
+        ),
+        # pre-mRNA degradation
+        reaction(
+          name = paste0("premrna_degradation_", fid),
+          effect = set_names(-1, w),
+          propensity = paste0(wdr, " * ", w)
+        ),
+        # mRNA production
+        reaction(
+          name = paste0("mrna_production_", fid),
+          effect = set_names(1, x),
+          propensity = paste0(xpr, " * ", w)
+        ),
+        # mRNA degradation
+        reaction(
+          name = paste0("mrna_degradation_", fid),
+          effect = set_names(-1, x),
+          propensity = paste0(xdr, " * ", x)
+        ),
+        # protein production
+        reaction(
+          name = paste0("protein_production_", fid), 
+          effect = set_names(1, y),
+          propensity = paste0(ypr, " * ", x)
+        ),
+        # protein degradation
+        reaction(
+          name = paste0("protein_degradation_", fid),
+          effect = set_names(-1, y),
+          propensity = paste0(ydr, " * ", y)
         )
+      )
       
-      # pre-mRNA degradation
-      wdr_id <- paste0("premrna_degradation_", fid)
-      formulae[[length(formulae)+1]] <- 
-        tibble(
-          formula_id = wdr_id,
-          formula = paste0(wdr_id, " = ", wdr, " * ", w),
-          effect = -1,
-          molecule = w,
-          buffer_ids = list(character())
-        )
+      formulae[[1]]$buffer_ids <- regulation_var
       
-      # mRNA production
-      xpr_id <- paste0("mrna_production_", fid)
-      formulae[[length(formulae)+1]] <- 
-        tibble(
-          formula_id = xpr_id,
-          formula = paste0(xpr_id, " = ", xpr, " * ", w),
-          effect = 1,
-          molecule = x,
-          buffer_ids = list(character())
-        )
-      
-      # mRNA degradation
-      xdr_id <- paste0("mrna_degradation_", fid)
-      formulae[[length(formulae)+1]] <- 
-        tibble(
-          formula_id = xdr_id,
-          formula = paste0(xdr_id, " = ", xdr, " * ", x),
-          effect = -1,
-          molecule = x,
-          buffer_ids = list(character())
-        )
-      
-      # protein production
-      ypr_id <- paste0("protein_production_", fid)
-      formulae[[length(formulae)+1]] <- 
-        tibble(
-          formula_id = ypr_id,
-          formula = paste0(ypr_id, " = ", ypr, " * ", x),
-          effect = 1,
-          molecule = y,
-          buffer_ids = list(character())
-        )
-      
-      # protein degradation
-      ydr_id <- paste0("protein_degradation_", fid)
-      formulae[[length(formulae)+1]] <- 
-        tibble(
-          formula_id = ydr_id,
-          formula = paste0(ydr_id, " = ", ydr, " * ", y),
-          effect = -1,
-          molecule = y,
-          buffer_ids = list(character())
-        )
-      
-      bind_rows(formulae)
+      formulae
     }
-  ))
+  )
+  
+  unlist(out, recursive = FALSE)
 }
 
 .kinetics_extract_parameters <- function(model) {
