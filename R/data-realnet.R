@@ -4,3 +4,10 @@
 #' 
 #' @docType data
 "realnets"
+
+#' A set of real single cell expression datasets
+#' 
+#' Statistics are derived from these datasets in order to simulate single cell experiments.
+#' 
+#' @docType data
+"realcounts"
