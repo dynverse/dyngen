@@ -13,10 +13,11 @@
 #' @param pct_between \[synchronised\] The percentage of 'unused' simulation time.
 #' @param realcount The name of a dataset in [realcounts]. If `NULL`, a random
 #'   dataset will be sampled from [realcounts].
+#' @param sample_capture_rate A function that samples values for the simulated capture rates of genes.
 #' 
 #' @rdname generate_experiment
 #' 
-#' @importFrom stats rmultinom rnorm
+#' @importFrom stats rmultinom rnorm quantile
 #' @export
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")

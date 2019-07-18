@@ -24,6 +24,8 @@ experiment_synchronised(realcount = NULL,
 \item{realcount}{The name of a dataset in \link{realcounts}. If \code{NULL}, a random
 dataset will be sampled from \link{realcounts}.}
 
+\item{sample_capture_rate}{A function that samples values for the simulated capture rates of genes.}
+
 \item{weight_bw}{[snapshot] A bandwidth parameter for determining the distribution of
 cells along each edge in order to perform weighted sampling.}
 
