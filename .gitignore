@@ -1,21 +1,6 @@
-# History files
-.Rhistory
-.Rapp.history
-
-# Example code in package build process
-*-Ex.R
-# RStudio files
-.Rproj.user/
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
+*.DS_Store
 .Rproj.user
-README.html
-*.RData
-results/*
-packrat/lib*/
-packrat/src/
-data/*
-raw_data
-inst/doc
-.DS_Store
+.Rhistory
+.RData
+.Ruserdata
+.httr-oauth
