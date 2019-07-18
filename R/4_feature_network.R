@@ -6,6 +6,7 @@
 #' 
 #' @param model A dyngen intermediary model for which the transcription network has been generated with [generate_tf_network()].
 #' @param realnet The name of a gene regulatory network (GRN) in [realnets]. 
+#'   If `NULL`, a random network will be sampled from [realnets].
 #'   Alternatively, a custom GRN can be used by passing a weighted sparse matrix.
 #' @param damping A damping factor used for the page rank algorithm used to subsample the realnet.
 #' @param target_resampling How many targets / HKs to sample from the realnet per iteration.
@@ -104,24 +105,21 @@ generate_feature_network <- function(
 #' @export
 #' @rdname generate_feature_network
 feature_network_default <- function(
-  realnet = .feature_network_random_realnet(),
+  realnet = NULL,
   damping = 0.05,
   target_resampling = Inf,
   max_in_degree = 5
 ) {
+  if (is.null(realnet)) {
+    data(realnets, package = "dyngen", envir = environment())
+    realnet <- sample(realnets$name, 1)
+  }
   lst(
     realnet,
     damping,
     target_resampling,
     max_in_degree
   )
-}
-
-#' @export
-#' @rdname generate_feature_network
-.feature_network_random_realnet <- function() {
-  data(realnets, package = "dyngen", envir = environment())
-  sample(realnets$name, 1)
 }
 
 #' @importFrom utils data

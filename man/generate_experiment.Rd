@@ -11,12 +11,18 @@ generate_experiment(model)
 
 list_experiment_samplers()
 
-experiment_snapshot(weight_bw = 0.1)
+experiment_snapshot(realcount = NULL, sample_capture_rate = function(n)
+  rnorm(n, 1, 0.05) \%>\% pmax(0), weight_bw = 0.1)
 
-experiment_synchronised(num_timepoints = 8, pct_between = 0.75)
+experiment_synchronised(realcount = NULL,
+  sample_capture_rate = function(n) rnorm(n, 1, 0.05) \%>\% pmax(0),
+  num_timepoints = 8, pct_between = 0.75)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
+
+\item{realcount}{The name of a dataset in \link{realcounts}. If \code{NULL}, a random
+dataset will be sampled from \link{realcounts}.}
 
 \item{weight_bw}{[snapshot] A bandwidth parameter for determining the distribution of
 cells along each edge in order to perform weighted sampling.}

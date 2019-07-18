@@ -4,10 +4,11 @@
 #' 
 #' @param model A dyngen output model for which the experiment has been emulated with [generate_experiment()].
 #' @param store_grn Whether or not to also store GRN information.
+#' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
 #' 
 #' @export
 #' @importFrom dynwrap wrap_expression add_trajectory add_dimred
-wrap_dataset <- function(model, store_grn = FALSE) {
+wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
   dataset <- wrap_expression(
     counts = model$experiment$xcounts,
     expression = as(log2(model$experiment$xcounts + 1), "dgCMatrix"),
@@ -19,17 +20,21 @@ wrap_dataset <- function(model, store_grn = FALSE) {
     add_trajectory(
       milestone_network = model$gold_standard$network,
       progressions = model$experiment$cell_info %>% select(cell_id, from, to, percentage = time)
-    ) %>% 
-    add_dimred(
-      dimred = model$simulations$dimred[model$experiment$cell_info$step_ix, ] %>% 
-        magrittr::set_rownames(model$experiment$cell_info$cell_id),
-      dimred_projected = model$simulations$dimred_projected[model$experiment$cell_info$step_ix, ] %>% 
-        magrittr::set_rownames(model$experiment$cell_info$cell_id),
-      dimred_segment_points = model$gold_standard$dimred[!model$gold_standard$meta$burn,],
-      dimred_segment_progressions = model$gold_standard$meta[!model$gold_standard$meta$burn,] %>% 
-        select(from, to, percentage = time),
-      pair_with_velocity = TRUE
     )
+  
+  if (store_dimred) {
+    dataset <- dataset %>% 
+      add_dimred(
+        dimred = model$simulations$dimred[model$experiment$cell_info$step_ix, ] %>% 
+          magrittr::set_rownames(model$experiment$cell_info$cell_id),
+        dimred_projected = model$simulations$dimred_projected[model$experiment$cell_info$step_ix, ] %>% 
+          magrittr::set_rownames(model$experiment$cell_info$cell_id),
+        dimred_segment_points = model$gold_standard$dimred[!model$gold_standard$meta$burn,],
+        dimred_segment_progressions = model$gold_standard$meta[!model$gold_standard$meta$burn,] %>% 
+          select(from, to, percentage = time),
+        pair_with_velocity = TRUE
+      )
+  }
   
   # add a few more values
   if (store_grn) {

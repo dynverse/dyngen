@@ -3,20 +3,18 @@
 \name{generate_feature_network}
 \alias{generate_feature_network}
 \alias{feature_network_default}
-\alias{.feature_network_random_realnet}
 \title{Generate a target network}
 \usage{
 generate_feature_network(model)
 
-feature_network_default(realnet = .feature_network_random_realnet(),
-  damping = 0.05, target_resampling = Inf, max_in_degree = 5)
-
-.feature_network_random_realnet()
+feature_network_default(realnet = NULL, damping = 0.05,
+  target_resampling = Inf, max_in_degree = 5)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the transcription network has been generated with \code{\link[=generate_tf_network]{generate_tf_network()}}.}
 
 \item{realnet}{The name of a gene regulatory network (GRN) in \link{realnets}.
+If \code{NULL}, a random network will be sampled from \link{realnets}.
 Alternatively, a custom GRN can be used by passing a weighted sparse matrix.}
 
 \item{damping}{A damping factor used for the page rank algorithm used to subsample the realnet.}
