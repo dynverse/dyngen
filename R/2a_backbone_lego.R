@@ -87,8 +87,8 @@ bblego_linear <- function(
     assert_that(num_modules >= 2)
     
     a0s <- c(0, rep(1, num_modules-1), 0)
-    if (num_modules %% 2 == 1) {
-      a0s[[1]] <- 0
+    if (num_modules %% 2 == 0) {
+      a0s[[2]] <- 0
     }
     module_info <- module_info %>% mutate(
       a0 = a0s %>% head(-1),
@@ -99,7 +99,7 @@ bblego_linear <- function(
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = ifelse(a0s[-1] == 1, -1, 1),
+        effect = ifelse(a0s[-1] > 0, -1, 1),
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
       )
