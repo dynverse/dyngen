@@ -440,7 +440,7 @@ backbone_linear <- function(num_modules = 5) {
     bblego_start("A"),
     bblego_linear("A", "B"),
     bblego_linear("B", "C"),
-    bblego_end("C"),
+    bblego_end("C")
   )
 }
 
