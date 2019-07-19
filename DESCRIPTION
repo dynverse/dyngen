@@ -57,8 +57,8 @@ Suggests:
   knitr,
   rmarkdown,
   testthat
-Remotes:
-  r-lib/rlang,
-  dynverse/dynwrap@devel,
-  rcannood/gillespie@devel
+Remotes: 
+    r-lib/rlang,
+    rcannood/gillespie@devel,
+    dynverse/dynwrap@master
 VignetteBuilder: knitr
