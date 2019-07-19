@@ -112,6 +112,7 @@ simulation_default <- function(
       census_interval = sim_params$census_interval,
       params = sim_system$parameters,
       method = sim_params$ssa_algorithm,
+      stop_on_neg_state = FALSE,
       verbose = verbose
     )
     
@@ -139,6 +140,7 @@ simulation_default <- function(
     census_interval = sim_params$census_interval,
     params = sim_system$parameters,
     method = sim_params$ssa_algorithm,
+    stop_on_neg_state = FALSE,
     verbose = verbose
   )
   
