@@ -212,111 +212,69 @@ backbone_branching <- function(
     min_degree <= max_degree
   )
   
-  milnet <- tribble(
-    ~from, ~to, ~modules,
-    "sBurn", "sA", paste0("A", seq_len(3)),
-    "sA", "sB", paste0("B", seq_len(2))
+  statenet <- tribble(
+    ~from, ~to,
+    "sA", "sB",
+    "sB", "sC"
   )
-  num_nodes <- 2
+  num_nodes <- 3
   
   for (i in seq_len(num_modifications)) {
-    j <- if (nrow(milnet) == 2) 2 else sample(2:nrow(milnet), 1)
-    from_ <- milnet$from[[j]]
-    to_ <- milnet$to[[j]]
+    j <- if (nrow(statenet) == 2) 2 else sample(2:nrow(statenet), 1)
+    from_ <- statenet$from[[j]]
+    to_ <- statenet$to[[j]]
     num_new_nodes <- rbinom(1, size = max_degree - min_degree, 0.25) + min_degree - 1
     new_nodes <- paste0("s", LETTERS[num_nodes + seq_len(num_new_nodes)])
     num_nodes <- num_nodes + num_new_nodes
-    milnet <-
+    statenet <-
       bind_rows(
-        milnet %>% slice(seq_len(j-1)),
-        tibble(from = from_, to = new_nodes[[1]], modules = list(paste0(gsub("s", "", new_nodes[[1]]), seq_len(1)))),
-        milnet %>% slice(j) %>% mutate(from = new_nodes[[1]]),
-        tibble(from = new_nodes[[1]], to = new_nodes[-1], modules = map(to, ~ paste0(gsub("s", "", .), seq_len(sample(2:3, 1, prob = c(.75, .25)))))),
-        if (j != nrow(milnet)) milnet %>% slice(seq(j+1, nrow(milnet))) else NULL
+        statenet %>% slice(seq_len(j-1)),
+        tibble(from = from_, to = new_nodes[[1]]),
+        statenet %>% slice(j) %>% mutate(from = new_nodes[[1]]),
+        tibble(from = new_nodes[[1]], to = new_nodes[-1]),
+        if (j != nrow(statenet)) statenet %>% slice(seq(j+1, nrow(statenet))) else NULL
       )
   }
   
-  # determine which modules are repressing
-  milnet <- milnet %>% 
+  state_names <- statenet %>% as.matrix %>% t %>% as.vector %>% unique()
+  
+  state_name_map <- set_names(sort(state_names), state_names)
+  statenet <- statenet %>% 
     mutate(
-      double_repr =
-        from != "sBurn" &
-        map_int(modules, length) == 3
+      from = ifelse(from %in% names(state_name_map), state_name_map[from], from),
+      to = ifelse(to %in% names(state_name_map), state_name_map[to], to)
     )
   
-  module_info <- 
-    milnet %>%
-    unnest(modules) %>% 
-    transmute(
-      module_id = modules,
-      a0 = ifelse(module_id == "A1" | (double_repr & !grepl("^.1$", module_id)), 1, 0),
-      burn = a0 > 0
-    )
+  sngr <- 
+    statenet %>%
+    group_by(from) %>% 
+    summarise(tos = list(to)) %>% 
+    mutate(from = factor(from, state_name_map)) %>% 
+    arrange(from)
+    
   
-  module_network <- 
-    map_df(seq_len(nrow(milnet)), function(i) {
-      from_ <- milnet$from[[i]]
-      mods <- milnet$modules[[i]]
-      net <- 
-        tibble(
-          from = mods[-length(mods)],
-          to = mods[-1]
-        )
-      if (from_ != "sBurn") {
-        net <- bind_rows(
-          tibble(
-            from = milnet %>% filter(to == from_) %>% pull(modules) %>% first() %>% last(),
-            to = mods[[1]]
-          ),
-          net
-        )
+  bblego_list <- c(
+    list(bblego_start(statenet %>% filter(!from %in% to) %>% pull(from))),
+    map(
+      seq_len(nrow(sngr)), 
+      function(i) {
+        from_node <- sngr$from[[i]] %>% as.character()
+        to_node <- sngr$tos[[i]]
+        
+        if (length(to_node) == 1) {
+          bblego_linear(from = from_node, to = to_node)
+        } else {
+          bblego_branching(from = from_node, to = to_node)
+        }
       }
-      net
-    }) %>% 
-    left_join(
-      module_info %>% transmute(
-        to = module_id,
-        effect = ifelse(a0 > 0, -1, 1),
-        strength = ifelse(a0 > 0, 10, 1),
-        cooperativity = 2
-      ), by = "to")
-  
-  module_network <- 
-    inner_join(
-      milnet %>% transmute(buff = from, from = map_chr(modules, first)),
-      milnet %>% transmute(buff = from, to = map_chr(modules, first)),
-      by = "buff"
-    ) %>% 
-    group_by(buff) %>% 
-    filter(n() > 1) %>% 
-    ungroup() %>% 
-    select(-buff) %>% 
-    mutate(
-      effect = ifelse(from != to, -1, 1),
-      strength = ifelse(from != to, 20, 1),
-      cooperativity = 2
-    ) %>% 
-    bind_rows(module_network)
-  
-  expression_patterns <- 
-    milnet %>% 
-    transmute(
-      from,
-      to,
-      module_progression = map_chr(modules, ~ paste0("+", ., collapse = ",")),
-      start = from == "sBurn",
-      burn = from == "sBurn",
-      time = map_int(modules, length)
+    ),
+    map(
+      statenet %>% filter(!to %in% from) %>% pull(to) %>% sort(), 
+      bblego_end
     )
+  )
   
-  # add burn modules (diplicates are okay)
-  expression_patterns$module_progression[[1]] <- 
-    paste0(
-      expression_patterns$module_progression[[1]],
-      paste0(",+", module_info %>% filter(burn) %>% pull(module_id), collapse = "")
-    )
-  
-  backbone(module_info, module_network, expression_patterns)
+  bblego(.list = bblego_list)
 }
 
 #' @export
