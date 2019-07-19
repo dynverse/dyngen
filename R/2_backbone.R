@@ -86,7 +86,7 @@ backbone <- function(
   expression_patterns$module_progression[[1]] <- 
     c(
       strsplit(expression_patterns$module_progression[[1]], ",")[[1]],
-      paste0("+", module_info %>% filter(burn) %>% pull(module_id))
+      paste0("+", module_info %>% filter(a0 > 0) %>% pull(module_id))
     ) %>% 
     unique() %>% 
     paste(collapse = ",")
