@@ -113,7 +113,8 @@ simulation_default <- function(
       params = sim_system$parameters,
       method = sim_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
-      verbose = verbose
+      verbose = verbose,
+      store_buffer = TRUE
     )
     
     burn_meta <- 
@@ -141,7 +142,8 @@ simulation_default <- function(
     params = sim_system$parameters,
     method = sim_params$ssa_algorithm,
     stop_on_neg_state = FALSE,
-    verbose = verbose
+    verbose = verbose,
+    store_buffer = TRUE
   )
   
   meta <- 
