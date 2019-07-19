@@ -58,7 +58,7 @@ bblego_linear <- function(
   from, 
   to, 
   type = sample(c("simple", "double_repression", "flipflop"), 1),
-  num_modules = c(simple = 2, double_repression = 3, flipflop = 4)[[type]],
+  num_modules = sample(4:6, 1),
   burn = FALSE
 ) {
   assert_that(num_modules >= 1)

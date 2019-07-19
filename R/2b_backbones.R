@@ -1,48 +1,13 @@
 #' @export
 #' @rdname backbone_models
 backbone_bifurcating <- function() {
-  # backbone <- bblego(
-  #   bblego_start("A", num_modules = 2, type = "simple"),
-  #   bblego_linear("A", "B", num_modules = 5),
-  #   bblego_branching("B", c("C", "D"), num_modules = 4, type = "simple"),
-  #   bblego_end("C", num_modules = 4),
-  #   bblego_end("D", num_modules = 4)
-  # )
-  
-  module_info <- tribble(
-    ~module_id, ~a0, ~burn,
-    "A1", 1, TRUE,
-    "B1", 0, FALSE,
-    "B2", 0, FALSE,
-    "C1", 0, FALSE,
-    "C2", 0, FALSE,
-    "D1", 0, FALSE,
-    "D2", 1, TRUE
+  bblego(
+    bblego_start("A"),
+    bblego_linear("A", "B"),
+    bblego_branching("B", c("C", "D")),
+    bblego_end("C"),
+    bblego_end("D")
   )
-  
-  module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "B1", 1, 1, 2,
-    "B1", "B2", 1, 1, 2,
-    "B2", "C1", 1, 1, 2,
-    "B2", "D1", 1, 1, 2,
-    "C1", "C1", 1, 2, 2,
-    "D1", "D1", 1, 2, 2,
-    "C1", "D1", -1, 100, 2,
-    "D1", "C1", -1, 100, 2,
-    "C1", "C2", 1, 1, 2,
-    "D1", "D2", -1, 3, 2
-  )
-  
-  expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn", "sA", "+A1,+D2", TRUE, TRUE, 2,
-    "sA", "sB", "-D2,+B1,+B2", FALSE, FALSE, 1,
-    "sB", "sC", "+C1,+C2", FALSE, FALSE, 3,
-    "sB", "sD", "+D1,+D2", FALSE, FALSE, 3
-  )
-  
-  backbone(module_info, module_network, expression_patterns)
 }
 
 
@@ -471,26 +436,12 @@ backbone_cycle <- function() {
 #' @export
 #' @rdname backbone_models
 backbone_linear <- function(num_modules = 5) {
-  module_info <- bind_rows(
-    tibble(module_id = "A1", a0 = 1, burn = TRUE),
-    tibble(module_id = paste0("B", seq_len(num_modules-1)), a0 = 0, burn = FALSE)
+  bblego(
+    bblego_start("A"),
+    bblego_linear("A", "B"),
+    bblego_linear("B", "C"),
+    bblego_end("C"),
   )
-  
-  module_network <- tibble(
-    from = module_info$module_id[-num_modules],
-    to = module_info$module_id[-1],
-    effect = 1,
-    strength = 1,
-    cooperativity = 2
-  )
-  
-  expression_patterns <- tribble(
-    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn", "sA", "+A1", TRUE, TRUE, 2,
-    "sA", "sB", paste(paste0("+B", seq_len(num_modules-1)), collapse = ","), FALSE, FALSE, num_modules - 1
-  )
-  
-  backbone(module_info, module_network, expression_patterns)
 }
 
 
