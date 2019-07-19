@@ -92,7 +92,7 @@ bblego_linear <- function(
     }
     module_info <- module_info %>% mutate(
       a0 = a0s %>% head(-1),
-      burn = a0 > 0
+      burn = burn | a0 > 0
     )
     
     module_network <- 
@@ -109,7 +109,7 @@ bblego_linear <- function(
     module_info <- tibble(
       module_id = module_ids %>% head(-1),
       a0 = 0,
-      burn = FALSE
+      burn = burn
     )
     
     module_network <- bind_rows(
