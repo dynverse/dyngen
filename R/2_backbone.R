@@ -91,6 +91,8 @@ backbone <- function(
     unique() %>% 
     paste(collapse = ",")
   
+  expression_patterns$time <- as.numeric(expression_patterns$time)
+  
   lst(
     module_info, 
     module_network, 
