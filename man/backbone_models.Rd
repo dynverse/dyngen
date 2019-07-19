@@ -39,7 +39,7 @@ backbone_converging()
 
 backbone_cycle()
 
-backbone_linear(num_modules = 5)
+backbone_linear()
 
 backbone_disconnected()
 }
@@ -49,8 +49,6 @@ backbone_disconnected()
 \item{min_degree}{The minimum degree of each node in the backbone.}
 
 \item{max_degree}{The maximum degree of each node in the backbone.}
-
-\item{num_modules}{The number of modules in the generated backbone.}
 }
 \description{
 A module is a group of genes which, to some extent, shows the same

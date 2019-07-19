@@ -432,10 +432,9 @@ backbone_cycle <- function() {
   backbone(module_info, module_network, expression_patterns)
 }
 
-#' @param num_modules The number of modules in the generated backbone.
 #' @export
 #' @rdname backbone_models
-backbone_linear <- function(num_modules = 5) {
+backbone_linear <- function() {
   bblego(
     bblego_start("A"),
     bblego_linear("A", "B"),
