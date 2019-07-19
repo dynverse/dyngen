@@ -164,8 +164,6 @@ gold_standard_default <- function(
       params = sim_system$parameters,
       method = algo,
       census_interval = gold_params$census_interval,
-      hardcode_params = TRUE,
-      stop_on_neg_state = FALSE,
       verbose = FALSE
     )
     
