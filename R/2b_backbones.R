@@ -2,7 +2,7 @@
 #' @rdname backbone_models
 backbone_bifurcating <- function() {
   bblego(
-    bblego_start("A"),
+    bblego_start("A", type = "simple"),
     bblego_linear("A", "B"),
     bblego_branching("B", c("C", "D")),
     bblego_end("C"),
@@ -254,7 +254,7 @@ backbone_branching <- function(
     
   
   bblego_list <- c(
-    list(bblego_start(statenet %>% filter(!from %in% to) %>% pull(from))),
+    list(bblego_start(statenet %>% filter(!from %in% to) %>% pull(from), type = "simple")),
     map(
       seq_len(nrow(sngr)), 
       function(i) {
@@ -394,7 +394,7 @@ backbone_cycle <- function() {
 #' @rdname backbone_models
 backbone_linear <- function() {
   bblego(
-    bblego_start("A"),
+    bblego_start("A", type = "simple"),
     bblego_linear("A", "B"),
     bblego_linear("B", "C"),
     bblego_end("C")
