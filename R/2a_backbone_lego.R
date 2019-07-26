@@ -57,7 +57,7 @@ bblego <- function(..., .list = NULL) {
 bblego_linear <- function(
   from, 
   to, 
-  type = sample(c("simple", "double_repression", "flipflop"), 1),
+  type = sample(c("simple", "doublerep", "doublerep_cleanstart", "flipflop"), 1),
   num_modules = sample(4:6, 1),
   burn = FALSE
 ) {
@@ -83,7 +83,7 @@ bblego_linear <- function(
         strength = 1,
         cooperativity = 2
       )
-  } else if (type == "double_repression") {
+  } else if (type == "doublerep") {
     assert_that(num_modules >= 2)
     
     a0s <- c(0, rep(1, num_modules-1), 0)
@@ -102,6 +102,33 @@ bblego_linear <- function(
         effect = ifelse(a0s[-1] > 0, -1, 1),
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
+      )
+  } else if (type == "doublerep_cleanstart") {
+    assertthat(num_modules >= 4)
+    pos_to <- 
+      if (num_modules %% 2 == 1) {
+        module_ids[c(2, num_modules, num_modules + 1)]
+      } else {
+        module_ids[c(2, num_modules + 1)]
+      }
+    module_network <- 
+      bind_rows(
+        tibble(
+          from = module_ids %>% head(-1),
+          to = module_ids %>% tail(-1),
+          effect = ifelse(to %in% pos_to, 1, -1),
+          # strength = ifelse(effect > 0, seq_along(effect), 1),
+          strength = 1,
+          cooperativity = 2
+        ),
+        tibble(
+          from = module_ids %>% head(-2),
+          to = module_ids %>% tail(-2),
+          effect = 1,
+          strength = seq_along(from),
+          cooperativity = 2
+        ) %>% 
+          top_n(ifelse(num_modules %% 2 == 1, n() - 1, n()))
       )
   } else if (type == "flipflop") {
     assert_that(num_modules >= 4)
