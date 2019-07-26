@@ -10,18 +10,18 @@
 \usage{
 bblego(..., .list = NULL)
 
-bblego_linear(from, to, type = sample(c("simple", "doublerep",
-  "doublerep_cleanstart", "flipflop"), 1), num_modules = sample(4:6, 1),
+bblego_linear(from, to, type = sample(c("simple", "doublerep1",
+  "doublerep2", "flipflop"), 1), num_modules = sample(4:6, 1),
   burn = FALSE)
 
 bblego_branching(from, to, type = "simple", num_modules = length(to) +
   1, burn = FALSE)
 
-bblego_start(to, type = sample(c("simple", "doublerep",
-  "doublerep_cleanstart", "flipflop"), 1), num_modules = sample(4:6, 1))
+bblego_start(to, type = sample(c("simple", "doublerep1", "doublerep2",
+  "flipflop"), 1), num_modules = sample(4:6, 1))
 
-bblego_end(from, type = sample(c("simple", "doublerep",
-  "doublerep_cleanstart", "flipflop"), 1), num_modules = sample(4:6, 1))
+bblego_end(from, type = sample(c("simple", "doublerep1", "doublerep2",
+  "flipflop"), 1), num_modules = sample(4:6, 1))
 }
 \arguments{
 \item{..., .list}{\code{bblego} components, either as separate args or as a list.}
@@ -35,8 +35,10 @@ bblego_end(from, type = sample(c("simple", "doublerep",
 \code{bblego_start()}, \code{bblego_linear()}, \code{bblego_end()}:
 \itemize{
 \item \code{"simple"}: a sequence of modules in which every module upregulates the next module.
-\item \code{"double_repression"}: a sequence of modules in which every module downregulates the next
+\item \code{"doublerep1"}: a sequence of modules in which every module downregulates the next
 module, and each module has positive basal expression.
+\item \code{"doublerep2"}: a sequence of modules in which every module upregulates the next
+module, but downregulates the one after that.
 \item \code{"flipflop"}: a sequence of modules in which every module upregulates the next module.
 In addition, the last module upregulates itself and strongly downregulates the first module.
 }
@@ -70,6 +72,6 @@ backbone <- bblego(
   bblego_linear("A", "B", type = "simple", num_modules = 3),
   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
   bblego_end("C", type = "flipflop", num_modules = 4),
-  bblego_end("D", type = "double_repression", num_modules = 7)
+  bblego_end("D", type = "doublerep1", num_modules = 7)
 )
 }

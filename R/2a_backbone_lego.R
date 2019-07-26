@@ -17,8 +17,10 @@
 #' `bblego_start()`, `bblego_linear()`, `bblego_end()`: 
 #' 
 #' * `"simple"`: a sequence of modules in which every module upregulates the next module.
-#' * `"double_repression"`: a sequence of modules in which every module downregulates the next
+#' * `"doublerep1"`: a sequence of modules in which every module downregulates the next
 #'   module, and each module has positive basal expression.
+#' * `"doublerep2"`: a sequence of modules in which every module upregulates the next 
+#'   module, but downregulates the one after that.
 #' * `"flipflop"`: a sequence of modules in which every module upregulates the next module.
 #'   In addition, the last module upregulates itself and strongly downregulates the first module.
 #'   
@@ -40,7 +42,7 @@
 #'   bblego_linear("A", "B", type = "simple", num_modules = 3),
 #'   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
 #'   bblego_end("C", type = "flipflop", num_modules = 4),
-#'   bblego_end("D", type = "double_repression", num_modules = 7)
+#'   bblego_end("D", type = "doublerep1", num_modules = 7)
 #' )
 bblego <- function(..., .list = NULL) {
   mods <- c(list(...), .list)
@@ -57,7 +59,7 @@ bblego <- function(..., .list = NULL) {
 bblego_linear <- function(
   from, 
   to, 
-  type = sample(c("simple", "doublerep", "doublerep_cleanstart", "flipflop"), 1),
+  type = sample(c("simple", "doublerep1", "doublerep2", "flipflop"), 1),
   num_modules = sample(4:6, 1),
   burn = FALSE
 ) {
@@ -83,7 +85,7 @@ bblego_linear <- function(
         strength = 1,
         cooperativity = 2
       )
-  } else if (type == "doublerep") {
+  } else if (type == "doublerep1") {
     assert_that(num_modules >= 2)
     
     a0s <- c(0, rep(1, num_modules-1), 0)
@@ -103,8 +105,8 @@ bblego_linear <- function(
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
       )
-  } else if (type == "doublerep_cleanstart") {
-    assertthat(num_modules >= 4)
+  } else if (type == "doublerep2") {
+    assert_that(num_modules >= 4)
     pos_to <- 
       if (num_modules %% 2 == 1) {
         module_ids[c(2, num_modules, num_modules + 1)]
@@ -154,6 +156,8 @@ bblego_linear <- function(
         nth(module_ids, -2), nth(module_ids, -2), 1, 1, 2
       )
     )
+  } else {
+    stop("Unknown 'type' parameter")
   }
   
   expression_patterns <- tibble(
