@@ -89,7 +89,7 @@ plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 The expression of the modules (average of TFs) can be visualised as follows.
 ```{r gold_pt, fig.width=10, fig.height=10}
 plot_gold_expression(model, what = "x") # mrna
-plot_gold_expression(model) # premrna, mrna, and protein
+plot_gold_expression(model, label_changing = FALSE) # premrna, mrna, and protein
 ```
 
 ### Step 6: Simulate cells.
