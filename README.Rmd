@@ -240,11 +240,10 @@ print(out$plot)
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](inst/NEWS.md) for a full list of changes.
+Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full list of changes.
 
-<!-- This section gets automatically generated from inst/NEWS.md, and also generates inst/NEWS -->
+<!-- This section gets automatically generated from NEWS.md -->
 
 ```{r news, echo=FALSE, results="asis"}
-dynutils::update_news()
 cat(dynutils::recent_news())
 ```
