@@ -89,7 +89,8 @@ gold_standard_default <- function(
     buffer_ids = buffer_ids,
     state_ids = tf_molecules,
     params = sim_system$parameters,
-    hardcode_params = TRUE
+    hardcode_params = FALSE,
+    fun_by = 10000L
   )
   
   lst(

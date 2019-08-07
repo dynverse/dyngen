@@ -85,7 +85,8 @@ simulation_default <- function(
     buffer_ids = buffer_ids,
     state_ids = names(sim_system$initial_state),
     params = sim_system$parameters,
-    hardcode_params = TRUE
+    hardcode_params = FALSE,
+    fun_by = 10000L
   )
   
   comp_funs
