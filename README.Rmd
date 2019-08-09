@@ -23,7 +23,7 @@ The backbone of a `dyngen` model is what determines the overall dynamic process
 that a cell will undergo during a simulation. It consists of a set of gene modules, which regulate
 eachother in such a way that expression of certain genes change over time in a specific manner.
 
-```{r init, message=FALSE}
+```{r init, message=FALSE, fig.width = 10, fig.height = 6}
 library(tidyverse)
 library(dyngen)
 
@@ -89,7 +89,7 @@ plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 The expression of the modules (average of TFs) can be visualised as follows.
 ```{r gold_pt, fig.width=10, fig.height=10}
 plot_gold_expression(model, what = "x") # mrna
-plot_gold_expression(model) # premrna, mrna, and protein
+plot_gold_expression(model, label_changing = FALSE) # premrna, mrna, and protein
 ```
 
 ### Step 6: Simulate cells.
@@ -218,10 +218,10 @@ Here is an example of a bifurcating trajectory.
 ```{r bblego, fig.width = 20, fig.height = 20}
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "simple", num_modules = 3),
+  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
-  bblego_end("C", type = "flipflop", num_modules = 4),
-  bblego_end("D", type = "double_repression", num_modules = 7)
+  bblego_end("C", type = "doublerep2", num_modules = 4),
+  bblego_end("D", type = "doublerep1", num_modules = 7)
 )
 
 out <- 
@@ -240,11 +240,10 @@ print(out$plot)
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](inst/NEWS.md) for a full list of changes.
+Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full list of changes.
 
-<!-- This section gets automatically generated from inst/NEWS.md, and also generates inst/NEWS -->
+<!-- This section gets automatically generated from NEWS.md -->
 
 ```{r news, echo=FALSE, results="asis"}
-dynutils::update_news()
 cat(dynutils::recent_news())
 ```

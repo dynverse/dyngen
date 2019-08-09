@@ -142,7 +142,7 @@ kinetics_default <- function(
   model
 }
 
-#' @importFrom gillespie reaction
+#' @importFrom GillespieSSA2 reaction
 .kinetics_generate_formulae <- function(model) {
   if (model$verbose) cat("Generating formulae\n")
   

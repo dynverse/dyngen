@@ -112,7 +112,7 @@ parameters of the SSA simulation.
 model <- generate_kinetics(model)
 ```
 
-    ## Generating kinetics for 57 features
+    ## Generating kinetics for 69 features
     ## Generating formulae
 
 ``` r
@@ -142,9 +142,11 @@ model <- generate_gold_standard(model)
     ## Running gold simulations
     ## 
       |                                                  | 0 % elapsed =00s  
-      |=============                                     | 25% elapsed =00s, remaining ~00s
+      |=========                                         | 17% elapsed =00s, remaining ~00s
+      |=================                                 | 33% elapsed =00s, remaining ~00s
       |=========================                         | 50% elapsed =00s, remaining ~00s
-      |======================================            | 75% elapsed =00s, remaining ~00s
+      |==================================                | 67% elapsed =00s, remaining ~00s
+      |==========================================        | 83% elapsed =00s, remaining ~00s
       |==================================================| 100% elapsed =00s, remaining ~00s
 
 ``` r
@@ -163,7 +165,7 @@ plot_gold_expression(model, what = "x") # mrna
 ![](man/figures/README_gold_pt-1.png)<!-- -->
 
 ``` r
-plot_gold_expression(model) # premrna, mrna, and protein
+plot_gold_expression(model, label_changing = FALSE) # premrna, mrna, and protein
 ```
 
 ![](man/figures/README_gold_pt-2.png)<!-- -->
@@ -428,10 +430,10 @@ Here is an example of a bifurcating trajectory.
 ``` r
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "simple", num_modules = 3),
+  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
-  bblego_end("C", type = "flipflop", num_modules = 4),
-  bblego_end("D", type = "double_repression", num_modules = 7)
+  bblego_end("C", type = "doublerep2", num_modules = 4),
+  bblego_end("D", type = "doublerep1", num_modules = 7)
 )
 
 out <- 
@@ -462,7 +464,7 @@ print(out$plot)
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](inst/NEWS.md) for a
+Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a
 full list of
 changes.
 

@@ -17,8 +17,10 @@
 #' `bblego_start()`, `bblego_linear()`, `bblego_end()`: 
 #' 
 #' * `"simple"`: a sequence of modules in which every module upregulates the next module.
-#' * `"double_repression"`: a sequence of modules in which every module downregulates the next
+#' * `"doublerep1"`: a sequence of modules in which every module downregulates the next
 #'   module, and each module has positive basal expression.
+#' * `"doublerep2"`: a sequence of modules in which every module upregulates the next 
+#'   module, but downregulates the one after that.
 #' * `"flipflop"`: a sequence of modules in which every module upregulates the next module.
 #'   In addition, the last module upregulates itself and strongly downregulates the first module.
 #'   
@@ -40,7 +42,7 @@
 #'   bblego_linear("A", "B", type = "simple", num_modules = 3),
 #'   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
 #'   bblego_end("C", type = "flipflop", num_modules = 4),
-#'   bblego_end("D", type = "double_repression", num_modules = 7)
+#'   bblego_end("D", type = "doublerep1", num_modules = 7)
 #' )
 bblego <- function(..., .list = NULL) {
   mods <- c(list(...), .list)
@@ -57,8 +59,8 @@ bblego <- function(..., .list = NULL) {
 bblego_linear <- function(
   from, 
   to, 
-  type = sample(c("simple", "double_repression", "flipflop"), 1),
-  num_modules = c(simple = 2, double_repression = 3, flipflop = 4)[[type]],
+  type = sample(c("simple", "doublerep1", "doublerep2", "flipflop"), 1),
+  num_modules = sample(4:6, 1),
   burn = FALSE
 ) {
   assert_that(num_modules >= 1)
@@ -83,25 +85,52 @@ bblego_linear <- function(
         strength = 1,
         cooperativity = 2
       )
-  } else if (type == "double_repression") {
+  } else if (type == "doublerep1") {
     assert_that(num_modules >= 2)
     
     a0s <- c(0, rep(1, num_modules-1), 0)
-    if (num_modules %% 2 == 1) {
-      a0s[[1]] <- 0
+    if (num_modules %% 2 == 0) {
+      a0s[[2]] <- 0
     }
     module_info <- module_info %>% mutate(
       a0 = a0s %>% head(-1),
-      burn = a0 > 0
+      burn = burn | a0 > 0
     )
     
     module_network <- 
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = ifelse(a0s[-1] == 1, -1, 1),
+        effect = ifelse(a0s[-1] > 0, -1, 1),
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
+      )
+  } else if (type == "doublerep2") {
+    assert_that(num_modules >= 4)
+    pos_to <- 
+      if (num_modules %% 2 == 1) {
+        module_ids[c(2, num_modules, num_modules + 1)]
+      } else {
+        module_ids[c(2, num_modules + 1)]
+      }
+    module_network <- 
+      bind_rows(
+        tibble(
+          from = module_ids %>% head(-1),
+          to = module_ids %>% tail(-1),
+          effect = ifelse(to %in% pos_to, 1, -1),
+          # strength = ifelse(effect > 0, seq_along(effect), 1),
+          strength = 1,
+          cooperativity = 2
+        ),
+        tibble(
+          from = module_ids %>% head(-2),
+          to = module_ids %>% tail(-2),
+          effect = 1,
+          strength = seq_along(from),
+          cooperativity = 2
+        ) %>% 
+          top_n(ifelse(num_modules %% 2 == 1, n() - 1, n()))
       )
   } else if (type == "flipflop") {
     assert_that(num_modules >= 4)
@@ -109,7 +138,7 @@ bblego_linear <- function(
     module_info <- tibble(
       module_id = module_ids %>% head(-1),
       a0 = 0,
-      burn = FALSE
+      burn = burn
     )
     
     module_network <- bind_rows(
@@ -127,6 +156,8 @@ bblego_linear <- function(
         nth(module_ids, -2), nth(module_ids, -2), 1, 1, 2
       )
     )
+  } else {
+    stop("Unknown 'type' parameter")
   }
   
   expression_patterns <- tibble(
@@ -135,10 +166,10 @@ bblego_linear <- function(
     module_progression = paste0("+", module_ids %>% head(-1), collapse = ","),
     start = FALSE,
     burn = burn,
-    time = case_when(
-      type == "flipflop" ~ num_modules * 2,
+    time = as.numeric(case_when(
+      type == "flipflop" ~ num_modules * 2L,
       TRUE ~ num_modules
-    )
+    ))
   )
   
   lst(module_info, module_network, expression_patterns)

@@ -1,6 +1,6 @@
 #' @importFrom tidygraph tbl_graph activate
 #' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
-#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line
+#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
 NULL
@@ -309,9 +309,10 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
 #' 
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_gold_standard()].
 #' @param what Which molecule types to visualise.
+#' @param label_changing Whether or not to add a label next to changing molecules.
 #' 
 #' @export
-plot_gold_expression <- function(model, what = c("w", "x", "y")) {
+plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing = TRUE) {
   edge_levels <- 
     model$gold_standard$mod_changes %>% 
     mutate(edge = paste0(from_, "->", to_)) %>% 
@@ -330,12 +331,25 @@ plot_gold_expression <- function(model, what = c("w", "x", "y")) {
     ungroup() %>% 
     filter(type %in% what)
   
-  ggplot(df) +
-    geom_line(aes(sim_time, value, colour = module_id, linetype = type, size = type)) +
+  g <- ggplot(df, aes(sim_time, value, colour = module_id)) +
+    geom_line(aes(linetype = type, size = type)) +
     scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~edge) +
     theme_bw()
+  
+  if (label_changing) {
+    g <- g +
+      geom_text(
+        aes(label = paste0(module_id, "_", type)), 
+        df %>% group_by(edge, module_id, type) %>% filter(sim_time == max(sim_time) & any(diff(value) > 0.01)) %>% ungroup,
+        hjust = 1, 
+        vjust = 0,
+        nudge_y = .15
+      )
+  }
+  
+  g
 }
 
 
