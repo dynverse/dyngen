@@ -130,7 +130,7 @@ bblego_linear <- function(
           strength = seq_along(from),
           cooperativity = 2
         ) %>% 
-          top_n(ifelse(num_modules %% 2 == 1, n() - 1, n()))
+          head(., ifelse(num_modules %% 2 == 1, nrow(.) - 1, nrow(.)))
       )
   } else if (type == "flipflop") {
     assert_that(num_modules >= 4)
