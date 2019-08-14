@@ -90,7 +90,7 @@ gold_standard_default <- function(
     state_ids = tf_molecules,
     params = sim_system$parameters,
     hardcode_params = FALSE,
-    fun_by = 10000L
+    fun_by = 1000L
   )
   
   lst(

@@ -181,20 +181,24 @@ bblego_branching <- function(
   from, 
   to, 
   type = "simple",
-  num_modules = length(to) + 1,
+  num_modules = length(to) * 2 + 1,
   burn = FALSE
 ) {
   assert_that(
     length(to) >= 2,
-    num_modules >= length(to) + 1
+    num_modules >= length(to) * 2 + 1
   )
   
-  lin_length <- num_modules - length(to)
+  lin_length <- num_modules - 2 * length(to)
   
   my_module_ids <- 
     paste0(from, seq_len(lin_length))
   our_module_ids <- 
     paste0(from, seq(lin_length + 1, num_modules))
+  our_module_ids1 <- 
+    our_module_ids[seq_len(length(our_module_ids) / 2)]
+  our_module_ids2 <- 
+    our_module_ids[-seq_len(length(our_module_ids) / 2)]
   their_module_ids <- 
     paste0(to, 1)
   module_ids <- c(my_module_ids, our_module_ids, their_module_ids)
@@ -215,40 +219,59 @@ bblego_branching <- function(
     ),
     tibble(
       from = last(my_module_ids),
-      to = our_module_ids,
+      to = our_module_ids1,
       effect = 1,
       strength = 1,
       cooperativity = 2
     ),
     tibble(
-      from = our_module_ids,
-      to = our_module_ids,
+      from = our_module_ids1,
+      to = our_module_ids1,
       effect = 1,
       strength = 5,
       cooperativity = 2
     ),
     tibble(
-      from = our_module_ids,
+      from = our_module_ids1,
+      to = our_module_ids2,
+      effect = 1,
+      strength = 1,
+      cooperativity = 2
+    ),
+    tibble(
+      from = our_module_ids1,
       to = first(my_module_ids),
       effect = -1,
       strength = 5,
       cooperativity = 2
     ),
     tibble(
-      from = our_module_ids,
+      from = our_module_ids2,
       to = their_module_ids,
       effect = 1,
       strength = 1,
       cooperativity = 2
     ),
     crossing(
-      from = our_module_ids,
-      to = our_module_ids
+      from = our_module_ids1,
+      to = our_module_ids1
     ) %>% 
       filter(from != to) %>% 
       mutate(
         effect = -1,
         strength = 100,
+        cooperativity = 2
+      ),
+    crossing(
+      from = seq_along(our_module_ids1),
+      to = seq_along(our_module_ids2)
+    ) %>% 
+      filter(from != to) %>% 
+      mutate(
+        from = our_module_ids1[from],
+        to = our_module_ids2[to],
+        effect = -1,
+        strength = 1000000,
         cooperativity = 2
       )
   )
@@ -262,7 +285,7 @@ bblego_branching <- function(
   expression_patterns <- tibble(
     from = paste0("s", from),
     to = paste0("s", to),
-    module_progression = paste0(in_edge, "+", our_module_ids),
+    module_progression = paste0(in_edge, "+", our_module_ids1, ",+", our_module_ids2),
     start = FALSE,
     burn = burn,
     time = num_modules + 1

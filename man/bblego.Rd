@@ -14,8 +14,8 @@ bblego_linear(from, to, type = sample(c("simple", "doublerep1",
   "doublerep2", "flipflop"), 1), num_modules = sample(4:6, 1),
   burn = FALSE)
 
-bblego_branching(from, to, type = "simple", num_modules = length(to) +
-  1, burn = FALSE)
+bblego_branching(from, to, type = "simple", num_modules = length(to) *
+  2 + 1, burn = FALSE)
 
 bblego_start(to, type = sample(c("simple", "doublerep1", "doublerep2",
   "flipflop"), 1), num_modules = sample(4:6, 1))
