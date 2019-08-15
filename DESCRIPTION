@@ -35,6 +35,7 @@ Imports:
   GillespieSSA2 (>= 0.2.5),
   ggplot2,
   ggraph,
+  ggrepel,
   grDevices,
   grid,
   igraph,

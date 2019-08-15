@@ -1,3 +1,10 @@
+# dyngen 0.2.2 (unreleased)
+
+* MINOR CHANGES: Fix module naming of backbones derived from `backbone_branching()`.
+
+* MINOR CHANGES: Allow to plot labels in `plot_simulation_expression()`.
+
+
 # dyngen 0.2.1 (2019-07-17)
 
 * MAJOR CHANGES: Custom backbones can be defined using backbone lego pieces. See `?bblego` for more information.

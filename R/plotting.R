@@ -359,9 +359,17 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
 #' @param simulation_i Which simulation to visualise.
 #' @param what Which molecule types to visualise.
 #' @param facet What to facet on.
+#' @param label_nonzero Plot labels for non-zero molecules.
 #' 
+#' @importFrom ggrepel geom_text_repel
 #' @export
-plot_simulation_expression <- function(model, simulation_i = 1:4, what = c("w", "x", "y"), facet = c("simulation", "module_group", "none")) {
+plot_simulation_expression <- function(
+  model, 
+  simulation_i = 1:4,
+  what = c("w", "x", "y"),
+  facet = c("simulation", "module_group", "module_id", "none"),
+  label_nonzero = FALSE
+) {
   facet <- match.arg(facet)
   
   molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
@@ -378,17 +386,38 @@ plot_simulation_expression <- function(model, simulation_i = 1:4, what = c("w", 
     mutate(module_group = gsub("[0-9]*$", "", module_id)) %>% 
     filter(type %in% what)
   
-  g <- ggplot(df) +
-    geom_line(aes(sim_time, value, linetype = type, colour = module_id, size = type)) +
+  g <- ggplot(df, aes(sim_time, value)) +
+    geom_step(aes(linetype = type, size = type, colour = module_id)) +
     scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
-    # facet_wrap(~module_group, ncol = 1) +
     theme_bw()
+  
+  if (label_nonzero) {
+    pts <- seq(0, max(model$simulations$meta$sim_time), by = 5)
+    df_labels <- 
+      df %>% 
+      group_by(module_id, type, module_group) %>% do({
+        df2 <- .
+        approx(x = df2$sim_time, y = df2$value, xout = pts) %>%
+          as_tibble() %>% 
+          rename(sim_time = x, value = y)
+      }) %>% 
+      ungroup() %>% 
+      filter(value > 0)
+    g <- g +
+      geom_point(data = df_labels) +
+      ggrepel::geom_text_repel(
+        aes(label = paste0(module_id, "_", type)), 
+        df_labels
+      )
+  }
   
   if (facet == "simulation") {
     g <- g + facet_wrap(~simulation_i, ncol = 1)
   } else if (facet == "module_group") {
     g <- g + facet_wrap(~module_group, ncol = 1)
+  } else if (facet == "module_id") {
+    g <- g + facet_wrap(~module_id, ncol = 1)
   }
   
   g
