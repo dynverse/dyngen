@@ -210,70 +210,15 @@ bblego_branching <- function(
   )
   
   module_network <- bind_rows(
-    tibble(
-      from = my_module_ids %>% head(-1),
-      to = my_module_ids %>% tail(-1),
-      effect = 1,
-      strength = 1,
-      cooperativity = 2,
-    ),
-    tibble(
-      from = last(my_module_ids),
-      to = our_module_ids1,
-      effect = 1,
-      strength = 1,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids1,
-      to = our_module_ids1,
-      effect = 1,
-      strength = 5,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids1,
-      to = our_module_ids2,
-      effect = 1,
-      strength = 1,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids1,
-      to = first(my_module_ids),
-      effect = -1,
-      strength = 5,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids2,
-      to = their_module_ids,
-      effect = 1,
-      strength = 1,
-      cooperativity = 2
-    ),
-    crossing(
-      from = our_module_ids1,
-      to = our_module_ids1
-    ) %>% 
-      filter(from != to) %>% 
-      mutate(
-        effect = -1,
-        strength = 100,
-        cooperativity = 2
-      ),
-    crossing(
-      from = seq_along(our_module_ids1),
-      to = seq_along(our_module_ids2)
-    ) %>% 
-      filter(from != to) %>% 
-      mutate(
-        from = our_module_ids1[from],
-        to = our_module_ids2[to],
-        effect = -1,
-        strength = 1000000,
-        cooperativity = 2
-      )
+    modnet_chain(my_module_ids),
+    modnet_edge(last(my_module_ids), our_module_ids1),
+    # modnet_self(our_module_ids1, strength = 1),
+    modnet_edge(our_module_ids1, our_module_ids2),
+    modnet_edge(our_module_ids2, our_module_ids1),
+    modnet_edge(our_module_ids1, first(my_module_ids), effect = -1, strength = 5),
+    modnet_edge(our_module_ids2, their_module_ids),
+    modnet_pairwise(our_module_ids1, effect = -1, strength = 100),
+    modnet_pairwise(our_module_ids1, our_module_ids2, effect = -1, strength = 10000000)
   )
   
   in_edge <- if (length(my_module_ids) >= 1) {

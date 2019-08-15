@@ -4,6 +4,7 @@
 
 * MINOR CHANGES: Allow to plot labels in `plot_simulation_expression()`.
 
+* FIX: Implement fix for double positives in `bblego` backbones.
 
 # dyngen 0.2.1 (2019-07-17)
 
