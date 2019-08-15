@@ -6,6 +6,8 @@
 
 * FIX: Implement fix for double positives in `bblego` backbones.
 
+* FIX: Fix graph plotting mixup of interaction effects (up/down).
+
 # dyngen 0.2.1 (2019-07-17)
 
 * MAJOR CHANGES: Custom backbones can be defined using backbone lego pieces. See `?bblego` for more information.
