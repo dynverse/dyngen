@@ -214,8 +214,8 @@ backbone_branching <- function(
   
   statenet <- tribble(
     ~from, ~to,
-    "sA", "sB",
-    "sB", "sC"
+    "A", "B",
+    "B", "C"
   )
   num_nodes <- 3
   
@@ -224,7 +224,7 @@ backbone_branching <- function(
     from_ <- statenet$from[[j]]
     to_ <- statenet$to[[j]]
     num_new_nodes <- rbinom(1, size = max_degree - min_degree, 0.25) + min_degree - 1
-    new_nodes <- paste0("s", LETTERS[num_nodes + seq_len(num_new_nodes)])
+    new_nodes <- LETTERS[num_nodes + seq_len(num_new_nodes)]
     num_nodes <- num_nodes + num_new_nodes
     statenet <-
       bind_rows(
