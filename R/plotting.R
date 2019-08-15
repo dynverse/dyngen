@@ -95,11 +95,14 @@ plot_backbone_modulenet <- function(model) {
   r <- .03
   cap <- circle(8, "mm")
   str <- .2
-  arrow <- grid::arrow(type = "closed", angle = ifelse(igraph::E(gr)$effect == 1, 30, 89), length = grid::unit(3, "mm"))
+  arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
+  arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
   
-  ggraph(gr, layout = "manual", node.positions = layout) +
-    geom_edge_loop(aes(width = strength, strength = str), arrow = arrow, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(width = strength), arrow = arrow, start_cap = cap, end_cap = cap) +
+  ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
+    geom_edge_loop(aes(width = strength, strength = str, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(width = strength, strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(width = strength, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(width = strength, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
     geom_node_circle(aes(r = r, fill = name)) +
     geom_node_text(aes(label = name)) +
     theme_graph(base_family = 'Helvetica') +
@@ -185,22 +188,15 @@ plot_feature_network <- function(
   gr <- gr %>% activate(edges) %>% filter(is.na(effect) | effect != -2)
   
   cap <- circle(2.5, "mm")
-  arrow <- grid::arrow(
-    type = "closed",
-    length = grid::unit(3, "mm"),
-    angle = case_when(
-      igraph::E(gr)$effect == 1 ~ 30,
-      igraph::E(gr)$effect == -1 ~ 89,
-      TRUE ~ 0
-    )
-  )
   
-  ggraph(gr, layout = "manual", node.positions = layout) +
-    geom_edge_fan(
-      arrow = arrow, 
-      start_cap = cap, 
-      end_cap = cap
-    ) +
+  arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
+  arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
+  
+  ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
+    geom_edge_loop(aes(strength = str, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
     geom_node_point(aes(colour = color_by, size = as.character(is_tf))) +
     theme_graph(base_family = 'Helvetica') +
     scale_colour_manual(values = color_legend) +

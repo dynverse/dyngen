@@ -1,7 +1,7 @@
 Package: dyngen
 Type: Package
 Title: Synthetic single cell data
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
     person(
       "Robrecht", 
@@ -34,7 +34,7 @@ Imports:
   dynwrap (>= 1.0.0),
   GillespieSSA2 (>= 0.2.5),
   ggplot2,
-  ggraph,
+  ggraph (> 1.0.2),
   ggrepel,
   grDevices,
   grid,
@@ -60,6 +60,7 @@ Suggests:
   testthat
 Remotes:
   r-lib/rlang,
+  thomasp85/ggraph,
   dynverse/dynwrap@devel,
   rcannood/GillespieSSA2@devel
 VignetteBuilder: knitr
