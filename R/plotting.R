@@ -188,6 +188,7 @@ plot_feature_network <- function(
   gr <- gr %>% activate(edges) %>% filter(is.na(effect) | effect != -2)
   
   cap <- circle(2.5, "mm")
+  str <- .2
   
   arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
   arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
