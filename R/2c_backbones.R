@@ -22,44 +22,35 @@ backbone_bifurcating_converging <- function() {
     "C1", 0, FALSE,
     "C2", 0, FALSE,
     "C3", 0, FALSE,
+    "C4", 0, FALSE,
     "D1", 0, FALSE,
     "D2", 0, FALSE,
     "D3", 0, FALSE,
+    "D4", 0, FALSE,
     "E1", 0, FALSE,
     "F1", 0, FALSE,
     "F2", 0, FALSE
   )
   
-  module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "B1", 1, 1, 2,
-    "B1", "B2", 1, 1, 2,
-    "B2", "C1", 1, 1, 2,
-    "B2", "D1", 1, 1, 2,
-    "C1", "C1", 1, 10, 2,
-    "C1", "C2", 1, 1, 5,
-    "C1", "D1", -1, 100, 2,
-    "C2", "C3", 1, 1, 5,
-    "C3", "E1", 1, 1, 2,
-    "D1", "D1", 1, 10, 2,
-    "D1", "C1", -1, 100, 2,
-    "D1", "D2", 1, 1, 5,
-    "D2", "D3", 1, 1, 5,
-    "D3", "E1", 1, 1, 2,
-    "E1", "E1", 1, 10, 2,
-    "E1", "C1", -1, 100, 2,
-    "E1", "D1", -1, 100, 2,
-    "E1", "F1", 1, 1, 2,
-    "F1", "B2", -1, 10, 2,
-    "F1", "F2", 1, 1, 2
+  module_network <- bind_rows(
+    modnet_chain(c("A1", "B1", "B2")),
+    modnet_edge("B2", c("C1", "D1")),
+    modnet_pairwise(c("C1", "D1"), effect = -1, strength = 100),
+    modnet_chain(c("C1", "C2", "C3", "C4", "E1")),
+    modnet_chain(c("D1", "D2", "D3", "D4", "E1")),
+    modnet_edge(c("C2", "D2"), c("C1", "D1")),
+    modnet_pairwise(c("C1", "D1"), c("C2", "D2"), effect = -1, strength = 100000),
+    modnet_edge("E1", c("C1", "C2", "D1", "D2"), effect = -1, strength = 100),
+    modnet_edge("E1", c("C4", "D4")),
+    modnet_chain(c("E1", "F1", "F2"))
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
     "sBurn", "sA", "+A1", TRUE, TRUE, 2,
     "sA", "sB", "+B1,+B2", FALSE, FALSE, 2,
-    "sB", "sC", "+C1,+C2,+C3", FALSE, FALSE, 2,
-    "sB", "sD", "+D1,+D2,+D3", FALSE, FALSE, 2,
+    "sB", "sC", "+C1,+C2,+C3,+C4", FALSE, FALSE, 2,
+    "sB", "sD", "+D1,+D2,+D3,+D4", FALSE, FALSE, 2,
     "sC", "sE", "+E1", FALSE, FALSE, 4,
     "sD", "sE", "+E1", FALSE, FALSE, 4,
     "sE", "sF", "+F1,+F2", FALSE, FALSE, 2
