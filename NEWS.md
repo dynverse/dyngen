@@ -8,6 +8,8 @@
 
 * FIX: Fix graph plotting mixup of interaction effects (up/down).
 
+* MINOR CHANGES: Improve `backbone_disconnected()` and `backbone_converging()`.
+
 # dyngen 0.2.1 (2019-07-17)
 
 * MAJOR CHANGES: Custom backbones can be defined using backbone lego pieces. See `?bblego` for more information.
