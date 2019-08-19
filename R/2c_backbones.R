@@ -296,6 +296,8 @@ backbone_converging <- function() {
   module_info <- tribble(
     ~module_id, ~a0, ~burn,
     "A1", 1, TRUE,
+    "A2", 1, TRUE,
+    "A3", 1, TRUE,
     "B1", 0, TRUE,
     "B2", 0, TRUE,
     "B3", 0, FALSE,
@@ -306,40 +308,32 @@ backbone_converging <- function() {
     "D2", 1, TRUE,
     "E1", 1, FALSE,
     "E2", 0, FALSE,
-    "E3", 0, FALSE
+    "E3", 0, FALSE,
+    "E4", 0, FALSE,
+    "E5", 0, FALSE
   )
   
-  module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "B1", 1, 1, 2,
-    "A1", "C1", 1, 1, 2,
-    "B1", "C1", -1, 100, 2,
-    "C1", "B1", -1, 100, 2, 
-    "B1", "B2", 1, 1, 2,
-    "B2", "B3", 1, 1, 2,
-    "C1", "C2", 1, 1, 2,
-    "C2", "C3", 1, 1, 2,
-    "B3", "D1", 1, 1, 2,
-    "C3", "D1", 1, 1, 2,
-    "D1", "B1", -1, 100, 2,
-    "D1", "C1", -1, 100, 2, 
-    "D1", "B3", 1, 1, 2,
-    "D1", "C3", 1, 1, 2,
-    "D1", "D2", -1, 10, 2,
-    "D2", "E1", -1, 1, 2,
-    "B2", "E1", -1, 1, 2,
-    "C2", "E1", -1, 1, 2,
-    "E1", "E2", 1, 1, 2,
-    "E2", "E3", 1, 1, 2
+  module_network <- bind_rows(
+    modnet_chain(c("A1", "A2", "A3")),
+    modnet_edge("A3", c("B1", "C1")),
+    modnet_pairwise(c("B1", "C1"), effect = -1, strength = 100),
+    modnet_chain(c("B1", "B2", "B3", "D1")),
+    modnet_chain(c("C1", "C2", "C3", "D1")),
+    modnet_edge(c("B2", "C2", "D1", "D1"), c("B1", "C1", "B3", "C3")),
+    modnet_pairwise(c("B1", "C1"), c("B2", "C2"), effect = -1, strength = 100000),
+    modnet_edge("D1", c("B1", "C1", "B2", "C2"), effect = -1, strength = 100),
+    modnet_edge(c("B2", "C2"), "E1", effect = -1, strength = 1),
+    modnet_chain(c("D1", "D2", "E1"), effect = -1, strength = 1),
+    modnet_chain(c("E1", "E2", "E3", "E4", "E5"))
   )
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn1", "sBurn2", "+A1,+D2", TRUE, TRUE, 2,
-    "sBurn2", "preB", "+B1,+B2", FALSE, TRUE, 2,
-    "sBurn2", "preC", "+C1,+C2", FALSE, TRUE, 2,
-    "preB", "sB", "+B3", FALSE, FALSE, 2,
-    "preC", "sC", "+C3", FALSE, FALSE, 2,
+    "sBurn1", "sBurn2", "+A1,+A2,+A3,+D2", TRUE, TRUE, 5,
+    "sBurn2", "preB", "+B1,+B2", FALSE, TRUE, 3,
+    "sBurn2", "preC", "+C1,+C2", FALSE, TRUE, 3,
+    "preB", "sB", "+B3", FALSE, FALSE, 3,
+    "preC", "sC", "+C3", FALSE, FALSE, 3,
     "sB", "sD", "+D1,+C1,+C2,+C3", FALSE, FALSE, 3,
     "sC", "sD", "+D1,+B1,+B2,+B3", FALSE, FALSE, 3,
     "sD", "sE", "+E1,+E2,+E3", FALSE, FALSE, 3
@@ -393,17 +387,38 @@ backbone_linear <- function() {
 }
 
 
+
 #' @export
 #' @rdname backbone_models
-backbone_disconnected <- function() {
-  backbones <- list_backbones()
-  backbones <- backbones[names(backbones) != "disconnected"]
+#' @param left_backbone A backbone (other than a disconnected backbone), see [list_backbones()].
+#' @param right_backbone A backbone (other than a disconnected backbone), see [list_backbones()].
+#' @param num_common_modules The number of modules which are regulated by either backbone.
+#' 
+#' @importFrom methods is
+backbone_disconnected <- function(
+  left_backbone = list_backbones() %>% keep(., names(.) != "disconnected") %>% sample(1) %>% first(),
+  right_backbone = list_backbones() %>% keep(., names(.) != "disconnected") %>% sample(1) %>% first(),
+  num_common_modules = 10
+) {
+  if (is.character(left_backbone)) {
+    left_backbone <- list_backbones()[[left_backbone]]
+  }
+  if (is.character(right_backbone)) {
+    right_backbone <- list_backbones()[[right_backbone]]
+  }
+  if (is.function(left_backbone)) {
+    left_backbone <- left_backbone()
+  }
+  if (is.function(right_backbone)) {
+    right_backbone <- right_backbone()
+  }
+  assert_that(
+    is(left_backbone, "dyngen::backbone"),
+    is(right_backbone, "dyngen::backbone")
+  )
   
-  left_name <- sample(names(backbones), 1)[[1]]
-  right_name <- sample(names(backbones), 1)[[1]]
-  
-  left <- backbones[[left_name]]()
-  right <- backbones[[right_name]]()
+  left <- left_backbone
+  right <- right_backbone
   
   leftpas <- function(x) paste0("left_", x)
   rightpas <- function(x) paste0("right_", x)
@@ -431,14 +446,13 @@ backbone_disconnected <- function() {
     length(reps) == 1
   )
   
-  common_modules <- paste0("D", 1:5)
+  common_modules <- paste0("B", seq_len(num_common_modules))
   
   module_info <- bind_rows(
-    tribble(
-      ~module_id, ~a0, ~burn,
-      "A1", 1, TRUE,
-      "B1", 0, TRUE,
-      "C1", 0, TRUE
+    tibble(
+      module_id = paste0("A", 1:7),
+      a0 = ifelse(module_id == "A1", 1L, 0L),
+      burn = TRUE
     ),
     lmi %>% mutate(a0 = 0),
     rmi %>% mutate(a0 = 0),
@@ -446,17 +460,14 @@ backbone_disconnected <- function() {
   ) %>% select(-color)
   
   module_network <- bind_rows(
-    tribble(
-      ~from, ~to, ~effect, ~strength, ~cooperativity,
-      "A1", "B1", 1, 1, 2,
-      "A1", "C1", 1, 1, 2,
-      "B1", "B1", 1, 1, 2,
-      "B1", "C1", -1, 100, 2,
-      "C1", "C1", 1, 1, 2,
-      "C1", "B1", -1, 100, 2
-    ),
-    lmi %>% filter(a0 > 0) %>% transmute(from = "B1", to = module_id, effect = 1, strength = a0, cooperativity = 2),
-    rmi %>% filter(a0 > 0) %>% transmute(from = "C1", to = module_id, effect = 1, strength = a0, cooperativity = 2),
+    modnet_chain(c("A1", "A2", "A3")),
+    modnet_edge("A3", c("A4", "A5")),
+    modnet_pairwise(c("A4", "A5"), effect = -1, strength = 100),
+    modnet_edge(c("A4", "A5", "A6", "A7"), c("A6", "A7", "A4", "A5")),
+    modnet_pairwise(c("A4", "A5"), c("A6", "A7"), effect = -1, strength = 100000),
+    modnet_edge(c("A6", "A7"), "A1", effect = -1, strength = 10),
+    lmi %>% filter(a0 > 0) %>% transmute(from = "A6", to = module_id, effect = 1, strength = a0, cooperativity = 2),
+    rmi %>% filter(a0 > 0) %>% transmute(from = "A7", to = module_id, effect = 1, strength = a0, cooperativity = 2),
     lmn,
     rmn,
     tibble(
@@ -475,16 +486,13 @@ backbone_disconnected <- function() {
     bind_rows(
       tribble(
         ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-        "sBurn", "sA", paste0("+", c("A1", common_modules), collapse = ","), TRUE, TRUE, 2,
-        "sA", leps, "+B1", FALSE, TRUE, 2,
-        "sA", reps, "+C1", FALSE, TRUE, 2
+        "sBurn", "sA", paste0("+", c("A1", "A2", "A3", common_modules), collapse = ","), TRUE, TRUE, 2,
+        "sA", leps, "+A4,+A6", FALSE, TRUE, 2,
+        "sA", reps, "+A5,+A7", FALSE, TRUE, 2
       ),
       lep %>% mutate(start = FALSE),
       rep %>% mutate(start = FALSE)
     )
   
-  out <- backbone(module_info, module_network, expression_patterns)
-  out$left_backbone <- left_name
-  out$right_backbone <- right_name
-  out
+  backbone(module_info, module_network, expression_patterns)
 }

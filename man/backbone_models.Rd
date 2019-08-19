@@ -41,7 +41,10 @@ backbone_cycle()
 
 backbone_linear()
 
-backbone_disconnected()
+backbone_disconnected(left_backbone = list_backbones() \%>\% keep(.,
+  names(.) != "disconnected") \%>\% sample(1) \%>\% first(),
+  right_backbone = list_backbones() \%>\% keep(., names(.) !=
+  "disconnected") \%>\% sample(1) \%>\% first(), num_common_modules = 10)
 }
 \arguments{
 \item{num_modifications}{The number of branch points in the generated backbone.}
@@ -49,6 +52,12 @@ backbone_disconnected()
 \item{min_degree}{The minimum degree of each node in the backbone.}
 
 \item{max_degree}{The maximum degree of each node in the backbone.}
+
+\item{left_backbone}{A backbone (other than a disconnected backbone), see \code{\link[=list_backbones]{list_backbones()}}.}
+
+\item{right_backbone}{A backbone (other than a disconnected backbone), see \code{\link[=list_backbones]{list_backbones()}}.}
+
+\item{num_common_modules}{The number of modules which are regulated by either backbone.}
 }
 \description{
 A module is a group of genes which, to some extent, shows the same
