@@ -40,7 +40,7 @@
 #' backbone <- bblego(
 #'   bblego_start("A", type = "simple", num_modules = 2),
 #'   bblego_linear("A", "B", type = "simple", num_modules = 3),
-#'   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
+#'   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 6),
 #'   bblego_end("C", type = "flipflop", num_modules = 4),
 #'   bblego_end("D", type = "doublerep1", num_modules = 7)
 #' )
