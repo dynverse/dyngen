@@ -359,6 +359,8 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
 #' @param label_nonzero Plot labels for non-zero molecules.
 #' 
 #' @importFrom ggrepel geom_text_repel
+#' @importFrom stats approx
+#' 
 #' @export
 plot_simulation_expression <- function(
   model, 
