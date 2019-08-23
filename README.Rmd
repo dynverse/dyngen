@@ -27,7 +27,7 @@ eachother in such a way that expression of certain genes change over time in a s
 library(tidyverse)
 library(dyngen)
 
-set.seed(1)
+set.seed(10)
 model <- 
   initialise_model(
     num_tfs = 12,

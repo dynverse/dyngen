@@ -25,7 +25,7 @@ time in a specific manner.
 library(tidyverse)
 library(dyngen)
 
-set.seed(1)
+set.seed(10)
 model <- 
   initialise_model(
     num_tfs = 12,
@@ -112,7 +112,7 @@ parameters of the SSA simulation.
 model <- generate_kinetics(model)
 ```
 
-    ## Generating kinetics for 71 features
+    ## Generating kinetics for 72 features
     ## Generating formulae
 
 ``` r
