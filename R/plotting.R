@@ -164,18 +164,18 @@ plot_feature_network <- function(
     arrange(from == to)
   
   # add extra edges invisible between regulators from the same module
-  feature_network <- 
+  feature_network <-
     bind_rows(
       feature_network,
       feature_info %>%
-        filter(is_tf) %>% 
+        filter(is_tf) %>%
         select(module_id, feature_id) %>%
         group_by(module_id) %>%
         do({
           crossing(from = .$feature_id, to = .$feature_id) %>%
             mutate(effect = -2)
-        }) %>% 
-        ungroup() %>% 
+        }) %>%
+        ungroup() %>%
         filter(from < to)
     )
   
@@ -194,12 +194,14 @@ plot_feature_network <- function(
   arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
   
   ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
-    geom_edge_loop(aes(strength = str, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
-    geom_edge_loop(aes(strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(strength = str, filter = !is.na(effect) & effect >= 0 & from == to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(strength = str, filter = !is.na(effect) & effect < 0 & from == to), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(strength = str, filter = is.na(effect))) +
+    geom_edge_fan(aes(filter = !is.na(effect) & effect >= 0 & from != to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(filter = !is.na(effect) & effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(filter = is.na(effect))) +
     geom_node_point(aes(colour = color_by, size = as.character(is_tf))) +
-    theme_graph(base_family = 'Helvetica') +
+    theme_graph(base_family = "Helvetica") +
     scale_colour_manual(values = color_legend) +
     scale_size_manual(values = c("TRUE" = 5, "FALSE" = 3)) +
     coord_equal() +
