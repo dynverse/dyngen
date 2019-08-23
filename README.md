@@ -32,7 +32,9 @@ model <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating(),
-    verbose = TRUE
+    verbose = TRUE,
+    download_cache_dir = "~/.cache/dyngen",
+    num_cores = 
   )
 
 plot_backbone_statenet(model)
@@ -271,7 +273,9 @@ init <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating_converging(),
-    verbose = FALSE
+    verbose = FALSE,
+    download_cache_dir = "~/.cache/dyngen",
+    num_cores = 8
   )
 out <- generate_dataset(
   init,
@@ -397,7 +401,9 @@ out <-
     num_tfs = 40,
     num_targets = 0,
     num_hks = 0,
-    verbose = FALSE
+    verbose = FALSE,
+    download_cache_dir = "~/.cache/dyngen",
+    num_cores = 
   ) %>% 
   generate_dataset(make_plots = TRUE)
 ```
