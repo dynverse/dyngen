@@ -181,7 +181,7 @@ bblego_branching <- function(
   from, 
   to, 
   type = "simple",
-  num_modules = length(to) * 2 + 1,
+  num_modules = length(to) * 2 + 2,
   burn = FALSE
 ) {
   assert_that(
@@ -213,8 +213,8 @@ bblego_branching <- function(
     modnet_chain(my_module_ids),
     modnet_edge(last(my_module_ids), our_module_ids1),
     # modnet_self(our_module_ids1, strength = 1),
-    modnet_edge(our_module_ids1, our_module_ids2),
-    modnet_edge(our_module_ids2, our_module_ids1),
+    modnet_edge(our_module_ids1, our_module_ids2, strength = 2),
+    modnet_edge(our_module_ids2, our_module_ids1, strength = 2),
     modnet_edge(our_module_ids1, first(my_module_ids), effect = -1, strength = 5),
     modnet_edge(our_module_ids2, their_module_ids),
     modnet_pairwise(our_module_ids1, effect = -1, strength = 100),
