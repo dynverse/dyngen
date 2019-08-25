@@ -139,7 +139,7 @@ simulation_default <- function(
   } else {
     burn_meta <- NULL
     burn_counts <- NULL
-    new_initial_state <- system$initial_state
+    new_initial_state <- sim_system$initial_state
     burn_regulation <- NULL
     burn_reactions <- NULL
   }
