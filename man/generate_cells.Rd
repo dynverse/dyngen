@@ -10,7 +10,7 @@ generate_cells(model)
 simulation_default(burn_time = 2, total_time = 10,
   ssa_algorithm = ssa_etl(tau = 0.001), census_interval = 0.01,
   num_simulations = 32, seeds = sample.int(10 * num_simulations,
-  num_simulations))
+  num_simulations), store_grn = TRUE, store_reactions = FALSE)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the gold standard been generated with \code{\link[=generate_gold_standard]{generate_gold_standard()}}.}
@@ -26,6 +26,10 @@ simulation_default(burn_time = 2, total_time = 10,
 \item{num_simulations}{The number of simulations to run.}
 
 \item{seeds}{A set of seeds for each of the simulations.}
+
+\item{store_grn}{Whether or not to store the GRN activation values for each time point in the simulation.}
+
+\item{store_reactions}{Whether or not to store the number of reaction firings for each time point in the simulation.}
 }
 \description{
 \code{\link[=generate_cells]{generate_cells()}} runs simulations in order to determine the gold standard

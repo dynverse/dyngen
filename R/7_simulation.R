@@ -11,6 +11,8 @@
 #' @param census_interval A granularity parameter for the outputted simulation.
 #' @param num_simulations The number of simulations to run.
 #' @param seeds A set of seeds for each of the simulations.
+#' @param store_grn Whether or not to store the GRN activation values for each time point in the simulation.
+#' @param store_reactions Whether or not to store the number of reaction firings for each time point in the simulation.
 #' 
 #' @importFrom GillespieSSA2 ssa
 #' @export
@@ -33,7 +35,8 @@ generate_cells <- function(model) {
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
     counts = do.call(rbind, map(simulations, "counts")),
-    regulation = do.call(rbind, map(simulations, "buffer"))
+    regulation = do.call(rbind, map(simulations, "regulation")),
+    reactions = do.call(rbind, map(simulations, "reactions"))
   )
   
   # predict state
@@ -57,7 +60,9 @@ simulation_default <- function(
   ssa_algorithm = ssa_etl(tau = .001),
   census_interval = .01,
   num_simulations = 32,
-  seeds = sample.int(10 * num_simulations, num_simulations)
+  seeds = sample.int(10 * num_simulations, num_simulations),
+  store_grn = TRUE,
+  store_reactions = FALSE
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -67,7 +72,9 @@ simulation_default <- function(
     ssa_algorithm,
     census_interval,
     num_simulations,
-    seeds
+    seeds,
+    store_grn,
+    store_reactions
   )
 }
 
@@ -115,7 +122,8 @@ simulation_default <- function(
       method = sim_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
       verbose = verbose,
-      log_buffer = TRUE
+      log_buffer = sim_params$store_grn,
+      log_firings = sim_params$store_reactions
     )
     
     burn_meta <- 
@@ -124,14 +132,16 @@ simulation_default <- function(
       ) %>%
       mutate(time = time - max(time))
     burn_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    burn_buffer <- (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE)
+    burn_regulation <- if (sim_params$store_grn) (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE) else NULL
+    burn_reactions <- if (sim_params$store_reactions) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
     
     new_initial_state <- out$state[nrow(out$state), ]
   } else {
     burn_meta <- NULL
     burn_counts <- NULL
     new_initial_state <- system$initial_state
-    burn_buffer <- NULL
+    burn_regulation <- NULL
+    burn_reactions <- NULL
   }
   
   # actual simulation
@@ -144,7 +154,8 @@ simulation_default <- function(
     method = sim_params$ssa_algorithm,
     stop_on_neg_state = FALSE,
     verbose = verbose,
-    log_buffer = TRUE
+    log_buffer = sim_params$store_grn,
+    log_firings = sim_params$store_reactions
   )
   
   meta <- 
@@ -152,17 +163,19 @@ simulation_default <- function(
       time = c(head(out$time, -1), sim_params$total_time)
     )
   counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-  buffer <- (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE)
+  regulation <- if (sim_params$store_grn) (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE) else NULL
+  reactions <- if (sim_params$store_reactions) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
   
   if (!is.null(burn_meta)) {
     meta <- bind_rows(burn_meta, meta)
     counts <- rbind(burn_counts, counts)
-    buffer <- rbind(burn_buffer, buffer)
+    regulation <- rbind(burn_regulation, regulation)
+    reactions <- rbind(burn_reactions, reactions)
   }
   
   meta <- meta %>% mutate(simulation_i) %>% select(simulation_i, everything())
   
-  lst(meta, counts, buffer)
+  lst(meta, counts, regulation, reactions)
 }
 
 .generate_cells_predict_state <- function(model) {
