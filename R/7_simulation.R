@@ -37,7 +37,8 @@ generate_cells <- function(model) {
     meta = map_df(simulations, "meta"),
     counts = do.call(rbind, map(simulations, "counts")),
     regulation = do.call(rbind, map(simulations, "regulation")),
-    reactions = do.call(rbind, map(simulations, "reactions"))
+    reaction_firings = do.call(rbind, map(simulations, "reaction_firings")),
+    reaction_propensities = do.call(rbind, map(simulations, "reaction_propensities"))
   )
   
   # predict state
