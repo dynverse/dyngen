@@ -119,13 +119,12 @@ bblego_linear <- function(
           from = module_ids %>% head(-1),
           to = module_ids %>% tail(-1),
           effect = ifelse(to %in% pos_to, 1, -1),
-          # strength = ifelse(effect > 0, seq_along(effect), 1),
           strength = 1,
           cooperativity = 2
         ),
         tibble(
-          from = module_ids %>% head(-2),
-          to = module_ids %>% tail(-2),
+          from = module_ids %>% head(-2) %>% head(-1),
+          to = module_ids %>% tail(-2) %>% head(-1),
           effect = 1,
           strength = seq_along(from),
           cooperativity = 2
@@ -180,7 +179,7 @@ bblego_linear <- function(
 bblego_branching <- function(
   from, 
   to, 
-  type = "simple",
+  type = c("robust", "simple"),
   num_modules = length(to) * 2 + 2,
   burn = FALSE
 ) {
@@ -188,6 +187,10 @@ bblego_branching <- function(
     length(to) >= 2,
     num_modules >= length(to) * 2 + 1
   )
+  
+  type <- match.args(type)
+  
+  # todo: implement reversible branching again
   
   lin_length <- num_modules - 2 * length(to)
   
@@ -212,7 +215,6 @@ bblego_branching <- function(
   module_network <- bind_rows(
     modnet_chain(my_module_ids),
     modnet_edge(last(my_module_ids), our_module_ids1),
-    # modnet_self(our_module_ids1, strength = 1),
     modnet_edge(our_module_ids1, our_module_ids2, strength = 2),
     modnet_edge(our_module_ids2, our_module_ids1, strength = 2),
     modnet_edge(our_module_ids1, first(my_module_ids), effect = -1, strength = 5),
