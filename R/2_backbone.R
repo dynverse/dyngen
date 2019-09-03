@@ -9,9 +9,10 @@
 #' @param module_info A tibble containing meta information on the modules themselves.
 #' 
 #' * module_id (character): the name of the module
-#' * ba (numeric): basal expression level of genes in this module
+#' * ba (numeric): basal expression level of genes in this module, must be between \[0, 1\]
 #' * burn (logical): whether or not outgoing edges of this module will 
 #'   be active during the burn in phase
+#' * ind (numeric): the independence factor between regulators of this module, must be between \[0, 1\]
 #'   
 #' @param module_network A tibble describing which modules regulate which other modules.
 #' 
@@ -80,6 +81,10 @@ backbone <- function(
         module_info %>% 
         mutate(color = grDevices::rainbow(n()))
     }
+  }
+  
+  if (! module_info %has_name% "ind") {
+    module_info$ind <- 1
   }
   
   # add burn modules to burn transition

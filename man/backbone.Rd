@@ -10,9 +10,10 @@ backbone(module_info, module_network, expression_patterns)
 \item{module_info}{A tibble containing meta information on the modules themselves.
 \itemize{
 \item module_id (character): the name of the module
-\item ba (numeric): basal expression level of genes in this module
+\item ba (numeric): basal expression level of genes in this module, must be between [0, 1]
 \item burn (logical): whether or not outgoing edges of this module will
 be active during the burn in phase
+\item ind (numeric): the independence factor between regulators of this module, must be between [0, 1]
 }}
 
 \item{module_network}{A tibble describing which modules regulate which other modules.

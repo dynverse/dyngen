@@ -67,6 +67,7 @@ kinetics_default <- function(
   sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
+  sample_ind = function(n) runif(n, 0, 1),
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
   sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
@@ -78,6 +79,7 @@ kinetics_default <- function(
     sample_xdr,
     sample_ypr,
     sample_ydr,
+    sample_ind,
     
     sample_effect,
     sample_strength,
@@ -97,7 +99,8 @@ kinetics_default <- function(
       xdr = params$sample_xdr(n()),
       ypr = params$sample_ypr(n()),
       ydr = params$sample_ydr(n()),
-      max_protein = wpr / xdr * ypr / ydr
+      max_protein = wpr / xdr * ypr / ydr,
+      ind = ind %|% params$sample_ind(n())
     )
   
   # remove previous 'as' if present
@@ -183,6 +186,7 @@ kinetics_default <- function(
       ydr <- paste0("ydr_", fid)
       
       ba <- paste0("ba_", fid)
+      ind <- paste0("ind_", fid)
       
       if (!is.null(info$regulators)) {
         rid <- info$regulators$from
@@ -192,7 +196,7 @@ kinetics_default <- function(
         reg_cs <- paste0("c_", rid, "_", fid)
         regulation_var <- paste0("regulation_", rid, "_", fid)
         
-        reg_affinity_calc <- paste(paste0(regulation_var, " = 1 + pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
+        reg_affinity_calc <- paste(paste0(regulation_var, " = pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
         
         # Several optimisations have been applied.
         #
@@ -209,11 +213,11 @@ kinetics_default <- function(
         
         numerator <-
           if (sum(eff > 0) > 0) {
-            paste0(ba, " - 1 + ", paste(regulation_var[eff > 0], collapse = " * "))
+            paste0(ba, " - pow(", ind, ",", sum(eff > 0), ") + ", paste("(", regulation_var[eff > 0], " + ", ind, ")", collapse = " * ", sep = ""))
           } else {
             ba
           }
-        denominator <- paste(regulation_var, collapse = " * ")
+        denominator <- paste0("1 + ", paste("(", regulation_var, " + 1)", collapse = " * ", sep = ""))
         
         wpr_function <- paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
       } else {
@@ -267,7 +271,7 @@ kinetics_default <- function(
   # extract m to qr, d, p, q, and ba
   feature_params <- 
     model$feature_info %>% 
-    select(feature_id, wpr, wsr, xdr, ypr, ydr, ba) %>% 
+    select(feature_id, wpr, wsr, xdr, ypr, ydr, ba, ind) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 
