@@ -15,7 +15,7 @@ backbone_bifurcating <- function() {
 #' @rdname backbone_models
 backbone_bifurcating_converging <- function() {
   module_info <- tribble(
-    ~module_id, ~a0, ~burn,
+    ~module_id, ~ba, ~burn,
     "A1", 1, TRUE,
     "B1", 0, FALSE,
     "B2", 0, FALSE,
@@ -65,7 +65,7 @@ backbone_bifurcating_converging <- function() {
 #' @rdname backbone_models
 backbone_bifurcating_cycle <- function() {
   module_info <- tribble(
-    ~module_id, ~a0, ~burn,
+    ~module_id, ~ba, ~burn,
     "A1", 1, TRUE,
     "B1", 0, FALSE,
     "B2", 0, FALSE,
@@ -131,7 +131,7 @@ backbone_bifurcating_cycle <- function() {
 #' @rdname backbone_models
 backbone_bifurcating_loop <- function() {
   module_info <- tribble(
-    ~module_id, ~a0, ~burn,
+    ~module_id, ~ba, ~burn,
     "A1", 1, TRUE,
     "A2", 0, TRUE,
     "A3", 1, TRUE,
@@ -295,7 +295,7 @@ backbone_trifurcating <- function() {
 #' @rdname backbone_models
 backbone_converging <- function() {
   module_info <- tribble(
-    ~module_id, ~a0, ~burn,
+    ~module_id, ~ba, ~burn,
     "A1", 1, TRUE,
     "A2", 1, TRUE,
     "A3", 1, TRUE,
@@ -350,7 +350,7 @@ backbone_converging <- function() {
 #' @rdname backbone_models
 backbone_cycle <- function() {
   module_info <- tribble(
-    ~module_id, ~a0, ~burn,
+    ~module_id, ~ba, ~burn,
     "M1", 1, TRUE,
     "M2", 1, TRUE,
     "M3", 1, TRUE,
@@ -437,8 +437,8 @@ backbone_disconnected <- function(
   
   # find starting modules and states; 
   # assume there is only one starting module / state per backbone
-  lmis <- lmi %>% filter(a0 > 0) %>% pull(module_id)
-  rmis <- rmi %>% filter(a0 > 0) %>% pull(module_id)
+  lmis <- lmi %>% filter(ba > 0) %>% pull(module_id)
+  rmis <- rmi %>% filter(ba > 0) %>% pull(module_id)
   leps <- lep %>% filter(start) %>% pull(from)
   reps <- rep %>% filter(start) %>% pull(from)
   
@@ -454,12 +454,12 @@ backbone_disconnected <- function(
   module_info <- bind_rows(
     tibble(
       module_id = paste0("A", 1:7),
-      a0 = ifelse(module_id == "A1", 1L, 0L),
+      ba = ifelse(module_id == "A1", 1L, 0L),
       burn = TRUE
     ),
-    lmi %>% mutate(a0 = 0),
-    rmi %>% mutate(a0 = 0),
-    tibble(module_id = common_modules, a0 = 0, burn = FALSE)
+    lmi %>% mutate(ba = 0),
+    rmi %>% mutate(ba = 0),
+    tibble(module_id = common_modules, ba = 0, burn = FALSE)
   ) %>% select(-color)
   
   module_network <- bind_rows(
@@ -469,8 +469,8 @@ backbone_disconnected <- function(
     modnet_edge(c("A4", "A5", "A6", "A7"), c("A6", "A7", "A4", "A5"), strength = 2),
     modnet_pairwise(c("A4", "A5"), c("A6", "A7"), effect = -1, strength = 100000),
     modnet_edge(c("A6", "A7"), "A1", effect = -1, strength = 10),
-    lmi %>% filter(a0 > 0) %>% transmute(from = "A6", to = module_id, effect = 1, strength = a0, cooperativity = 2),
-    rmi %>% filter(a0 > 0) %>% transmute(from = "A7", to = module_id, effect = 1, strength = a0, cooperativity = 2),
+    lmi %>% filter(ba > 0) %>% transmute(from = "A6", to = module_id, effect = 1, strength = ba, cooperativity = 2),
+    rmi %>% filter(ba > 0) %>% transmute(from = "A7", to = module_id, effect = 1, strength = ba, cooperativity = 2),
     lmn,
     rmn,
     tibble(

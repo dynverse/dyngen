@@ -72,7 +72,7 @@ bblego_linear <- function(
   
   module_info <- tibble(
     module_id = module_ids %>% head(-1),
-    a0 = 0,
+    ba = 0,
     burn = burn
   )
   
@@ -88,20 +88,20 @@ bblego_linear <- function(
   } else if (type == "doublerep1") {
     assert_that(num_modules >= 2)
     
-    a0s <- c(0, rep(1, num_modules-1), 0)
+    bas <- c(0, rep(1, num_modules-1), 0)
     if (num_modules %% 2 == 0) {
-      a0s[[2]] <- 0
+      bas[[2]] <- 0
     }
     module_info <- module_info %>% mutate(
-      a0 = a0s %>% head(-1),
-      burn = burn | a0 > 0
+      ba = bas %>% head(-1),
+      burn = burn | ba > 0
     )
     
     module_network <- 
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = ifelse(a0s[-1] > 0, -1, 1),
+        effect = ifelse(bas[-1] > 0, -1, 1),
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
       )
@@ -136,7 +136,7 @@ bblego_linear <- function(
     
     module_info <- tibble(
       module_id = module_ids %>% head(-1),
-      a0 = 0,
+      ba = 0,
       burn = burn
     )
     
@@ -208,7 +208,7 @@ bblego_branching <- function(
   
   module_info <- tibble(
     module_id = c(my_module_ids, our_module_ids),
-    a0 = 0,
+    ba = 0,
     burn = burn
   )
   
@@ -255,7 +255,7 @@ bblego_start <- dynutils::inherit_default_params(
     )
     out$module_info <- 
       out$module_info %>% 
-      mutate(a0 = ifelse(module_id == "Burn1", 1, a0))
+      mutate(ba = ifelse(module_id == "Burn1", 1, ba))
     out$expression_patterns <-
       out$expression_patterns %>% 
       mutate(start = TRUE)

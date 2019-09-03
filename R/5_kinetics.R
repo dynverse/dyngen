@@ -117,7 +117,7 @@ kinetics_default <- function(
       k = max_protein / 2 / strength
     )
   
-  # calculate a0 and a
+  # calculate ba and a
   feature_info <- 
     left_join(
       feature_info,
@@ -125,16 +125,16 @@ kinetics_default <- function(
         rename(feature_id = to) %>% 
         group_by(feature_id) %>% 
         summarise(
-          a0_2 = .kinetics_calculate_a0(effect)
+          ba_2 = .kinetics_calculate_ba(effect)
         ),
       by = "feature_id"
     ) %>% 
     mutate(
       # 1 for genes that are not being regulated by any other genes,
-      # yet did not already have an a0 defined
-      a0 = a0 %|% a0_2 %|% 1 
+      # yet did not already have an ba defined
+      ba = ba %|% ba_2 %|% 1 
     ) %>% 
-    select(-a0_2)
+    select(-ba_2)
   
   model$feature_info <- feature_info
   model$feature_network <- feature_network
@@ -182,7 +182,7 @@ kinetics_default <- function(
       ypr <- paste0("ypr_", fid)
       ydr <- paste0("ydr_", fid)
       
-      a0 <- paste0("a0_", fid)
+      ba <- paste0("ba_", fid)
       
       if (!is.null(info$regulators)) {
         rid <- info$regulators$from
@@ -197,27 +197,27 @@ kinetics_default <- function(
         # Several optimisations have been applied.
         #
         # original:
-        #   [a0 + x0 + x0x1 + x1] / [x0 + x0x1 + x1 + 1],
+        #   [ba + x0 + x0x1 + x1] / [x0 + x0x1 + x1 + 1],
         #   with xi = (yi / ki) ^ ci
         #
         # factorise:
-        #   [a0 + (x0 + 1) * (x1 + 1) - 1] / (x0 + 1) / (x1 + 1) / (x2 + 1)
+        #   [ba + (x0 + 1) * (x1 + 1) - 1] / (x0 + 1) / (x1 + 1) / (x2 + 1)
         #
         # use buffer to remember calculations:
-        #   [a0 - 1 + buf0 * buf1] / buf0 / buf1 / buf2,
+        #   [ba - 1 + buf0 * buf1] / buf0 / buf1 / buf2,
         # with buf0 = x0 + 1, buf1 = x1 + 1, buf2 = x2 + 1
         
         numerator <-
           if (sum(eff > 0) > 0) {
-            paste0(a0, " - 1 + ", paste(regulation_var[eff > 0], collapse = " * "))
+            paste0(ba, " - 1 + ", paste(regulation_var[eff > 0], collapse = " * "))
           } else {
-            a0
+            ba
           }
         denominator <- paste(regulation_var, collapse = " * ")
         
         wpr_function <- paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
       } else {
-        wpr_function <- paste0(wpr, " * ", a0)
+        wpr_function <- paste0(wpr, " * ", ba)
         regulation_var <- character()
       }
       
@@ -264,10 +264,10 @@ kinetics_default <- function(
 }
 
 .kinetics_extract_parameters <- function(model) {
-  # extract m to qr, d, p, q, and a0
+  # extract m to qr, d, p, q, and ba
   feature_params <- 
     model$feature_info %>% 
-    select(feature_id, wpr, wsr, xdr, ypr, ydr, a0) %>% 
+    select(feature_id, wpr, wsr, xdr, ypr, ydr, ba) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 
@@ -285,7 +285,7 @@ kinetics_default <- function(
   c(feature_params, edge_params)
 }
 
-.kinetics_calculate_a0 <- function(effects) {
+.kinetics_calculate_ba <- function(effects) {
   case_when(
     all(effects == -1) ~ 1,
     all(effects == 1) ~ 0.0001,
