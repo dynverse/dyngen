@@ -10,6 +10,7 @@
 #' @param sample_xdr A function specifying the distribution from which to sample the mRNA decay rate.
 #' @param sample_ypr A function specifying the distribution from which to sample the protein production rate.
 #' @param sample_ydr A function specifying the distribution from which to sample the protein decay rate.
+#' @param sample_ind A function specifying the distribution from which to sample the regulator independence factor.
 #' @param sample_effect A function specifying the distribution from which to sample the effect of an interaction.
 #' @param sample_strength A function specifing the distribution from which to sample the strength of an interaction.
 #' @param sample_cooperativity A function specifing the distribution from which to sample the cooperativity of an interaction from.

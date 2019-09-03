@@ -30,6 +30,8 @@ kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
 
 \item{sample_ydr}{A function specifying the distribution from which to sample the protein decay rate.}
 
+\item{sample_ind}{A function specifying the distribution from which to sample the regulator independence factor.}
+
 \item{sample_effect}{A function specifying the distribution from which to sample the effect of an interaction.}
 
 \item{sample_strength}{A function specifing the distribution from which to sample the strength of an interaction.}
