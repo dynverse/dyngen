@@ -218,7 +218,7 @@ kinetics_default <- function(
           } else {
             ba
           }
-        denominator <- paste0("1 + ", paste("(", regulation_var, " + 1)", collapse = " * ", sep = ""))
+        denominator <- paste("(", regulation_var, " + 1)", collapse = " * ", sep = "")
         
         wpr_function <- paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
       } else {
