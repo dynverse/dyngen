@@ -137,7 +137,7 @@ simulation_default <- function(
       ) %>%
       mutate(time = time - max(time))
     burn_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    burn_regulation <- if (sim_params$store_grn) (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE) else NULL
+    burn_regulation <- if (sim_params$store_grn) out$buffer %>% Matrix::Matrix(sparse = TRUE) else NULL
     burn_reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
     burn_reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
     
@@ -170,7 +170,7 @@ simulation_default <- function(
       time = c(head(out$time, -1), sim_params$total_time)
     )
   counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-  regulation <- if (sim_params$store_grn) (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE) else NULL
+  regulation <- if (sim_params$store_grn) out$buffer %>% Matrix::Matrix(sparse = TRUE) else NULL
   reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
   reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
   
