@@ -34,7 +34,7 @@ Imports:
   dynwrap (>= 1.0.0),
   GillespieSSA2 (>= 0.2.5),
   ggplot2,
-  ggraph (> 1.0.2),
+  ggraph (>= 2.0),
   ggrepel,
   grDevices,
   grid,
@@ -60,7 +60,6 @@ Suggests:
   testthat
 Remotes:
   r-lib/rlang,
-  thomasp85/ggraph,
   dynverse/dynwrap@devel,
   rcannood/GillespieSSA2@devel
 VignetteBuilder: knitr
