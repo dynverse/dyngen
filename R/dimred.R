@@ -1,4 +1,4 @@
-#' @importFrom dyndimred dimred_landmark_mds
+#' @importFrom lmds lmds
 calculate_dimred <- function(
   model, 
   num_landmarks = 1000,
@@ -117,16 +117,12 @@ calculate_dimred <- function(
     method = model$distance_metric
   ))
   
-  # calculate distances between landmarks
-  dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
+  # # calculate distances between landmarks
+  # dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
+  attr(dist_2lm, "landmark_ix") <- landmark_ix
   
   # calculate dimred
-  dimred <- as.matrix(dyndimred:::.lmds_cmdscale(
-    dist_lm, 
-    dist_2lm, 
-    ndim = 3, 
-    rescale = TRUE
-  ))
+  dimred <- lmds::cmdscale_landmarks(dist_2lm, ndim = 3)
   dimnames(dimred) <- list(rownames(counts), paste0("comp_", seq_len(ncol(dimred))))
   
   # separate out sim dimred and gs dimred
