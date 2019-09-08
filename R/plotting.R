@@ -1,6 +1,6 @@
 #' @importFrom tidygraph tbl_graph activate
 #' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
-#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text
+#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text geom_step geom_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
 NULL
