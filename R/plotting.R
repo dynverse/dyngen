@@ -1,6 +1,6 @@
 #' @importFrom tidygraph tbl_graph activate
-#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
-#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text
+#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous geom_node_label
+#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text geom_step geom_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
 NULL
@@ -64,9 +64,8 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
       arrow = arrow, 
       colour = "gray"
     ) +
-    geom_node_circle(aes(r = r), fill = "white", function(df) df %>% filter(main)) +
     geom_node_point(data = function(df) df %>% filter(!main)) +
-    geom_node_text(aes(label = name), function(df) df %>% filter(main)) +
+    geom_node_label(aes(label = name), function(df) df %>% filter(main)) +
     theme_graph(base_family = 'Helvetica') +
     coord_equal()
 }
@@ -93,7 +92,7 @@ plot_backbone_modulenet <- function(model) {
     as.data.frame() 
   
   r <- .03
-  cap <- circle(8, "mm")
+  cap <- circle(4, "mm")
   str <- .2
   arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
   arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
@@ -103,10 +102,10 @@ plot_backbone_modulenet <- function(model) {
     geom_edge_loop(aes(width = strength, strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
     geom_edge_fan(aes(width = strength, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
     geom_edge_fan(aes(width = strength, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
-    geom_node_circle(aes(r = r, fill = name)) +
+    geom_node_circle(aes(r = r, colour = name), fill = "white") +
     geom_node_text(aes(label = name)) +
     theme_graph(base_family = 'Helvetica') +
-    scale_fill_manual(values = node_legend) +
+    scale_colour_manual(values = node_legend) +
     scale_edge_width_continuous(trans = "log10", range = c(.5, 3)) +
     coord_equal()
 }

@@ -14,6 +14,7 @@
 #' @export
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
+#' @importFrom readr write_rds
 generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store_grn = FALSE) {
   model <- model %>% 
     generate_tf_network() %>% 
