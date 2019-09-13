@@ -1,6 +1,6 @@
 #' @importFrom tidygraph tbl_graph activate
 #' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
-#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text
+#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text geom_step geom_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
 NULL
@@ -95,11 +95,14 @@ plot_backbone_modulenet <- function(model) {
   r <- .03
   cap <- circle(8, "mm")
   str <- .2
-  arrow <- grid::arrow(type = "closed", angle = ifelse(igraph::E(gr)$effect == 1, 30, 89), length = grid::unit(3, "mm"))
+  arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
+  arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
   
-  ggraph(gr, layout = "manual", node.positions = layout) +
-    geom_edge_loop(aes(width = strength, strength = str), arrow = arrow, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(width = strength), arrow = arrow, start_cap = cap, end_cap = cap) +
+  ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
+    geom_edge_loop(aes(width = strength, strength = str, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(width = strength, strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(width = strength, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(width = strength, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
     geom_node_circle(aes(r = r, fill = name)) +
     geom_node_text(aes(label = name)) +
     theme_graph(base_family = 'Helvetica') +
@@ -161,18 +164,18 @@ plot_feature_network <- function(
     arrange(from == to)
   
   # add extra edges invisible between regulators from the same module
-  feature_network <- 
+  feature_network <-
     bind_rows(
       feature_network,
       feature_info %>%
-        filter(is_tf) %>% 
+        filter(is_tf) %>%
         select(module_id, feature_id) %>%
         group_by(module_id) %>%
         do({
           crossing(from = .$feature_id, to = .$feature_id) %>%
             mutate(effect = -2)
-        }) %>% 
-        ungroup() %>% 
+        }) %>%
+        ungroup() %>%
         filter(from < to)
     )
   
@@ -185,24 +188,20 @@ plot_feature_network <- function(
   gr <- gr %>% activate(edges) %>% filter(is.na(effect) | effect != -2)
   
   cap <- circle(2.5, "mm")
-  arrow <- grid::arrow(
-    type = "closed",
-    length = grid::unit(3, "mm"),
-    angle = case_when(
-      igraph::E(gr)$effect == 1 ~ 30,
-      igraph::E(gr)$effect == -1 ~ 89,
-      TRUE ~ 0
-    )
-  )
+  str <- .2
   
-  ggraph(gr, layout = "manual", node.positions = layout) +
-    geom_edge_fan(
-      arrow = arrow, 
-      start_cap = cap, 
-      end_cap = cap
-    ) +
+  arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
+  arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
+  
+  ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
+    geom_edge_loop(aes(strength = str, filter = !is.na(effect) & effect >= 0 & from == to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(strength = str, filter = !is.na(effect) & effect < 0 & from == to), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_loop(aes(strength = str, filter = is.na(effect))) +
+    geom_edge_fan(aes(filter = !is.na(effect) & effect >= 0 & from != to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(filter = !is.na(effect) & effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan(aes(filter = is.na(effect))) +
     geom_node_point(aes(colour = color_by, size = as.character(is_tf))) +
-    theme_graph(base_family = 'Helvetica') +
+    theme_graph(base_family = "Helvetica") +
     scale_colour_manual(values = color_legend) +
     scale_size_manual(values = c("TRUE" = 5, "FALSE" = 3)) +
     coord_equal() +
@@ -359,9 +358,19 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
 #' @param simulation_i Which simulation to visualise.
 #' @param what Which molecule types to visualise.
 #' @param facet What to facet on.
+#' @param label_nonzero Plot labels for non-zero molecules.
+#' 
+#' @importFrom ggrepel geom_text_repel
+#' @importFrom stats approx
 #' 
 #' @export
-plot_simulation_expression <- function(model, simulation_i = 1:4, what = c("w", "x", "y"), facet = c("simulation", "module_group", "none")) {
+plot_simulation_expression <- function(
+  model, 
+  simulation_i = 1:4,
+  what = c("w", "x", "y"),
+  facet = c("simulation", "module_group", "module_id", "none"),
+  label_nonzero = FALSE
+) {
   facet <- match.arg(facet)
   
   molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
@@ -378,17 +387,38 @@ plot_simulation_expression <- function(model, simulation_i = 1:4, what = c("w", 
     mutate(module_group = gsub("[0-9]*$", "", module_id)) %>% 
     filter(type %in% what)
   
-  g <- ggplot(df) +
-    geom_line(aes(sim_time, value, linetype = type, colour = module_id, size = type)) +
+  g <- ggplot(df, aes(sim_time, value)) +
+    geom_step(aes(linetype = type, size = type, colour = module_id)) +
     scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
-    # facet_wrap(~module_group, ncol = 1) +
     theme_bw()
+  
+  if (label_nonzero) {
+    pts <- seq(0, max(model$simulations$meta$sim_time), by = 5)
+    df_labels <- 
+      df %>% 
+      group_by(module_id, type, module_group) %>% do({
+        df2 <- .
+        approx(x = df2$sim_time, y = df2$value, xout = pts) %>%
+          as_tibble() %>% 
+          rename(sim_time = x, value = y)
+      }) %>% 
+      ungroup() %>% 
+      filter(value > 0)
+    g <- g +
+      geom_point(data = df_labels) +
+      ggrepel::geom_text_repel(
+        aes(label = paste0(module_id, "_", type)), 
+        df_labels
+      )
+  }
   
   if (facet == "simulation") {
     g <- g + facet_wrap(~simulation_i, ncol = 1)
   } else if (facet == "module_group") {
     g <- g + facet_wrap(~module_group, ncol = 1)
+  } else if (facet == "module_id") {
+    g <- g + facet_wrap(~module_id, ncol = 1)
   }
   
   g

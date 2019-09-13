@@ -25,14 +25,16 @@ time in a specific manner.
 library(tidyverse)
 library(dyngen)
 
-set.seed(1)
+set.seed(10)
 model <- 
   initialise_model(
     num_tfs = 12,
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating(),
-    verbose = TRUE
+    verbose = TRUE,
+    download_cache_dir = "~/.cache/dyngen",
+    num_cores = 
   )
 
 plot_backbone_statenet(model)
@@ -112,7 +114,7 @@ parameters of the SSA simulation.
 model <- generate_kinetics(model)
 ```
 
-    ## Generating kinetics for 69 features
+    ## Generating kinetics for 72 features
     ## Generating formulae
 
 ``` r
@@ -271,7 +273,9 @@ init <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating_converging(),
-    verbose = FALSE
+    verbose = FALSE,
+    download_cache_dir = "~/.cache/dyngen",
+    num_cores = 8
   )
 out <- generate_dataset(
   init,
@@ -397,7 +401,9 @@ out <-
     num_tfs = 40,
     num_targets = 0,
     num_hks = 0,
-    verbose = FALSE
+    verbose = FALSE,
+    download_cache_dir = "~/.cache/dyngen",
+    num_cores = 
   ) %>% 
   generate_dataset(make_plots = TRUE)
 ```
@@ -431,7 +437,7 @@ Here is an example of a bifurcating trajectory.
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
   bblego_linear("A", "B", type = "flipflop", num_modules = 4),
-  bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
+  bblego_branching("B", c("C", "D"), type = "simple", num_modules = 6),
   bblego_end("C", type = "doublerep2", num_modules = 4),
   bblego_end("D", type = "doublerep1", num_modules = 7)
 )
@@ -464,11 +470,25 @@ print(out$plot)
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a
-full list of
-changes.
+Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full
+list of changes.
 
-<!-- This section gets automatically generated from inst/NEWS.md, and also generates inst/NEWS -->
+<!-- This section gets automatically generated from NEWS.md -->
+
+### Recent changes in dyngen 0.2.2 (unreleased)
+
+  - MINOR CHANGES: Fix module naming of backbones derived from
+    `backbone_branching()`.
+
+  - MINOR CHANGES: Allow to plot labels in
+    `plot_simulation_expression()`.
+
+  - FIX: Implement fix for double positives in `bblego` backbones.
+
+  - FIX: Fix graph plotting mixup of interaction effects (up/down).
+
+  - MINOR CHANGES: Improve `backbone_disconnected()` and
+    `backbone_converging()`.
 
 ### Recent changes in dyngen 0.2.1 (2019-07-17)
 
@@ -477,23 +497,3 @@ changes.
 
   - MAJOR CHANGES: Splicing reactions have been reworked to better
     reflect biology.
-
-### Recent changes in dyngen 0.2.0 (2019-07-12)
-
-Complete rewrite from `dyngen` from the bottom up.
-
-  - OPTIMISATION: All aspects of the pipeline have been optimised
-    towards execution time and end-user usability.
-
-  - OPTIMISATION: `dyngen` 0.2.0 uses `gillespie` 0.2.0, which has also
-    been rewritten entirely in `Rcpp`, thereby improving the speed
-    significantly.
-
-  - OPTIMISATION: The transcription factor propensity functions have
-    been refactored to make it much more computationally efficient.
-
-  - OPTIMISATION: Mapping a simulation to the gold standard is more
-    automised and less error-prone.
-
-  - FEATURE: A splicing step has been added to the chain of reaction
-    events.

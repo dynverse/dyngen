@@ -40,7 +40,7 @@
 #' backbone <- bblego(
 #'   bblego_start("A", type = "simple", num_modules = 2),
 #'   bblego_linear("A", "B", type = "simple", num_modules = 3),
-#'   bblego_branching("B", c("C", "D"), type = "simple", num_modules = 4),
+#'   bblego_branching("B", c("C", "D"), type = "robust", num_modules = 6),
 #'   bblego_end("C", type = "flipflop", num_modules = 4),
 #'   bblego_end("D", type = "doublerep1", num_modules = 7)
 #' )
@@ -72,7 +72,7 @@ bblego_linear <- function(
   
   module_info <- tibble(
     module_id = module_ids %>% head(-1),
-    a0 = 0,
+    ba = 0,
     burn = burn
   )
   
@@ -88,20 +88,20 @@ bblego_linear <- function(
   } else if (type == "doublerep1") {
     assert_that(num_modules >= 2)
     
-    a0s <- c(0, rep(1, num_modules-1), 0)
+    bas <- c(0, rep(1, num_modules-1), 0)
     if (num_modules %% 2 == 0) {
-      a0s[[2]] <- 0
+      bas[[2]] <- 0
     }
     module_info <- module_info %>% mutate(
-      a0 = a0s %>% head(-1),
-      burn = burn | a0 > 0
+      ba = bas %>% head(-1),
+      burn = burn | ba > 0
     )
     
     module_network <- 
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = ifelse(a0s[-1] > 0, -1, 1),
+        effect = ifelse(bas[-1] > 0, -1, 1),
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
       )
@@ -119,25 +119,24 @@ bblego_linear <- function(
           from = module_ids %>% head(-1),
           to = module_ids %>% tail(-1),
           effect = ifelse(to %in% pos_to, 1, -1),
-          # strength = ifelse(effect > 0, seq_along(effect), 1),
           strength = 1,
           cooperativity = 2
         ),
         tibble(
-          from = module_ids %>% head(-2),
-          to = module_ids %>% tail(-2),
+          from = module_ids %>% head(-2) %>% head(-1),
+          to = module_ids %>% tail(-2) %>% head(-1),
           effect = 1,
           strength = seq_along(from),
           cooperativity = 2
         ) %>% 
-          top_n(ifelse(num_modules %% 2 == 1, n() - 1, n()))
+          head(., ifelse(num_modules %% 2 == 1, nrow(.) - 1, nrow(.)))
       )
   } else if (type == "flipflop") {
     assert_that(num_modules >= 4)
     
     module_info <- tibble(
       module_id = module_ids %>% head(-1),
-      a0 = 0,
+      ba = 0,
       burn = burn
     )
     
@@ -180,77 +179,48 @@ bblego_linear <- function(
 bblego_branching <- function(
   from, 
   to, 
-  type = "simple",
-  num_modules = length(to) + 1,
+  type = c("robust", "simple"),
+  num_modules = length(to) * 2 + 2,
   burn = FALSE
 ) {
   assert_that(
     length(to) >= 2,
-    num_modules >= length(to) + 1
+    num_modules >= length(to) * 2 + 1
   )
   
-  lin_length <- num_modules - length(to)
+  type <- match.arg(type)
+  
+  # todo: implement reversible branching again
+  
+  lin_length <- num_modules - 2 * length(to)
   
   my_module_ids <- 
     paste0(from, seq_len(lin_length))
   our_module_ids <- 
     paste0(from, seq(lin_length + 1, num_modules))
+  our_module_ids1 <- 
+    our_module_ids[seq_len(length(our_module_ids) / 2)]
+  our_module_ids2 <- 
+    our_module_ids[-seq_len(length(our_module_ids) / 2)]
   their_module_ids <- 
     paste0(to, 1)
   module_ids <- c(my_module_ids, our_module_ids, their_module_ids)
   
   module_info <- tibble(
     module_id = c(my_module_ids, our_module_ids),
-    a0 = 0,
+    ba = 0,
     burn = burn
   )
   
   module_network <- bind_rows(
-    tibble(
-      from = my_module_ids %>% head(-1),
-      to = my_module_ids %>% tail(-1),
-      effect = 1,
-      strength = 1,
-      cooperativity = 2,
-    ),
-    tibble(
-      from = last(my_module_ids),
-      to = our_module_ids,
-      effect = 1,
-      strength = 1,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids,
-      to = our_module_ids,
-      effect = 1,
-      strength = 5,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids,
-      to = first(my_module_ids),
-      effect = -1,
-      strength = 5,
-      cooperativity = 2
-    ),
-    tibble(
-      from = our_module_ids,
-      to = their_module_ids,
-      effect = 1,
-      strength = 1,
-      cooperativity = 2
-    ),
-    crossing(
-      from = our_module_ids,
-      to = our_module_ids
-    ) %>% 
-      filter(from != to) %>% 
-      mutate(
-        effect = -1,
-        strength = 100,
-        cooperativity = 2
-      )
+    modnet_chain(my_module_ids),
+    modnet_edge(last(my_module_ids), our_module_ids1),
+    modnet_edge(our_module_ids1, our_module_ids2, strength = 2),
+    modnet_edge(our_module_ids2, our_module_ids1, strength = 2),
+    modnet_edge(our_module_ids1, first(my_module_ids), effect = -1, strength = 5),
+    modnet_edge(our_module_ids2, their_module_ids),
+    modnet_pairwise(our_module_ids1, effect = -1, strength = 100),
+    modnet_pairwise(our_module_ids1, our_module_ids2, effect = -1, strength = 10000000)
   )
   
   in_edge <- if (length(my_module_ids) >= 1) {
@@ -262,7 +232,7 @@ bblego_branching <- function(
   expression_patterns <- tibble(
     from = paste0("s", from),
     to = paste0("s", to),
-    module_progression = paste0(in_edge, "+", our_module_ids),
+    module_progression = paste0(in_edge, "+", our_module_ids1, ",+", our_module_ids2),
     start = FALSE,
     burn = burn,
     time = num_modules + 1
@@ -285,7 +255,7 @@ bblego_start <- dynutils::inherit_default_params(
     )
     out$module_info <- 
       out$module_info %>% 
-      mutate(a0 = ifelse(module_id == "Burn1", 1, a0))
+      mutate(ba = ifelse(module_id == "Burn1", 1, ba))
     out$expression_patterns <-
       out$expression_patterns %>% 
       mutate(start = TRUE)
