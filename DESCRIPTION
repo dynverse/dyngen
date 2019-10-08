@@ -31,7 +31,7 @@ Imports:
   dplyr,
   dynutils (>= 1.0.4),
   dynwrap (>= 1.0.0),
-  GillespieSSA2 (>= 0.2.5),
+  GillespieSSA2 (>= 0.2.4),
   ggplot2,
   ggraph (>= 2.0),
   ggrepel,
@@ -60,7 +60,7 @@ Suggests:
   testthat
 Remotes:
   r-lib/rlang,
-  dynverse/dynwrap@devel,
-  dynverse/lmds@devel,
-  rcannood/GillespieSSA2@devel
+  dynverse/dynwrap@master,
+  dynverse/lmds@master,
+  rcannood/GillespieSSA2@master
 VignetteBuilder: knitr
