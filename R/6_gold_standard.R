@@ -54,7 +54,7 @@ gold_standard_default <- function(
       substate = map(mod_diff, seq_along)
     ) %>% 
     select(-module_progression) %>% 
-    unnest(mod_diff, substate) %>% 
+    unnest(c(mod_diff, substate)) %>% 
     mutate(
       mod_diff2 = strsplit(mod_diff, ","),
       mod_on = map(mod_diff2, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
