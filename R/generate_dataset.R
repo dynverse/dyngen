@@ -24,17 +24,20 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
     generate_cells() %>% 
     generate_experiment()
   
+  if (model$verbose) cat("Wrapping dataset\n")
   dataset <-
     wrap_dataset(model, store_grn = store_grn)
   
   # write to file
   if (!is.null(output_dir)) {
+    if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
     write_rds(dataset, paste0(output_dir, "dataset.rds"), compress = "gz")
     write_rds(model, paste0(output_dir, "model.rds"), compress = "gz")
   }
   
   if (make_plots) {
+    if (model$verbose) cat("Making plots\n")
     # make plots :scream:
     g1 <- plot_backbone_statenet(model) + labs(title = "Backbone state network")
     g2 <- plot_backbone_modulenet(model) + labs(title = "Backbone module reg. net.")
