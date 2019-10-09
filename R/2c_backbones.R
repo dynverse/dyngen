@@ -455,7 +455,8 @@ backbone_disconnected <- function(
     tibble(
       module_id = paste0("A", 1:7),
       ba = ifelse(module_id == "A1", 1, 0),
-      burn = TRUE
+      burn = TRUE,
+      ind = 1
     ),
     lmi %>% mutate(ba = 0),
     rmi %>% mutate(ba = 0),
