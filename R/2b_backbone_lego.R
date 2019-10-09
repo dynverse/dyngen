@@ -59,7 +59,7 @@ bblego <- function(..., .list = NULL) {
 bblego_linear <- function(
   from, 
   to, 
-  type = sample(c("simple", "doublerep1", "doublerep2", "flipflop"), 1),
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
   num_modules = sample(4:6, 1),
   burn = FALSE
 ) {
