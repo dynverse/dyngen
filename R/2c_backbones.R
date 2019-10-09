@@ -52,8 +52,8 @@ backbone_bifurcating_converging <- function() {
     "sA", "sB", "+B1,+B2", FALSE, FALSE, 2,
     "sB", "sC", "+C1,+C2,+C3,+C4", FALSE, FALSE, 2,
     "sB", "sD", "+D1,+D2,+D3,+D4", FALSE, FALSE, 2,
-    "sC", "sE", "+E1", FALSE, FALSE, 4,
-    "sD", "sE", "+E1", FALSE, FALSE, 4,
+    "sC", "sE", "+E1,+D1,+D2,+D3,+D4", FALSE, FALSE, 4,
+    "sD", "sE", "+E1,+C1,+C3,+C3,+C4", FALSE, FALSE, 4,
     "sE", "sF", "+F1,+F2", FALSE, FALSE, 2
   )
   
