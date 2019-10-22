@@ -1,5 +1,5 @@
 
-modnet_edge <- function(from, to, effect = 1, strength = 1, cooperativity = 2) {
+modnet_edge <- function(from, to, effect = 1L, strength = 1, cooperativity = 2) {
   max_len <- max(length(from), length(to))
   assert_that(
     length(from) == 1 || length(to) == 1 || length(from) == length(to),
@@ -15,7 +15,7 @@ modnet_edge <- function(from, to, effect = 1, strength = 1, cooperativity = 2) {
     cooperativity = cooperativity
   )
 }
-modnet_chain <- function(mids, effect = 1, strength = 1, cooperativity = 2) {
+modnet_chain <- function(mids, effect = 1L, strength = 1, cooperativity = 2) {
   if (length(mids) == 1) return(NULL)
   modnet_edge(
     from = mids %>% head(-1),
@@ -25,7 +25,7 @@ modnet_chain <- function(mids, effect = 1, strength = 1, cooperativity = 2) {
     cooperativity = cooperativity
   )
 }
-modnet_self <- function(mids, effect = 1, strength = 1, cooperativity = 2) {
+modnet_self <- function(mids, effect = 1L, strength = 1, cooperativity = 2) {
   modnet_edge(
     from = mids,
     to = mids,
@@ -34,7 +34,7 @@ modnet_self <- function(mids, effect = 1, strength = 1, cooperativity = 2) {
     cooperativity = cooperativity
   )
 }
-modnet_pairwise <- function(from, to = from, self = FALSE, effect = 1, strength = 1, cooperativity = 2) {
+modnet_pairwise <- function(from, to = from, self = FALSE, effect = 1L, strength = 1, cooperativity = 2) {
   max_len <- length(from) * ifelse(self, length(to), length(to) - 1)
   assert_that(
     self || length(from) == length(to),

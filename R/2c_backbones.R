@@ -15,33 +15,33 @@ backbone_bifurcating <- function() {
 #' @rdname backbone_models
 backbone_bifurcating_converging <- function() {
   module_info <- tribble(
-    ~module_id, ~ba, ~burn,
-    "A1", 1, TRUE,
-    "B1", 0, FALSE,
-    "B2", 0, FALSE,
-    "C1", 0, FALSE,
-    "C2", 0, FALSE,
-    "C3", 0, FALSE,
-    "C4", 0, FALSE,
-    "D1", 0, FALSE,
-    "D2", 0, FALSE,
-    "D3", 0, FALSE,
-    "D4", 0, FALSE,
-    "E1", 0, FALSE,
-    "F1", 0, FALSE,
-    "F2", 0, FALSE
+    ~module_id, ~basal, ~burn, ~independence,
+    "A1", 1, TRUE, 1,
+    "B1", 0, FALSE, 1,
+    "B2", 0, FALSE, 1,
+    "C1", 0, FALSE, 1,
+    "C2", 0, FALSE, 1,
+    "C3", 0, FALSE, 1,
+    "C4", 0, FALSE, 1,
+    "D1", 0, FALSE, 1,
+    "D2", 0, FALSE, 1,
+    "D3", 0, FALSE, 1,
+    "D4", 0, FALSE, 1,
+    "E1", 0, FALSE, 1,
+    "F1", 0, FALSE, 1,
+    "F2", 0, FALSE, 1
   )
   
   module_network <- bind_rows(
     modnet_chain(c("A1", "B1", "B2")),
     modnet_edge("B2", c("C1", "D1")),
-    modnet_pairwise(c("C1", "D1"), effect = -1, strength = 100),
+    modnet_pairwise(c("C1", "D1"), effect = -1L, strength = 100),
     modnet_edge(c("C1", "D1"), c("C2", "D2"), strength = 2),
     modnet_edge(c("C2", "D2"), c("C1", "D1"), strength = 2),
     modnet_chain(c("C2", "C3", "C4", "E1")),
     modnet_chain(c("D2", "D3", "D4", "E1")),
-    modnet_pairwise(c("C1", "D1"), c("C2", "D2"), effect = -1, strength = 100000),
-    modnet_edge("E1", c("C1", "C2", "D1", "D2"), effect = -1, strength = 100),
+    modnet_pairwise(c("C1", "D1"), c("C2", "D2"), effect = -1L, strength = 100000),
+    modnet_edge("E1", c("C1", "C2", "D1", "D2"), effect = -1L, strength = 100),
     modnet_edge("E1", c("C4", "D4")),
     modnet_chain(c("E1", "F1", "F2"))
   )
@@ -65,51 +65,51 @@ backbone_bifurcating_converging <- function() {
 #' @rdname backbone_models
 backbone_bifurcating_cycle <- function() {
   module_info <- tribble(
-    ~module_id, ~ba, ~burn,
-    "A1", 1, TRUE,
-    "B1", 0, FALSE,
-    "B2", 0, FALSE,
-    "A2", 1, TRUE,
-    "A3", 1, TRUE,
-    "C1", 0, TRUE,
-    "C2", 0, TRUE,
-    "C3", 0, TRUE,
-    "D1", 0, TRUE,
-    "D2", 0, TRUE,
-    "D3", 0, TRUE,
-    "E1", 0, TRUE,
-    "E2", 0, TRUE,
-    "E3", 0, TRUE
+    ~module_id, ~basal, ~burn, ~independence,
+    "A1", 1, TRUE, 1,
+    "B1", 0, FALSE, 1,
+    "B2", 0, FALSE, 1,
+    "A2", 1, TRUE, 1,
+    "A3", 1, TRUE, 1,
+    "C1", 0, TRUE, 1,
+    "C2", 0, TRUE, 1,
+    "C3", 0, TRUE, 1,
+    "D1", 0, TRUE, 1,
+    "D2", 0, TRUE, 1,
+    "D3", 0, TRUE, 1,
+    "E1", 0, TRUE, 1,
+    "E2", 0, TRUE, 1,
+    "E3", 0, TRUE, 1
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "B1", 1, 1, 2,
-    "B1", "B2", 1, 1, 2,
-    "B1", "A2", -1, 10, 2,
-    "B2", "A3", -1, 10, 2,
-    "B2", "C1", 1, 1, 2, 
-    "B2", "D1", 1, 1, 2,
-    "C1", "C1", 1, 4, 2,
-    "D1", "D1", 1, 4, 2,
-    "C1", "D1", -1, 100, 2,
-    "D1", "C1", -1, 100, 2,
-    "C1", "C2", 1, 1, 2,
-    "C2", "C3", 1, 1, 2,
-    "D1", "D2", 1, 1, 2,
-    "D2", "D3", 1, 1, 2,
-    "C3", "E1", 1, 1, 2,
-    "D3", "E1", 1, 1, 2,
-    "E1", "E1", 1, 5, 2,
-    "E1", "A1", -1, 10, 2,
-    "E1", "C1", -1, 20, 2,
-    "E1", "D1", -1, 20, 2,
-    "E1", "E2", 1, 1, 2,
-    "E2", "E3", 1, 1, 2,
-    "E3", "E1", -1, 10, 2,
-    "E3", "C1", -1, 20, 2,
-    "E3", "D1", -1, 20, 2,
-    "E3", "A1", 1, 2, 2
+    "A1", "B1", 1L, 1, 2,
+    "B1", "B2", 1L, 1, 2,
+    "B1", "A2", -1L, 10, 2,
+    "B2", "A3", -1L, 10, 2,
+    "B2", "C1", 1L, 1, 2, 
+    "B2", "D1", 1L, 1, 2,
+    "C1", "C1", 1L, 4, 2,
+    "D1", "D1", 1L, 4, 2,
+    "C1", "D1", -1L, 100, 2,
+    "D1", "C1", -1L, 100, 2,
+    "C1", "C2", 1L, 1, 2,
+    "C2", "C3", 1L, 1, 2,
+    "D1", "D2", 1L, 1, 2,
+    "D2", "D3", 1L, 1, 2,
+    "C3", "E1", 1L, 1, 2,
+    "D3", "E1", 1L, 1, 2,
+    "E1", "E1", 1L, 5, 2,
+    "E1", "A1", -1L, 10, 2,
+    "E1", "C1", -1L, 20, 2,
+    "E1", "D1", -1L, 20, 2,
+    "E1", "E2", 1L, 1, 2,
+    "E2", "E3", 1L, 1, 2,
+    "E3", "E1", -1L, 10, 2,
+    "E3", "C1", -1L, 20, 2,
+    "E3", "D1", -1L, 20, 2,
+    "E3", "A1", 1L, 2, 2
   )
   
   expression_patterns <- tribble(
@@ -131,46 +131,46 @@ backbone_bifurcating_cycle <- function() {
 #' @rdname backbone_models
 backbone_bifurcating_loop <- function() {
   module_info <- tribble(
-    ~module_id, ~ba, ~burn,
-    "A1", 1, TRUE,
-    "A2", 0, TRUE,
-    "A3", 1, TRUE,
-    "B1", 0, FALSE,
-    "B2", 1, TRUE,
-    "C1", 0, FALSE,
-    "C2", 0, FALSE,
-    "C3", 0, FALSE,
-    "D1", 0, FALSE,
-    "D2", 0, FALSE,
-    "D3", 1, TRUE,
-    "D4", 0, FALSE,
-    "D5", 0, FALSE
+    ~module_id, ~basal, ~burn, ~independence,
+    "A1", 1, TRUE, 1,
+    "A2", 0, TRUE, 1,
+    "A3", 1, TRUE, 1,
+    "B1", 0, FALSE, 1,
+    "B2", 1, TRUE, 1,
+    "C1", 0, FALSE, 1,
+    "C2", 0, FALSE, 1,
+    "C3", 0, FALSE, 1,
+    "D1", 0, FALSE, 1,
+    "D2", 0, FALSE, 1,
+    "D3", 1, TRUE, 1,
+    "D4", 0, FALSE, 1,
+    "D5", 0, FALSE, 1
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "A1", "A2", 1, 10, 2,
-    "A2", "A3", -1,  10, 2,
-    "A2", "B1", 1, 1, 2,
-    "B1", "B2", -1, 10, 2,
-    "B1", "C1", 1, 1, 2,
-    "B1", "D1", 1, 1, 2,
-    "C1", "C1", 1, 10, 2,
-    "C1", "D1", -1, 100, 2,
-    "C1", "C2", 1, 1, 2,
-    "C2", "C3", 1, 1, 2,
-    "C2", "A2", -1, 10, 2,
-    "C2", "B1", -1, 10, 2,
-    "C3", "A1", -1, 10, 2,
-    "C3", "C1", -1, 10, 2,
-    "C3", "D1", -1, 10, 2,
-    "D1", "D1", 1, 10, 2,
-    "D1", "C1", -1, 100, 2,
-    "D1", "D2", 1, 1, 2,
-    "D1", "D3", -1, 10, 2,
-    "D2", "D4", 1, 1, 2,
-    "D4", "D5", 1, 1, 2,
-    "D3", "D5", -1, 10, 2
+    "A1", "A2", 1L, 10, 2,
+    "A2", "A3", -1L,  10, 2,
+    "A2", "B1", 1L, 1, 2,
+    "B1", "B2", -1L, 10, 2,
+    "B1", "C1", 1L, 1, 2,
+    "B1", "D1", 1L, 1, 2,
+    "C1", "C1", 1L, 10, 2,
+    "C1", "D1", -1L, 100, 2,
+    "C1", "C2", 1L, 1, 2,
+    "C2", "C3", 1L, 1, 2,
+    "C2", "A2", -1L, 10, 2,
+    "C2", "B1", -1L, 10, 2,
+    "C3", "A1", -1L, 10, 2,
+    "C3", "C1", -1L, 10, 2,
+    "C3", "D1", -1L, 10, 2,
+    "D1", "D1", 1L, 10, 2,
+    "D1", "C1", -1L, 100, 2,
+    "D1", "D2", 1L, 1, 2,
+    "D1", "D3", -1L, 10, 2,
+    "D2", "D4", 1L, 1, 2,
+    "D4", "D5", 1L, 1, 2,
+    "D3", "D5", -1L, 10, 2
   )
   
   expression_patterns <- tribble(
@@ -295,38 +295,38 @@ backbone_trifurcating <- function() {
 #' @rdname backbone_models
 backbone_converging <- function() {
   module_info <- tribble(
-    ~module_id, ~ba, ~burn,
-    "A1", 1, TRUE,
-    "A2", 1, TRUE,
-    "A3", 1, TRUE,
-    "B1", 0, TRUE,
-    "B2", 0, TRUE,
-    "B3", 0, FALSE,
-    "C1", 0, TRUE,
-    "C2", 0, TRUE,
-    "C3", 0, FALSE,
-    "D1", 0, FALSE,
-    "D2", 1, TRUE,
-    "E1", 1, FALSE,
-    "E2", 0, FALSE,
-    "E3", 0, FALSE,
-    "E4", 0, FALSE,
-    "E5", 0, FALSE
+    ~module_id, ~basal, ~burn, ~independence,
+    "A1", 1, TRUE, 1,
+    "A2", 1, TRUE, 1,
+    "A3", 1, TRUE, 1,
+    "B1", 0, TRUE, 1,
+    "B2", 0, TRUE, 1,
+    "B3", 0, FALSE, 1,
+    "C1", 0, TRUE, 1,
+    "C2", 0, TRUE, 1,
+    "C3", 0, FALSE, 1,
+    "D1", 0, FALSE, 1,
+    "D2", 1, TRUE, 1,
+    "E1", 1, FALSE, 1,
+    "E2", 0, FALSE, 1,
+    "E3", 0, FALSE, 1,
+    "E4", 0, FALSE, 1,
+    "E5", 0, FALSE, 1
   )
   
   module_network <- bind_rows(
     modnet_chain(c("A1", "A2", "A3")),
     modnet_edge("A3", c("B1", "C1")),
-    modnet_pairwise(c("B1", "C1"), effect = -1, strength = 100),
+    modnet_pairwise(c("B1", "C1"), effect = -1L, strength = 100),
     modnet_edge(c("B1", "C1"), c("B2", "C2"), strength = 2),
     modnet_edge(c("B2", "C2"), c("B1", "C1"), strength = 2),
     modnet_chain(c("B2", "B3", "D1")),
     modnet_chain(c("C2", "C3", "D1")),
     modnet_edge(c("D1", "D1"), c("B3", "C3")),
-    modnet_pairwise(c("B1", "C1"), c("B2", "C2"), effect = -1, strength = 100000),
-    modnet_edge("D1", c("B1", "C1", "B2", "C2"), effect = -1, strength = 100),
-    modnet_edge(c("B2", "C2"), "E1", effect = -1, strength = 1),
-    modnet_chain(c("D1", "D2", "E1"), effect = -1, strength = 1),
+    modnet_pairwise(c("B1", "C1"), c("B2", "C2"), effect = -1L, strength = 100000),
+    modnet_edge("D1", c("B1", "C1", "B2", "C2"), effect = -1L, strength = 100),
+    modnet_edge(c("B2", "C2"), "E1", effect = -1L, strength = 1),
+    modnet_chain(c("D1", "D2", "E1"), effect = -1L, strength = 1),
     modnet_chain(c("E1", "E2", "E3", "E4", "E5"))
   )
   
@@ -350,21 +350,21 @@ backbone_converging <- function() {
 #' @rdname backbone_models
 backbone_cycle <- function() {
   module_info <- tribble(
-    ~module_id, ~ba, ~burn,
-    "M1", 1, TRUE,
-    "M2", 1, TRUE,
-    "M3", 1, TRUE,
-    "M4", 0, FALSE,
-    "M5", 0, FALSE
+    ~module_id, ~basal, ~burn, ~independence,
+    "M1", 1, TRUE, 1,
+    "M2", 1, TRUE, 1,
+    "M3", 1, TRUE, 1,
+    "M4", 0, FALSE, 1,
+    "M5", 0, FALSE, 1
   )
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~cooperativity,
-    "M1", "M2", -1, 4, 2,
-    "M2", "M3", -1, 4, 2,
-    "M3", "M4", 1, 1, 2,
-    "M4", "M5", 1, 1, 2,
-    "M5", "M1", -1, 4, 2
+    "M1", "M2", -1L, 4, 2,
+    "M2", "M3", -1L, 4, 2,
+    "M3", "M4", 1L, 1, 2,
+    "M4", "M5", 1L, 1, 2,
+    "M5", "M1", -1L, 4, 2
   )
   
   expression_patterns <- tribble(
@@ -437,8 +437,8 @@ backbone_disconnected <- function(
   
   # find starting modules and states; 
   # assume there is only one starting module / state per backbone
-  lmis <- lmi %>% filter(ba > 0) %>% pull(module_id)
-  rmis <- rmi %>% filter(ba > 0) %>% pull(module_id)
+  lmis <- lmi %>% filter(basal > 0) %>% pull(module_id)
+  rmis <- rmi %>% filter(basal > 0) %>% pull(module_id)
   leps <- lep %>% filter(start) %>% pull(from)
   reps <- rep %>% filter(start) %>% pull(from)
   
@@ -454,24 +454,24 @@ backbone_disconnected <- function(
   module_info <- bind_rows(
     tibble(
       module_id = paste0("A", 1:7),
-      ba = ifelse(module_id == "A1", 1, 0),
+      basal = ifelse(module_id == "A1", 1, 0),
       burn = TRUE,
-      ind = 1
+      independence = 1
     ),
-    lmi %>% mutate(ba = 0),
-    rmi %>% mutate(ba = 0),
-    tibble(module_id = common_modules, ba = 0, burn = FALSE)
+    lmi %>% mutate(basal = 0),
+    rmi %>% mutate(basal = 0),
+    tibble(module_id = common_modules, basal = 0, burn = FALSE, independence = 1)
   ) %>% select(-color)
   
   module_network <- bind_rows(
     modnet_chain(c("A1", "A2", "A3")),
     modnet_edge("A3", c("A4", "A5")),
-    modnet_pairwise(c("A4", "A5"), effect = -1, strength = 100),
+    modnet_pairwise(c("A4", "A5"), effect = -1L, strength = 100),
     modnet_edge(c("A4", "A5", "A6", "A7"), c("A6", "A7", "A4", "A5"), strength = 2),
-    modnet_pairwise(c("A4", "A5"), c("A6", "A7"), effect = -1, strength = 100000),
-    modnet_edge(c("A6", "A7"), "A1", effect = -1, strength = 10),
-    lmi %>% filter(ba > 0) %>% transmute(from = "A6", to = module_id, effect = 1, strength = ba, cooperativity = 2),
-    rmi %>% filter(ba > 0) %>% transmute(from = "A7", to = module_id, effect = 1, strength = ba, cooperativity = 2),
+    modnet_pairwise(c("A4", "A5"), c("A6", "A7"), effect = -1L, strength = 100000),
+    modnet_edge(c("A6", "A7"), "A1", effect = -1L, strength = 10),
+    lmi %>% filter(basal > 0) %>% transmute(from = "A6", to = module_id, effect = 1L, strength = basal, cooperativity = 2),
+    rmi %>% filter(basal > 0) %>% transmute(from = "A7", to = module_id, effect = 1L, strength = basal, cooperativity = 2),
     lmn,
     rmn,
     tibble(
@@ -480,7 +480,7 @@ backbone_disconnected <- function(
         sample(rmn$from, length(common_modules), replace = TRUE)
       ),
       to = c(common_modules, common_modules),
-      effect = 1,
+      effect = 1L,
       strength = 1,
       cooperativity = 2
     )

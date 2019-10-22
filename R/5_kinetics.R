@@ -10,7 +10,7 @@
 #' @param sample_xdr A function specifying the distribution from which to sample the mRNA decay rate.
 #' @param sample_ypr A function specifying the distribution from which to sample the protein production rate.
 #' @param sample_ydr A function specifying the distribution from which to sample the protein decay rate.
-#' @param sample_ind A function specifying the distribution from which to sample the regulator independence factor.
+#' @param sample_independence A function specifying the distribution from which to sample the regulator independence factor.
 #' @param sample_effect A function specifying the distribution from which to sample the effect of an interaction.
 #' @param sample_strength A function specifing the distribution from which to sample the strength of an interaction.
 #' @param sample_cooperativity A function specifing the distribution from which to sample the cooperativity of an interaction from.
@@ -68,7 +68,7 @@ kinetics_default <- function(
   sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
-  sample_ind = function(n) runif(n, 0, 1),
+  sample_independence = function(n) runif(n, 0, 1),
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
   sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
@@ -80,7 +80,7 @@ kinetics_default <- function(
     sample_xdr,
     sample_ypr,
     sample_ydr,
-    sample_ind,
+    sample_independence,
     
     sample_effect,
     sample_strength,
@@ -101,7 +101,7 @@ kinetics_default <- function(
       ypr = params$sample_ypr(n()),
       ydr = params$sample_ydr(n()),
       max_protein = wpr / xdr * ypr / ydr,
-      ind = ind %|% params$sample_ind(n())
+      independence = independence %|% params$sample_independence(n())
     )
   
   # remove previous 'as' if present
@@ -129,16 +129,16 @@ kinetics_default <- function(
         rename(feature_id = to) %>% 
         group_by(feature_id) %>% 
         summarise(
-          ba_2 = .kinetics_calculate_ba(effect)
+          basal_2 = .kinetics_calculate_ba(effect)
         ),
       by = "feature_id"
     ) %>% 
     mutate(
       # 1 for genes that are not being regulated by any other genes,
       # yet did not already have an ba defined
-      ba = ba %|% ba_2 %|% 1 
+      basal = basal %|% basal_2 %|% 1 
     ) %>% 
-    select(-ba_2)
+    select(-basal_2)
   
   model$feature_info <- feature_info
   model$feature_network <- feature_network
@@ -186,8 +186,8 @@ kinetics_default <- function(
       ypr <- paste0("ypr_", fid)
       ydr <- paste0("ydr_", fid)
       
-      ba <- paste0("ba_", fid)
-      ind <- paste0("ind_", fid)
+      basal <- paste0("basal_", fid)
+      independence <- paste0("independence_", fid)
       
       if (!is.null(info$regulators)) {
         rid <- info$regulators$from
@@ -214,9 +214,9 @@ kinetics_default <- function(
         
         numerator <-
           if (sum(eff > 0) > 0) {
-            paste0(ba, " - pow(", ind, ",", sum(eff > 0), ") + ", paste("(", regulation_var[eff > 0], " + ", ind, ")", collapse = " * ", sep = ""))
+            paste0(basal, " - pow(", independence, ",", sum(eff > 0), ") + ", paste("(", regulation_var[eff > 0], " + ", independence, ")", collapse = " * ", sep = ""))
           } else {
-            ba
+            basal
           }
         denominator <- paste("(", regulation_var, " + 1)", collapse = " * ", sep = "")
         
@@ -272,7 +272,7 @@ kinetics_default <- function(
   # extract m to qr, d, p, q, and ba
   feature_params <- 
     model$feature_info %>% 
-    select(feature_id, wpr, wsr, xdr, ypr, ydr, ba, ind) %>% 
+    select(feature_id, wpr, wsr, xdr, ypr, ydr, basal, independence) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 

@@ -12,10 +12,10 @@ kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
   sample_xdr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, 0.5) \%>\% pmax(1),
-  sample_ind = function(n) runif(n, 0, 1), sample_effect = function(n)
-  sample(c(-1, 1), n, replace = TRUE, prob = c(0.25, 0.75)),
-  sample_strength = function(n) 10^runif(n, log10(1), log10(100)),
-  sample_cooperativity = function(n) runif(n, 0.5, 2))
+  sample_independence = function(n) runif(n, 0, 1),
+  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob =
+  c(0.25, 0.75)), sample_strength = function(n) 10^runif(n, log10(1),
+  log10(100)), sample_cooperativity = function(n) runif(n, 0.5, 2))
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
@@ -30,7 +30,7 @@ kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
 
 \item{sample_ydr}{A function specifying the distribution from which to sample the protein decay rate.}
 
-\item{sample_ind}{A function specifying the distribution from which to sample the regulator independence factor.}
+\item{sample_independence}{A function specifying the distribution from which to sample the regulator independence factor.}
 
 \item{sample_effect}{A function specifying the distribution from which to sample the effect of an interaction.}
 

@@ -72,8 +72,9 @@ bblego_linear <- function(
   
   module_info <- tibble(
     module_id = module_ids %>% head(-1),
-    ba = 0,
-    burn = burn
+    basal = 0,
+    burn = burn,
+    independence = 1
   )
   
   if (type == "simple") {
@@ -81,7 +82,7 @@ bblego_linear <- function(
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = 1,
+        effect = 1L,
         strength = 1,
         cooperativity = 2
       )
@@ -93,15 +94,15 @@ bblego_linear <- function(
       bas[[2]] <- 0
     }
     module_info <- module_info %>% mutate(
-      ba = bas %>% head(-1),
-      burn = burn | ba > 0
+      basal = bas %>% head(-1),
+      burn = burn | basal > 0
     )
     
     module_network <- 
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = ifelse(bas[-1] > 0, -1, 1),
+        effect = ifelse(bas[-1] > 0, -1L, 1L),
         strength = ifelse(effect == 1, 1, 10),
         cooperativity = 2
       )
@@ -118,14 +119,14 @@ bblego_linear <- function(
         tibble(
           from = module_ids %>% head(-1),
           to = module_ids %>% tail(-1),
-          effect = ifelse(to %in% pos_to, 1, -1),
+          effect = ifelse(to %in% pos_to, 1L, -1L),
           strength = 1,
           cooperativity = 2
         ),
         tibble(
           from = module_ids %>% head(-2) %>% head(-1),
           to = module_ids %>% tail(-2) %>% head(-1),
-          effect = 1,
+          effect = 1L,
           strength = seq_along(from),
           cooperativity = 2
         ) %>% 
@@ -136,23 +137,24 @@ bblego_linear <- function(
     
     module_info <- tibble(
       module_id = module_ids %>% head(-1),
-      ba = 0,
-      burn = burn
+      basal = 0,
+      burn = burn,
+      independence = 1
     )
     
     module_network <- bind_rows(
       tibble(
         from = module_ids %>% head(-1),
         to = module_ids %>% tail(-1),
-        effect = 1,
+        effect = 1L,
         strength = 1,
         cooperativity = 2
       ),
       tribble(
         ~from, ~to, ~effect, ~strength, ~cooperativity,
-        nth(module_ids, -2), nth(module_ids, 1), -1, 10, 2,
-        nth(module_ids, -3), nth(module_ids, -1), -1, 100, 2,
-        nth(module_ids, -2), nth(module_ids, -2), 1, 1, 2
+        nth(module_ids, -2), nth(module_ids, 1), -1L, 10, 2,
+        nth(module_ids, -3), nth(module_ids, -1), -1L, 100, 2,
+        nth(module_ids, -2), nth(module_ids, -2), 1L, 1, 2
       )
     )
   } else {
@@ -208,8 +210,9 @@ bblego_branching <- function(
   
   module_info <- tibble(
     module_id = c(my_module_ids, our_module_ids),
-    ba = 0,
-    burn = burn
+    basal = 0,
+    burn = burn,
+    independence = 1
   )
   
   module_network <- bind_rows(
@@ -217,10 +220,10 @@ bblego_branching <- function(
     modnet_edge(last(my_module_ids), our_module_ids1),
     modnet_edge(our_module_ids1, our_module_ids2, strength = 2),
     modnet_edge(our_module_ids2, our_module_ids1, strength = 2),
-    modnet_edge(our_module_ids1, first(my_module_ids), effect = -1, strength = 5),
+    modnet_edge(our_module_ids1, first(my_module_ids), effect = -1L, strength = 5),
     modnet_edge(our_module_ids2, their_module_ids),
-    modnet_pairwise(our_module_ids1, effect = -1, strength = 100),
-    modnet_pairwise(our_module_ids1, our_module_ids2, effect = -1, strength = 10000000)
+    modnet_pairwise(our_module_ids1, effect = -1L, strength = 100),
+    modnet_pairwise(our_module_ids1, our_module_ids2, effect = -1L, strength = 10000000)
   )
   
   in_edge <- if (length(my_module_ids) >= 1) {
@@ -255,7 +258,7 @@ bblego_start <- dynutils::inherit_default_params(
     )
     out$module_info <- 
       out$module_info %>% 
-      mutate(ba = ifelse(module_id == "Burn1", 1, ba))
+      mutate(basal = ifelse(module_id == "Burn1", 1, basal))
     out$expression_patterns <-
       out$expression_patterns %>% 
       mutate(start = TRUE)
