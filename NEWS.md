@@ -10,6 +10,9 @@
 
 * MINOR CHANGES: Improve `backbone_disconnected()` and `backbone_converging()`.
 
+* MINOR CHANGES: Rename required columns in `backbone()` input data.
+
+
 # dyngen 0.2.1 (2019-07-17)
 
 * MAJOR CHANGES: Custom backbones can be defined using backbone lego pieces. See `?bblego` for more information.
