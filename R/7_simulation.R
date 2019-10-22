@@ -43,7 +43,11 @@ generate_cells <- function(model) {
   
   # predict state
   if (model$verbose) cat("Mapping simulations to gold standard\n", sep = "")
-  model$simulations$meta <- .generate_cells_predict_state(model)
+  if (!is.null(model[["gold_standard"]])) {
+    model$simulations$meta <- .generate_cells_predict_state(model)
+  } else {
+    model$simulations$meta <- model$simulations$meta %>% rename(sim_time = time)
+  }
   
   # perform dimred
   if (model$verbose) cat("Performing dimred\n", sep = "")
@@ -94,7 +98,7 @@ simulation_default <- function(
   comp_funs <- GillespieSSA2::compile_reactions(
     reactions = reactions,
     buffer_ids = buffer_ids,
-    state_ids = names(sim_system$initial_state),
+    state_ids = if (is.matrix(sim_system$initial_state)) colnames(sim_system$initial_state) else names(sim_system$initial_state),
     params = sim_system$parameters,
     hardcode_params = FALSE,
     fun_by = 1000L
@@ -109,6 +113,12 @@ simulation_default <- function(
   
   set.seed(sim_params$seeds[[simulation_i]])
   
+  # get initial state
+  initial_state <- sim_system$initial_state
+  if (is.matrix(initial_state)) {
+    initial_state <- initial_state[simulation_i, ]
+  }
+  
   if (sim_params$burn_time > 0) {
     burn_reaction_firings <- reactions
     rem <- setdiff(sim_system$molecule_ids, sim_system$burn_variables)
@@ -118,7 +128,7 @@ simulation_default <- function(
     
     # burn in
     out <- GillespieSSA2::ssa(
-      initial_state = sim_system$initial_state,
+      initial_state = initial_state,
       reactions = burn_reaction_firings,
       final_time = sim_params$burn_time,
       census_interval = sim_params$census_interval,
@@ -145,7 +155,7 @@ simulation_default <- function(
   } else {
     burn_meta <- NULL
     burn_counts <- NULL
-    new_initial_state <- sim_system$initial_state
+    new_initial_state <- initial_state
     burn_regulation <- NULL
     burn_reaction_firings <- NULL
   }
