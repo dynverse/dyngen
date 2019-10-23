@@ -51,3 +51,5 @@ test_that("Testing normal use case of backbone creation", {
   expect_equal(backbone$expression_patterns$burn, c(TRUE, FALSE))
   expect_equal(backbone$expression_patterns$time, c(1, 1))
 })
+
+# TODO: add test for when things go wrong
