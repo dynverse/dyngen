@@ -20,8 +20,8 @@ be active during the burn in phase
 \itemize{
 \item from (character): the regulating module
 \item to (character): the target module
-\item effect (integer): \code{1} if the regulating module upregulates
-the target module, \code{-1} if it downregulates
+\item effect (integer): \code{1L} if the regulating module upregulates
+the target module, \code{-1L} if it downregulates
 \item strength (numeric): the strength of the interaction
 \item cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
 between 0 and 1 for negative cooperativity

@@ -18,8 +18,8 @@
 #' 
 #' * from (character): the regulating module
 #' * to (character): the target module
-#' * effect (integer): `1` if the regulating module upregulates 
-#'   the target module, `-1` if it downregulates
+#' * effect (integer): `1L` if the regulating module upregulates 
+#'   the target module, `-1L` if it downregulates
 #' * strength (numeric): the strength of the interaction
 #' * cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
 #'   between 0 and 1 for negative cooperativity
