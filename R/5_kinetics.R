@@ -222,7 +222,7 @@ kinetics_default <- function(
         
         wpr_function <- paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
       } else {
-        wpr_function <- paste0(wpr, " * ", ba)
+        wpr_function <- paste0(wpr, " * ", basal)
         regulation_var <- character()
       }
       
