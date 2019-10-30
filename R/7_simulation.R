@@ -107,7 +107,7 @@ simulation_default <- function(
   comp_funs
 }
 
-.generate_cells_simulate_cell <- function(simulation_i, model, reactions, verbose = FALSE) {
+.generate_cells_simulate_cell <- function(simulation_i, model, reactions, verbose = FALSE, debug = FALSE) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
@@ -158,6 +158,23 @@ simulation_default <- function(
     new_initial_state <- initial_state
     burn_regulation <- NULL
     burn_reaction_firings <- NULL
+  }
+  
+  if (debug) {
+    sim <- GillespieSSA2:::create_simulation(
+      initial_state = new_initial_state, 
+      compiled_reactions = reactions,
+      final_time = sim_params$total_time, 
+      census_interval = sim_params$census_interval,
+      params = sim_system$parameters,
+      method_ptr = sim_params$ssa_algorithm$factory(),
+      stop_on_neg_state = FALSE,
+      verbose = verbose,
+      log_buffer = sim_params$store_grn,
+      log_firings = sim_params$store_reaction_firings,
+      log_propensity = sim_params$store_reaction_propensities
+    )
+    return(sim)
   }
   
   # actual simulation
