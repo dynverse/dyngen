@@ -159,8 +159,10 @@ list_backbones <- function() {
     consecutive_bifurcating = backbone_consecutive_bifurcating,
     converging = backbone_converging,
     cycle = backbone_cycle,
+    cycle_simple = backbone_cycle_simple,
     disconnected = backbone_disconnected,
     linear = backbone_linear,
+    linear_simple = backbone_linear_simple,
     trifurcating = backbone_trifurcating
   )
 }

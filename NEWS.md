@@ -1,17 +1,18 @@
 # dyngen 0.2.2 (unreleased)
 
-* MINOR CHANGES: Fix module naming of backbones derived from `backbone_branching()`.
+* MINOR CHANGE: Fix module naming of backbones derived from `backbone_branching()`.
 
-* MINOR CHANGES: Allow to plot labels in `plot_simulation_expression()`.
+* MINOR CHANGE: Allow to plot labels in `plot_simulation_expression()`.
 
 * FIX: Implement fix for double positives in `bblego` backbones.
 
 * FIX: Fix graph plotting mixup of interaction effects (up/down).
 
-* MINOR CHANGES: Improve `backbone_disconnected()` and `backbone_converging()`.
+* MINOR CHANGE: Improve `backbone_disconnected()` and `backbone_converging()`.
 
-* MINOR CHANGES: Rename required columns in `backbone()` input data.
+* MINOR CHANGE: Rename required columns in `backbone()` input data.
 
+* MINOR CHANGE: Use `backbone_linear()` to make `backbone_cyclic()` randomised.
 
 # dyngen 0.2.1 (2019-07-17)
 

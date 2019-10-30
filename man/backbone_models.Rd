@@ -12,7 +12,9 @@
 \alias{backbone_trifurcating}
 \alias{backbone_converging}
 \alias{backbone_cycle}
+\alias{backbone_cycle_simple}
 \alias{backbone_linear}
+\alias{backbone_linear_simple}
 \alias{backbone_disconnected}
 \title{List of all predefined backbone models}
 \usage{
@@ -39,7 +41,11 @@ backbone_converging()
 
 backbone_cycle()
 
+backbone_cycle_simple()
+
 backbone_linear()
+
+backbone_linear_simple()
 
 backbone_disconnected(left_backbone = list_backbones() \%>\% keep(.,
   names(.) != "disconnected") \%>\% sample(1) \%>\% first(),

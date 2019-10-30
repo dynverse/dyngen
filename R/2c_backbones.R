@@ -345,10 +345,44 @@ backbone_converging <- function() {
   backbone(module_info, module_network, expression_patterns)
 }
 
-
 #' @export
 #' @rdname backbone_models
 backbone_cycle <- function() {
+  bl <- backbone_linear()
+  module_grouping <- tapply(bl$module_info$module_id, gsub("[0-9]*", "", bl$module_info$module_id), c)
+  module_info <- bl$module_info
+  module_network <- bind_rows(
+    bl$module_network,
+    tibble(
+      from = last(module_grouping$C),
+      to = first(module_grouping$A), 
+      effect = -1L,
+      strength = 10,
+      cooperativity = 2
+    )
+  )
+  
+  expression_patterns <- with(
+    module_grouping, 
+    tribble(
+      ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+      "sBurn", "s1", paste0("+", c(Burn, A, B), collapse = ","), TRUE, TRUE, 10,
+      "s1", "s2", paste0(paste0("+", C, collapse = ","), ",", paste0("-", B, collapse = ",")), FALSE, FALSE, 10,
+      "s2", "s3", paste0(paste0("+", B, collapse = ","), ",", paste0("-", A, collapse = ",")), FALSE, FALSE, 10,
+      "s3", "s1", paste0(paste0("+", A, collapse = ","), ",", paste0("-", C, collapse = ",")), FALSE, FALSE, 10,
+    )
+  )
+  
+  backbone(
+    module_info = module_info,
+    module_network = module_network,
+    expression_patterns = expression_patterns
+  )
+}
+
+#' @export
+#' @rdname backbone_models
+backbone_cycle_simple <- function() {
   module_info <- tribble(
     ~module_id, ~basal, ~burn, ~independence,
     "M1", 1, TRUE, 1,
@@ -387,6 +421,36 @@ backbone_linear <- function() {
     bblego_linear("B", "C"),
     bblego_end("C")
   )
+}
+
+
+#' @export
+#' @rdname backbone_models
+backbone_linear_simple <- function() {
+  module_info <- tribble(
+    ~module_id, ~basal, ~burn, ~independence,
+    "M1", 1, TRUE, 1,
+    "M2", 0, FALSE, 1,
+    "M3", 1, TRUE, 1,
+    "M4", 1, TRUE, 1,
+    "M5", 0, FALSE, 1
+  )
+  
+  module_network <- tribble(
+    ~from, ~to, ~effect, ~strength, ~cooperativity,
+    "M1", "M2", 1L, 4, 2,
+    "M2", "M3", -1L, 4, 2,
+    "M3", "M4", -1L, 1, 2,
+    "M4", "M5", 1L, 1, 2
+  )
+  
+  expression_patterns <- tribble(
+    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+    "sBurn", "s1", "+M1", TRUE, TRUE, 2,
+    "s1", "s2", "+M2,+M3,+M4,+M5", FALSE, FALSE, 3
+  )
+  
+  backbone(module_info, module_network, expression_patterns)
 }
 
 
