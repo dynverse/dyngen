@@ -4,10 +4,19 @@
 \alias{generate_dataset}
 \title{Generate a dataset}
 \usage{
-generate_dataset(model)
+generate_dataset(model, output_dir = NULL, make_plots = FALSE,
+  store_grn = FALSE)
 }
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}
+
+\item{output_dir}{If not \code{NULL}, then the generated model and dynwrap
+dataset will be written to files in this directory.}
+
+\item{make_plots}{Whether or not to generate an overview of the dataset.}
+
+\item{store_grn}{Whether or not to store the gene regulatory network
+in the dynwrap object as well.}
 }
 \description{
 This function contains the complete pipeline for generating a dataset

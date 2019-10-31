@@ -11,15 +11,20 @@
 #'   cells along each edge in order to perform weighted sampling.
 #' @param num_timepoints \[synchronised\] The number of time points used in the experiment.
 #' @param pct_between \[synchronised\] The percentage of 'unused' simulation time.
+#' @param realcount The name of a dataset in [realcounts]. If `NULL`, a random
+#'   dataset will be sampled from [realcounts].
+#' @param sample_capture_rate A function that samples values for the simulated capture rates of genes.
 #' 
 #' @rdname generate_experiment
+#' 
+#' @importFrom stats rmultinom rnorm quantile
 #' @export
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
   step_ixs <- .generate_experiment_sample_cells(model) %>% sample()
   
-  sim_meta <-
+  cell_info <-
     model$simulations$meta[step_ixs, , drop = FALSE] %>% 
     mutate(
       cell_id = paste0("cell", row_number()),
@@ -27,20 +32,58 @@ generate_experiment <- function(model) {
     ) %>% 
     select(cell_id, step_ix, simulation_i, sim_time, from, to, time)
   
-  sim_wcounts <- model$simulations$counts[step_ixs, model$feature_info$w, drop = FALSE]
-  rownames(sim_wcounts) <- sim_meta$cell_id
-  colnames(sim_wcounts) <- model$feature_info$feature_id
+  # collect true simulated counts of sampled cells
+  tsim_counts <- model$simulations$counts[step_ixs, , drop = FALSE]
   
-  sim_xcounts <- model$simulations$counts[step_ixs, model$feature_info$x, drop = FALSE]
-  rownames(sim_xcounts) <- sim_meta$cell_id
-  colnames(sim_xcounts) <- model$feature_info$feature_id
+  # fetch real expression data
+  realcount <- .generate_experiment_fetch_realcount(model)
   
-  sim_ycounts <- model$simulations$counts[step_ixs, model$feature_info$y, drop = FALSE]
-  rownames(sim_ycounts) <- sim_meta$cell_id
-  colnames(sim_ycounts) <- model$feature_info$feature_id
+  # simulate library size variation from real data
+  realsums <- Matrix::rowSums(realcount)
+  dist_vals <- realsums / mean(realsums)
+  lib_size <- quantile(dist_vals, runif(nrow(cell_info)))
+  cell_info <-
+    cell_info %>% 
+    mutate(
+      num_molecules = Matrix::rowSums(tsim_counts),
+      mult = quantile(dist_vals, runif(n())),
+      lib_size = sort(round(mean(num_molecules) * mult))[order(order(num_molecules))]
+    )
+  
+  # simulate gene capture variation
+  mol_info <- 
+    tibble(
+      id = colnames(tsim_counts),
+      capture_rate = model$experiment_params$sample_capture_rate(length(id))
+    )
+  
+  # simulate sampling of molecules
+  tsim_counts_t <- Matrix::t(tsim_counts)
+  for (cell_i in seq_len(nrow(cell_info))) {
+    pi <- tsim_counts_t@p[[cell_i]] + 1
+    pj <- tsim_counts_t@p[[cell_i + 1]]
+    gene_is <- tsim_counts_t@i[pi:pj] + 1
+    gene_vals <- tsim_counts_t@x[pi:pj]
+    
+    lib_size <- cell_info$lib_size[[cell_i]]
+    cap_rates <- mol_info$capture_rate[gene_is]
+    new_vals <- rmultinom(1, lib_size, cap_rates * gene_vals)
+    
+    tsim_counts_t@x[pi:pj] <- new_vals
+  }
+  sim_counts <- Matrix::drop0(Matrix::t(tsim_counts_t))
+  
+  # split up molecules
+  sim_wcounts <- sim_counts[, model$feature_info$w, drop = FALSE]
+  sim_xcounts <- sim_counts[, model$feature_info$x, drop = FALSE]
+  sim_ycounts <- sim_counts[, model$feature_info$y, drop = FALSE]
+  dimnames(sim_wcounts) <- 
+    dimnames(sim_xcounts) <-
+    dimnames(sim_ycounts) <- 
+    list(cell_info$cell_id, model$feature_info$feature_id)
   
   sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
-  rownames(sim_regulation) <- sim_meta$cell_id
+  rownames(sim_regulation) <- cell_info$cell_id
   
   # combine into final count matrix
   model$experiment <- list(
@@ -48,7 +91,7 @@ generate_experiment <- function(model) {
     xcounts = sim_xcounts,
     ycounts = sim_ycounts,
     feature_info =  model$feature_info,
-    cell_info = sim_meta,
+    cell_info = cell_info,
     regulation = sim_regulation
   )
   
@@ -57,7 +100,7 @@ generate_experiment <- function(model) {
 
 #' @export
 #' @rdname generate_experiment
-#' @importFrom fastgssa ssa_etl
+#' @importFrom GillespieSSA2 ssa_etl
 list_experiment_samplers <- function() {
   lst(
     snapshot = experiment_snapshot,
@@ -68,9 +111,17 @@ list_experiment_samplers <- function() {
 #' @rdname generate_experiment
 #' @export
 experiment_snapshot <- function(
+  realcount = NULL,
+  sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
   weight_bw = 0.1
 ) {
+  if (is.null(realcount)) {
+    data(realcounts, package = "dyngen", envir = environment())
+    realcount <- sample(realcounts$name, 1)
+  }
   lst(
+    realcount,
+    sample_capture_rate,
     fun = .generate_experiment_snapshot,
     weight_bw
   )
@@ -79,10 +130,18 @@ experiment_snapshot <- function(
 #' @rdname generate_experiment
 #' @export
 experiment_synchronised <- function(
+  realcount = NULL,
+  sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
   num_timepoints = 8,
   pct_between = .75
 ) {
+  if (is.null(realcount)) {
+    data(realcounts, package = "dyngen", envir = environment())
+    realcount <- sample(realcounts$name, 1)
+  }
   lst(
+    realcount,
+    sample_capture_rate,
     fun = .generate_experiment_synchronised,
     num_timepoints,
     pct_between
@@ -183,3 +242,28 @@ experiment_synchronised <- function(
     unlist()
 }
 
+
+.generate_experiment_fetch_realcount <- function(model) {
+  realcount_ <- model$experiment_params$realcount
+  
+  # download realcount if needed-
+  realcount <- 
+    if (is.character(realcount_)) {
+      data(realcounts, package = "dyngen", envir = environment())
+      assert_that(realcount_ %all_in% realcounts$name)
+      
+      url <- realcounts$url[[match(realcount_, realcounts$name)]]
+      
+      .download_cacheable_file(
+        url = url, 
+        cache_dir = model$download_cache_dir, 
+        verbose = model$verbose
+      )
+    } else if (is.matrix(realcount_) || is_sparse(realcount_)) {
+      realcount_
+    } else {
+      stop("realcount should be a url from dyngen::realcounts, or a sparse count matrix.")
+    }
+  
+  realcount
+}

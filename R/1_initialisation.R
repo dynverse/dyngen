@@ -38,7 +38,7 @@ initialise_model <- function(
   num_tfs = 100,
   num_targets = 500,
   num_hks = 400,
-  distance_metric = "pearson",
+  distance_metric = c("pearson", "spearman", "cosine", "euclidean", "manhattan"),
   tf_network_params = tf_network_default(),
   feature_network_params = feature_network_default(),
   kinetics_params = kinetics_default(),
@@ -73,4 +73,3 @@ initialise_model <- function(
     num_cores
   )
 }
-formals(initialise_model)$distance_metric <- dynutils::list_distance_methods()

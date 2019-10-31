@@ -8,11 +8,11 @@
 generate_kinetics(model)
 
 kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
-  pmax(10), sample_wdr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
-  sample_xpr = function(n) rnorm(n, 25, 5) \%>\% pmax(5),
+  pmax(10), sample_wsr = function(n) rnorm(n, 10, 2) \%>\% pmax(2),
   sample_xdr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
   sample_ypr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
   sample_ydr = function(n) rnorm(n, 3, 0.5) \%>\% pmax(1),
+  sample_independence = function(n) runif(n, 0, 1),
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob =
   c(0.25, 0.75)), sample_strength = function(n) 10^runif(n, log10(1),
   log10(100)), sample_cooperativity = function(n) runif(n, 0.5, 2))
@@ -22,15 +22,15 @@ kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
 
 \item{sample_wpr}{A function specifying the distribution from which to sample the pre-mRNA production rate.}
 
-\item{sample_wdr}{A function specifying the distribution from which to sample the pre-mRNA decay rate.}
-
-\item{sample_xpr}{A function specifying the distribution from which to sample the mRNA production rate.}
+\item{sample_wsr}{A function specifying the distribution from which to sample the splicing rate.}
 
 \item{sample_xdr}{A function specifying the distribution from which to sample the mRNA decay rate.}
 
 \item{sample_ypr}{A function specifying the distribution from which to sample the protein production rate.}
 
 \item{sample_ydr}{A function specifying the distribution from which to sample the protein decay rate.}
+
+\item{sample_independence}{A function specifying the distribution from which to sample the regulator independence factor.}
 
 \item{sample_effect}{A function specifying the distribution from which to sample the effect of an interaction.}
 

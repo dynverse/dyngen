@@ -7,16 +7,19 @@
 #' @param model A dyngen intermediary model for which the gold standard been generated with [generate_gold_standard()].
 #' @param burn_time The burn in time of the system, used to determine an initial state vector.
 #' @param total_time The total simulation time of the system.
-#' @param ssa_algorithm Which SSA algorithm to use for simulating the cells with [fastgssa::ssa()]
+#' @param ssa_algorithm Which SSA algorithm to use for simulating the cells with [GillespieSSA2::ssa()]
 #' @param census_interval A granularity parameter for the outputted simulation.
 #' @param num_simulations The number of simulations to run.
 #' @param seeds A set of seeds for each of the simulations.
+#' @param store_grn Whether or not to store the GRN activation values.
+#' @param store_reaction_firings Whether or not to store the number of reaction firings.
+#' @param store_reaction_propensities Whether or not to store the propensity values of the reactions.
 #' 
-#' @importFrom fastgssa ssa
+#' @importFrom GillespieSSA2 ssa
 #' @export
 generate_cells <- function(model) {
-  if (model$verbose) cat("Precompiling propensity functions for simulations\n")
-  propensity_funs <- .generate_cells_precompile_propensity_funs(model)
+  if (model$verbose) cat("Precompiling reactions for simulations\n")
+  reactions <- .generate_cells_precompile_reactions(model)
   
   # simulate cells one by one
   if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")
@@ -26,19 +29,25 @@ generate_cells <- function(model) {
       cl = model$num_cores,
       FUN = .generate_cells_simulate_cell,
       model = model,
-      propensity_funs = propensity_funs
+      reactions = reactions
     )
   
   # split up simulation data
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
     counts = do.call(rbind, map(simulations, "counts")),
-    regulation = do.call(rbind, map(simulations, "buffer"))
+    regulation = do.call(rbind, map(simulations, "regulation")),
+    reaction_firings = do.call(rbind, map(simulations, "reaction_firings")),
+    reaction_propensities = do.call(rbind, map(simulations, "reaction_propensities"))
   )
   
   # predict state
   if (model$verbose) cat("Mapping simulations to gold standard\n", sep = "")
-  model$simulations$meta <- .generate_cells_predict_state(model)
+  if (!is.null(model[["gold_standard"]])) {
+    model$simulations$meta <- .generate_cells_predict_state(model)
+  } else {
+    model$simulations$meta <- model$simulations$meta %>% rename(sim_time = time)
+  }
   
   # perform dimred
   if (model$verbose) cat("Performing dimred\n", sep = "")
@@ -50,14 +59,17 @@ generate_cells <- function(model) {
 
 #' @export
 #' @rdname generate_cells
-#' @importFrom fastgssa ssa_etl
+#' @importFrom GillespieSSA2 ssa_etl
 simulation_default <- function(
   burn_time = 2,
   total_time = 10,
   ssa_algorithm = ssa_etl(tau = .001),
   census_interval = .01,
   num_simulations = 32,
-  seeds = sample.int(10 * num_simulations, num_simulations)
+  seeds = sample.int(10 * num_simulations, num_simulations),
+  store_grn = TRUE,
+  store_reaction_firings = FALSE,
+  store_reaction_propensities = FALSE
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -67,51 +79,66 @@ simulation_default <- function(
     ssa_algorithm,
     census_interval,
     num_simulations,
-    seeds
+    seeds,
+    store_grn,
+    store_reaction_firings,
+    store_reaction_propensities
   )
 }
 
-#' @importFrom fastgssa compile_propensity_functions
-.generate_cells_precompile_propensity_funs <- function(model) {
+#' @importFrom GillespieSSA2 compile_reactions
+.generate_cells_precompile_reactions <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
-  formulae <- sim_system$formulae
+  reactions <- sim_system$reactions 
+  
+  buffer_ids <- unique(unlist(map(reactions, "buffer_ids")))
   
   # compile prop funs
-  comp_funs <- fastgssa::compile_propensity_functions(
-    propensity_funs = formulae$formula,
-    buffer_ids = unlist(formulae$buffer_ids),
-    state_ids = names(sim_system$initial_state),
+  comp_funs <- GillespieSSA2::compile_reactions(
+    reactions = reactions,
+    buffer_ids = buffer_ids,
+    state_ids = if (is.matrix(sim_system$initial_state)) colnames(sim_system$initial_state) else names(sim_system$initial_state),
     params = sim_system$parameters,
-    hardcode_params = TRUE,
-    write_rcpp = "~/fastgssa.cpp"
+    hardcode_params = FALSE,
+    fun_by = 1000L
   )
   
   comp_funs
 }
 
-.generate_cells_simulate_cell <- function(simulation_i, model, propensity_funs, verbose = FALSE) {
+.generate_cells_simulate_cell <- function(simulation_i, model, reactions, verbose = FALSE, debug = FALSE) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   
   set.seed(sim_params$seeds[[simulation_i]])
   
+  # get initial state
+  initial_state <- sim_system$initial_state
+  if (is.matrix(initial_state)) {
+    initial_state <- initial_state[simulation_i, ]
+  }
+  
   if (sim_params$burn_time > 0) {
-    nus_burn <- sim_system$nus
-    nus_burn[setdiff(rownames(nus_burn), sim_system$burn_variables),] <- 0
+    burn_reaction_firings <- reactions
+    rem <- setdiff(sim_system$molecule_ids, sim_system$burn_variables)
+    if (length(rem) > 0) {
+      burn_reaction_firings$state_change[match(rem, sim_system$molecule_ids), ] <- 0
+    }
     
     # burn in
-    out <- fastgssa::ssa(
-      initial_state = sim_system$initial_state,
-      propensity_funs = propensity_funs,
-      nu = nus_burn,
+    out <- GillespieSSA2::ssa(
+      initial_state = initial_state,
+      reactions = burn_reaction_firings,
       final_time = sim_params$burn_time,
       census_interval = sim_params$census_interval,
       params = sim_system$parameters,
       method = sim_params$ssa_algorithm,
-      hardcode_params = TRUE,
       stop_on_neg_state = FALSE,
-      verbose = verbose
+      verbose = verbose,
+      log_buffer = sim_params$store_grn,
+      log_firings = sim_params$store_reaction_firings,
+      log_propensity = sim_params$store_reaction_propensities
     )
     
     burn_meta <- 
@@ -120,28 +147,49 @@ simulation_default <- function(
       ) %>%
       mutate(time = time - max(time))
     burn_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    burn_buffer <- (out$buffer - 1) %>% Matrix::Matrix(sparse = TRUE)
+    burn_regulation <- if (sim_params$store_grn) out$buffer %>% Matrix::Matrix(sparse = TRUE) else NULL
+    burn_reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
+    burn_reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
     
     new_initial_state <- out$state[nrow(out$state), ]
   } else {
     burn_meta <- NULL
     burn_counts <- NULL
-    new_initial_state <- system$initial_state
-    burn_buffer <- NULL
+    new_initial_state <- initial_state
+    burn_regulation <- NULL
+    burn_reaction_firings <- NULL
+  }
+  
+  if (debug) {
+    sim <- GillespieSSA2:::create_simulation(
+      initial_state = new_initial_state, 
+      compiled_reactions = reactions,
+      final_time = sim_params$total_time, 
+      census_interval = sim_params$census_interval,
+      params = sim_system$parameters,
+      method_ptr = sim_params$ssa_algorithm$factory(),
+      stop_on_neg_state = FALSE,
+      verbose = verbose,
+      log_buffer = sim_params$store_grn,
+      log_firings = sim_params$store_reaction_firings,
+      log_propensity = sim_params$store_reaction_propensities
+    )
+    return(sim)
   }
   
   # actual simulation
-  out <- fastgssa::ssa(
+  out <- GillespieSSA2::ssa(
     initial_state = new_initial_state, 
-    propensity_funs = propensity_funs,
-    nu = sim_system$nus,
+    reactions = reactions,
     final_time = sim_params$total_time, 
     census_interval = sim_params$census_interval,
     params = sim_system$parameters,
     method = sim_params$ssa_algorithm,
-    hardcode_params = TRUE,
     stop_on_neg_state = FALSE,
-    verbose = verbose
+    verbose = verbose,
+    log_buffer = sim_params$store_grn,
+    log_firings = sim_params$store_reaction_firings,
+    log_propensity = sim_params$store_reaction_propensities
   )
   
   meta <- 
@@ -149,17 +197,21 @@ simulation_default <- function(
       time = c(head(out$time, -1), sim_params$total_time)
     )
   counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-  buffer <- out$buffer
+  regulation <- if (sim_params$store_grn) out$buffer %>% Matrix::Matrix(sparse = TRUE) else NULL
+  reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
+  reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
   
   if (!is.null(burn_meta)) {
     meta <- bind_rows(burn_meta, meta)
     counts <- rbind(burn_counts, counts)
-    buffer <- rbind(burn_buffer, buffer)
+    regulation <- rbind(burn_regulation, regulation)
+    reaction_firings <- rbind(burn_reaction_firings, reaction_firings)
+    reaction_propensities <- rbind(burn_reaction_propensities, reaction_propensities)
   }
   
   meta <- meta %>% mutate(simulation_i) %>% select(simulation_i, everything())
   
-  lst(meta, counts, buffer)
+  lst(meta, counts, regulation, reaction_firings, reaction_propensities)
 }
 
 .generate_cells_predict_state <- function(model) {

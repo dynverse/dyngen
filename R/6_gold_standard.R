@@ -9,17 +9,16 @@
 #' @param census_interval A granularity parameter of the gold standard time steps. Should be larger than or equal to `tau`.
 #' 
 #' @export
-#' @importFrom fastgssa ssa ssa_em
 generate_gold_standard <- function(model) {
   model$gold_standard <- list()
   
   # compute changes in modules along the edges
   if (model$verbose) cat("Generating gold standard mod changes\n")
-  model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model)
+  model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model$backbone$expression_patterns)
   
   # precompile propensity functions
-  if (model$verbose) cat("Precompiling propensity functions for gold standard\n")
-  prep_data <- .generate_gold_precompile_propensity_funs(model)
+  if (model$verbose) cat("Precompiling reactions for gold standard\n")
+  prep_data <- .generate_gold_precompile_reactions(model)
   
   # run gold standard simulations
   if (model$verbose) cat("Running gold simulations\n")
@@ -48,15 +47,14 @@ gold_standard_default <- function(
   )
 }
 
-.generate_gold_standard_mod_changes <- function(model) {
-  mod_changes <- 
-    model$backbone$expression_patterns %>% 
+.generate_gold_standard_mod_changes <- function(expression_patterns) {
+  expression_patterns %>% 
     mutate(
       mod_diff = module_progression %>% strsplit("\\|"),
       substate = map(mod_diff, seq_along)
     ) %>% 
     select(-module_progression) %>% 
-    unnest(mod_diff, substate) %>% 
+    unnest(c(mod_diff, substate)) %>% 
     mutate(
       mod_diff2 = strsplit(mod_diff, ","),
       mod_on = map(mod_diff2, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
@@ -69,13 +67,10 @@ gold_standard_default <- function(
       to_ = ifelse(row_number() == n(), to, from_[row_number() + 1])
     ) %>% 
     ungroup()
-
-  
-  mod_changes
 }
 
-#' @importFrom fastgssa compile_propensity_functions
-.generate_gold_precompile_propensity_funs <- function(model) {
+#' @importFrom GillespieSSA2 compile_reactions
+.generate_gold_precompile_reactions <- function(model) {
   # fetch paraneters and settings
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
@@ -83,31 +78,29 @@ gold_standard_default <- function(
   # select relevant functions
   tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
   
-  # filter propensity functions
-  formulae <-
-    sim_system$formulae %>% 
-    filter(molecule %in% tf_molecules)
+  # filter reactions
+  reactions <- sim_system$reactions %>% 
+    keep(~ all(names(.$effect) %in% tf_molecules))
   
-  # filter nus
-  nus <- sim_system$nus[tf_molecules, formulae$formula_id, drop = FALSE]
+  buffer_ids <- unique(unlist(map(reactions, "buffer_ids")))
   
-  comp_funs <- fastgssa::compile_propensity_functions(
-    propensity_funs = formulae$formula,
-    buffer_ids = unlist(formulae$buffer_ids),
+  comp_funs <- GillespieSSA2::compile_reactions(
+    reactions = reactions,
+    buffer_ids = buffer_ids,
     state_ids = tf_molecules,
     params = sim_system$parameters,
-    hardcode_params = TRUE
+    hardcode_params = FALSE,
+    fun_by = 1000L
   )
   
   lst(
     tf_molecules,
-    nus,
-    propensity_funs = comp_funs
+    reactions = comp_funs
   )
 }
 
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
-#' @importFrom fastgssa ssa
+#' @importFrom GillespieSSA2 ssa ode_em
 .generate_gold_standard_simulations <- function(model, prep_data) {
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
@@ -116,12 +109,11 @@ gold_standard_default <- function(
   tf_info <- model$feature_info %>% filter(is_tf)
   
   # determine ode algorithm
-  algo <- fastgssa::ssa_em(tau = gold_params$tau, noise_strength = 0)
+  algo <- GillespieSSA2::ode_em(tau = gold_params$tau, noise_strength = 0)
   
   # select relevant functions
   tf_molecules <- prep_data$tf_molecules
-  nus <- prep_data$nus
-  propensity_funs <- prep_data$propensity_funs
+  reactions <- prep_data$reactions
   
   # start constructing golds
   gold_sim_outputs <- list()
@@ -159,20 +151,21 @@ gold_standard_default <- function(
     new_initial_state <- rowMeans(gold_sim_vectors[[from_]])
     
     # generate nus
-    new_nus <- nus
-    new_nus[!rownames(new_nus) %in% molecules_on] <- 0
+    new_reactions <- reactions
+    rem <- setdiff(tf_molecules, molecules_on)
+    if (length(rem) > 0) {
+      new_reactions$state_change[match(rem, tf_molecules), ] <- 0
+    }
     
     # simulation of gold standard edge
-    out <- fastgssa::ssa(
+    out <- GillespieSSA2::ssa(
       initial_state = new_initial_state,
-      propensity_funs = propensity_funs,
-      nu = new_nus,
+      reactions = new_reactions,
       final_time = time,
       params = sim_system$parameters,
       method = algo,
       census_interval = gold_params$census_interval,
-      hardcode_params = TRUE,
-      stop_on_neg_state = FALSE,
+      stop_on_neg_state = TRUE,
       verbose = FALSE
     )
     
