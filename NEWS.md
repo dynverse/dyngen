@@ -14,6 +14,8 @@
 
 * MINOR CHANGE: Use `backbone_linear()` to make `backbone_cyclic()` randomised.
 
+* FEATURE: Allow to simulate knockdown / knockouts / overexpression experiments. 
+
 # dyngen 0.2.1 (2019-07-17)
 
 * MAJOR CHANGES: Custom backbones can be defined using backbone lego pieces. See `?bblego` for more information.
