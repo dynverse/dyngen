@@ -5,7 +5,6 @@
 \alias{list_experiment_samplers}
 \alias{experiment_snapshot}
 \alias{experiment_synchronised}
-\alias{experiment_steps}
 \title{Sample cells from the simulations}
 \usage{
 generate_experiment(model)
@@ -18,9 +17,6 @@ experiment_snapshot(realcount = NULL, sample_capture_rate = function(n)
 experiment_synchronised(realcount = NULL,
   sample_capture_rate = function(n) rnorm(n, 1, 0.05) \%>\% pmax(0),
   num_timepoints = 8, pct_between = 0.75)
-
-experiment_steps(realcount = NULL, sample_capture_rate = function(n)
-  rnorm(n, 1, 0.05) \%>\% pmax(0), num_steps = 2, time_step = 0.5)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
@@ -36,10 +32,6 @@ cells along each edge in order to perform weighted sampling.}
 \item{num_timepoints}{[synchronised] The number of time points used in the experiment.}
 
 \item{pct_between}{[synchronised] The percentage of 'unused' simulation time.}
-
-\item{num_steps}{[steps] The number of times a cell is profiled.}
-
-\item{time_step}{[steps] The time between profiles.}
 }
 \description{
 \code{\link[=generate_experiment]{generate_experiment()}} runs samples cells along the different simulations.
@@ -47,6 +39,4 @@ cells along each edge in order to perform weighted sampling.}
 Cells will thus be sampled uniformily from the trajectory.
 \code{\link[=experiment_synchronised]{experiment_synchronised()}} assumes that all the cells are synchronised and
 are sampled at different timepoints.
-\code{\link[=experiment_steps]{experiment_steps()}} will profile a cell multiple times. The grouping of the cells
-is stored in the \code{cell_info}.
 }

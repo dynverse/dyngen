@@ -4,8 +4,6 @@
 
 * Implement knockdown / knockouts / overexpression experiments. 
 
-* `experiment_steps()`: Implement repeated profiling of the same cell.
-
 ## MINOR CHANGES:
 
 * Fix module naming of backbones derived from `backbone_branching()`.
