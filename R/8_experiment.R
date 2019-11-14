@@ -5,12 +5,16 @@
 #' Cells will thus be sampled uniformily from the trajectory.
 #' [experiment_synchronised()] assumes that all the cells are synchronised and 
 #' are sampled at different timepoints.
+#' [experiment_steps()] will profile a cell multiple times. The grouping of the cells 
+#' is stored in the `cell_info`.
 #' 
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
 #' @param weight_bw \[snapshot\] A bandwidth parameter for determining the distribution of 
 #'   cells along each edge in order to perform weighted sampling.
 #' @param num_timepoints \[synchronised\] The number of time points used in the experiment.
 #' @param pct_between \[synchronised\] The percentage of 'unused' simulation time.
+#' @param num_steps \[steps\] The number of times a cell is profiled.
+#' @param time_step \[steps\] The time between profiles.
 #' @param realcount The name of a dataset in [realcounts]. If `NULL`, a random
 #'   dataset will be sampled from [realcounts].
 #' @param sample_capture_rate A function that samples values for the simulated capture rates of genes.
@@ -22,15 +26,29 @@
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
-  step_ixs <- .generate_experiment_sample_cells(model) %>% sample()
+  step_ixs <- .generate_experiment_sample_cells(model)
   
   cell_info <-
     model$simulations$meta[step_ixs, , drop = FALSE] %>% 
     mutate(
-      cell_id = paste0("cell", row_number()),
       step_ix = step_ixs
+    )
+    
+  if ("group" %in% names(attributes(step_ixs))) {
+    cell_info$cell_group <- attr(step_ixs, "group")
+  } else {
+    # only shuffle if step sampling is not used
+    cell_info <- cell_info %>% sample_n(n())
+  }
+  
+  cell_info <-
+    cell_info %>% 
+    mutate(
+      cell_id = paste0("cell", row_number())
     ) %>% 
-    select(cell_id, step_ix, simulation_i, sim_time, from, to, time)
+    select(cell_id, step_ix, simulation_i, sim_time, from, to, time, everything())
+  
+  step_ixs <- cell_info$step_ix
   
   # collect true simulated counts of sampled cells
   tsim_counts <- model$simulations$counts[step_ixs, , drop = FALSE]
@@ -148,6 +166,27 @@ experiment_synchronised <- function(
   )
 }
 
+#' @rdname generate_experiment
+#' @export
+experiment_steps <- function(
+  realcount = NULL,
+  sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
+  num_steps = 2,
+  time_step = .5
+) {
+  if (is.null(realcount)) {
+    data(realcounts, package = "dyngen", envir = environment())
+    realcount <- sample(realcounts$name, 1)
+  }
+  lst(
+    realcount,
+    sample_capture_rate,
+    fun = .generate_experiment_steps,
+    num_steps,
+    time_step
+  )
+}
+
 .generate_experiment_sample_cells <- function(model) {
   network <- 
     model$gold_standard$network
@@ -240,6 +279,68 @@ experiment_synchronised <- function(
     }
   ) %>% 
     unlist()
+}
+
+
+#' @importFrom stats approxfun density
+.generate_experiment_steps <- function(
+  network,
+  sim_meta,
+  params,
+  num_cells
+) {
+  run_meta <- 
+    sim_meta %>% 
+    group_by(simulation_i) %>% 
+    summarise(num_points = n()) %>% 
+    mutate(
+      num_starts = num_points / sum(num_points) * num_cells / params$num_steps,
+      num_starts = diff(c(0, round(cumsum(num_starts)))),
+      cumsum = cumsum(num_starts) - num_starts
+    )
+  
+  tib <- map_df(
+    seq_len(nrow(run_meta)),
+    function(i) {
+      simi <- run_meta$simulation_i[[i]]
+      num_starts <- run_meta$num_starts[[i]]
+      prev <- run_meta$cumsum[[i]]
+      relevant_sim_meta <- 
+        sim_meta %>% 
+        filter(simulation_i == simi)
+      
+      max_time <- max(relevant_sim_meta$sim_time)
+      
+      relevant_sim_meta_start <-
+        relevant_sim_meta %>% 
+        filter(sim_time <= max_time - (params$num_steps+1) * params$time_step)
+      
+      start_ixs <- sample.int(nrow(relevant_sim_meta_start), num_starts) %>% sort()
+      start_times <- relevant_sim_meta$sim_time[start_ixs]
+      
+      more_step_ixs <- 
+        map(seq_len(params$num_steps - 1), function(step) {
+          step_wanted_times <- start_times + params$time_step * step
+          
+          map_int(
+            step_wanted_times,
+            function(step_wanted_time) {
+              min(which(relevant_sim_meta$sim_time - step_wanted_time > 0))
+            }
+          )
+        })
+      
+      all_ixs <- do.call(rbind, c(list(start_ixs), more_step_ixs))
+      tibble(
+        ix = relevant_sim_meta$orig_ix[as.vector(all_ixs)],
+        group = as.vector(col(all_ixs)) + prev
+      )
+    }
+  )
+  
+  out <- tib$ix
+  attr(out, "group") <- tib$group
+  out
 }
 
 
