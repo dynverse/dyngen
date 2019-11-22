@@ -121,8 +121,6 @@ add_noise_to_kinetics <- function(feature_info, feature_network, mean, sd){
   sim_system <- model$simulation_system
   expr_params <- sim_params$experiment_params %>% extract_row_to_list(simulation_i)
   
-  print("In function")
-  
   noisy_kinetics <- add_noise_to_kinetics(model$feature_info, model$feature_network, 1, sim_params$kinetic_noise_strength)
   sim_system$parameters <- .kinetics_extract_parameters(noisy_kinetics$feature_info, noisy_kinetics$feature_network)
   
