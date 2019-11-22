@@ -37,7 +37,10 @@ generate_kinetics <- function(model) {
   )
   
   # extract params
-  parameters <- .kinetics_extract_parameters(model)
+  parameters <- .kinetics_extract_parameters(
+    model$feature_info, 
+    model$feature_network
+  )
   
   # determine variables to be used during burn in
   burn_variables <- 
@@ -268,10 +271,10 @@ kinetics_default <- function(
   unlist(out, recursive = FALSE)
 }
 
-.kinetics_extract_parameters <- function(model) {
+.kinetics_extract_parameters <- function(feature_info, feature_network) {
   # extract m to qr, d, p, q, and ba
   feature_params <- 
-    model$feature_info %>% 
+    feature_info %>% 
     select(feature_id, wpr, wsr, xdr, ypr, ydr, basal, independence) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
@@ -280,7 +283,7 @@ kinetics_default <- function(
   
   # extract k and c
   edge_params <- 
-    model$feature_network %>% 
+    feature_network %>% 
     select(from, to, k, c = cooperativity) %>% 
     gather(param, value, -from, -to) %>% 
     mutate(id = paste0(param, "_", from, "_", to)) %>% 

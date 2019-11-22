@@ -30,7 +30,7 @@ generate_cells <- function(model) {
       model = model,
       reactions = reactions
     )
-  
+
   # split up simulation data
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
@@ -71,7 +71,8 @@ simulation_default <- function(
   ),
   store_grn = TRUE,
   store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE
+  store_reaction_propensities = FALSE,
+  kinetic_noise_strength = 0.1
 ) {
   lst(
     burn_time,
@@ -81,7 +82,8 @@ simulation_default <- function(
     experiment_params,
     store_grn,
     store_reaction_firings,
-    store_reaction_propensities
+    store_reaction_propensities,
+    kinetic_noise_strength
   )
 }
 
@@ -106,10 +108,23 @@ simulation_default <- function(
   comp_funs
 }
 
+add_noise_to_kinetics <- function(feature_info, feature_network, mean, sd){
+  print("add noise")
+  # Strength refers to interaction strength
+  ft_network <- feature_network %>%
+    mutate_at(c("strength"), ~ . * rnorm(length(.), mean = mean, sd = sd))
+  return(list(feature_info=feature_info, feature_network=ft_network))
+}
+
 .generate_cells_simulate_cell <- function(simulation_i, model, reactions, verbose = FALSE, debug = FALSE) {
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   expr_params <- sim_params$experiment_params %>% extract_row_to_list(simulation_i)
+  
+  print("In function")
+  
+  noisy_kinetics <- add_noise_to_kinetics(model$feature_info, model$feature_network, 1, sim_params$kinetic_noise_strength)
+  sim_system$parameters <- .kinetics_extract_parameters(noisy_kinetics$feature_info, noisy_kinetics$feature_network)
   
   set.seed(expr_params$seed)
   
