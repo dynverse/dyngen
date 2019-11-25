@@ -14,7 +14,7 @@ simulation_default(burn_time = 2, total_time = 10,
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations
   = 32), simulation_type_knockdown(num_simulations = 0)),
   store_grn = TRUE, store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE)
+  store_reaction_propensities = FALSE, kinetic_noise_strength = 0.1)
 
 simulation_type_wild_type(num_simulations, seed = sample.int(10 *
   num_simulations, num_simulations))
@@ -43,6 +43,8 @@ simulation_type_knockdown(num_simulations,
 \item{store_reaction_firings}{Whether or not to store the number of reaction firings.}
 
 \item{store_reaction_propensities}{Whether or not to store the propensity values of the reactions.}
+
+\item{kinetic_noise_strength}{The standard deviation of the randomly added kinetics each simulation.}
 
 \item{num_simulations}{The number of simulations to run.}
 
