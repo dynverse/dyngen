@@ -96,8 +96,12 @@ generate_experiment <- function(model) {
     dimnames(sim_ycounts) <- 
     list(cell_info$cell_id, model$feature_info$feature_id)
   
-  sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
-  rownames(sim_regulation) <- cell_info$cell_id
+  if (model$simulation_params$store_grn) {
+    sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
+    rownames(sim_regulation) <- cell_info$cell_id
+  } else {
+    sim_regulation <- NULL
+  }
   
   # combine into final count matrix
   model$experiment <- list(

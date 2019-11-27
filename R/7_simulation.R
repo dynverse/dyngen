@@ -376,7 +376,9 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       }
     )
   
-  m <- Matrix::sparseMatrix(
+  ko_effects <- ko_effects %>% filter(abs(ko_effect) > .001)
+  
+  Matrix::sparseMatrix(
     i = ko_effects$i,
     j = ko_effects$j,
     x = ko_effects$ko_effect,
@@ -386,8 +388,6 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       paste0(feature_network$from, "->", feature_network$to)
     )
   )
-  m <- Matrix::drop0(m)
-  m
 }
 
 .generate_cells_predict_state <- function(model) {
