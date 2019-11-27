@@ -42,7 +42,7 @@ generate_cells <- function(model) {
     reaction_firings = do.call(rbind, map(simulations, "reaction_firings")),
     reaction_propensities = do.call(rbind, map(simulations, "reaction_propensities")),
     kd_multiplier = do.call(rbind, map(simulations, "kd_multiplier")),
-    parameters = do.call(rbind, map(simulations, "parameters"))
+    perturbed_parameters = do.call(rbind, map(simulations, "perturbed_parameters"))
   )
   
   # predict state
@@ -157,7 +157,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   out2 <- .kinetics_calculate_k(out$feature_info, out$feature_network)
   feature_info <- out2$feature_info
   feature_network <- out2$feature_network
-  sim_system$parameters <- .kinetics_extract_parameters(feature_info, feature_network)
+  perturbed_parameters <- .kinetics_extract_parameters(feature_info, feature_network)
   
   # get initial state
   initial_state <- sim_system$initial_state
@@ -178,7 +178,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       reactions = burn_reaction_firings,
       final_time = sim_params$burn_time,
       census_interval = sim_params$census_interval,
-      params = sim_system$parameters,
+      params = perturbed_parameters,
       method = sim_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
       verbose = verbose,
@@ -217,7 +217,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     reactions = reactions,
     final_time = total_time,
     census_interval = sim_params$census_interval,
-    params = sim_system$parameters,
+    params = perturbed_parameters,
     method = sim_params$ssa_algorithm,
     stop_on_neg_state = FALSE,
     verbose = verbose,
@@ -256,7 +256,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     kd_genes <- sample(kd_gene_candidates, expr_params$num_genes)
     kd_wprs <- paste0("wpr_", kd_genes)
     
-    kd_params <- sim_system$parameters
+    kd_params <- perturbed_parameters
     kd_params[kd_wprs] <- kd_params[kd_wprs] * expr_params$multiplier
     
     kd_multiplier <- tibble(simulation_i, gene = kd_genes, multiplier = expr_params$multiplier)
@@ -315,8 +315,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   lst(
     meta, counts, regulation, 
     reaction_firings, reaction_propensities, kd_multiplier,
-    feature_info = feature_info,
-    feature_network = feature_network
+    perturbed_parameters
   )
 }
 
