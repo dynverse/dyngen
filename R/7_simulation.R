@@ -21,7 +21,7 @@ generate_cells <- function(model) {
   reactions <- .generate_cells_precompile_reactions(model)
   
   # simulate cells one by one
-  if (model$verbose) cat("Running ", model$simulation_params$num_simulations, " simulations\n", sep = "")
+  if (model$verbose) cat("Running ", nrow(model$simulation_params$experiment_params), " simulations\n", sep = "")
   simulations <- 
     pbapply::pblapply(
       X = seq_len(nrow(model$simulation_params$experiment_params)),
