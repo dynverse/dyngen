@@ -14,7 +14,8 @@ simulation_default(burn_time = 2, total_time = 10,
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations
   = 32), simulation_type_knockdown(num_simulations = 0)),
   store_grn = TRUE, store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE)
+  store_reaction_propensities = FALSE,
+  kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = 0.005))
 
 simulation_type_wild_type(num_simulations, seed = sample.int(10 *
   num_simulations, num_simulations))
@@ -43,6 +44,10 @@ simulation_type_knockdown(num_simulations,
 \item{store_reaction_firings}{Whether or not to store the number of reaction firings.}
 
 \item{store_reaction_propensities}{Whether or not to store the propensity values of the reactions.}
+
+\item{kinetics_noise_function}{A function that will generate noise to the kinetics of each simulation.
+It takes the \code{feature_info} and \code{feature_network} as input parameters,
+modifies them, and returns them as a list. See \code{\link[=kinetics_noise_none]{kinetics_noise_none()}} and \code{\link[=kinetics_noise_simple]{kinetics_noise_simple()}}.}
 
 \item{num_simulations}{The number of simulations to run.}
 

@@ -37,7 +37,10 @@ generate_kinetics <- function(model) {
   )
   
   # extract params
-  parameters <- .kinetics_extract_parameters(model)
+  parameters <- .kinetics_extract_parameters(
+    model$feature_info, 
+    model$feature_network
+  )
   
   # determine variables to be used during burn in
   burn_variables <- 
@@ -88,6 +91,32 @@ kinetics_default <- function(
   )
 }
 
+.kinetics_calculate_k <- function(feature_info, feature_network) {
+  if ("max_protein" %in% colnames(feature_info)) {
+    feature_info <- feature_info %>% select(-max_protein)
+  }
+  
+  if ("max_protein" %in% colnames(feature_network)) {
+    feature_network <- feature_network %>% select(-max_protein)
+  }
+  if ("k" %in% colnames(feature_network)) {
+    feature_network <- feature_network %>% select(-k)
+  }
+  
+  feature_info <- 
+    feature_info %>%
+    mutate(max_protein = wpr / xdr * ypr / ydr)
+  
+  feature_network <- 
+    feature_network %>% 
+    left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
+    mutate(
+      k = max_protein / 2 / strength
+    )
+  
+  lst(feature_info, feature_network)
+}
+
 .kinetics_generate_gene_kinetics <- function(model) {
   if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
   params <- model$kinetics_params
@@ -100,26 +129,21 @@ kinetics_default <- function(
       xdr = params$sample_xdr(n()),
       ypr = params$sample_ypr(n()),
       ydr = params$sample_ydr(n()),
-      max_protein = wpr / xdr * ypr / ydr,
       independence = independence %|% params$sample_independence(n())
     )
-  
-  # remove previous 'as' if present
-  if (feature_info %has_name% "as") {
-    feature_info <- feature_info %>% select(-as)
-  }
   
   # sample effect, cooperativity and strength
   # calculate k
   feature_network <- 
     model$feature_network %>% 
-    left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
     mutate(
       effect = effect %|% params$sample_effect(n()),
       cooperativity = cooperativity %|% params$sample_cooperativity(n()),
-      strength = strength %|% params$sample_strength(n()),
-      k = max_protein / 2 / strength
+      strength = strength %|% params$sample_strength(n())
     )
+  out <- .kinetics_calculate_k(feature_info, feature_network)
+  feature_info <- out$feature_info
+  feature_network <- out$feature_network
   
   # calculate ba and a
   feature_info <- 
@@ -268,10 +292,10 @@ kinetics_default <- function(
   unlist(out, recursive = FALSE)
 }
 
-.kinetics_extract_parameters <- function(model) {
+.kinetics_extract_parameters <- function(feature_info, feature_network) {
   # extract m to qr, d, p, q, and ba
   feature_params <- 
-    model$feature_info %>% 
+    feature_info %>% 
     select(feature_id, wpr, wsr, xdr, ypr, ydr, basal, independence) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
@@ -280,7 +304,7 @@ kinetics_default <- function(
   
   # extract k and c
   edge_params <- 
-    model$feature_network %>% 
+    feature_network %>% 
     select(from, to, k, c = cooperativity) %>% 
     gather(param, value, -from, -to) %>% 
     mutate(id = paste0(param, "_", from, "_", to)) %>% 
