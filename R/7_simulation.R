@@ -33,7 +33,7 @@ generate_cells <- function(model) {
       model = model,
       reactions = reactions
     )
-
+  
   # split up simulation data
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
@@ -155,7 +155,9 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   # randomise kinetics to simulate intercellular differences
   out <- sim_params$kinetics_noise_function(model$feature_info, model$feature_network)
   out2 <- .kinetics_calculate_k(out$feature_info, out$feature_network)
-  sim_system$parameters <- .kinetics_extract_parameters(out2$feature_info, out2$feature_network)
+  feature_info <- out2$feature_info
+  feature_network <- out2$feature_network
+  sim_system$parameters <- .kinetics_extract_parameters(feature_info, feature_network)
   
   # get initial state
   initial_state <- sim_system$initial_state
@@ -180,7 +182,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       method = sim_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
       verbose = verbose,
-      log_buffer = sim_params$store_grn,
+      log_buffer = FALSE,
       log_firings = sim_params$store_reaction_firings,
       log_propensity = sim_params$store_reaction_propensities
     )
@@ -191,7 +193,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       ) %>%
       mutate(time = time - max(time))
     burn_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    burn_regulation <- if (sim_params$store_grn) out$buffer %>% Matrix::Matrix(sparse = TRUE) else NULL
+    
     burn_reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
     burn_reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
     
@@ -200,7 +202,6 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     burn_meta <- NULL
     burn_counts <- NULL
     new_initial_state <- initial_state
-    burn_regulation <- NULL
     burn_reaction_firings <- NULL
     burn_reaction_propensities <- NULL
   }
@@ -220,7 +221,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     method = sim_params$ssa_algorithm,
     stop_on_neg_state = FALSE,
     verbose = verbose,
-    log_buffer = sim_params$store_grn,
+    log_buffer = FALSE,
     log_firings = sim_params$store_reaction_firings,
     log_propensity = sim_params$store_reaction_propensities,
     return_simulator = TRUE
@@ -238,12 +239,6 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       time = c(head(out$time, -1), total_time)
     )
   counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-  regulation <- 
-    if (sim_params$store_grn) {
-      out$buffer %>% Matrix::Matrix(sparse = TRUE)
-    } else {
-      NULL
-    }
   reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
   reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
   kd_state <- out$state[nrow(out$state), ]
@@ -275,7 +270,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       method = sim_params$ssa_algorithm,
       stop_on_neg_state = FALSE,
       verbose = verbose,
-      log_buffer = sim_params$store_grn,
+      log_buffer = FALSE,
       log_firings = sim_params$store_reaction_firings,
       log_propensity = sim_params$store_reaction_propensities
     )
@@ -285,18 +280,15 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
         time = total_time + c(head(out$time, -1), kd_total_time)
       )
     kd_counts <- out$state %>% Matrix::Matrix(sparse = TRUE)
-    kd_regulation <- if (sim_params$store_grn) out$buffer %>% Matrix::Matrix(sparse = TRUE) else NULL
     kd_reaction_firings <- if (sim_params$store_reaction_firings) out$firings %>% Matrix::Matrix(sparse = TRUE) else NULL
     kd_reaction_propensities <- if (sim_params$store_reaction_propensities) out$propensity %>% Matrix::Matrix(sparse = TRUE) else NULL
   } else {
     kd_meta <- NULL
     kd_counts <- NULL
-    kd_regulation <- NULL
     kd_reaction_firings <- NULL
     kd_reaction_propensities <- NULL
     kd_multiplier = NULL
   }
-  
   
   if (!is.null(burn_meta)) {
     meta <- bind_rows(burn_meta, meta)
@@ -313,14 +305,94 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     reaction_propensities <- rbind(reaction_propensities, kd_reaction_propensities)
   }
   
+  regulation <- 
+    if (sim_params$store_grn) {
+      .generate_cells_compute_regulation(feature_info, feature_network, new_initial_state, reactions, counts, sim)
+    } else {
+      NULL
+    }
+  
   meta <- meta %>% mutate(simulation_i) %>% select(simulation_i, everything())
   
   lst(
     meta, counts, regulation, 
     reaction_firings, reaction_propensities, kd_multiplier,
-    feature_info = out2$feature_info,
-    feature_network = out2$feature_network
+    feature_info = feature_info,
+    feature_network = feature_network
   )
+}
+
+.generate_cells_compute_regulation <- function(feature_info, feature_network, new_initial_state, reactions, counts, sim) {
+  fn <- 
+    feature_network %>% 
+    left_join(feature_info %>% select(to = feature_id, wpr), by = "to") %>% 
+    transmute(
+      reg_y_match = match(paste0("y_", from), names(new_initial_state)),
+      tar_prop_match = match(paste0("transcription_", to), reactions$reaction_ids),
+      j = row_number(),
+      wpr
+    )
+  
+  cat("Computing regulatory activities\n")
+  ko_effects <- 
+    pbapply::pblapply(
+      seq_len(nrow(counts)),
+      function(counti) {
+        sim$state <- counts[counti,]
+        sim$calculate_propensity()
+        
+        # df <- fn %>% filter(from == "Burn1_TF1")
+        ko_effects <- 
+          fn %>% 
+          group_by(reg_y_match) %>% 
+          do({
+            df <- .
+            
+            if (nrow(df) == 0) return(NULL) 
+            
+            orig_reg_state <- sim$state[[df$reg_y_match[[1]]]]
+            
+            if (orig_reg_state != 0) {
+              orig_tar_prop <- sim$propensity[df$tar_prop_match]
+              sim$state[[df$reg_y_match[[1]]]] <- 0
+              sim$calculate_propensity()
+              ko_effect <- orig_tar_prop - sim$propensity[df$tar_prop_match]
+            } else {
+              ko_effect <- rep(0, nrow(df))
+            }
+            
+            out <- 
+              df %>% 
+              transmute(
+                i = counti,
+                j,
+                ko_effect = ko_effect / wpr
+              )
+            
+            if (orig_reg_state != 0) {
+              sim$state[[df$reg_y_match[[1]]]] <- orig_reg_state
+              sim$propensity[df$tar_prop_match] <- orig_tar_prop
+            }
+            
+            out
+          }) %>% 
+          ungroup()
+      }
+    ) %>% 
+    bind_rows()
+  
+  m <- Matrix::sparseMatrix(
+    i = ko_effects$i,
+    j = ko_effects$j,
+    x = ko_effects$ko_effect,
+    dims = c(nrow(counts), nrow(feature_network)),
+    dimnames = list(
+      NULL,
+      paste0(feature_network$from, "->", feature_network$to)
+    )
+  )
+  m <- Matrix::drop0(m)
+  m
 }
 
 .generate_cells_predict_state <- function(model) {
