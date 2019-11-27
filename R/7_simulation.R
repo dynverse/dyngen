@@ -73,7 +73,7 @@ simulation_default <- function(
     simulation_type_wild_type(num_simulations = 32),
     simulation_type_knockdown(num_simulations = 0)
   ),
-  store_grn = TRUE,
+  store_grn = FALSE,
   store_reaction_firings = FALSE,
   store_reaction_propensities = FALSE,
   kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = .005)

@@ -13,7 +13,7 @@ simulation_default(burn_time = 2, total_time = 10,
   ssa_algorithm = ssa_etl(tau = 0.001), census_interval = 0.01,
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations
   = 32), simulation_type_knockdown(num_simulations = 0)),
-  store_grn = TRUE, store_reaction_firings = FALSE,
+  store_grn = FALSE, store_reaction_firings = FALSE,
   store_reaction_propensities = FALSE,
   kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = 0.005))
 

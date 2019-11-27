@@ -2,7 +2,12 @@
 
 ## NEW FEATURES:
 
-* Implement knockdown / knockouts / overexpression experiments. 
+* Implement knockdown / knockouts / overexpression experiments.
+
+* Implement better single-cell regulatory activity by determining
+  the effect on propensity values after knocking out a transcription factor.
+  
+* Implement adding noise to the kinetic params of individual simulations.
 
 ## MINOR CHANGES:
 
