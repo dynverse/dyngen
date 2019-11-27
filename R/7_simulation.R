@@ -293,14 +293,12 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   if (!is.null(burn_meta)) {
     meta <- bind_rows(burn_meta, meta)
     counts <- rbind(burn_counts, counts)
-    regulation <- rbind(burn_regulation, regulation)
     reaction_firings <- rbind(burn_reaction_firings, reaction_firings)
     reaction_propensities <- rbind(burn_reaction_propensities, reaction_propensities)
   }
   if (!is.null(kd_meta)) {
     meta <- bind_rows(meta, kd_meta)
     counts <- rbind(counts, kd_counts)
-    regulation <- rbind(regulation, kd_regulation)
     reaction_firings <- rbind(reaction_firings, kd_reaction_firings)
     reaction_propensities <- rbind(reaction_propensities, kd_reaction_propensities)
   }
@@ -333,9 +331,8 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       wpr
     )
   
-  cat("Computing regulatory activities\n")
   ko_effects <- 
-    pbapply::pblapply(
+    map_df(
       seq_len(nrow(counts)),
       function(counti) {
         sim$state <- counts[counti,]
@@ -378,8 +375,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
           }) %>% 
           ungroup()
       }
-    ) %>% 
-    bind_rows()
+    )
   
   m <- Matrix::sparseMatrix(
     i = ko_effects$i,
