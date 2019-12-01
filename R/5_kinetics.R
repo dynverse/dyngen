@@ -6,15 +6,15 @@
 #' 
 #' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
 #' @param sample_wpr A function specifying the distribution from which to sample the pre-mRNA production rate.
-#' @param sample_wdr A function specifying the distribution from which to sample the pre-mRNA decay rate.
+#' @param sample_whl A function specifying the distribution from which to sample the pre-mRNA half-life.
 #' @param sample_wsr A function specifying the distribution from which to sample the splicing rate.
-#' @param sample_xdr A function specifying the distribution from which to sample the mRNA decay rate.
+#' @param sample_xhl A function specifying the distribution from which to sample the pre-mRNA half-life.
 #' @param sample_ypr A function specifying the distribution from which to sample the protein production rate.
-#' @param sample_ydr A function specifying the distribution from which to sample the protein decay rate.
+#' @param sample_yhl A function specifying the distribution from which to sample the pre-mRNA half-life.
 #' @param sample_independence A function specifying the distribution from which to sample the regulator independence factor.
 #' @param sample_effect A function specifying the distribution from which to sample the effect of an interaction.
-#' @param sample_strength A function specifing the distribution from which to sample the strength of an interaction.
-#' @param sample_cooperativity A function specifing the distribution from which to sample the cooperativity of an interaction from.
+#' @param sample_strength A function specifying the distribution from which to sample the strength of an interaction.
+#' @param sample_cooperativity A function specifying the distribution from which to sample the cooperativity of an interaction from.
 #' 
 #' @export
 generate_kinetics <- function(model) {
@@ -63,29 +63,41 @@ generate_kinetics <- function(model) {
   model
 }
 
+# df <- bind_rows(
+#   tibble(lab = "before", x = log(2) / rnorm_bounded(100000, 3, .5, min = 1)),
+#   tibble(lab = "after", x = rnorm_bounded(100000, .24, .043, min = .13)),
+# )
+# 
+# df <- bind_rows(
+#   tibble(lab = "before", x = log(2) / rnorm_bounded(100000, 5, 1, min = 2)),
+#   tibble(lab = "after", x = rnorm_bounded(100000, .145, .032, min = .075)),
+# )
+# df %>% group_by(lab) %>% summarise(mean = mean(x), sd = sd(x), min = min(x))
+# ggplot(df) + geom_density(aes(x, colour = lab))
+
 #' @export
 #' @rdname generate_kinetics
 #' @importFrom stats rnorm runif
 kinetics_default <- function(
-  sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
-  sample_wdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_wsr = function(n) rnorm(n, 10, 2) %>% pmax(2),
-  sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
+  sample_wpr = function(n) rnorm_bounded(n, 50, 10, min = 10),
+  sample_whl = function(n) rnorm_bounded(n, .15, .03, min = .05),
+  sample_wsr = function(n) rnorm_bounded(n, 5, 1, min = 1),
+  sample_xhl = function(n) rnorm_bounded(n, .15, .03, min = .05),
+  sample_ypr = function(n) rnorm_bounded(n, 5, 1, min = 1),
+  sample_yhl = function(n) rnorm_bounded(n, .25, .05, min = .1),
   sample_independence = function(n) runif(n, 0, 1),
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
   sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
-  sample_cooperativity = function(n) runif(n, 0.5, 2)
+  sample_cooperativity = function(n) rnorm_bounded(n, 2, 2, min = 1, max = 10)
 ) {
   lst(
     sample_wpr,
-    sample_wdr,
+    sample_whl,
     sample_wsr,
-    sample_xdr,
+    sample_xhl,
     sample_ypr,
-    sample_ydr,
+    sample_yhl,
     sample_independence,
     
     sample_effect,
@@ -128,11 +140,14 @@ kinetics_default <- function(
     model$feature_info %>% 
     mutate(
       wpr = params$sample_wpr(n()),
-      wdr = params$sample_wdr(n()),
+      whl = params$sample_whl(n()),
+      wdr = log(2) / whl,
       wsr = params$sample_wsr(n()),
-      xdr = params$sample_xdr(n()),
+      xhl = params$sample_xhl(n()),
+      xdr = log(2) / xhl,
       ypr = params$sample_ypr(n()),
-      ydr = params$sample_ydr(n()),
+      yhl = params$sample_yhl(n()),
+      ydr = log(2) / yhl,
       independence = independence %|% params$sample_independence(n())
     )
   
