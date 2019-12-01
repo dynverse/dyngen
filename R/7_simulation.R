@@ -132,7 +132,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     feature_info <- 
       feature_info %>% 
       mutate_at(c("basal"), ~ pmin(1, . * rnorm(length(.), mean = mean, sd = sd))) %>% 
-      mutate_at(c("wpr", "wsr", "xdr", "ypr", "ydr"), ~ . * rnorm(length(.), mean = mean, sd = sd))
+      mutate_at(c("wpr", "wdr", "wsr", "xdr", "ypr", "ydr"), ~ . * rnorm(length(.), mean = mean, sd = sd))
     
     feature_network <- 
       feature_network %>%
