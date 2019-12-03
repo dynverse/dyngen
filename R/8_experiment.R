@@ -22,15 +22,29 @@
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
-  step_ixs <- .generate_experiment_sample_cells(model) %>% sample()
+  step_ixs <- .generate_experiment_sample_cells(model)
   
   cell_info <-
     model$simulations$meta[step_ixs, , drop = FALSE] %>% 
     mutate(
-      cell_id = paste0("cell", row_number()),
       step_ix = step_ixs
+    )
+    
+  if ("group" %in% names(attributes(step_ixs))) {
+    cell_info$cell_group <- attr(step_ixs, "group")
+  } else {
+    # only shuffle if step sampling is not used
+    cell_info <- cell_info %>% sample_n(n())
+  }
+  
+  cell_info <-
+    cell_info %>% 
+    mutate(
+      cell_id = paste0("cell", row_number())
     ) %>% 
-    select(cell_id, step_ix, simulation_i, sim_time, from, to, time)
+    select(cell_id, step_ix, simulation_i, sim_time, from, to, time, everything())
+  
+  step_ixs <- cell_info$step_ix
   
   # collect true simulated counts of sampled cells
   tsim_counts <- model$simulations$counts[step_ixs, , drop = FALSE]
@@ -82,8 +96,12 @@ generate_experiment <- function(model) {
     dimnames(sim_ycounts) <- 
     list(cell_info$cell_id, model$feature_info$feature_id)
   
-  sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
-  rownames(sim_regulation) <- cell_info$cell_id
+  if (model$simulation_params$store_grn) {
+    sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
+    rownames(sim_regulation) <- cell_info$cell_id
+  } else {
+    sim_regulation <- NULL
+  }
   
   # combine into final count matrix
   model$experiment <- list(
@@ -241,7 +259,6 @@ experiment_synchronised <- function(
   ) %>% 
     unlist()
 }
-
 
 .generate_experiment_fetch_realcount <- function(model) {
   realcount_ <- model$experiment_params$realcount

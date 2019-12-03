@@ -1,18 +1,32 @@
 # dyngen 0.2.2 (unreleased)
 
-* MINOR CHANGE: Fix module naming of backbones derived from `backbone_branching()`.
+## NEW FEATURES:
 
-* MINOR CHANGE: Allow to plot labels in `plot_simulation_expression()`.
+* Implement knockdown / knockouts / overexpression experiments.
 
-* FIX: Implement fix for double positives in `bblego` backbones.
+* Implement better single-cell regulatory activity by determining
+  the effect on propensity values after knocking out a transcription factor.
+  
+* Implement adding noise to the kinetic params of individual simulations.
 
-* FIX: Fix graph plotting mixup of interaction effects (up/down).
+## MINOR CHANGES:
 
-* MINOR CHANGE: Improve `backbone_disconnected()` and `backbone_converging()`.
+* Fix module naming of backbones derived from `backbone_branching()`.
 
-* MINOR CHANGE: Rename required columns in `backbone()` input data.
+* Allow to plot labels in `plot_simulation_expression()`.
 
-* MINOR CHANGE: Use `backbone_linear()` to make `backbone_cyclic()` randomised.
+* Improve `backbone_disconnected()` and `backbone_converging()`.
+
+* Rename required columns in `backbone()` input data.
+
+* Use `backbone_linear()` to make `backbone_cyclic()` randomised.
+
+## BUG FIXES:
+
+* Implement fix for double positives in `bblego` backbones.
+
+* Fix graph plotting mixup of interaction effects (up/down).
+
 
 # dyngen 0.2.1 (2019-07-17)
 
