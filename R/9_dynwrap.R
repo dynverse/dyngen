@@ -36,15 +36,28 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
   # add a few more values
   if (store_grn) {
     regulatory_network <- model$feature_network %>% 
-      rename(regulator = from, target = to, strength, effect)
-    regulatory_network_sc <- model$experiment$regulation
+      select(regulator = from, target = to, strength, effect)
+    regulation_sc <- model$experiment$regulation
+    
+    regulators <- unique(regulatory_network$regulator)
+    targets <- colnames(dataset$counts)
+    regulatory_network_sc <- 
+      Matrix::summary(regulation_sc) %>% 
+      transmute(
+        cell_id = factor(dataset$cell_ids[i], levels = dataset$cell_ids),
+        regulator = factor(regulatory_network$regulator[j], levels = regulators),
+        target = factor(regulatory_network$target[j], levels = targets),
+        strength = x
+      ) %>% 
+      as_tibble()
+    
     
     dataset <- dataset %>% 
       add_regulatory_network(
         regulatory_network = regulatory_network,
         regulatory_network_sc = regulatory_network_sc,
-        regulators = unique(regulatory_network$regulator),
-        targets = colnames(dataset$counts)
+        regulators = regulators,
+        targets = targets
       )
   }
   
@@ -58,7 +71,7 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
 #' @param regulatory_network_sc A data frame consisting of four columns: `"cell_id"`, `"regulator"`, `"target"`, `"strength"`.
 #'
 #' @export
-add_regulatory_network <- function(dataset, regulatory_network, regulatory_network_sc = NULL, regulators = NULL, targets = NULL) {
+add_regulatory_network <- function(dataset, regulatory_network, regulatory_network_sc = NULL, regulators = NULL, targets = NULL, ...) {
   # check regulatory network
   assert_that(
     is.data.frame(regulatory_network),
@@ -66,10 +79,10 @@ add_regulatory_network <- function(dataset, regulatory_network, regulatory_netwo
     is.character(regulatory_network$regulator) || is.factor(regulatory_network$regulator),
     is.character(regulatory_network$target) || is.factor(regulatory_network$target),
     is.numeric(regulatory_network$strength),
-    !is.null(dataset$regulators),
-    !is.null(dataset$targets),
-    all(regulatory_network$regulator %in% dataset$regulators),
-    all(regulatory_network$targets %in% dataset$targets)
+    !is.null(regulators),
+    !is.null(targets),
+    all(regulatory_network$regulator %in% regulators),
+    all(regulatory_network$target %in% targets)
   )
   
   if (!is.factor(regulatory_network$regulator)) {
@@ -90,11 +103,9 @@ add_regulatory_network <- function(dataset, regulatory_network, regulatory_netwo
     is.character(regulatory_network_sc$target) || is.factor(regulatory_network_sc$target),
     is.numeric(regulatory_network_sc$strength),
     !is.null(dataset$cell_ids),
-    !is.null(dataset$regulators),
-    !is.null(dataset$targets),
     all(regulatory_network_sc$cell_id %in% dataset$cell_ids),
-    all(regulatory_network_sc$regulator %in% dataset$regulators),
-    all(regulatory_network_sc$targets %in% dataset$targets)
+    all(regulatory_network_sc$regulator %in% regulators),
+    all(regulatory_network_sc$target %in% targets)
   )
   
   if (!is.factor(regulatory_network_sc$cell_id)) {

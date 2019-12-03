@@ -5,7 +5,8 @@
 \title{Add a GRN to a dynwrap object}
 \usage{
 add_regulatory_network(dataset, regulatory_network,
-  regulatory_network_sc = NULL, regulators = NULL, targets = NULL)
+  regulatory_network_sc = NULL, regulators = NULL, targets = NULL,
+  ...)
 }
 \arguments{
 \item{dataset}{A dataset created by \code{\link[=wrap_data]{wrap_data()}} or \code{\link[=wrap_expression]{wrap_expression()}}}
