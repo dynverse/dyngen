@@ -72,6 +72,7 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
 #' @param regulatory_network_sc A data frame consisting of four columns: `"cell_id"`, `"regulator"`, `"target"`, `"strength"`.
 #' @param regulators The feature ids of the regulators.
 #' @param targets The feature ids of the targets.
+#' @param ... Extra arguments to be saved in the model.
 #'
 #' @export
 add_regulatory_network <- function(dataset, regulatory_network, regulatory_network_sc = NULL, regulators = NULL, targets = NULL, ...) {

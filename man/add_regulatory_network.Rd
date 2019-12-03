@@ -18,6 +18,8 @@ add_regulatory_network(dataset, regulatory_network,
 \item{regulators}{The feature ids of the regulators.}
 
 \item{targets}{The feature ids of the targets.}
+
+\item{...}{Extra arguments to be saved in the model.}
 }
 \description{
 Add a GRN to a dynwrap object
