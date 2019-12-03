@@ -29,8 +29,7 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
           magrittr::set_rownames(model$experiment$cell_info$cell_id),
         dimred_segment_points = model$gold_standard$dimred[!model$gold_standard$meta$burn,],
         dimred_segment_progressions = model$gold_standard$meta[!model$gold_standard$meta$burn,] %>% 
-          select(from, to, percentage = time),
-        pair_with_velocity = TRUE
+          select(from, to, percentage = time)
       )
   }
   
