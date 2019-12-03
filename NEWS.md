@@ -21,12 +21,19 @@
 
 * Use `backbone_linear()` to make `backbone_cyclic()` randomised.
 
+* Added a decay rate for pre-mRNAs as well.s
+
+* Kinetics: redefine `wdr`, `xdr` and `ydr` in terms of the half-life of these molecules.
+
+* Only compute dimred if desired.
+
 ## BUG FIXES:
 
 * Implement fix for double positives in `bblego` backbones.
 
 * Fix graph plotting mixup of interaction effects (up/down).
 
+* Made a fix to the computation of `feature_info$max_protein`. Also, this variable has been renamed to `max_y`. 
 
 # dyngen 0.2.1 (2019-07-17)
 
