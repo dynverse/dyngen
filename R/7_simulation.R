@@ -14,6 +14,7 @@
 #' @param store_grn Whether or not to store the GRN activation values.
 #' @param store_reaction_firings Whether or not to store the number of reaction firings.
 #' @param store_reaction_propensities Whether or not to store the propensity values of the reactions.
+#' @param perform_dimred Whether to perform a dimensionality reduction after simulation
 #' 
 #' @importFrom GillespieSSA2 ssa
 #' @export
@@ -50,8 +51,10 @@ generate_cells <- function(model) {
   }
   
   # perform dimred
-  if (model$verbose) cat("Performing dimred\n", sep = "")
-  model <- model %>% calculate_dimred()
+  if (model$simulation_params$perform_dimred) {
+    if (model$verbose) cat("Performing dimred\n", sep = "")
+    model <- model %>% calculate_dimred()
+  }
   
   # return
   model
@@ -69,7 +72,8 @@ simulation_default <- function(
   seeds = sample.int(10 * num_simulations, num_simulations),
   store_grn = TRUE,
   store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE
+  store_reaction_propensities = FALSE,
+  perform_dimred = TRUE
 ) {
   assert_that(length(seeds) == num_simulations)
   
@@ -82,7 +86,8 @@ simulation_default <- function(
     seeds,
     store_grn,
     store_reaction_firings,
-    store_reaction_propensities
+    store_reaction_propensities,
+    perform_dimred
   )
 }
 

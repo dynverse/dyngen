@@ -11,7 +11,7 @@ simulation_default(burn_time = 2, total_time = 10,
   ssa_algorithm = ssa_etl(tau = 0.001), census_interval = 0.01,
   num_simulations = 32, seeds = sample.int(10 * num_simulations,
   num_simulations), store_grn = TRUE, store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE)
+  store_reaction_propensities = FALSE, perform_dimred = TRUE)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the gold standard been generated with \code{\link[=generate_gold_standard]{generate_gold_standard()}}.}
@@ -33,6 +33,8 @@ simulation_default(burn_time = 2, total_time = 10,
 \item{store_reaction_firings}{Whether or not to store the number of reaction firings.}
 
 \item{store_reaction_propensities}{Whether or not to store the propensity values of the reactions.}
+
+\item{perform_dimred}{Whether to perform a dimensionality reduction after simulation}
 }
 \description{
 \code{\link[=generate_cells]{generate_cells()}} runs simulations in order to determine the gold standard
