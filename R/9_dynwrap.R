@@ -35,11 +35,85 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
   
   # add a few more values
   if (store_grn) {
-    dataset$feature_network <- 
-      model$feature_network
-    dataset$feature_network_sc <- 
-      model$experiment$regulation
+    regulatory_network <- model$feature_network %>% 
+      rename(regulator = from, target = to, strength, effect)
+    regulatory_network_sc <- model$experiment$regulation
+    
+    dataset <- dataset %>% 
+      add_regulatory_network(
+        regulatory_network = regulatory_network,
+        regulatory_network_sc = regulatory_network_sc,
+        regulators = unique(regulatory_network$regulator),
+        targets = colnames(dataset$counts)
+      )
   }
   
   dataset
+}
+
+#' Add a GRN to a dynwrap object
+#'
+#' @inheritParams dynwrap::common_param
+#' @param regulatory_network A data frame consisting of three columns: `"regulator"`, `"target"`, `"strength"`.
+#' @param regulatory_network_sc A data frame consisting of four columns: `"cell_id"`, `"regulator"`, `"target"`, `"strength"`.
+#'
+#' @export
+add_regulatory_network <- function(dataset, regulatory_network, regulatory_network_sc = NULL, regulators = NULL, targets = NULL) {
+  # check regulatory network
+  assert_that(
+    is.data.frame(regulatory_network),
+    regulatory_network %has_names% c("regulator", "target", "strength"),
+    is.character(regulatory_network$regulator) || is.factor(regulatory_network$regulator),
+    is.character(regulatory_network$target) || is.factor(regulatory_network$target),
+    is.numeric(regulatory_network$strength),
+    !is.null(dataset$regulators),
+    !is.null(dataset$targets),
+    all(regulatory_network$regulator %in% dataset$regulators),
+    all(regulatory_network$targets %in% dataset$targets)
+  )
+  
+  if (!is.factor(regulatory_network$regulator)) {
+    regulatory_network$regulator <- factor(regulatory_network$regulator, regulators)
+  }
+  if (!is.factor(regulatory_network$target)) {
+    regulatory_network$target <- factor(regulatory_network$target, targets)
+  }
+  
+  # check sc regulatory network
+  cell_ids <- dataset$cell_ids
+  
+  assert_that(
+    is.data.frame(regulatory_network_sc),
+    regulatory_network_sc %has_names% c("cell_id", "regulator", "target", "strength"),
+    is.character(regulatory_network_sc$cell_id) || is.factor(regulatory_network_sc$cell_id),
+    is.character(regulatory_network_sc$regulator) || is.factor(regulatory_network_sc$regulator),
+    is.character(regulatory_network_sc$target) || is.factor(regulatory_network_sc$target),
+    is.numeric(regulatory_network_sc$strength),
+    !is.null(dataset$cell_ids),
+    !is.null(dataset$regulators),
+    !is.null(dataset$targets),
+    all(regulatory_network_sc$cell_id %in% dataset$cell_ids),
+    all(regulatory_network_sc$regulator %in% dataset$regulators),
+    all(regulatory_network_sc$targets %in% dataset$targets)
+  )
+  
+  if (!is.factor(regulatory_network_sc$cell_id)) {
+    regulatory_network_sc$cell_id <- factor(regulatory_network_sc$cell_id, cell_ids)
+  }
+  if (!is.factor(regulatory_network_sc$regulator)) {
+    regulatory_network_sc$regulator <- factor(regulatory_network_sc$regulator, regulators)
+  }
+  if (!is.factor(regulatory_network_sc$target)) {
+    regulatory_network_sc$target <- factor(regulatory_network_sc$target, targets)
+  }
+  
+  dataset <- dataset %>% extend_with(
+    "dynwrap::with_regulatory_network",
+    regulatory_network = regulatory_network,
+    regulatory_network_sc = regulatory_network_sc,
+    regulators = regulators,
+    targets = targets,
+    ...
+  )
+  
 }
