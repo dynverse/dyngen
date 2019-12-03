@@ -70,6 +70,8 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
 #' @inheritParams dynwrap::common_param
 #' @param regulatory_network A data frame consisting of three columns: `"regulator"`, `"target"`, `"strength"`.
 #' @param regulatory_network_sc A data frame consisting of four columns: `"cell_id"`, `"regulator"`, `"target"`, `"strength"`.
+#' @param regulators The feature ids of the regulators.
+#' @param targets The feature ids of the targets.
 #'
 #' @export
 add_regulatory_network <- function(dataset, regulatory_network, regulatory_network_sc = NULL, regulators = NULL, targets = NULL, ...) {

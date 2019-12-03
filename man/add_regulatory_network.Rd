@@ -14,6 +14,10 @@ add_regulatory_network(dataset, regulatory_network,
 \item{regulatory_network}{A data frame consisting of three columns: \code{"regulator"}, \code{"target"}, \code{"strength"}.}
 
 \item{regulatory_network_sc}{A data frame consisting of four columns: \code{"cell_id"}, \code{"regulator"}, \code{"target"}, \code{"strength"}.}
+
+\item{regulators}{The feature ids of the regulators.}
+
+\item{targets}{The feature ids of the targets.}
 }
 \description{
 Add a GRN to a dynwrap object
