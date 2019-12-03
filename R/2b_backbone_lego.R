@@ -167,10 +167,12 @@ bblego_linear <- function(
     module_progression = paste0("+", module_ids %>% head(-1), collapse = ","),
     start = FALSE,
     burn = burn,
-    time = as.numeric(case_when(
-      type == "flipflop" ~ num_modules * 2L,
-      TRUE ~ num_modules
-    ))
+    time = case_when(
+      type == "flipflop" ~ num_modules * 3,
+      num_modules == 1 ~ 2,
+      num_modules == 2 ~ 3,
+      TRUE ~ as.numeric(num_modules)
+    )
   )
   
   lst(module_info, module_network, expression_patterns)
