@@ -11,15 +11,10 @@ generate_cells(model)
 
 simulation_default(burn_time = 2, total_time = 10,
   ssa_algorithm = ssa_etl(tau = 0.001), census_interval = 0.01,
-<<<<<<< HEAD
-  num_simulations = 32, seeds = sample.int(10 * num_simulations,
-  num_simulations), store_grn = TRUE, store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE, perform_dimred = TRUE)
-=======
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations
   = 32), simulation_type_knockdown(num_simulations = 0)),
   store_grn = FALSE, store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE,
+  store_reaction_propensities = FALSE, perform_dimred = TRUE,
   kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = 0.005))
 
 simulation_type_wild_type(num_simulations, seed = sample.int(10 *
@@ -30,7 +25,6 @@ simulation_type_knockdown(num_simulations,
   num_genes = sample(1:5, num_simulations, replace = TRUE, prob =
   0.25^(1:5)), multiplier = runif(num_simulations, 0, 1),
   seed = sample.int(10 * num_simulations, num_simulations))
->>>>>>> 6af2021e2e0dc150c5b24b0a4f0e4b645cd51bcb
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the gold standard been generated with \code{\link[=generate_gold_standard]{generate_gold_standard()}}.}
@@ -51,9 +45,8 @@ simulation_type_knockdown(num_simulations,
 
 \item{store_reaction_propensities}{Whether or not to store the propensity values of the reactions.}
 
-<<<<<<< HEAD
 \item{perform_dimred}{Whether to perform a dimensionality reduction after simulation}
-=======
+
 \item{kinetics_noise_function}{A function that will generate noise to the kinetics of each simulation.
 It takes the \code{feature_info} and \code{feature_network} as input parameters,
 modifies them, and returns them as a list. See \code{\link[=kinetics_noise_none]{kinetics_noise_none()}} and \code{\link[=kinetics_noise_simple]{kinetics_noise_simple()}}.}
@@ -69,7 +62,6 @@ modifies them, and returns them as a list. See \code{\link[=kinetics_noise_none]
 \item{num_genes}{The number of genes to knockdown.}
 
 \item{multiplier}{The strength of the knockdown. Use 0 for a full knockout, 0<x<1 for a knockdown, and >1 for an overexpression.}
->>>>>>> 6af2021e2e0dc150c5b24b0a4f0e4b645cd51bcb
 }
 \description{
 \code{\link[=generate_cells]{generate_cells()}} runs simulations in order to determine the gold standard

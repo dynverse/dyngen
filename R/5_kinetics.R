@@ -107,26 +107,24 @@ kinetics_default <- function(
 }
 
 .kinetics_calculate_k <- function(feature_info, feature_network) {
-  if ("max_protein" %in% colnames(feature_info)) {
-    feature_info <- feature_info %>% select(-max_protein)
-  }
+  remove <- c("max_w", "max_x", "max_y", "k", "max_protein")
   
-  if ("max_protein" %in% colnames(feature_network)) {
-    feature_network <- feature_network %>% select(-max_protein)
-  }
-  if ("k" %in% colnames(feature_network)) {
-    feature_network <- feature_network %>% select(-k)
-  }
+  feature_info <- feature_info[, !colnames(feature_info) %in% remove]
+  feature_network <- feature_network[, !colnames(feature_network) %in% remove]
   
   feature_info <- 
     feature_info %>%
-    mutate(max_protein = wpr / wdr / xdr * ypr / ydr)
+    mutate(
+      max_w = wpr / (wdr + wsr),
+      max_x = wsr / xdr * max_w,
+      max_y = ypr / ydr * max_x
+    )
   
   feature_network <- 
     feature_network %>% 
-    left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
+    left_join(feature_info %>% select(from = feature_id, max_y), by = "from") %>% 
     mutate(
-      k = max_protein / 2 / strength
+      k = max_y / 2 / strength
     )
   
   lst(feature_info, feature_network)
