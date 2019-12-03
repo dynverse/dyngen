@@ -13,7 +13,7 @@ initialise_model(backbone, num_cells = 1000, num_tfs = 100,
   gold_standard_params = gold_standard_default(),
   simulation_params = simulation_default(),
   experiment_params = experiment_snapshot(), verbose = TRUE,
-  download_cache_dir = NULL, num_cores = 1)
+  download_cache_dir = NULL, num_cores = 1, id = NULL)
 }
 \arguments{
 \item{backbone}{The gene module configuration that determines the type of dynamic
@@ -60,6 +60,8 @@ see \code{\link[=simulation_default]{simulation_default()}}.}
 cached in this directory.}
 
 \item{num_cores}{Parallellisation parameter for various steps in the pipeline.}
+
+\item{id}{An identifier for the model.}
 }
 \description{
 Initial settings for simulating a dyngen dataset

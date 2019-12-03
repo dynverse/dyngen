@@ -30,6 +30,7 @@
 #' @param download_cache_dir If not `NULL`, temporary downloaded files will be 
 #'   cached in this directory.
 #' @param num_cores Parallellisation parameter for various steps in the pipeline. 
+#' @param id An identifier for the model.
 #'   
 #' @export
 initialise_model <- function(
@@ -47,7 +48,8 @@ initialise_model <- function(
   experiment_params = experiment_snapshot(),
   verbose = TRUE,
   download_cache_dir = NULL,
-  num_cores = 1
+  num_cores = 1,
+  id = NULL
 ) {
   distance_metric <- match.arg(distance_metric)
   
@@ -70,6 +72,7 @@ initialise_model <- function(
     experiment_params,
     verbose,
     download_cache_dir,
-    num_cores
+    num_cores,
+    id
   )
 }

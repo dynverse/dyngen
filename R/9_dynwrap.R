@@ -10,6 +10,7 @@
 #' @importFrom dynwrap wrap_expression add_trajectory add_dimred
 wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
   dataset <- wrap_expression(
+    id = model$id,
     counts = model$experiment$xcounts,
     expression = as(log2(model$experiment$xcounts + 1), "dgCMatrix"),
     expression_unspliced = as(log2(model$experiment$wcounts + 1), "dgCMatrix"),
