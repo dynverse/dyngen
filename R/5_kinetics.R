@@ -228,18 +228,20 @@ kinetics_default <- function(
       ypr <- paste0("ypr_", fid)
       ydr <- paste0("ydr_", fid)
       
-      basal <- paste0("basal_", fid)
-      independence <- paste0("independence_", fid)
+      basal <- paste0("bas_", fid)
+      independence <- paste0("ind_", fid)
       
       if (!is.null(info$regulators)) {
         rid <- info$regulators$from
         eff <- info$regulators$effect
+        str <- info$regulators$strength
         reg_ys <- paste0("y_", rid)
-        reg_ks <- paste0("k_", rid, "_", fid)
-        reg_cs <- paste0("c_", rid, "_", fid)
-        regulation_var <- paste0("regulation_", rid, "_", fid)
+        reg_diss <- paste0("dis_", rid, "_", fid)
+        reg_hills <- paste0("hill_", rid, "_", fid)
+        regulation_var <- paste0("chi_", rid, "_", fid)
+        reg_strs <- paste0("str_", rid, "_", fid)
         
-        reg_affinity_calc <- paste(paste0(regulation_var, " = pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
+        reg_affinity_calc <- paste(paste0(regulation_var, " = ", reg_strs, " * pow(", reg_ys, "/", reg_diss, ", ", reg_hills, "); "), collapse = "")
         
         # Several optimisations have been applied.
         #
