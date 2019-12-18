@@ -10,17 +10,33 @@
 \usage{
 bblego(..., .list = NULL)
 
-bblego_linear(from, to, type = sample(c("simple", "doublerep1",
-  "doublerep2"), 1), num_modules = sample(4:6, 1), burn = FALSE)
+bblego_linear(
+  from,
+  to,
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
+  num_modules = sample(4:6, 1),
+  burn = FALSE
+)
 
-bblego_branching(from, to, type = c("robust", "simple"),
-  num_modules = length(to) * 2 + 2, burn = FALSE)
+bblego_branching(
+  from,
+  to,
+  type = c("robust", "simple"),
+  num_modules = length(to) * 2 + 2,
+  burn = FALSE
+)
 
-bblego_start(to, type = sample(c("simple", "doublerep1", "doublerep2"),
-  1), num_modules = sample(4:6, 1))
+bblego_start(
+  to,
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
+  num_modules = sample(4:6, 1)
+)
 
-bblego_end(from, type = sample(c("simple", "doublerep1", "doublerep2"),
-  1), num_modules = sample(4:6, 1))
+bblego_end(
+  from,
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
+  num_modules = sample(4:6, 1)
+)
 }
 \arguments{
 \item{..., .list}{\code{bblego} components, either as separate args or as a list.}

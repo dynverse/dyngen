@@ -4,16 +4,24 @@
 \alias{initialise_model}
 \title{Initial settings for simulating a dyngen dataset}
 \usage{
-initialise_model(backbone, num_cells = 1000, num_tfs = 100,
-  num_targets = 500, num_hks = 400, distance_metric = c("pearson",
-  "spearman", "cosine", "euclidean", "manhattan"),
+initialise_model(
+  backbone,
+  num_cells = 1000,
+  num_tfs = 100,
+  num_targets = 500,
+  num_hks = 400,
+  distance_metric = c("pearson", "spearman", "cosine", "euclidean", "manhattan"),
   tf_network_params = tf_network_default(),
   feature_network_params = feature_network_default(),
   kinetics_params = kinetics_default(),
   gold_standard_params = gold_standard_default(),
   simulation_params = simulation_default(),
-  experiment_params = experiment_snapshot(), verbose = TRUE,
-  download_cache_dir = NULL, num_cores = 1, id = NULL)
+  experiment_params = experiment_snapshot(),
+  verbose = TRUE,
+  download_cache_dir = NULL,
+  num_cores = 1,
+  id = NULL
+)
 }
 \arguments{
 \item{backbone}{The gene module configuration that determines the type of dynamic

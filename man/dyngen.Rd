@@ -3,7 +3,6 @@
 \docType{package}
 \name{dyngen}
 \alias{dyngen}
-\alias{dyngen-package}
 \title{Generating TI data}
 \description{
 Generating TI data

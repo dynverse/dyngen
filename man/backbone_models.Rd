@@ -28,8 +28,11 @@ backbone_bifurcating_cycle()
 
 backbone_bifurcating_loop()
 
-backbone_branching(num_modifications = rbinom(1, size = 6, 0.25) + 1,
-  min_degree = 3, max_degree = sample(min_degree:5, 1))
+backbone_branching(
+  num_modifications = rbinom(1, size = 6, 0.25) + 1,
+  min_degree = 3,
+  max_degree = sample(min_degree:5, 1)
+)
 
 backbone_binary_tree(num_modifications = rbinom(1, size = 6, 0.25) + 1)
 
@@ -47,10 +50,13 @@ backbone_linear()
 
 backbone_linear_simple()
 
-backbone_disconnected(left_backbone = list_backbones() \%>\% keep(.,
-  names(.) != "disconnected") \%>\% sample(1) \%>\% first(),
-  right_backbone = list_backbones() \%>\% keep(., names(.) !=
-  "disconnected") \%>\% sample(1) \%>\% first(), num_common_modules = 10)
+backbone_disconnected(
+  left_backbone = list_backbones() \%>\% keep(., names(.) != "disconnected") \%>\%
+    sample(1) \%>\% first(),
+  right_backbone = list_backbones() \%>\% keep(., names(.) != "disconnected") \%>\%
+    sample(1) \%>\% first(),
+  num_common_modules = 10
+)
 }
 \arguments{
 \item{num_modifications}{The number of branch points in the generated backbone.}

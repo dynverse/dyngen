@@ -4,8 +4,12 @@
 \alias{plot_feature_network}
 \title{Visualise the feature network of a model}
 \usage{
-plot_feature_network(model, show_tfs = TRUE, show_targets = TRUE,
-  show_hks = FALSE)
+plot_feature_network(
+  model,
+  show_tfs = TRUE,
+  show_targets = TRUE,
+  show_hks = FALSE
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}

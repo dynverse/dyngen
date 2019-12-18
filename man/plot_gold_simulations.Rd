@@ -4,8 +4,7 @@
 \alias{plot_gold_simulations}
 \title{Visualise the simulations using the dimred}
 \usage{
-plot_gold_simulations(model, detailed = FALSE, mapping = aes(comp_1,
-  comp_2))
+plot_gold_simulations(model, detailed = FALSE, mapping = aes(comp_1, comp_2))
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}

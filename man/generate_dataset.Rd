@@ -4,8 +4,12 @@
 \alias{generate_dataset}
 \title{Generate a dataset}
 \usage{
-generate_dataset(model, output_dir = NULL, make_plots = FALSE,
-  store_grn = FALSE)
+generate_dataset(
+  model,
+  output_dir = NULL,
+  make_plots = FALSE,
+  store_grn = FALSE
+)
 }
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}

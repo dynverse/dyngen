@@ -9,22 +9,33 @@
 \usage{
 generate_cells(model)
 
-simulation_default(burn_time = 2, total_time = 10,
-  ssa_algorithm = ssa_etl(tau = 0.001), census_interval = 0.01,
-  experiment_params = bind_rows(simulation_type_wild_type(num_simulations
-  = 32), simulation_type_knockdown(num_simulations = 0)),
-  store_grn = FALSE, store_reaction_firings = FALSE,
-  store_reaction_propensities = FALSE, perform_dimred = TRUE,
-  kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = 0.005))
+simulation_default(
+  burn_time = 2,
+  total_time = 10,
+  ssa_algorithm = ssa_etl(tau = 0.001),
+  census_interval = 0.01,
+  experiment_params = bind_rows(simulation_type_wild_type(num_simulations = 32),
+    simulation_type_knockdown(num_simulations = 0)),
+  store_grn = FALSE,
+  store_reaction_firings = FALSE,
+  store_reaction_propensities = FALSE,
+  perform_dimred = TRUE,
+  kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = 0.005)
+)
 
-simulation_type_wild_type(num_simulations, seed = sample.int(10 *
-  num_simulations, num_simulations))
+simulation_type_wild_type(
+  num_simulations,
+  seed = sample.int(10 * num_simulations, num_simulations)
+)
 
-simulation_type_knockdown(num_simulations,
-  timepoint = runif(num_simulations), genes = "*",
-  num_genes = sample(1:5, num_simulations, replace = TRUE, prob =
-  0.25^(1:5)), multiplier = runif(num_simulations, 0, 1),
-  seed = sample.int(10 * num_simulations, num_simulations))
+simulation_type_knockdown(
+  num_simulations,
+  timepoint = runif(num_simulations),
+  genes = "*",
+  num_genes = sample(1:5, num_simulations, replace = TRUE, prob = 0.25^(1:5)),
+  multiplier = runif(num_simulations, 0, 1),
+  seed = sample.int(10 * num_simulations, num_simulations)
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the gold standard been generated with \code{\link[=generate_gold_standard]{generate_gold_standard()}}.}

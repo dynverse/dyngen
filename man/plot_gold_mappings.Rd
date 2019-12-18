@@ -4,8 +4,12 @@
 \alias{plot_gold_mappings}
 \title{Visualise the mapping of the simulations to the gold standard}
 \usage{
-plot_gold_mappings(model, selected_simulations = NULL, do_facet = TRUE,
-  mapping = aes(comp_1, comp_2))
+plot_gold_mappings(
+  model,
+  selected_simulations = NULL,
+  do_facet = TRUE,
+  mapping = aes(comp_1, comp_2)
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
