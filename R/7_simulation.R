@@ -142,7 +142,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     
     feature_network <- 
       feature_network %>%
-      mutate_at(c("strength", "cooperativity"), ~ . * rnorm(length(.), mean = mean, sd = sd))
+      mutate_at(c("strength", "hill"), ~ . * rnorm(length(.), mean = mean, sd = sd))
     
     lst(
       feature_info,

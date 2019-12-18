@@ -21,7 +21,7 @@
 #' * effect (integer): `1L` if the regulating module upregulates 
 #'   the target module, `-1L` if it downregulates
 #' * strength (numeric): the strength of the interaction
-#' * cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
+#' * hill (numeric): hill coefficient, larger than 1 for positive cooperativity,
 #'   between 0 and 1 for negative cooperativity
 #'   
 #' @param expression_patterns A tibble describing the expected expression pattern
@@ -58,13 +58,13 @@ backbone <- function(
     all(0 <= module_info$independence & module_info$independence <= 1),
     
     is.data.frame(module_network),
-    module_network %has_names% c("from", "to", "effect", "strength", "cooperativity"),
+    module_network %has_names% c("from", "to", "effect", "strength", "hill"),
     is.character(module_network$from),
     is.character(module_network$to),
     is.integer(module_network$effect),
     all(module_network$effect == 1L | module_network$effect == -1L),
     is.numeric(module_network$strength),
-    is.numeric(module_network$cooperativity),
+    is.numeric(module_network$hill),
     module_network$from %all_in% module_info$module_id,
     module_network$to %all_in% module_info$module_id,
     

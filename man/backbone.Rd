@@ -23,7 +23,7 @@ be active during the burn in phase
 \item effect (integer): \code{1L} if the regulating module upregulates
 the target module, \code{-1L} if it downregulates
 \item strength (numeric): the strength of the interaction
-\item cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
+\item hill (numeric): hill coefficient, larger than 1 for positive cooperativity,
 between 0 and 1 for negative cooperativity
 }}
 
