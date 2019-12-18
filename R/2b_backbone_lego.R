@@ -84,7 +84,7 @@ bblego_linear <- function(
         to = module_ids %>% tail(-1),
         effect = 1L,
         strength = 1,
-        cooperativity = 2
+        hill = 2
       )
   } else if (type == "doublerep1") {
     assert_that(num_modules >= 2)
@@ -104,7 +104,7 @@ bblego_linear <- function(
         to = module_ids %>% tail(-1),
         effect = ifelse(bas[-1] > 0, -1L, 1L),
         strength = ifelse(effect == 1, 1, 10),
-        cooperativity = 2
+        hill = 2
       )
   } else if (type == "doublerep2") {
     assert_that(num_modules >= 4)
@@ -121,14 +121,14 @@ bblego_linear <- function(
           to = module_ids %>% tail(-1),
           effect = ifelse(to %in% pos_to, 1L, -1L),
           strength = 1,
-          cooperativity = 2
+          hill = 2
         ),
         tibble(
           from = module_ids %>% head(-2) %>% head(-1),
           to = module_ids %>% tail(-2) %>% head(-1),
           effect = 1L,
           strength = seq_along(from),
-          cooperativity = 2
+          hill = 2
         ) %>% 
           head(., ifelse(num_modules %% 2 == 1, nrow(.) - 1, nrow(.)))
       )
@@ -148,10 +148,10 @@ bblego_linear <- function(
         to = module_ids %>% tail(-1),
         effect = 1L,
         strength = 1,
-        cooperativity = 2
+        hill = 2
       ),
       tribble(
-        ~from, ~to, ~effect, ~strength, ~cooperativity,
+        ~from, ~to, ~effect, ~strength, ~hill,
         nth(module_ids, -2), nth(module_ids, 1), -1L, 10, 2,
         nth(module_ids, -3), nth(module_ids, -1), -1L, 100, 2,
         nth(module_ids, -2), nth(module_ids, -2), 1L, 1, 2

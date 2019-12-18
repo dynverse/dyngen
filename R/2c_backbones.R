@@ -83,7 +83,7 @@ backbone_bifurcating_cycle <- function() {
   )
   
   module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
+    ~from, ~to, ~effect, ~strength, ~hill,
     "A1", "B1", 1L, 1, 2,
     "B1", "B2", 1L, 1, 2,
     "B1", "A2", -1L, 10, 2,
@@ -148,7 +148,7 @@ backbone_bifurcating_loop <- function() {
   )
   
   module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
+    ~from, ~to, ~effect, ~strength, ~hill,
     "A1", "A2", 1L, 10, 2,
     "A2", "A3", -1L,  10, 2,
     "A2", "B1", 1L, 1, 2,
@@ -358,7 +358,7 @@ backbone_cycle <- function() {
       to = first(module_grouping$A), 
       effect = -1L,
       strength = 10,
-      cooperativity = 2
+      hill = 2
     )
   )
   
@@ -393,7 +393,7 @@ backbone_cycle_simple <- function() {
   )
   
   module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
+    ~from, ~to, ~effect, ~strength, ~hill,
     "M1", "M2", -1L, 4, 2,
     "M2", "M3", -1L, 4, 2,
     "M3", "M4", 1L, 1, 2,
@@ -437,7 +437,7 @@ backbone_linear_simple <- function() {
   )
   
   module_network <- tribble(
-    ~from, ~to, ~effect, ~strength, ~cooperativity,
+    ~from, ~to, ~effect, ~strength, ~hill,
     "M1", "M2", 1L, 4, 2,
     "M2", "M3", -1L, 4, 2,
     "M3", "M4", -1L, 1, 2,
@@ -534,8 +534,8 @@ backbone_disconnected <- function(
     modnet_edge(c("A4", "A5", "A6", "A7"), c("A6", "A7", "A4", "A5"), strength = 2),
     modnet_pairwise(c("A4", "A5"), c("A6", "A7"), effect = -1L, strength = 100000),
     modnet_edge(c("A6", "A7"), "A1", effect = -1L, strength = 10),
-    lmi %>% filter(basal > 0) %>% transmute(from = "A6", to = module_id, effect = 1L, strength = basal, cooperativity = 2),
-    rmi %>% filter(basal > 0) %>% transmute(from = "A7", to = module_id, effect = 1L, strength = basal, cooperativity = 2),
+    lmi %>% filter(basal > 0) %>% transmute(from = "A6", to = module_id, effect = 1L, strength = basal, hill = 2),
+    rmi %>% filter(basal > 0) %>% transmute(from = "A7", to = module_id, effect = 1L, strength = basal, hill = 2),
     lmn,
     rmn,
     tibble(
@@ -546,7 +546,7 @@ backbone_disconnected <- function(
       to = c(common_modules, common_modules),
       effect = 1L,
       strength = 1,
-      cooperativity = 2
+      hill = 2
     )
   )
   

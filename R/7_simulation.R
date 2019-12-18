@@ -160,7 +160,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   
   # randomise kinetics to simulate intercellular differences
   out <- sim_params$kinetics_noise_function(model$feature_info, model$feature_network)
-  out2 <- .kinetics_calculate_k(out$feature_info, out$feature_network)
+  out2 <- .kinetics_calculate_dissociation(out$feature_info, out$feature_network)
   feature_info <- out2$feature_info
   feature_network <- out2$feature_network
   perturbed_parameters <- .kinetics_extract_parameters(feature_info, feature_network)

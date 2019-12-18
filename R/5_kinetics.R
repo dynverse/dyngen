@@ -14,7 +14,7 @@
 #' @param sample_independence A function specifying the distribution from which to sample the regulator independence factor.
 #' @param sample_effect A function specifying the distribution from which to sample the effect of an interaction.
 #' @param sample_strength A function specifying the distribution from which to sample the strength of an interaction.
-#' @param sample_cooperativity A function specifying the distribution from which to sample the cooperativity of an interaction from.
+#' @param sample_hill A function specifying the distribution from which to sample the hill coefficient of an interaction from.
 #' 
 #' @export
 generate_kinetics <- function(model) {
@@ -89,7 +89,7 @@ kinetics_default <- function(
   
   sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
   sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
-  sample_cooperativity = function(n) rnorm_bounded(n, 2, 2, min = 1, max = 10)
+  sample_hill = function(n) rnorm_bounded(n, 2, 2, min = 1, max = 10)
 ) {
   lst(
     sample_wpr,
@@ -102,33 +102,10 @@ kinetics_default <- function(
     
     sample_effect,
     sample_strength,
-    sample_cooperativity
+    sample_hill
   )
 }
 
-.kinetics_calculate_k <- function(feature_info, feature_network) {
-  remove <- c("max_w", "max_x", "max_y", "k", "max_protein")
-  
-  feature_info <- feature_info[, !colnames(feature_info) %in% remove]
-  feature_network <- feature_network[, !colnames(feature_network) %in% remove]
-  
-  feature_info <- 
-    feature_info %>%
-    mutate(
-      max_w = wpr / (wdr + wsr),
-      max_x = wsr / xdr * max_w,
-      max_y = ypr / ydr * max_x
-    )
-  
-  feature_network <- 
-    feature_network %>% 
-    left_join(feature_info %>% select(from = feature_id, max_y), by = "from") %>% 
-    mutate(
-      k = max_y / 2 / strength
-    )
-  
-  lst(feature_info, feature_network)
-}
 
 .kinetics_generate_gene_kinetics <- function(model) {
   if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
@@ -149,16 +126,16 @@ kinetics_default <- function(
       independence = independence %|% params$sample_independence(n())
     )
   
-  # sample effect, cooperativity and strength
+  # sample effect, hill and strength
   # calculate k
   feature_network <- 
     model$feature_network %>% 
     mutate(
       effect = effect %|% params$sample_effect(n()),
-      cooperativity = cooperativity %|% params$sample_cooperativity(n()),
+      hill = hill %|% params$sample_hill(n()),
       strength = strength %|% params$sample_strength(n())
     )
-  out <- .kinetics_calculate_k(feature_info, feature_network)
+  out <- .kinetics_calculate_dissociation(feature_info, feature_network)
   feature_info <- out$feature_info
   feature_network <- out$feature_network
   
@@ -170,7 +147,7 @@ kinetics_default <- function(
         rename(feature_id = to) %>% 
         group_by(feature_id) %>% 
         summarise(
-          basal_2 = .kinetics_calculate_ba(effect)
+          basal_2 = .kinetics_calculate_basal(effect)
         ),
       by = "feature_id"
     ) %>% 
@@ -319,19 +296,19 @@ kinetics_default <- function(
 }
 
 .kinetics_extract_parameters <- function(feature_info, feature_network) {
-  # extract m to qr, d, p, q, and ba
+  # extract production / degradation rates, ind and bas
   feature_params <- 
     feature_info %>% 
-    select(feature_id, wpr, wdr, wsr, xdr, ypr, ydr, basal, independence) %>% 
+    select(feature_id, wpr, wdr, wsr, xdr, ypr, ydr, bas = basal, ind = independence) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 
     deframe()
   
-  # extract k and c
+  # extract dis, hill, str
   edge_params <- 
     feature_network %>% 
-    select(from, to, k, c = cooperativity) %>% 
+    select(from, to, dis = dissociation, hill, str = strength) %>% 
     gather(param, value, -from, -to) %>% 
     mutate(id = paste0(param, "_", from, "_", to)) %>% 
     select(id, value) %>% 
@@ -340,10 +317,34 @@ kinetics_default <- function(
   c(feature_params, edge_params)
 }
 
-.kinetics_calculate_ba <- function(effects) {
+.kinetics_calculate_basal <- function(effects) {
   case_when(
     all(effects == -1) ~ 1,
     all(effects == 1) ~ 0.0001,
     TRUE ~ 0.5
   )
+}
+
+.kinetics_calculate_dissociation <- function(feature_info, feature_network) {
+  remove <- c("max_w", "max_x", "max_y", "dissociation", "k", "max_protein")
+  
+  feature_info <- feature_info[, !colnames(feature_info) %in% remove]
+  feature_network <- feature_network[, !colnames(feature_network) %in% remove]
+  
+  feature_info <- 
+    feature_info %>%
+    mutate(
+      max_w = wpr / (wdr + wsr),
+      max_x = wsr / xdr * max_w,
+      max_y = ypr / ydr * max_x
+    )
+  
+  feature_network <- 
+    feature_network %>% 
+    left_join(feature_info %>% select(from = feature_id, max_y), by = "from") %>% 
+    mutate(
+      dissociation = max_y / 2 / strength
+    )
+  
+  lst(feature_info, feature_network)
 }
