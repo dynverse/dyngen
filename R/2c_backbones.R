@@ -394,11 +394,11 @@ backbone_cycle_simple <- function() {
   
   module_network <- tribble(
     ~from, ~to, ~effect, ~strength, ~hill,
-    "M1", "M2", -1L, 4, 2,
-    "M2", "M3", -1L, 4, 2,
+    "M1", "M2", -1L, 100, 2,
+    "M2", "M3", -1L, 100, 2,
     "M3", "M4", 1L, 1, 2,
     "M4", "M5", 1L, 1, 2,
-    "M5", "M1", -1L, 4, 2
+    "M5", "M1", -1L, 100, 2
   )
   
   expression_patterns <- tribble(

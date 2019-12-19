@@ -343,7 +343,7 @@ kinetics_default <- function(
     feature_network %>% 
     left_join(feature_info %>% select(from = feature_id, max_y), by = "from") %>% 
     mutate(
-      dissociation = max_y / 2 / strength
+      dissociation = max_y / 2
     )
   
   lst(feature_info, feature_network)
