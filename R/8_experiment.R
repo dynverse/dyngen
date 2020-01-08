@@ -53,39 +53,10 @@ generate_experiment <- function(model) {
   realcount <- .generate_experiment_fetch_realcount(model)
   
   # simulate library size variation from real data
-  realsums <- Matrix::rowSums(realcount)
-  dist_vals <- realsums / mean(realsums)
-  lib_size <- quantile(dist_vals, runif(nrow(cell_info)))
-  cell_info <-
-    cell_info %>% 
-    mutate(
-      num_molecules = Matrix::rowSums(tsim_counts),
-      mult = quantile(dist_vals, runif(n())),
-      lib_size = sort(round(mean(num_molecules) * mult))[order(order(num_molecules))]
-    )
-  
-  # simulate gene capture variation
-  mol_info <- 
-    tibble(
-      id = colnames(tsim_counts),
-      capture_rate = model$experiment_params$sample_capture_rate(length(id))
-    )
-  
-  # simulate sampling of molecules
-  tsim_counts_t <- Matrix::t(tsim_counts)
-  for (cell_i in seq_len(nrow(cell_info))) {
-    pi <- tsim_counts_t@p[[cell_i]] + 1
-    pj <- tsim_counts_t@p[[cell_i + 1]]
-    gene_is <- tsim_counts_t@i[pi:pj] + 1
-    gene_vals <- tsim_counts_t@x[pi:pj]
-    
-    lib_size <- cell_info$lib_size[[cell_i]]
-    cap_rates <- mol_info$capture_rate[gene_is]
-    new_vals <- rmultinom(1, lib_size, cap_rates * gene_vals)
-    
-    tsim_counts_t@x[pi:pj] <- new_vals
-  }
-  sim_counts <- Matrix::drop0(Matrix::t(tsim_counts_t))
+  count_simulation <- .simulate_counts_from_realcounts(tsim_counts, realcount, cell_info, sample_capture_rate = model$experiment_params$sample_capture_rate)
+  sim_counts <- count_simulation$sim_counts
+  cell_info <- count_simulation$cell_info
+  mol_info <- count_simulation$mol_info
   
   # split up molecules
   sim_wcounts <- sim_counts[, model$feature_info$w, drop = FALSE]
@@ -114,6 +85,60 @@ generate_experiment <- function(model) {
   )
   
   model
+}
+
+
+.simulate_counts_from_realcounts <- function(
+  tsim_counts, 
+  realcount, 
+  cell_info = tibble(cell_id = rownames(tsim_counts)), 
+  sample_capture_rate = function(n) rnorm(n, 1, 0.05) %>% pmax(0)
+) {
+  # simulate library size variation from real data
+  realsums <- Matrix::rowSums(realcount)
+  dist_vals <- realsums / mean(realsums)
+  lib_size <- quantile(dist_vals, runif(nrow(cell_info)))
+  
+  cell_info <-
+    cell_info %>% 
+    mutate(
+      num_molecules = Matrix::rowSums(tsim_counts),
+      mult = quantile(dist_vals, runif(n())),
+      lib_size = sort(round(mean(num_molecules) * mult))[order(order(num_molecules))]
+    )
+  
+  # simulate gene capture variation
+  mol_info <- 
+    tibble(
+      id = colnames(tsim_counts),
+      capture_rate = sample_capture_rate(length(id))
+    )
+  
+  # simulate sampling of molecules
+  tsim_counts_t <- Matrix::t(tsim_counts)
+  for (cell_i in seq_len(nrow(cell_info))) {
+    pi <- tsim_counts_t@p[[cell_i]] + 1
+    pj <- tsim_counts_t@p[[cell_i + 1]]
+    gene_is <- tsim_counts_t@i[pi:pj] + 1
+    gene_vals <- tsim_counts_t@x[pi:pj]
+    
+    lib_size <- cell_info$lib_size[[cell_i]]
+    cap_rates <- mol_info$capture_rate[gene_is]
+    
+    probs <- cap_rates * gene_vals
+    probs[probs < 0] <- 0 # sometimes these can become zero due to rounding errors
+    
+    new_vals <- rmultinom(1, lib_size, probs)
+    
+    tsim_counts_t@x[pi:pj] <- new_vals
+  }
+  sim_counts <- Matrix::drop0(Matrix::t(tsim_counts_t))
+  
+  lst(
+    sim_counts,
+    cell_info,
+    mol_info
+  )
 }
 
 #' @export
