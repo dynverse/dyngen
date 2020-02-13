@@ -24,6 +24,8 @@ LazyData: TRUE
 RoxygenNote: 7.0.2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
+URL: https://github.com/dynverse/dyngen
+BugReports: https://github.com/dynverse/dyngen/issues
 Depends:
   R (>= 3.0.0)
 Imports:
