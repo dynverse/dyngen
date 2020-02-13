@@ -19,7 +19,7 @@ Authors@R: c(
     )
   )
 Description: A toolkit for generating synthetic single cell data.
-License: GPL-3
+License: MIT + LICENSE file
 LazyData: TRUE
 RoxygenNote: 7.0.2
 Encoding: UTF-8
