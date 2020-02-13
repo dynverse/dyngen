@@ -9,3 +9,5 @@
 ^README\.Rmd$
 ^example_script\.R$
 ^scripts_tmp
+^LICENSE\.md$
+^LICENSE\.md$
