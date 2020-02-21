@@ -183,64 +183,75 @@ bblego_linear <- function(
 bblego_branching <- function(
   from, 
   to, 
-  type = c("robust", "simple"),
-  num_modules = length(to) * 2 + 2,
+  type = "simple",
+  num_modules = length(to) + 3,
   burn = FALSE
 ) {
   assert_that(
     length(to) >= 2,
-    num_modules >= length(to) * 2 + 1
+    num_modules >= length(to) + 3
   )
   
   type <- match.arg(type)
   
-  # todo: implement reversible branching again
+  lin_length <- num_modules - length(to)
   
-  lin_length <- num_modules - 2 * length(to)
-  
-  my_module_ids <- 
-    paste0(from, seq_len(lin_length))
-  our_module_ids <- 
-    paste0(from, seq(lin_length + 1, num_modules))
-  our_module_ids1 <- 
-    our_module_ids[seq_len(length(our_module_ids) / 2)]
-  our_module_ids2 <- 
-    our_module_ids[-seq_len(length(our_module_ids) / 2)]
-  their_module_ids <- 
-    paste0(to, 1)
-  module_ids <- c(my_module_ids, our_module_ids, their_module_ids)
+  my_module_ids <- paste0(from, seq_len(lin_length-1))
+  notmy_module_ids <- paste0(from, lin_length)
+  our_module_ids <- paste0(from, seq(lin_length + 1, num_modules))
+  their_module_ids <- paste0(to, 1)
+  module_ids <- c(my_module_ids, notmy_module_ids, our_module_ids, their_module_ids)
   
   module_info <- tibble(
-    module_id = c(my_module_ids, our_module_ids),
-    basal = 0,
-    burn = burn,
+    module_id = c(my_module_ids, notmy_module_ids, our_module_ids),
+    basal = ifelse(module_id == notmy_module_ids, 1, 0),
+    burn = basal > 0 | burn,
     independence = 1
   )
   
   module_network <- bind_rows(
     modnet_chain(my_module_ids),
-    modnet_edge(last(my_module_ids), our_module_ids1),
-    modnet_edge(our_module_ids1, our_module_ids2, strength = 2),
-    modnet_edge(our_module_ids2, our_module_ids1, strength = 2),
-    modnet_edge(our_module_ids1, first(my_module_ids), effect = -1L, strength = 5),
-    modnet_edge(our_module_ids2, their_module_ids),
-    modnet_pairwise(our_module_ids1, effect = -1L, strength = 100),
-    modnet_pairwise(our_module_ids1, our_module_ids2, effect = -1L, strength = 10000000)
+    modnet_edge(last(my_module_ids), our_module_ids),
+    modnet_edge(first(my_module_ids), notmy_module_ids, effect = -1L, strength = 50),
+    modnet_edge(notmy_module_ids, our_module_ids, effect = -1L, strength = 10),
+    modnet_edge(our_module_ids, our_module_ids, strength = 2),
+    # modnet_edge(our_module_ids, last(my_module_ids), effect = -1L, strength = 10),
+    modnet_pairwise(our_module_ids, effect = -1L, strength = 10),
+    modnet_edge(our_module_ids, their_module_ids)
   )
   
-  in_edge <- if (length(my_module_ids) >= 1) {
-    paste0("+", my_module_ids, ",", collapse = "")
-  } else {
-    c()
-  }
+  # in_edge <- if (length(my_module_ids) >= 1) {
+  #   paste0("+", my_module_ids, ",", collapse = "")
+  # } else {
+  #   c()
+  # }
+  # 
+  # expression_patterns <- tibble(
+  #   from = paste0("s", from),
+  #   to = paste0("s", to),
+  #   module_progression = paste0(in_edge, "+", our_module_ids),
+  #   start = FALSE,
+  #   burn = burn,
+  #   time = num_modules + 1
+  # )
   
-  expression_patterns <- tibble(
-    from = paste0("s", from),
-    to = paste0("s", to),
-    module_progression = paste0(in_edge, "+", our_module_ids1, ",+", our_module_ids2),
-    start = FALSE,
-    burn = burn,
-    time = num_modules + 1
+  expression_patterns <- bind_rows(
+    tibble(
+      from = paste0("s", from),
+      to = paste0("s", !!from, "mid"),
+      module_progression = paste0("+", my_module_ids, collapse = ","),
+      start = FALSE,
+      burn = burn,
+      time = num_modules
+    ),
+    tibble(
+      from = paste0("s", from, "mid"),
+      to = paste0("s", to),
+      module_progression = paste0("+", our_module_ids),
+      start = FALSE,
+      burn = burn,
+      time = 2
+    )
   )
   
   lst(module_info, module_network, expression_patterns)
