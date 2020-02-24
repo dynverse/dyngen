@@ -7,41 +7,10 @@
 \usage{
 generate_kinetics(model)
 
-kinetics_default(
-  sample_wpr = function(n) rnorm_bounded(n, 50, 10, min = 10),
-  sample_whl = function(n) rnorm_bounded(n, 0.15, 0.03, min = 0.05),
-  sample_wsr = function(n) rnorm_bounded(n, 5, 1, min = 1),
-  sample_xhl = function(n) rnorm_bounded(n, 0.15, 0.03, min = 0.05),
-  sample_ypr = function(n) rnorm_bounded(n, 5, 1, min = 1),
-  sample_yhl = function(n) rnorm_bounded(n, 0.25, 0.05, min = 0.1),
-  sample_independence = function(n) runif(n, 0, 1),
-  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(0.25, 0.75)),
-  sample_strength = function(n) 10^runif(n, log10(1), log10(100)),
-  sample_hill = function(n) rnorm_bounded(n, 2, 2, min = 1, max = 10)
-)
+kinetics_default()
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
-
-\item{sample_wpr}{A function specifying the distribution from which to sample the pre-mRNA production rate.}
-
-\item{sample_whl}{A function specifying the distribution from which to sample the pre-mRNA half-life.}
-
-\item{sample_wsr}{A function specifying the distribution from which to sample the splicing rate.}
-
-\item{sample_xhl}{A function specifying the distribution from which to sample the pre-mRNA half-life.}
-
-\item{sample_ypr}{A function specifying the distribution from which to sample the protein production rate.}
-
-\item{sample_yhl}{A function specifying the distribution from which to sample the pre-mRNA half-life.}
-
-\item{sample_independence}{A function specifying the distribution from which to sample the regulator independence factor.}
-
-\item{sample_effect}{A function specifying the distribution from which to sample the effect of an interaction.}
-
-\item{sample_strength}{A function specifying the distribution from which to sample the strength of an interaction.}
-
-\item{sample_hill}{A function specifying the distribution from which to sample the hill coefficient of an interaction from.}
 }
 \description{
 \code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which
