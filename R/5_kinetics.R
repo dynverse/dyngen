@@ -68,11 +68,14 @@ kinetics_default <- function() {
     feature_info <- 
       feature_info %>% 
       mutate(
+        # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
+        # See data-raw/decay_rates.R for more infi
         transcription_rate = transcription_rate %|% rlnorm(n(), meanlog = 0.6033171, sdlog = 0.9923495),
-        splicing_rate = splicing_rate %|% rep(log(2) / (5 / 60), n()),
         translation_rate = translation_rate %|% rlnorm(n(), meanlog = 4.651708, sdlog = 1.535090),
         mrna_halflife = mrna_halflife %|% rlnorm(n(), meanlog = 2.2738081, sdlog = 0.4561759),
         protein_halflife = protein_halflife %|% rlnorm(n(), meanlog = 3.832557, sdlog = 1.023610),
+        # splicing half-life of 5 minutes is based on Singh et al. 2009. https://doi.org/10.1038/nsmb.1666
+        splicing_rate = splicing_rate %|% rep(log(2) / (5 / 60), n()),
         independence = independence %|% runif(n(), 0, 1)
       )
     feature_network <-
@@ -88,13 +91,15 @@ kinetics_default <- function() {
     )
   }
   
-  lst(kinetics_function)
+  list(
+    kinetics_function = kinetics_function
+  )
 }
 
 .kinetics_add_columns <- function(df, colnames, fill = NA) {
   for (colname in colnames) {
     if (!colname %in% colnames(df)) {
-      df[[colname]] <- na_value
+      df[[colname]] <- fill
     }
   }
   df
@@ -106,7 +111,7 @@ kinetics_default <- function() {
   
   kin_out <- params$kinetics_function(
     model$feature_info %>% .kinetics_add_columns(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife", "independence"), NA_real_), 
-    model$feature_network %>% .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_), 
+    model$feature_network %>% .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_)
   )
   
   kin_out$feature_info <-
@@ -117,7 +122,7 @@ kinetics_default <- function() {
     )
   
   # calculate k
-  dis_out <- .kinetics_calculate_dissociation(feature_info, feature_network)
+  dis_out <- .kinetics_calculate_dissociation(kin_out$feature_info, kin_out$feature_network)
   feature_info <- dis_out$feature_info
   feature_network <- dis_out$feature_network
   
@@ -280,7 +285,7 @@ kinetics_default <- function() {
   # extract production / degradation rates, ind and bas
   feature_params <- 
     feature_info %>% 
-    select(feature_id, transcription_rate, splicing_rate, translation_rate, mrna_decayrate, protein_decayrate, bas = basal, ind = independence) %>% 
+    select(feature_id, transcription_rate, splicing_rate, translation_rate, mrna_decay_rate, protein_decay_rate, bas = basal, ind = independence) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 
@@ -322,7 +327,7 @@ kinetics_default <- function() {
   
   feature_network <- 
     feature_network %>% 
-    left_join(feature_info %>% select(from = feature_id, max_y), by = "from") %>% 
+    left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
     mutate(
       dissociation = max_protein / 2
     )

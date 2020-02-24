@@ -137,8 +137,11 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     feature_info <- 
       feature_info %>% 
       mutate_at(c("basal"), ~ pmin(1, . * rnorm(length(.), mean = mean, sd = sd))) %>% 
-      mutate_at(c("wpr", "whl", "wsr", "xhl", "ypr", "yhl"), ~ . * rnorm(length(.), mean = mean, sd = sd)) %>% 
-      mutate(wdr = log(2) / whl, xdr = log(2) / xhl, ydr = log(2) / yhl)
+      mutate_at(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife"), ~ . * rnorm(length(.), mean = mean, sd = sd)) %>% 
+      mutate(
+        mrna_decay_rate = log(2) / mrna_halflife, 
+        protein_decay_rate = log(2) / protein_halflife
+      )
     
     feature_network <- 
       feature_network %>%
@@ -260,7 +263,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       kd_gene_candidates <- model$feature_info$feature_id
     }
     kd_genes <- sample(kd_gene_candidates, expr_params$num_genes)
-    kd_wprs <- paste0("wpr_", kd_genes)
+    kd_wprs <- paste0("transcription_rate_", kd_genes)
     
     kd_params <- perturbed_parameters
     kd_params[kd_wprs] <- kd_params[kd_wprs] * expr_params$multiplier
@@ -328,12 +331,12 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
 .generate_cells_compute_regulation <- function(feature_info, feature_network, new_initial_state, reactions, counts, sim) {
   fn <- 
     feature_network %>% 
-    left_join(feature_info %>% select(to = feature_id, wpr), by = "to") %>% 
+    left_join(feature_info %>% select(to = feature_id, transcription_rate), by = "to") %>% 
     transmute(
-      reg_y_match = match(paste0("y_", from), names(new_initial_state)),
+      reg_y_match = match(paste0("mol_protein_", from), names(new_initial_state)),
       tar_prop_match = match(paste0("transcription_", to), reactions$reaction_ids),
       j = row_number(),
-      wpr
+      transcription_rate
     )
   
   ko_effects <- 
@@ -368,7 +371,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
               transmute(
                 i = counti,
                 j,
-                ko_effect = ko_effect / wpr
+                ko_effect = ko_effect / transcription_rate
               )
             
             if (orig_reg_state != 0) {

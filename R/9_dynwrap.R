@@ -11,10 +11,10 @@
 wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
   dataset <- wrap_expression(
     id = model$id,
-    counts = model$experiment$xcounts,
-    expression = as(log2(model$experiment$xcounts + 1), "dgCMatrix"),
-    expression_unspliced = as(log2(model$experiment$wcounts + 1), "dgCMatrix"),
-    expression_protein = as(log2(model$experiment$ycounts + 1), "dgCMatrix"),
+    counts = model$experiment$counts_mrna,
+    expression = as(log2(model$experiment$counts_mrna + 1), "dgCMatrix"),
+    expression_unspliced = as(log2(model$experiment$counts_premrna + 1), "dgCMatrix"),
+    expression_protein = as(log2(model$experiment$counts_protein + 1), "dgCMatrix"),
     cell_info = model$experiment$cell_info %>% select(-from, -to, -time),
     feature_info = model$experiment$feature_info
   ) %>% 

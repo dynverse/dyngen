@@ -21,8 +21,8 @@ bblego_linear(
 bblego_branching(
   from,
   to,
-  type = c("robust", "simple"),
-  num_modules = length(to) * 2 + 2,
+  type = "simple",
+  num_modules = length(to) + 3,
   burn = FALSE
 )
 

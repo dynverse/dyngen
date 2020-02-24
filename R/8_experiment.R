@@ -59,9 +59,9 @@ generate_experiment <- function(model) {
   mol_info <- count_simulation$mol_info
   
   # split up molecules
-  sim_wcounts <- sim_counts[, model$feature_info$w, drop = FALSE]
-  sim_xcounts <- sim_counts[, model$feature_info$x, drop = FALSE]
-  sim_ycounts <- sim_counts[, model$feature_info$y, drop = FALSE]
+  sim_wcounts <- sim_counts[, model$feature_info$mol_premrna, drop = FALSE]
+  sim_xcounts <- sim_counts[, model$feature_info$mol_mrna, drop = FALSE]
+  sim_ycounts <- sim_counts[, model$feature_info$mol_protein, drop = FALSE]
   dimnames(sim_wcounts) <- 
     dimnames(sim_xcounts) <-
     dimnames(sim_ycounts) <- 
@@ -76,9 +76,9 @@ generate_experiment <- function(model) {
   
   # combine into final count matrix
   model$experiment <- list(
-    wcounts = sim_wcounts,
-    xcounts = sim_xcounts,
-    ycounts = sim_ycounts,
+    counts_premrna = sim_wcounts,
+    counts_mrna = sim_xcounts,
+    counts_protein = sim_ycounts,
     feature_info =  model$feature_info,
     cell_info = cell_info,
     regulation = sim_regulation

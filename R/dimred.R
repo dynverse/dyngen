@@ -49,17 +49,17 @@ calculate_dimred <- function(
   tf_info <- model$feature_info %>% filter(is_tf)
   
   if (!is.null(sim_counts)) {
-    sim_wcounts <- sim_counts[, tf_info$w, drop = FALSE]
-    sim_xcounts <- sim_counts[, tf_info$x, drop = FALSE]
-    sim_ycounts <- sim_counts[, tf_info$y, drop = FALSE]
+    sim_wcounts <- sim_counts[, tf_info$mol_premrna, drop = FALSE]
+    sim_xcounts <- sim_counts[, tf_info$mol_mrna, drop = FALSE]
+    sim_ycounts <- sim_counts[, tf_info$mol_protein, drop = FALSE]
   } else {
     sim_wcounts <- sim_xcounts <- sim_ycounts <- NULL
   }
   
   if (!is.null(gs_counts)) {
-    gs_wcounts <- gs_counts[, tf_info$w, drop = FALSE]
-    gs_xcounts <- gs_counts[, tf_info$x, drop = FALSE]
-    gs_ycounts <- gs_counts[, tf_info$y, drop = FALSE]
+    gs_wcounts <- gs_counts[, tf_info$mol_premrna, drop = FALSE]
+    gs_xcounts <- gs_counts[, tf_info$mol_mrna, drop = FALSE]
+    gs_ycounts <- gs_counts[, tf_info$mol_protein, drop = FALSE]
   } else {
     gs_wcounts <- gs_xcounts <- gs_ycounts <- NULL
   }
