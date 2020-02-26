@@ -310,20 +310,26 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
 #' @param label_changing Whether or not to add a label next to changing molecules.
 #' 
 #' @export
-plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing = TRUE) {
+plot_gold_expression <- function(
+  model, 
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
+  label_changing = TRUE
+) {
+  assert_that(what %all_in% c("mol_premrna", "mol_mrna", "mol_protein"))
+  
   edge_levels <- 
     model$gold_standard$mod_changes %>% 
     mutate(edge = paste0(from_, "->", to_)) %>% 
     pull(edge)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, !!!what) %>% pull(val)
   df <- bind_cols(
     model$gold_standard$meta,
     as.data.frame(as.matrix(model$gold_standard$counts))[,molecules]
   ) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
     mutate(edge = factor(paste0(from_, "->", to_), levels = edge_levels)) %>% 
-    left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
+    left_join(model$feature_info %>% select(module_id, !!!what) %>% gather(type, molecule, !!!what), by = "molecule") %>% 
     group_by(module_id, sim_time, simulation_i, burn, from, to, from_, to_, time, edge, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
@@ -331,7 +337,7 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
   
   g <- ggplot(df, aes(sim_time, value, colour = module_id)) +
     geom_line(aes(linetype = type, size = type)) +
-    scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
+    scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~edge) +
     theme_bw()
@@ -366,21 +372,21 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
 plot_simulation_expression <- function(
   model, 
   simulation_i = 1:4,
-  what = c("w", "x", "y"),
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
   facet = c("simulation", "module_group", "module_id", "none"),
   label_nonzero = FALSE
 ) {
   facet <- match.arg(facet)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, mol_premrna, mol_mrna, mol_protein) %>% pull(val)
   df <- bind_cols(
     model$simulations$meta,
     as.data.frame(as.matrix(model$simulations$counts)[,molecules])
   ) %>% 
     filter(simulation_i %in% !!simulation_i) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
-    left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
-    group_by(module_id, sim_time, simulation_i, from, to, time, type) %>% 
+    left_join(model$feature_info %>% select(mol_premrna, mol_mrna, mol_protein, module_id) %>% gather(type, molecule, mol_premrna, mol_mrna, mol_protein), by = "molecule") %>% 
+    group_by(module_id, sim_time, simulation_i, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
     mutate(module_group = gsub("[0-9]*$", "", module_id)) %>% 
@@ -388,7 +394,7 @@ plot_simulation_expression <- function(
   
   g <- ggplot(df, aes(sim_time, value)) +
     geom_step(aes(linetype = type, size = type, colour = module_id)) +
-    scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
+    scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     theme_bw()
   
