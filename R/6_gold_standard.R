@@ -38,8 +38,8 @@ generate_gold_standard <- function(model) {
 #' @export
 #' @rdname generate_gold_standard
 gold_standard_default <- function(
-  tau = .001,
-  census_interval = .01
+  tau = 1 / 3600,
+  census_interval = 1 / 60
 ) {
   lst(
     tau,

@@ -118,10 +118,8 @@ usethis::use_data(realcounts, compress = "xz", overwrite = TRUE)
 # download data from Schwannhäusser et al., 2011, doi.org/10.1038/nature10098
 tmpfile <- tempfile()
 download.file("https://static-content.springer.com/esm/art%3A10.1038%2Fnature10098/MediaObjects/41586_2011_BFnature10098_MOESM304_ESM.xls", tmpfile)
-tab <- readxl::read_excel(tmpfile)
-
-tab2 <- tab %>% 
-  select(
+tab <- readxl::read_excel(tmpfile) %>% 
+  transmute(
     protein_ids = `Protein IDs`,
     protein_names = `Protein Names`,
     gene_names = `Gene Names`,
@@ -130,26 +128,26 @@ tab2 <- tab %>%
     refseq_mrna_id = `Refseq mRNA ID`,
     ensembl_id = `ENSEMBL ID`,
     mgi_id = `MGI ID`,
-    protein_length = `Protein length [amino acids]`,
-    protein_copynumber = `Protein copy number average [molecules/cell]`,
-    protein_halflife = `Protein half-life average [h]`,
-    mrna_copynumber = `mRNA copy number average [molecules/cell]`,
-    mrna_halflife = `mRNA half-life average [h]`,
-    transcription_rate = `transcription rate (vsr) average [molecules/(cell*h)]`,
-    translation_rate = `translation rate constant (ksp) average [molecules/(mRNA*h)]`
+    protein_length = as.numeric(`Protein length [amino acids]`),
+    protein_copynumber = as.numeric(`Protein copy number average [molecules/cell]`),
+    protein_halflife = as.numeric(`Protein half-life average [h]`),
+    mrna_copynumber = as.numeric(`mRNA copy number average [molecules/cell]`),
+    mrna_halflife = as.numeric(`mRNA half-life average [h]`),
+    transcription_rate = as.numeric(`transcription rate (vsr) average [molecules/(cell*h)]`),
+    translation_rate = as.numeric(`translation rate constant (ksp) average [molecules/(mRNA*h)]`)
   )
 
-write_rds(tab2, paste0(output_dir, "/schwannhausser2011.rds"), compress = "xz")
+write_rds(tab, paste0(output_dir, "/schwannhausser2011.rds"), compress = "xz")
 
 # get median values for deriving parameters for the TF backbone
-tab2 %>% summarise_if(is.numeric, median, na.rm = TRUE)
+tab %>% summarise_if(is.numeric, median, na.rm = TRUE)
 
 # perform data imputation for sampling kinetics from this dataset
-out <- mice::mice(tab2 %>% select_if(is.numeric), m = 1, maxit = 10, method = "pmm", seed = 1)
+out <- mice::mice(tab %>% select_if(is.numeric), m = 1, maxit = 10, method = "pmm", seed = 1)
 
-tab3 <- mice::complete(out)
+tab_imp <- mice::complete(out)
 
-write_rds(tab3, paste0(output_dir, "/schwannhausser2011_imputed.rds"), compress = "xz")
+write_rds(tab_imp, paste0(output_dir, "/schwannhausser2011_imputed.rds"), compress = "xz")
 
 
 

@@ -168,10 +168,10 @@ bblego_linear <- function(
     start = FALSE,
     burn = burn,
     time = case_when(
-      type == "flipflop" ~ num_modules * 3,
-      num_modules == 1 ~ 2,
-      num_modules == 2 ~ 3,
-      TRUE ~ as.numeric(num_modules)
+      type == "flipflop" ~ num_modules * 30,
+      num_modules == 1 ~ 20,
+      num_modules == 2 ~ 30,
+      TRUE ~ as.numeric(num_modules) * 10
     )
   )
   
@@ -215,25 +215,9 @@ bblego_branching <- function(
     modnet_edge(first(my_module_ids), notmy_module_ids, effect = -1L, strength = 50),
     modnet_edge(notmy_module_ids, our_module_ids, effect = -1L, strength = 10),
     modnet_edge(our_module_ids, our_module_ids, strength = 2),
-    # modnet_edge(our_module_ids, last(my_module_ids), effect = -1L, strength = 10),
     modnet_pairwise(our_module_ids, effect = -1L, strength = 10),
     modnet_edge(our_module_ids, their_module_ids)
   )
-  
-  # in_edge <- if (length(my_module_ids) >= 1) {
-  #   paste0("+", my_module_ids, ",", collapse = "")
-  # } else {
-  #   c()
-  # }
-  # 
-  # expression_patterns <- tibble(
-  #   from = paste0("s", from),
-  #   to = paste0("s", to),
-  #   module_progression = paste0(in_edge, "+", our_module_ids),
-  #   start = FALSE,
-  #   burn = burn,
-  #   time = num_modules + 1
-  # )
   
   expression_patterns <- bind_rows(
     tibble(
@@ -242,7 +226,7 @@ bblego_branching <- function(
       module_progression = paste0("+", my_module_ids, collapse = ","),
       start = FALSE,
       burn = burn,
-      time = num_modules
+      time = num_modules * 10
     ),
     tibble(
       from = paste0("s", from, "mid"),
@@ -250,7 +234,7 @@ bblego_branching <- function(
       module_progression = paste0("+", our_module_ids),
       start = FALSE,
       burn = burn,
-      time = 2
+      time = 20
     )
   )
   

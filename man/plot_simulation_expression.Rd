@@ -7,7 +7,7 @@
 plot_simulation_expression(
   model,
   simulation_i = 1:4,
-  what = c("w", "x", "y"),
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
   facet = c("simulation", "module_group", "module_id", "none"),
   label_nonzero = FALSE
 )

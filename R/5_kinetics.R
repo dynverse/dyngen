@@ -8,6 +8,11 @@
 #' 
 #' @export
 generate_kinetics <- function(model) {
+  assert_that(
+    !is.null(model$feature_info),
+    !is.null(model$feature_network)
+  )
+  
   # generate kinetics params
   model <- .kinetics_generate_gene_kinetics(model)
   
@@ -57,25 +62,54 @@ generate_kinetics <- function(model) {
   model
 }
 
+
 #' @export
 #' @rdname generate_kinetics
-#' @importFrom stats runif rlnorm
 kinetics_default <- function() {
   kinetics_function <- function(
     feature_info,
     feature_network
   ) {
-    feature_info <- 
+    feature_info_tf <-
+      feature_info %>%
+      filter(is_tf) %>% 
+      mutate(
+        transcription_rate = transcription_rate %|% runif(n(), 1, 2),
+        translation_rate = translation_rate %|% runif(n(), 100, 150),
+        mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
+        protein_halflife = protein_halflife %|% runif(n(), 5, 10)
+      )
+    
+    feature_info_nontf <- 
       feature_info %>% 
+      filter(!is_tf)
+    
+    
+    real_kinetics <- .download_cacheable_file(
+      url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
+      cache_dir = model$download_cache_dir, 
+      verbose = model$verbose
+    )
+    
+    smpld <- 
+      real_kinetics %>% 
+      sample_n(nrow(feature_info_nontf), replace = TRUE) %>% 
+      select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
+    feature_info_nontf <- 
+      feature_info_nontf %>% 
       mutate(
         # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
-        # See data-raw/decay_rates.R for more infi
-        transcription_rate = transcription_rate %|% rlnorm(n(), meanlog = 0.6033171, sdlog = 0.9923495),
-        translation_rate = translation_rate %|% rlnorm(n(), meanlog = 4.651708, sdlog = 1.535090),
-        mrna_halflife = mrna_halflife %|% rlnorm(n(), meanlog = 2.2738081, sdlog = 0.4561759),
-        protein_halflife = protein_halflife %|% rlnorm(n(), meanlog = 3.832557, sdlog = 1.023610),
-        # splicing half-life of 5 minutes is based on Singh et al. 2009. https://doi.org/10.1038/nsmb.1666
-        splicing_rate = splicing_rate %|% rep(log(2) / (5 / 60), n()),
+        # See data-raw/decay_rates.R for more info
+        transcription_rate = transcription_rate %|% smpld$transcription_rate,
+        translation_rate = translation_rate %|% smpld$translation_rate,
+        mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
+        protein_halflife = protein_halflife %|% smpld$protein_halflife,
+      )
+    
+    feature_info <- 
+      bind_rows(feature_info_tf, feature_info_nontf) %>% 
+      mutate(
+        splicing_rate = splicing_rate %|% (log(2) / (10 / 60)),
         independence = independence %|% runif(n(), 0, 1)
       )
     feature_network <-
@@ -110,8 +144,10 @@ kinetics_default <- function() {
   params <- model$kinetics_params
   
   kin_out <- params$kinetics_function(
-    model$feature_info %>% .kinetics_add_columns(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife", "independence"), NA_real_), 
-    model$feature_network %>% .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_)
+    feature_info = model$feature_info %>%
+      .kinetics_add_columns(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife", "independence"), NA_real_), 
+    feature_network = model$feature_network %>%
+      .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_)
   )
   
   kin_out$feature_info <-
@@ -185,7 +221,7 @@ kinetics_default <- function() {
       x <- paste0("mol_mrna_", fid)
       y <- paste0("mol_protein_", fid)
       
-      transcription_rate <- paste0("transcription_", fid)
+      transcription_rate <- paste0("transcription_rate_", fid)
       splicing_rate <- paste0("splicing_rate_", fid)
       translation_rate <- paste0("translation_rate_", fid)
       mrna_decay_rate <- paste0("mrna_decay_rate_", fid)

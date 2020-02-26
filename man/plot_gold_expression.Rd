@@ -4,7 +4,11 @@
 \alias{plot_gold_expression}
 \title{Visualise the expression of the gold standard over simulation time}
 \usage{
-plot_gold_expression(model, what = c("w", "x", "y"), label_changing = TRUE)
+plot_gold_expression(
+  model,
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
+  label_changing = TRUE
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_gold_standard]{generate_gold_standard()}}.}

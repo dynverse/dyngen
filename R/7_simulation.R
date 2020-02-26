@@ -68,10 +68,10 @@ generate_cells <- function(model) {
 #' @rdname generate_cells
 #' @importFrom GillespieSSA2 ssa_etl
 simulation_default <- function(
-  burn_time = 2,
-  total_time = 10,
-  ssa_algorithm = ssa_etl(tau = .001),
-  census_interval = .01,
+  burn_time = 20,
+  total_time = 100,
+  ssa_algorithm = ssa_etl(tau = 1 / 3600),
+  census_interval = 5 / 60,
   experiment_params = bind_rows(
     simulation_type_wild_type(num_simulations = 32),
     simulation_type_knockdown(num_simulations = 0)
