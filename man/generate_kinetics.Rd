@@ -15,17 +15,18 @@ kinetics_default(
     protein_halflife \%|\% runif(n(), 5, 10), independence = independence \%|\% 1,
     splicing_rate = splicing_rate \%|\% (log(2)/(10/60))) },
   sampler_nontfs = function(feature_info, feature_network, cache_dir = NULL, verbose =
-    FALSE) {     real_kinetics <- .download_cacheable_file(url =
+    FALSE) {     if (!is.null(feature_info) && nrow(feature_info) > 0) {        
+    real_kinetics <- .download_cacheable_file(url =
     "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds",
-    cache_dir = model$download_cache_dir, verbose = model$verbose)     smpld <-
+    cache_dir = model$download_cache_dir, verbose = model$verbose)         smpld <-
     real_kinetics \%>\% sample_n(nrow(feature_info), replace = TRUE) \%>\%
-    select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)    
+    select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)        
     feature_info \%>\% mutate(transcription_rate = transcription_rate \%|\%
     smpld$transcription_rate, translation_rate = translation_rate \%|\%
     smpld$translation_rate, mrna_halflife = mrna_halflife \%|\% smpld$mrna_halflife,
     protein_halflife = protein_halflife \%|\% smpld$protein_halflife, independence =
     independence \%|\% runif(n(), 0, 1), splicing_rate = splicing_rate \%|\%
-    (log(2)/(10/60))) },
+    (log(2)/(10/60)))     }     else {         feature_info     } },
   sampler_interactions = function(feature_info, feature_network, cache_dir = NULL,
     verbose = FALSE) {     feature_network \%>\% mutate(effect = effect \%|\% sample(c(-1,
     1), n(), replace = TRUE, prob = c(0.25, 0.75)), strength = strength \%|\%

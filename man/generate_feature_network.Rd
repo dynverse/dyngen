@@ -9,7 +9,7 @@ generate_feature_network(model)
 
 feature_network_default(
   realnet = NULL,
-  damping = 0.05,
+  damping = 0.01,
   target_resampling = Inf,
   max_in_degree = 5
 )

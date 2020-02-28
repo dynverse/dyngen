@@ -106,7 +106,7 @@ generate_feature_network <- function(
 #' @rdname generate_feature_network
 feature_network_default <- function(
   realnet = NULL,
-  damping = 0.05,
+  damping = 0.01,
   target_resampling = Inf,
   max_in_degree = 5
 ) {
