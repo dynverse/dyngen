@@ -7,10 +7,66 @@
 \usage{
 generate_kinetics(model)
 
-kinetics_default()
+kinetics_default(
+  sampler_tfs = function(feature_info, feature_network, cache_dir = NULL, verbose =
+    FALSE) {     feature_info \%>\% mutate(transcription_rate = transcription_rate \%|\%
+    runif(n(), 1, 2), translation_rate = translation_rate \%|\% runif(n(), 100, 150),
+    mrna_halflife = mrna_halflife \%|\% runif(n(), 2.5, 5), protein_halflife =
+    protein_halflife \%|\% runif(n(), 5, 10), independence = independence \%|\% 1,
+    splicing_rate = splicing_rate \%|\% (log(2)/(10/60))) },
+  sampler_nontfs = function(feature_info, feature_network, cache_dir = NULL, verbose =
+    FALSE) {     real_kinetics <- .download_cacheable_file(url =
+    "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds",
+    cache_dir = model$download_cache_dir, verbose = model$verbose)     smpld <-
+    real_kinetics \%>\% sample_n(nrow(feature_info), replace = TRUE) \%>\%
+    select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)    
+    feature_info \%>\% mutate(transcription_rate = transcription_rate \%|\%
+    smpld$transcription_rate, translation_rate = translation_rate \%|\%
+    smpld$translation_rate, mrna_halflife = mrna_halflife \%|\% smpld$mrna_halflife,
+    protein_halflife = protein_halflife \%|\% smpld$protein_halflife, independence =
+    independence \%|\% runif(n(), 0, 1), splicing_rate = splicing_rate \%|\%
+    (log(2)/(10/60))) },
+  sampler_interactions = function(feature_info, feature_network, cache_dir = NULL,
+    verbose = FALSE) {     feature_network \%>\% mutate(effect = effect \%|\% sample(c(-1,
+    1), n(), replace = TRUE, prob = c(0.25, 0.75)), strength = strength \%|\%
+    10^runif(n(), log10(1), log10(100)), hill = hill \%|\% rnorm_bounded(n(), 2, 2, min =
+    1, max = 10)) }
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
+
+\item{sampler_tfs}{A function (format: \code{f(feature_info, feature_network, cache_dir, verbose)})
+which mutates the \code{feature_info} data frame by adding the following columns:
+\itemize{
+\item \code{transcription_rate}: the rate at which pre-mRNAs are transcribed,
+in pre-mRNA / hour. Default distribution: U(1, 2).
+\item \code{translation_rate}:  the rate at which mRNAs are translated into proteins,
+in protein / mRNA / hour. Default distribution: U(100, 150).
+\item \code{mrna_halflife}: the half-life of (pre-)mRNA molecules, in hours.
+Default distribution: U(2.5, 5).
+\item \code{protein_halflife}: the half-life of proteins, in hours.
+Default distribution: U(5, 10).
+\item \code{splicing_rate}: the rate at which pre-mRNAs are spliced into mRNAs,
+in reactions / hour. Default value: log(2) / (10/60), which corresponds to a half-life of 10 minutes.
+\item \code{independence}: the degree to which all regulators need to be bound for transcription to occur (0), or
+whether transcription can occur if only one of the regulators is bound (1).
+}}
+
+\item{sampler_nontfs}{A function with the same interface as \code{sampler_tfs()}.
+By default, \code{sampler_tfs()} samples the \code{transcription_rate}, \code{translation_rate},
+\code{mrna_halflife} and \code{protein_halflife} from a supplementary file of Schwannhäusser et al.,
+2011, doi.org/10.1038/nature10098. \code{splicing_rate} is by default the same as in \code{sampler_tfs()}.
+\code{independence} is sampled from U(0, 1).}
+
+\item{sampler_interactions}{A function (format: \code{f(feature_info, feature_network, cache_dir, verbose)})
+which mutates the \code{feature_network} data frame by adding the following columns:
+\itemize{
+\item \code{effect}: the effect of the interaction; upregulating = +1, downregulating = -1.
+By default, sampled from {-1, 1} with probabilities {.25, .75}.
+\item \code{strength}: the strength of the interaction. Default distribution: 10^U(0, 2).
+\item \code{hill}: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
+}}
 }
 \description{
 \code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which

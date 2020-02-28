@@ -5,6 +5,31 @@
 #' [kinetics_default()] is used to configure parameters pertaining this process.
 #' 
 #' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
+#' @param sampler_tfs A function (format: `f(feature_info, feature_network, cache_dir, verbose)`) 
+#'  which mutates the `feature_info` data frame by adding the following columns:
+#'  * `transcription_rate`: the rate at which pre-mRNAs are transcribed, 
+#'     in pre-mRNA / hour. Default distribution: U(1, 2).
+#'  * `translation_rate`:  the rate at which mRNAs are translated into proteins,
+#'     in protein / mRNA / hour. Default distribution: U(100, 150).
+#'  * `mrna_halflife`: the half-life of (pre-)mRNA molecules, in hours. 
+#'     Default distribution: U(2.5, 5).
+#'  * `protein_halflife`: the half-life of proteins, in hours. 
+#'     Default distribution: U(5, 10).
+#'  * `splicing_rate`: the rate at which pre-mRNAs are spliced into mRNAs, 
+#'     in reactions / hour. Default value: log(2) / (10/60), which corresponds to a half-life of 10 minutes.
+#'  * `independence`: the degree to which all regulators need to be bound for transcription to occur (0), or 
+#'     whether transcription can occur if only one of the regulators is bound (1).
+#' @param sampler_nontfs A function with the same interface as `sampler_tfs()`. 
+#'   By default, `sampler_tfs()` samples the `transcription_rate`, `translation_rate`, 
+#'   `mrna_halflife` and `protein_halflife` from a supplementary file of Schwannhäusser et al., 
+#'   2011, doi.org/10.1038/nature10098. `splicing_rate` is by default the same as in `sampler_tfs()`. 
+#'   `independence` is sampled from U(0, 1).
+#' @param sampler_interactions A function (format: `f(feature_info, feature_network, cache_dir, verbose)`) 
+#'  which mutates the `feature_network` data frame by adding the following columns:
+#'  * `effect`: the effect of the interaction; upregulating = +1, downregulating = -1.
+#'    By default, sampled from {-1, 1} with probabilities {.25, .75}.
+#'  * `strength`: the strength of the interaction. Default distribution: 10^U(0, 2).
+#'  * `hill`: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
 #' 
 #' @export
 generate_kinetics <- function(model) {
@@ -62,103 +87,95 @@ generate_kinetics <- function(model) {
   model
 }
 
-
 #' @export
 #' @rdname generate_kinetics
-kinetics_default <- function() {
-  kinetics_function <- function(
-    feature_info,
-    feature_network
-  ) {
-    feature_info_tf <-
-      feature_info %>%
-      filter(is_tf) %>% 
-      mutate(
-        transcription_rate = transcription_rate %|% runif(n(), 1, 2),
-        translation_rate = translation_rate %|% runif(n(), 100, 150),
-        mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
-        protein_halflife = protein_halflife %|% runif(n(), 5, 10)
-      )
-    
-    feature_info_nontf <- 
-      feature_info %>% 
-      filter(!is_tf)
-    
-    
-    real_kinetics <- .download_cacheable_file(
-      url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
-      cache_dir = model$download_cache_dir, 
-      verbose = model$verbose
+#' @importFrom stats runif
+kinetics_default <- function(
+  sampler_tfs = function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+    feature_info %>%  mutate(
+      transcription_rate = transcription_rate %|% runif(n(), 1, 2),
+      translation_rate = translation_rate %|% runif(n(), 100, 150),
+      mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
+      protein_halflife = protein_halflife %|% runif(n(), 5, 10),
+      independence = independence %|% 1,
+      splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
     )
-    
-    smpld <- 
-      real_kinetics %>% 
-      sample_n(nrow(feature_info_nontf), replace = TRUE) %>% 
-      select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
-    feature_info_nontf <- 
-      feature_info_nontf %>% 
-      mutate(
-        # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
-        # See data-raw/decay_rates.R for more info
-        transcription_rate = transcription_rate %|% smpld$transcription_rate,
-        translation_rate = translation_rate %|% smpld$translation_rate,
-        mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
-        protein_halflife = protein_halflife %|% smpld$protein_halflife,
+  },
+  sampler_nontfs = function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+    if (!is.null(feature_info) && nrow(feature_info) > 0) {
+      real_kinetics <- .download_cacheable_file(
+        url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
+        cache_dir = model$download_cache_dir, 
+        verbose = model$verbose
       )
-    
-    feature_info <- 
-      bind_rows(feature_info_tf, feature_info_nontf) %>% 
-      mutate(
-        splicing_rate = splicing_rate %|% (log(2) / (10 / 60)),
-        independence = independence %|% runif(n(), 0, 1)
-      )
-    feature_network <-
-      feature_network %>% 
+      smpld <- 
+        real_kinetics %>% 
+        sample_n(nrow(feature_info), replace = TRUE) %>% 
+        select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
+      feature_info %>% 
+        mutate(
+          # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
+          # See data-raw/decay_rates.R for more info
+          transcription_rate = transcription_rate %|% smpld$transcription_rate,
+          translation_rate = translation_rate %|% smpld$translation_rate,
+          mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
+          protein_halflife = protein_halflife %|% smpld$protein_halflife,
+          independence = independence %|% runif(n(), 0, 1),
+          splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
+        )
+    } else {
+      feature_info
+    }
+  },
+  sampler_interactions = function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+    feature_network %>% 
       mutate(
         effect = effect %|% sample(c(-1, 1), n(), replace = TRUE, prob = c(.25, .75)),
         strength = strength %|% 10 ^ runif(n(), log10(1), log10(100)),
         hill = hill %|% rnorm_bounded(n(), 2, 2, min = 1, max = 10)
       )
-    lst(
-      feature_info,
-      feature_network
-    )
   }
-  
-  list(
-    kinetics_function = kinetics_function
-  )
-}
-
-.kinetics_add_columns <- function(df, colnames, fill = NA) {
-  for (colname in colnames) {
-    if (!colname %in% colnames(df)) {
-      df[[colname]] <- fill
-    }
-  }
-  df
+) {
+  lst(sampler_tfs, sampler_nontfs, sampler_interactions)
 }
 
 .kinetics_generate_gene_kinetics <- function(model) {
   if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
   params <- model$kinetics_params
   
-  kin_out <- params$kinetics_function(
-    feature_info = model$feature_info %>%
-      .kinetics_add_columns(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife", "independence"), NA_real_), 
-    feature_network = model$feature_network %>%
-      .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_)
+  # fetch feature info and network
+  feature_info <- model$feature_info %>%
+    .kinetics_add_columns(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife", "independence"), NA_real_)
+  feature_network <- model$feature_network %>%
+    .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_)
+  
+  # generate relatively stable kinetics for TFs
+  feature_info_tf <- params$sampler_tfs(
+    feature_info %>% filter(is_tf),
+    feature_network
   )
   
-  kin_out$feature_info <-
-    kin_out$feature_info %>% 
+  # sample kinetics from dataset for non-tfs
+  feature_info_nontf <- params$sampler_tfs(
+    feature_info %>% filter(!is_tf),
+    feature_network, 
+    cache_dir = model$download_cache_dir,
+    verbose = model$verbose
+  )
+
+  # combine feature info
+  feature_info <- 
+    bind_rows(feature_info_tf, feature_info_nontf) %>% 
     mutate(
       mrna_decay_rate = log(2) / mrna_halflife,
       protein_decay_rate = log(2) / protein_halflife
     )
   
+  # sample network kinetics from distributions
+  feature_network <- params$sampler_interactions(feature_info, feature_network)
+  
   # calculate k
-  dis_out <- .kinetics_calculate_dissociation(kin_out$feature_info, kin_out$feature_network)
+  dis_out <- .kinetics_calculate_dissociation(feature_info, feature_network)
   feature_info <- dis_out$feature_info
   feature_network <- dis_out$feature_network
   
@@ -176,7 +193,7 @@ kinetics_default <- function() {
     ) %>% 
     mutate(
       # 1 for genes that are not being regulated by any other genes,
-      # yet did not already have an ba defined
+      # yet did not already have a value for 'basal' defined
       basal = basal %|% basal_2 %|% 1 
     ) %>% 
     select(-basal_2)
@@ -369,4 +386,13 @@ kinetics_default <- function() {
     )
   
   lst(feature_info, feature_network)
+}
+
+.kinetics_add_columns <- function(df, colnames, fill = NA) {
+  for (colname in colnames) {
+    if (!colname %in% colnames(df)) {
+      df[[colname]] <- fill
+    }
+  }
+  df
 }
