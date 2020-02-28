@@ -376,16 +376,23 @@ plot_simulation_expression <- function(
   facet = c("simulation", "module_group", "module_id", "none"),
   label_nonzero = FALSE
 ) {
+  assert_that(what %all_in% c("mol_premrna", "mol_mrna", "mol_protein"))
   facet <- match.arg(facet)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, mol_premrna, mol_mrna, mol_protein) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, !!!what) %>% pull(val)
   df <- bind_cols(
     model$simulations$meta,
     as.data.frame(as.matrix(model$simulations$counts)[,molecules])
   ) %>% 
     filter(simulation_i %in% !!simulation_i) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
-    left_join(model$feature_info %>% select(mol_premrna, mol_mrna, mol_protein, module_id) %>% gather(type, molecule, mol_premrna, mol_mrna, mol_protein), by = "molecule") %>% 
+    left_join(
+      model$feature_info %>%
+        select(!!!what, module_id) %>% 
+        gather(type, molecule, !!!what) %>% 
+        mutate(type = factor(type, levels = what)), 
+      by = "molecule"
+    ) %>% 
     group_by(module_id, sim_time, simulation_i, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
