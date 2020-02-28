@@ -71,7 +71,7 @@ simulation_default <- function(
   burn_time = 20,
   total_time = 100,
   ssa_algorithm = ssa_etl(tau = 10 / 3600),
-  census_interval = 5 / 60,
+  census_interval = 15 / 60,
   experiment_params = bind_rows(
     simulation_type_wild_type(num_simulations = 32),
     simulation_type_knockdown(num_simulations = 0)

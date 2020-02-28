@@ -7,7 +7,7 @@
 \usage{
 generate_gold_standard(model)
 
-gold_standard_default(tau = 10/3600, census_interval = 10/60)
+gold_standard_default(tau = 10/3600, census_interval = 1/60)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the kinetics of the feature network has been generated with \code{\link[=generate_kinetics]{generate_kinetics()}}.}

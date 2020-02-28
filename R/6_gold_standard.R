@@ -39,7 +39,7 @@ generate_gold_standard <- function(model) {
 #' @rdname generate_gold_standard
 gold_standard_default <- function(
   tau = 10 / 3600,
-  census_interval = 10 / 60
+  census_interval = 1 / 60
 ) {
   lst(
     tau,
