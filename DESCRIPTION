@@ -33,7 +33,7 @@ Imports:
   dplyr,
   dynutils (>= 1.0.4),
   dynwrap (>= 1.0.0),
-  GillespieSSA2 (>= 0.2.4),
+  GillespieSSA2 (>= 0.2.6),
   ggplot2,
   ggraph (>= 2.0),
   ggrepel,
