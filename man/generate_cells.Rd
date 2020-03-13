@@ -10,8 +10,8 @@
 generate_cells(model)
 
 simulation_default(
-  burn_time = 20,
-  total_time = 100,
+  burn_time = NULL,
+  total_time = NULL,
   ssa_algorithm = ssa_etl(tau = 10/3600),
   census_interval = 15/60,
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations = 32),
@@ -40,9 +40,9 @@ simulation_type_knockdown(
 \arguments{
 \item{model}{A dyngen intermediary model for which the gold standard been generated with \code{\link[=generate_gold_standard]{generate_gold_standard()}}.}
 
-\item{burn_time}{The burn in time of the system, used to determine an initial state vector.}
+\item{burn_time}{The burn in time of the system, used to determine an initial state vector. If \code{NULL}, the burn time will be inferred from the backbone.}
 
-\item{total_time}{The total simulation time of the system.}
+\item{total_time}{The total simulation time of the system. If \code{NULL}, the simulation time will be inferred from the backbone.}
 
 \item{ssa_algorithm}{Which SSA algorithm to use for simulating the cells with \code{\link[GillespieSSA2:ssa]{GillespieSSA2::ssa()}}}
 

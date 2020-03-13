@@ -5,8 +5,8 @@
 #' [simulation_default()] is used to configure parameters pertaining this process.
 #' 
 #' @param model A dyngen intermediary model for which the gold standard been generated with [generate_gold_standard()].
-#' @param burn_time The burn in time of the system, used to determine an initial state vector.
-#' @param total_time The total simulation time of the system.
+#' @param burn_time The burn in time of the system, used to determine an initial state vector. If `NULL`, the burn time will be inferred from the backbone.
+#' @param total_time The total simulation time of the system. If `NULL`, the simulation time will be inferred from the backbone.
 #' @param ssa_algorithm Which SSA algorithm to use for simulating the cells with [GillespieSSA2::ssa()]
 #' @param census_interval A granularity parameter for the outputted simulation.
 #' @param store_grn Whether or not to store the GRN activation values.
@@ -68,8 +68,8 @@ generate_cells <- function(model) {
 #' @rdname generate_cells
 #' @importFrom GillespieSSA2 ssa_etl
 simulation_default <- function(
-  burn_time = 20,
-  total_time = 100,
+  burn_time = NULL,
+  total_time = NULL,
   ssa_algorithm = ssa_etl(tau = 10 / 3600),
   census_interval = 15 / 60,
   experiment_params = bind_rows(
