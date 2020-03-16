@@ -53,6 +53,15 @@ initialise_model <- function(
 ) {
   distance_metric <- match.arg(distance_metric)
   
+  if (is.null(simulation_params$burn_time)) {
+    simulation_params$burn_time <- 
+      simtime_from_backbone(backbone, burn = TRUE)
+  }
+  if (is.null(simulation_params$total_time)) {
+    simulation_params$total_time <- 
+      simtime_from_backbone(backbone, burn = FALSE)
+  }
+    
   lst(
     backbone,
     numbers = lst(

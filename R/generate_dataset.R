@@ -15,7 +15,12 @@
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
 #' @importFrom readr write_rds
-generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store_grn = FALSE) {
+generate_dataset <- function(
+  model, 
+  output_dir = NULL,
+  make_plots = FALSE, 
+  store_grn = FALSE
+) {
   model <- model %>% 
     generate_tf_network() %>% 
     generate_feature_network() %>% 
@@ -46,8 +51,8 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
     g5 <- plot_gold_simulations(model) + labs(title = "Gold + simulations")
     g6 <- plot_gold_mappings(model, do_facet = FALSE) + labs(title = "Simulations to gold mapping")
     g7 <- plot_simulations(model) + labs(title = "Simulation time")
-    g8 <- plot_gold_expression(model, what = "w") + labs(title = "Gold pre-mRNA expression over time")
-    g9 <- plot_simulation_expression(model, what = "w") + labs(title = "Simulation 1 pre-mRNA expression over time")
+    g8 <- plot_gold_expression(model, what = "mol_premrna") + labs(title = "Gold pre-mRNA expression over time")
+    g9 <- plot_simulation_expression(model, what = "mol_premrna") + labs(title = "Simulation 1 pre-mRNA expression over time")
     g <- patchwork::wrap_plots(
       g1, g2, g3, g4, g5, g6, g7, g8, g9,
       byrow = TRUE,
