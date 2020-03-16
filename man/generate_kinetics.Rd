@@ -11,9 +11,18 @@ kinetics_default()
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
+}
+\description{
+\code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which
+the kinetics have not yet been defined.
+\code{\link[=kinetics_default]{kinetics_default()}} is used to configure parameters pertaining this process.
+}
+\details{
+To write different kinetics settings, you need to write three functions
+with interface \verb{function(feature_info, feature_network, cache_dir, verbose)}.
+Described below are the default kinetics samplers.
 
-\item{sampler_tfs}{A function (format: \code{f(feature_info, feature_network, cache_dir, verbose)})
-which mutates the \code{feature_info} data frame by adding the following columns:
+\code{sampler_tfs()} mutates the \code{feature_info} data frame by adding the following columns:
 \itemize{
 \item \code{transcription_rate}: the rate at which pre-mRNAs are transcribed,
 in pre-mRNA / hour. Default distribution: U(1, 2).
@@ -27,25 +36,18 @@ Default distribution: U(5, 10).
 in reactions / hour. Default value: log(2) / (10/60), which corresponds to a half-life of 10 minutes.
 \item \code{independence}: the degree to which all regulators need to be bound for transcription to occur (0), or
 whether transcription can occur if only one of the regulators is bound (1).
-}}
+}
 
-\item{sampler_nontfs}{A function with the same interface as \code{sampler_tfs()}.
-By default, \code{sampler_tfs()} samples the \code{transcription_rate}, \code{translation_rate},
+\code{sampler_nontfs()} samples the \code{transcription_rate}, \code{translation_rate},
 \code{mrna_halflife} and \code{protein_halflife} from a supplementary file of Schwannhäusser et al.,
 2011, doi.org/10.1038/nature10098. \code{splicing_rate} is by default the same as in \code{sampler_tfs()}.
-\code{independence} is sampled from U(0, 1).}
+\code{independence} is sampled from U(0, 1).
 
-\item{sampler_interactions}{A function (format: \code{f(feature_info, feature_network, cache_dir, verbose)})
-which mutates the \code{feature_network} data frame by adding the following columns:
+\code{sampler_interactions()} mutates the \code{feature_network} data frame by adding the following columns.
 \itemize{
 \item \code{effect}: the effect of the interaction; upregulating = +1, downregulating = -1.
 By default, sampled from {-1, 1} with probabilities {.25, .75}.
 \item \code{strength}: the strength of the interaction. Default distribution: 10^U(0, 2).
 \item \code{hill}: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
-}}
 }
-\description{
-\code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which
-the kinetics have not yet been defined.
-\code{\link[=kinetics_default]{kinetics_default()}} is used to configure parameters pertaining this process.
 }

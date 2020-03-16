@@ -5,8 +5,12 @@
 #' [kinetics_default()] is used to configure parameters pertaining this process.
 #' 
 #' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
-#' @param sampler_tfs A function (format: `f(feature_info, feature_network, cache_dir, verbose)`) 
-#'  which mutates the `feature_info` data frame by adding the following columns:
+#' 
+#' @details To write different kinetics settings, you need to write three functions
+#' with interface `function(feature_info, feature_network, cache_dir, verbose)`. 
+#' Described below are the default kinetics samplers.
+#' 
+#' `sampler_tfs()` mutates the `feature_info` data frame by adding the following columns:
 #'  * `transcription_rate`: the rate at which pre-mRNAs are transcribed, 
 #'     in pre-mRNA / hour. Default distribution: U(1, 2).
 #'  * `translation_rate`:  the rate at which mRNAs are translated into proteins,
@@ -19,13 +23,13 @@
 #'     in reactions / hour. Default value: log(2) / (10/60), which corresponds to a half-life of 10 minutes.
 #'  * `independence`: the degree to which all regulators need to be bound for transcription to occur (0), or 
 #'     whether transcription can occur if only one of the regulators is bound (1).
-#' @param sampler_nontfs A function with the same interface as `sampler_tfs()`. 
-#'   By default, `sampler_tfs()` samples the `transcription_rate`, `translation_rate`, 
+#'     
+#' `sampler_nontfs()` samples the `transcription_rate`, `translation_rate`, 
 #'   `mrna_halflife` and `protein_halflife` from a supplementary file of Schwannhäusser et al., 
 #'   2011, doi.org/10.1038/nature10098. `splicing_rate` is by default the same as in `sampler_tfs()`. 
 #'   `independence` is sampled from U(0, 1).
-#' @param sampler_interactions A function (format: `f(feature_info, feature_network, cache_dir, verbose)`) 
-#'  which mutates the `feature_network` data frame by adding the following columns:
+#'   
+#' `sampler_interactions()` mutates the `feature_network` data frame by adding the following columns.
 #'  * `effect`: the effect of the interaction; upregulating = +1, downregulating = -1.
 #'    By default, sampled from {-1, 1} with probabilities {.25, .75}.
 #'  * `strength`: the strength of the interaction. Default distribution: 10^U(0, 2).
