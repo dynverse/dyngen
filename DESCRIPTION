@@ -32,8 +32,8 @@ Imports:
   assertthat,
   dplyr,
   dynutils (>= 1.0.4),
-  dynwrap (>= 1.0.0),
-  GillespieSSA2 (>= 0.2.4),
+  dynwrap (>= 1.2.0),
+  GillespieSSA2 (>= 0.2.6),
   ggplot2,
   ggraph (>= 2.0),
   ggrepel,
@@ -48,7 +48,7 @@ Imports:
   pbapply,
   purrr,
   readr,
-  rlang (> 0.4.0),
+  rlang (>= 0.4.1),
   stats,
   tibble,
   tidygraph,
@@ -60,9 +60,4 @@ Suggests:
   knitr,
   rmarkdown,
   testthat
-Remotes:
-  r-lib/rlang,
-  dynverse/dynwrap@master,
-  dynverse/lmds@master,
-  rcannood/GillespieSSA2@master
 VignetteBuilder: knitr
