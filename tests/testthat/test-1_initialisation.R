@@ -12,7 +12,7 @@ backbone <- backbone(
     to = c("A", "B"),
     effect = c(-1L, 1L),
     strength = c(10, 1),
-    cooperativity = c(2, 3)
+    hill = c(2, 3)
   ),
   expression_patterns = tibble(
     from = c("burn", "start"),
@@ -49,6 +49,9 @@ test_that("Testing normal use case of initialisation", {
     download_cache_dir = "test_dir",
     num_cores = 2
   )
+  
+  simulation_params$burn_time <- 1.2
+  simulation_params$total_time <- 2.4
   
   expect_equal(model$backbone, backbone)
   expect_equal(model$numbers, list(num_cells = 100, num_tfs = 10, num_targets = 50, num_hks = 40, num_features = 100, num_modules = 2))
