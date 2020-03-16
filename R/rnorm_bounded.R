@@ -3,6 +3,8 @@
 #' @inheritParams stats::rnorm
 #' @param min lower limits of the distribution.
 #' @param max upper limits of the distribution.
+#'
+#' @importFrom stats pnorm qnorm
 #' 
 #' @export 
 rnorm_bounded <- function(n, mean = 0, sd = 1, min = -Inf, max = Inf) {
