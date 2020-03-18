@@ -1,8 +1,8 @@
 ---
-title: "backbones"
+title: "Showcase different backbones"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{backbones}
+  %\VignetteIndexEntry{showcase_backbones}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -26,7 +26,10 @@ knitr::opts_chunk$set(
 library(dyngen)
 ```
 
+dyngen supports different trajectory topologies, such as bifurcating and cyclic. You can find a full list of backbones using `?list_backbones`. This vignette will showcase each of them individually.
+
 # Linear
+
 ```{r linear}
 backbone <- backbone_linear()
 
@@ -42,6 +45,7 @@ init <- initialise_model(
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
 ```
+
 
 # Bifurcating
 ```{r bifurcating}
