@@ -70,7 +70,7 @@ generate_cells <- function(model) {
 simulation_default <- function(
   burn_time = NULL,
   total_time = NULL,
-  ssa_algorithm = ssa_etl(tau = 10 / 3600),
+  ssa_algorithm = ssa_etl(tau = 30 / 3600),
   census_interval = 15 / 60,
   experiment_params = bind_rows(
     simulation_type_wild_type(num_simulations = 32),

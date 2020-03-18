@@ -51,12 +51,14 @@ generate_dataset <- function(
     g5 <- plot_gold_simulations(model) + labs(title = "Gold + simulations")
     g6 <- plot_gold_mappings(model, do_facet = FALSE) + labs(title = "Simulations to gold mapping")
     g7 <- plot_simulations(model) + labs(title = "Simulation time")
-    g8 <- plot_gold_expression(model, what = "mol_premrna") + labs(title = "Gold pre-mRNA expression over time")
-    g9 <- plot_simulation_expression(model, what = "mol_premrna") + labs(title = "Simulation 1 pre-mRNA expression over time")
+    g8 <- plot_gold_expression(model, what = "mol_mrna") + labs(title = "Gold mRNA expression over time")
+    g9 <- plot_simulation_expression(model, what = "mol_mrna") + labs(title = "Simulation 1 mRNA expression over time")
     g <- patchwork::wrap_plots(
       g1, g2, g3, g4, g5, g6, g7, g8, g9,
       byrow = TRUE,
-      ncol = 3
+      ncol = 3,
+      widths = rep(1, 3),
+      heights = rep(1, 3)
     ) +
       patchwork::plot_annotation(tag_levels = "A")
     
