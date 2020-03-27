@@ -366,10 +366,10 @@ backbone_cycle <- function() {
     module_grouping, 
     tribble(
       ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-      "sBurn", "s1", paste0("+", c(Burn, A, B), collapse = ","), TRUE, TRUE, 100,
-      "s1", "s2", paste0(paste0("+", C, collapse = ","), ",", paste0("-", B, collapse = ",")), FALSE, FALSE, 100,
-      "s2", "s3", paste0(paste0("+", B, collapse = ","), ",", paste0("-", A, collapse = ",")), FALSE, FALSE, 100,
-      "s3", "s1", paste0(paste0("+", A, collapse = ","), ",", paste0("-", C, collapse = ",")), FALSE, FALSE, 100,
+      "sBurn", "s1", paste0("+", c(Burn, A, B), collapse = ","), TRUE, TRUE, 200,
+      "s1", "s2", paste0(paste0("+", C, collapse = ","), ",", paste0("-", B, collapse = ",")), FALSE, FALSE, 200,
+      "s2", "s3", paste0(paste0("+", B, collapse = ","), ",", paste0("-", A, collapse = ",")), FALSE, FALSE, 200,
+      "s3", "s1", paste0(paste0("+", A, collapse = ","), ",", paste0("-", C, collapse = ",")), FALSE, FALSE, 200,
     )
   )
   
@@ -403,10 +403,10 @@ backbone_cycle_simple <- function() {
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn", "s1", "+M1,+M2,+M3", TRUE, TRUE, 60,
-    "s1", "s2", "+M4,+M5,-M3", FALSE, FALSE, 80,
-    "s2", "s3", "+M3,-M1,-M2", FALSE, FALSE, 80,
-    "s3", "s1", "+M1,+M2,-M4,-M5", FALSE, FALSE, 80
+    "sBurn", "s1", "+M1,+M2,+M3", TRUE, TRUE, 100,
+    "s1", "s2", "+M4,+M5,-M3", FALSE, FALSE, 100,
+    "s2", "s3", "+M3,-M1,-M2", FALSE, FALSE, 100,
+    "s3", "s1", "+M1,+M2,-M4,-M5", FALSE, FALSE, 100
   )
   
   backbone(module_info, module_network, expression_patterns)
