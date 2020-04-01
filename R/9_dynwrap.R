@@ -3,7 +3,7 @@
 #' The output of this object can be used with \pkg{dyno}.
 #' 
 #' @param model A dyngen output model for which the experiment has been emulated with [generate_experiment()].
-#' @param store_grn Whether or not to also store GRN information.
+#' @param store_grn Whether or not to also store (cellwise) GRN information.
 #' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
 #' 
 #' @export

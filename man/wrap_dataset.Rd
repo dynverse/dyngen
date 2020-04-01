@@ -9,7 +9,7 @@ wrap_dataset(model, store_grn = FALSE, store_dimred = FALSE)
 \arguments{
 \item{model}{A dyngen output model for which the experiment has been emulated with \code{\link[=generate_experiment]{generate_experiment()}}.}
 
-\item{store_grn}{Whether or not to also store GRN information.}
+\item{store_grn}{Whether or not to also store (cellwise) GRN information.}
 
 \item{store_dimred}{Whether or not to store the dimensionality reduction constructed on the true counts.}
 }

@@ -67,11 +67,18 @@ generate_experiment <- function(model) {
     dimnames(sim_ycounts) <- 
     list(cell_info$cell_id, model$feature_info$feature_id)
   
-  if (model$simulation_params$store_grn) {
-    sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
-    rownames(sim_regulation) <- cell_info$cell_id
+  if (model$simulation_params$compute_cellwise_grn) {
+    sim_cellwise_grn <- model$simulations$cellwise_grn[step_ixs, , drop = FALSE]
+    rownames(sim_cellwise_grn) <- cell_info$cell_id
   } else {
-    sim_regulation <- NULL
+    sim_cellwise_grn <- NULL
+  }
+  
+  if (model$simulation_params$compute_propensity_ratios) {
+    sim_propensity_ratios <- model$simulations$propensity_ratios[step_ixs, , drop = FALSE]
+    rownames(sim_propensity_ratios) <- cell_info$cell_id
+  } else {
+    sim_propensity_ratios <- NULL
   }
   
   # combine into final count matrix
@@ -81,7 +88,8 @@ generate_experiment <- function(model) {
     counts_protein = sim_ycounts,
     feature_info =  model$feature_info,
     cell_info = cell_info,
-    regulation = sim_regulation
+    cellwise_grn = sim_cellwise_grn,
+    propensity_ratios = sim_propensity_ratios
   )
   
   model
