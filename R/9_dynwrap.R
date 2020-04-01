@@ -71,7 +71,7 @@ wrap_dataset <- function(
   if (store_propensity_ratios) {
     dataset <- dataset %>% extend_with(
       "dynwrap::with_propensity_ratios",
-      propensity_ratios = model$propensity_ratios,
+      propensity_ratios = model$experiment$propensity_ratios
     )
   }
   
