@@ -13,7 +13,7 @@ simulation_default(
   burn_time = NULL,
   total_time = NULL,
   ssa_algorithm = ssa_etl(tau = 30/3600),
-  census_interval = 15/60,
+  census_interval = 1,
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations = 32),
     simulation_type_knockdown(num_simulations = 0)),
   store_reaction_firings = FALSE,
