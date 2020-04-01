@@ -327,7 +327,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   
   propensity_ratios <- 
     if (sim_params$compute_propensity_ratios) {
-      .generate_cells_compute_propensity_rations(model)
+      .generate_cells_compute_propensity_rations(model, reaction_propensities)
     } else {
       NULL
     }
@@ -467,16 +467,19 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   sim_meta
 }
 
-.generate_cells_compute_propensity_rations <- function(model) {
+.generate_cells_compute_propensity_rations <- function(model, reaction_propensities) {
+  feature_info <- model$feature_info
+  sim_system <- model$simulation_system
+  
   # Get the names of the genes and corresponding mRNA molecules
-  feature_ids <- model$feature_info$feature_id
-  relevant_molecules <- model$feature_info$mol_mrna
+  feature_ids <- feature_info$feature_id
+  relevant_molecules <- feature_info$mol_mrna
   
   # Extract for each spliced mRNA its relevant reactions.
   reaction_effects <- map_dfr(
-    seq_along(model$simulation_system$reactions),
+    seq_along(sim_system$reactions),
     function(reaction_ix) {
-      reaction <- model$simulation_system$reactions[[reaction_ix]]
+      reaction <- sim_system$reactions[[reaction_ix]]
       tibble(
         reaction_ix = reaction_ix,
         feature_id = names(reaction$effect),
@@ -490,7 +493,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     )
   
   # Get the propensities of the relevant reactions
-  propensities <- model$simulations$reaction_propensities[, reaction_effects$reaction_ix]
+  propensities <- reaction_propensities[, reaction_effects$reaction_ix]
   
   # Get the propensities of production reactions, per mRNA
   production_mat <- with(
