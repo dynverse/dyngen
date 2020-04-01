@@ -21,7 +21,7 @@ Authors@R: c(
 Description: A toolkit for generating synthetic single cell data.
 License: MIT + file LICENSE
 LazyData: TRUE
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/dynverse/dyngen
