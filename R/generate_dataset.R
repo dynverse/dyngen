@@ -19,7 +19,8 @@ generate_dataset <- function(
   output_dir = NULL,
   make_plots = FALSE, 
   store_grn = FALSE,
-  store_propensity_ratios = FALSE
+  store_propensity_ratios = FALSE,
+  store_dimred = FALSE
 ) {
   model <- model %>% 
     generate_tf_network() %>% 

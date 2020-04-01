@@ -4,9 +4,7 @@
 \name{realcounts}
 \alias{realcounts}
 \title{A set of real single cell expression datasets}
-\format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 110 rows and 2 columns.
-}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 110 rows and 2 columns.}
 \usage{
 realcounts
 }
