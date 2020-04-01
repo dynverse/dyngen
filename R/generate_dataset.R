@@ -8,8 +8,7 @@
 #' @param output_dir If not `NULL`, then the generated model and dynwrap 
 #'   dataset will be written to files in this directory.
 #' @param make_plots Whether or not to generate an overview of the dataset.
-#' @param store_grn Whether or not to store the gene regulatory network
-#'   in the dynwrap object as well.
+#' @inheritParams wrap_dataset
 #' 
 #' @export
 #' @importFrom patchwork wrap_plots plot_annotation
@@ -19,7 +18,8 @@ generate_dataset <- function(
   model, 
   output_dir = NULL,
   make_plots = FALSE, 
-  store_grn = FALSE
+  store_grn = FALSE,
+  store_propensity_ratios = FALSE
 ) {
   model <- model %>% 
     generate_tf_network() %>% 
@@ -31,7 +31,12 @@ generate_dataset <- function(
   
   if (model$verbose) cat("Wrapping dataset\n")
   dataset <-
-    wrap_dataset(model, store_grn = store_grn)
+    wrap_dataset(
+      model, 
+      store_dimred = store_dimred, 
+      store_grn = store_grn,
+      store_propensity_ratios = store_propensity_ratios
+    )
   
   # write to file
   if (!is.null(output_dir)) {

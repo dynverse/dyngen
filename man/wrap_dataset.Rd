@@ -4,7 +4,12 @@
 \alias{wrap_dataset}
 \title{Wrap a simulation into a dynwrap object}
 \usage{
-wrap_dataset(model, store_grn = FALSE, store_dimred = FALSE)
+wrap_dataset(
+  model,
+  store_grn = FALSE,
+  store_dimred = FALSE,
+  store_propensity_ratios = FALSE
+)
 }
 \arguments{
 \item{model}{A dyngen output model for which the experiment has been emulated with \code{\link[=generate_experiment]{generate_experiment()}}.}
@@ -12,6 +17,8 @@ wrap_dataset(model, store_grn = FALSE, store_dimred = FALSE)
 \item{store_grn}{Whether or not to also store (cellwise) GRN information.}
 
 \item{store_dimred}{Whether or not to store the dimensionality reduction constructed on the true counts.}
+
+\item{store_propensity_ratios}{WHether or not to store the propensity ratios.}
 }
 \description{
 The output of this object can be used with \pkg{dyno}.

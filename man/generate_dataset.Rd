@@ -8,7 +8,8 @@ generate_dataset(
   model,
   output_dir = NULL,
   make_plots = FALSE,
-  store_grn = FALSE
+  store_grn = FALSE,
+  store_propensity_ratios = FALSE
 )
 }
 \arguments{
@@ -19,8 +20,9 @@ dataset will be written to files in this directory.}
 
 \item{make_plots}{Whether or not to generate an overview of the dataset.}
 
-\item{store_grn}{Whether or not to store the gene regulatory network
-in the dynwrap object as well.}
+\item{store_grn}{Whether or not to also store (cellwise) GRN information.}
+
+\item{store_propensity_ratios}{WHether or not to store the propensity ratios.}
 }
 \description{
 This function contains the complete pipeline for generating a dataset

@@ -5,10 +5,16 @@
 #' @param model A dyngen output model for which the experiment has been emulated with [generate_experiment()].
 #' @param store_grn Whether or not to also store (cellwise) GRN information.
 #' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
+#' @param store_propensity_ratios WHether or not to store the propensity ratios.
 #' 
 #' @export
 #' @importFrom dynwrap wrap_expression add_trajectory add_dimred
-wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
+wrap_dataset <- function(
+  model,
+  store_grn = FALSE, 
+  store_dimred = FALSE,
+  store_propensity_ratios = FALSE
+) {
   dataset <- wrap_expression(
     id = model$id,
     counts = model$experiment$counts_mrna,
@@ -38,7 +44,7 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
   if (store_grn) {
     regulatory_network <- model$feature_network %>% 
       select(regulator = from, target = to, strength, effect)
-    regulation_sc <- model$experiment$regulation
+    regulation_sc <- model$experiment$cellwise_grn
     
     regulators <- unique(regulatory_network$regulator)
     targets <- colnames(dataset$counts)
@@ -60,6 +66,13 @@ wrap_dataset <- function(model, store_grn = FALSE, store_dimred = FALSE) {
         regulators = regulators,
         targets = targets
       )
+  }
+  
+  if (store_propensity_ratios) {
+    dataset <- dataset %>% extend_with(
+      "dynwrap::with_propensity_ratios",
+      propensity_ratios = model$propensity_ratios,
+    )
   }
   
   dataset
