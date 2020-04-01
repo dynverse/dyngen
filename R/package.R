@@ -1,4 +1,6 @@
-#' Generating TI data
+#' dyngen: Synthetic single cell data
+#' 
+#' A toolkit for generating synthetic single cell data. 
 #'
 #' @import dplyr
 #' @import tidyr
