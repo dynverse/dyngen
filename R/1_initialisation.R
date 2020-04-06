@@ -30,6 +30,7 @@
 #' @param download_cache_dir If not `NULL`, temporary downloaded files will be 
 #'   cached in this directory.
 #' @param num_cores Parallellisation parameter for various steps in the pipeline. 
+#' @param id An identifier for the model.
 #'   
 #' @export
 initialise_model <- function(
@@ -38,7 +39,7 @@ initialise_model <- function(
   num_tfs = 100,
   num_targets = 500,
   num_hks = 400,
-  distance_metric = "pearson",
+  distance_metric = c("pearson", "spearman", "cosine", "euclidean", "manhattan"),
   tf_network_params = tf_network_default(),
   feature_network_params = feature_network_default(),
   kinetics_params = kinetics_default(),
@@ -47,11 +48,21 @@ initialise_model <- function(
   experiment_params = experiment_snapshot(),
   verbose = TRUE,
   download_cache_dir = NULL,
-  num_cores = 1
+  num_cores = 1,
+  id = NULL
 ) {
   distance_metric <- match.arg(distance_metric)
   
-  lst(
+  if (is.null(simulation_params$burn_time)) {
+    simulation_params$burn_time <- 
+      simtime_from_backbone(backbone, burn = TRUE)
+  }
+  if (is.null(simulation_params$total_time)) {
+    simulation_params$total_time <- 
+      simtime_from_backbone(backbone, burn = FALSE)
+  }
+    
+  l <- lst(
     backbone,
     numbers = lst(
       num_cells,
@@ -70,7 +81,10 @@ initialise_model <- function(
     experiment_params,
     verbose,
     download_cache_dir,
-    num_cores
+    num_cores,
+    id
   )
+  
+  class(l) <- c(class(l), "dyngen::init")
+  l
 }
-formals(initialise_model)$distance_metric <- dynutils::list_distance_methods()

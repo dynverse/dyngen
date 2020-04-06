@@ -1,5 +1,5 @@
 #' @importFrom tidygraph tbl_graph activate
-#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous
+#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous geom_node_label
 #' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text geom_step geom_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
@@ -64,9 +64,8 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
       arrow = arrow, 
       colour = "gray"
     ) +
-    geom_node_circle(aes(r = r), fill = "white", function(df) df %>% filter(main)) +
     geom_node_point(data = function(df) df %>% filter(!main)) +
-    geom_node_text(aes(label = name), function(df) df %>% filter(main)) +
+    geom_node_label(aes(label = name), function(df) df %>% filter(main)) +
     theme_graph(base_family = 'Helvetica') +
     coord_equal()
 }
@@ -93,7 +92,7 @@ plot_backbone_modulenet <- function(model) {
     as.data.frame() 
   
   r <- .03
-  cap <- circle(8, "mm")
+  cap <- circle(4, "mm")
   str <- .2
   arrow_up <- grid::arrow(type = "closed", angle = 30, length = grid::unit(3, "mm"))
   arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
@@ -103,10 +102,10 @@ plot_backbone_modulenet <- function(model) {
     geom_edge_loop(aes(width = strength, strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
     geom_edge_fan(aes(width = strength, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
     geom_edge_fan(aes(width = strength, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
-    geom_node_circle(aes(r = r, fill = name)) +
+    geom_node_circle(aes(r = r, colour = name), fill = "white") +
     geom_node_text(aes(label = name)) +
     theme_graph(base_family = 'Helvetica') +
-    scale_fill_manual(values = node_legend) +
+    scale_colour_manual(values = node_legend) +
     scale_edge_width_continuous(trans = "log10", range = c(.5, 3)) +
     coord_equal()
 }
@@ -311,20 +310,26 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
 #' @param label_changing Whether or not to add a label next to changing molecules.
 #' 
 #' @export
-plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing = TRUE) {
+plot_gold_expression <- function(
+  model, 
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
+  label_changing = TRUE
+) {
+  assert_that(what %all_in% c("mol_premrna", "mol_mrna", "mol_protein"))
+  
   edge_levels <- 
     model$gold_standard$mod_changes %>% 
     mutate(edge = paste0(from_, "->", to_)) %>% 
     pull(edge)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, !!!what) %>% pull(val)
   df <- bind_cols(
     model$gold_standard$meta,
     as.data.frame(as.matrix(model$gold_standard$counts))[,molecules]
   ) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
     mutate(edge = factor(paste0(from_, "->", to_), levels = edge_levels)) %>% 
-    left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
+    left_join(model$feature_info %>% select(module_id, !!!what) %>% gather(type, molecule, !!!what), by = "molecule") %>% 
     group_by(module_id, sim_time, simulation_i, burn, from, to, from_, to_, time, edge, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
@@ -332,7 +337,7 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
   
   g <- ggplot(df, aes(sim_time, value, colour = module_id)) +
     geom_line(aes(linetype = type, size = type)) +
-    scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
+    scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~edge) +
     theme_bw()
@@ -367,21 +372,28 @@ plot_gold_expression <- function(model, what = c("w", "x", "y"), label_changing 
 plot_simulation_expression <- function(
   model, 
   simulation_i = 1:4,
-  what = c("w", "x", "y"),
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
   facet = c("simulation", "module_group", "module_id", "none"),
   label_nonzero = FALSE
 ) {
+  assert_that(what %all_in% c("mol_premrna", "mol_mrna", "mol_protein"))
   facet <- match.arg(facet)
   
-  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, w, x, y) %>% pull(val)
+  molecules <- model$feature_info %>% filter(is_tf) %>% gather(mol, val, !!!what) %>% pull(val)
   df <- bind_cols(
     model$simulations$meta,
     as.data.frame(as.matrix(model$simulations$counts)[,molecules])
   ) %>% 
     filter(simulation_i %in% !!simulation_i) %>% 
     gather(molecule, value, one_of(molecules)) %>% 
-    left_join(model$feature_info %>% select(w, x, y, module_id) %>% gather(type, molecule, w, x, y), by = "molecule") %>% 
-    group_by(module_id, sim_time, simulation_i, from, to, time, type) %>% 
+    left_join(
+      model$feature_info %>%
+        select(!!!what, module_id) %>% 
+        gather(type, molecule, !!!what) %>% 
+        mutate(type = factor(type, levels = what)), 
+      by = "molecule"
+    ) %>% 
+    group_by(module_id, sim_time, simulation_i, type) %>% 
     summarise(value = mean(value)) %>% 
     ungroup() %>% 
     mutate(module_group = gsub("[0-9]*$", "", module_id)) %>% 
@@ -389,7 +401,7 @@ plot_simulation_expression <- function(
   
   g <- ggplot(df, aes(sim_time, value)) +
     geom_step(aes(linetype = type, size = type, colour = module_id)) +
-    scale_size_manual(values = c(w = .5, x = 1, y = .5)) +
+    scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     theme_bw()
   

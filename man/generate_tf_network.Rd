@@ -7,8 +7,11 @@
 \usage{
 generate_tf_network(model)
 
-tf_network_default(min_tfs_per_module = 1L,
-  sample_num_regulators = function() 2, weighted_sampling = FALSE)
+tf_network_default(
+  min_tfs_per_module = 1L,
+  sample_num_regulators = function() 2,
+  weighted_sampling = FALSE
+)
 }
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}

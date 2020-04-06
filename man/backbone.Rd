@@ -10,25 +10,26 @@ backbone(module_info, module_network, expression_patterns)
 \item{module_info}{A tibble containing meta information on the modules themselves.
 \itemize{
 \item module_id (character): the name of the module
-\item ba (numeric): basal expression level of genes in this module, must be between [0, 1]
+\item basal (numeric): basal expression level of genes in this module, must be between [0, 1]
 \item burn (logical): whether or not outgoing edges of this module will
 be active during the burn in phase
-\item ind (numeric): the independence factor between regulators of this module, must be between [0, 1]
+\item independence (numeric): the independence factor between regulators of this module, must be between [0, 1]
 }}
 
 \item{module_network}{A tibble describing which modules regulate which other modules.
 \itemize{
 \item from (character): the regulating module
 \item to (character): the target module
-\item effect (integer): \code{1} if the regulating module upregulates
-the target module, \code{-1} if it downregulates
+\item effect (integer): \code{1L} if the regulating module upregulates
+the target module, \code{-1L} if it downregulates
 \item strength (numeric): the strength of the interaction
-\item cooperativity (numeric): cooperativity factor, larger 1 if positive cooperativity,
+\item hill (numeric): hill coefficient, larger than 1 for positive cooperativity,
 between 0 and 1 for negative cooperativity
 }}
 
 \item{expression_patterns}{A tibble describing the expected expression pattern
-changes when a cell is simulated by dyngen.
+changes when a cell is simulated by dyngen. Each row represents one transition between
+two cell states.
 \itemize{
 \item from (character): name of a cell state
 \item to (character): name of a cell state
@@ -38,6 +39,7 @@ afterwards module 9 expression will go up, and afterwards module 4 expression wi
 \item start (logical): Whether or not this from cell state is the start of the trajectory
 \item burn (logical): Whether these cell states are part of the burn in phase. Cells will
 not get sampled from these cell states.
+\item time (numeric): The duration of an transition.
 }}
 }
 \description{

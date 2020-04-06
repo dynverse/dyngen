@@ -6,6 +6,10 @@ calculate_dimred <- function(
   dimred_gold = TRUE,
   dimred_premrna = TRUE
 ) {
+  # set rcpp thread options to model$num_cores
+  prev_num_cores <- Sys.getenv("RCPP_PARALLEL_NUM_THREADS")
+  Sys.setenv(RCPP_PARALLEL_NUM_THREADS = model$num_cores)
+  
   # check whether the simulations have been run
   has_sim <- dimred_simulations && model %has_name% "simulations" && model$simulations %has_name% "counts"
   if (has_sim) {
@@ -49,17 +53,17 @@ calculate_dimred <- function(
   tf_info <- model$feature_info %>% filter(is_tf)
   
   if (!is.null(sim_counts)) {
-    sim_wcounts <- sim_counts[, tf_info$w, drop = FALSE]
-    sim_xcounts <- sim_counts[, tf_info$x, drop = FALSE]
-    sim_ycounts <- sim_counts[, tf_info$y, drop = FALSE]
+    sim_wcounts <- sim_counts[, tf_info$mol_premrna, drop = FALSE]
+    sim_xcounts <- sim_counts[, tf_info$mol_mrna, drop = FALSE]
+    sim_ycounts <- sim_counts[, tf_info$mol_protein, drop = FALSE]
   } else {
     sim_wcounts <- sim_xcounts <- sim_ycounts <- NULL
   }
   
   if (!is.null(gs_counts)) {
-    gs_wcounts <- gs_counts[, tf_info$w, drop = FALSE]
-    gs_xcounts <- gs_counts[, tf_info$x, drop = FALSE]
-    gs_ycounts <- gs_counts[, tf_info$y, drop = FALSE]
+    gs_wcounts <- gs_counts[, tf_info$mol_premrna, drop = FALSE]
+    gs_xcounts <- gs_counts[, tf_info$mol_mrna, drop = FALSE]
+    gs_ycounts <- gs_counts[, tf_info$mol_protein, drop = FALSE]
   } else {
     gs_wcounts <- gs_xcounts <- gs_ycounts <- NULL
   }
@@ -142,6 +146,9 @@ calculate_dimred <- function(
       model$gold_standard$dimred_projected <- NULL
     }
   }
+  
+  # restore previous setting
+  Sys.setenv(RCPP_PARALLEL_NUM_THREADS = prev_num_cores)
   
   # return model
   model

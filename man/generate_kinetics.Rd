@@ -7,39 +7,47 @@
 \usage{
 generate_kinetics(model)
 
-kinetics_default(sample_wpr = function(n) rnorm(n, 100, 20) \%>\%
-  pmax(10), sample_wsr = function(n) rnorm(n, 10, 2) \%>\% pmax(2),
-  sample_xdr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
-  sample_ypr = function(n) rnorm(n, 5, 1) \%>\% pmax(2),
-  sample_ydr = function(n) rnorm(n, 3, 0.5) \%>\% pmax(1),
-  sample_ind = function(n) runif(n, 0, 1), sample_effect = function(n)
-  sample(c(-1, 1), n, replace = TRUE, prob = c(0.25, 0.75)),
-  sample_strength = function(n) 10^runif(n, log10(1), log10(100)),
-  sample_cooperativity = function(n) runif(n, 0.5, 2))
+kinetics_default()
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
-
-\item{sample_wpr}{A function specifying the distribution from which to sample the pre-mRNA production rate.}
-
-\item{sample_wsr}{A function specifying the distribution from which to sample the splicing rate.}
-
-\item{sample_xdr}{A function specifying the distribution from which to sample the mRNA decay rate.}
-
-\item{sample_ypr}{A function specifying the distribution from which to sample the protein production rate.}
-
-\item{sample_ydr}{A function specifying the distribution from which to sample the protein decay rate.}
-
-\item{sample_ind}{A function specifying the distribution from which to sample the regulator independence factor.}
-
-\item{sample_effect}{A function specifying the distribution from which to sample the effect of an interaction.}
-
-\item{sample_strength}{A function specifing the distribution from which to sample the strength of an interaction.}
-
-\item{sample_cooperativity}{A function specifing the distribution from which to sample the cooperativity of an interaction from.}
 }
 \description{
 \code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which
 the kinetics have not yet been defined.
 \code{\link[=kinetics_default]{kinetics_default()}} is used to configure parameters pertaining this process.
+}
+\details{
+To write different kinetics settings, you need to write three functions
+with interface \verb{function(feature_info, feature_network, cache_dir, verbose)}.
+Described below are the default kinetics samplers.
+
+\code{sampler_tfs()} mutates the \code{feature_info} data frame by adding the following columns:
+\itemize{
+\item \code{transcription_rate}: the rate at which pre-mRNAs are transcribed,
+in pre-mRNA / hour. Default distribution: U(1, 2).
+\item \code{translation_rate}:  the rate at which mRNAs are translated into proteins,
+in protein / mRNA / hour. Default distribution: U(100, 150).
+\item \code{mrna_halflife}: the half-life of (pre-)mRNA molecules, in hours.
+Default distribution: U(2.5, 5).
+\item \code{protein_halflife}: the half-life of proteins, in hours.
+Default distribution: U(5, 10).
+\item \code{splicing_rate}: the rate at which pre-mRNAs are spliced into mRNAs,
+in reactions / hour. Default value: log(2) / (10/60), which corresponds to a half-life of 10 minutes.
+\item \code{independence}: the degree to which all regulators need to be bound for transcription to occur (0), or
+whether transcription can occur if only one of the regulators is bound (1).
+}
+
+\code{sampler_nontfs()} samples the \code{transcription_rate}, \code{translation_rate},
+\code{mrna_halflife} and \code{protein_halflife} from a supplementary file of Schwannhäusser et al.,
+2011, doi.org/10.1038/nature10098. \code{splicing_rate} is by default the same as in \code{sampler_tfs()}.
+\code{independence} is sampled from U(0, 1).
+
+\code{sampler_interactions()} mutates the \code{feature_network} data frame by adding the following columns.
+\itemize{
+\item \code{effect}: the effect of the interaction; upregulating = +1, downregulating = -1.
+By default, sampled from {-1, 1} with probabilities {.25, .75}.
+\item \code{strength}: the strength of the interaction. Default distribution: 10^U(0, 2).
+\item \code{hill}: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
+}
 }

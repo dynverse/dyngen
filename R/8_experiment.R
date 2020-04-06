@@ -22,15 +22,29 @@
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
-  step_ixs <- .generate_experiment_sample_cells(model) %>% sample()
+  step_ixs <- .generate_experiment_sample_cells(model)
   
   cell_info <-
     model$simulations$meta[step_ixs, , drop = FALSE] %>% 
     mutate(
-      cell_id = paste0("cell", row_number()),
       step_ix = step_ixs
+    )
+    
+  if ("group" %in% names(attributes(step_ixs))) {
+    cell_info$cell_group <- attr(step_ixs, "group")
+  } else {
+    # only shuffle if step sampling is not used
+    cell_info <- cell_info %>% sample_n(n())
+  }
+  
+  cell_info <-
+    cell_info %>% 
+    mutate(
+      cell_id = paste0("cell", row_number())
     ) %>% 
-    select(cell_id, step_ix, simulation_i, sim_time, from, to, time)
+    select(cell_id, step_ix, simulation_i, sim_time, from, to, time, everything())
+  
+  step_ixs <- cell_info$step_ix
   
   # collect true simulated counts of sampled cells
   tsim_counts <- model$simulations$counts[step_ixs, , drop = FALSE]
@@ -39,9 +53,60 @@ generate_experiment <- function(model) {
   realcount <- .generate_experiment_fetch_realcount(model)
   
   # simulate library size variation from real data
+  count_simulation <- .simulate_counts_from_realcounts(tsim_counts, realcount, cell_info, sample_capture_rate = model$experiment_params$sample_capture_rate)
+  sim_counts <- count_simulation$sim_counts
+  cell_info <- count_simulation$cell_info
+  mol_info <- count_simulation$mol_info
+  
+  # split up molecules
+  sim_wcounts <- sim_counts[, model$feature_info$mol_premrna, drop = FALSE]
+  sim_xcounts <- sim_counts[, model$feature_info$mol_mrna, drop = FALSE]
+  sim_ycounts <- sim_counts[, model$feature_info$mol_protein, drop = FALSE]
+  dimnames(sim_wcounts) <- 
+    dimnames(sim_xcounts) <-
+    dimnames(sim_ycounts) <- 
+    list(cell_info$cell_id, model$feature_info$feature_id)
+  
+  if (model$simulation_params$compute_cellwise_grn) {
+    sim_cellwise_grn <- model$simulations$cellwise_grn[step_ixs, , drop = FALSE]
+    rownames(sim_cellwise_grn) <- cell_info$cell_id
+  } else {
+    sim_cellwise_grn <- NULL
+  }
+  
+  if (model$simulation_params$compute_propensity_ratios) {
+    sim_propensity_ratios <- model$simulations$propensity_ratios[step_ixs, , drop = FALSE]
+    rownames(sim_propensity_ratios) <- cell_info$cell_id
+  } else {
+    sim_propensity_ratios <- NULL
+  }
+  
+  # combine into final count matrix
+  model$experiment <- list(
+    counts_premrna = sim_wcounts,
+    counts_mrna = sim_xcounts,
+    counts_protein = sim_ycounts,
+    feature_info =  model$feature_info,
+    cell_info = cell_info,
+    cellwise_grn = sim_cellwise_grn,
+    propensity_ratios = sim_propensity_ratios
+  )
+  
+  model
+}
+
+
+.simulate_counts_from_realcounts <- function(
+  tsim_counts, 
+  realcount, 
+  cell_info = tibble(cell_id = rownames(tsim_counts)), 
+  sample_capture_rate = function(n) rnorm(n, 1, 0.05) %>% pmax(0)
+) {
+  # simulate library size variation from real data
   realsums <- Matrix::rowSums(realcount)
   dist_vals <- realsums / mean(realsums)
   lib_size <- quantile(dist_vals, runif(nrow(cell_info)))
+  
   cell_info <-
     cell_info %>% 
     mutate(
@@ -54,7 +119,7 @@ generate_experiment <- function(model) {
   mol_info <- 
     tibble(
       id = colnames(tsim_counts),
-      capture_rate = model$experiment_params$sample_capture_rate(length(id))
+      capture_rate = sample_capture_rate(length(id))
     )
   
   # simulate sampling of molecules
@@ -67,35 +132,21 @@ generate_experiment <- function(model) {
     
     lib_size <- cell_info$lib_size[[cell_i]]
     cap_rates <- mol_info$capture_rate[gene_is]
-    new_vals <- rmultinom(1, lib_size, cap_rates * gene_vals)
+    
+    probs <- cap_rates * gene_vals
+    probs[probs < 0] <- 0 # sometimes these can become zero due to rounding errors
+    
+    new_vals <- rmultinom(1, lib_size, probs)
     
     tsim_counts_t@x[pi:pj] <- new_vals
   }
   sim_counts <- Matrix::drop0(Matrix::t(tsim_counts_t))
   
-  # split up molecules
-  sim_wcounts <- sim_counts[, model$feature_info$w, drop = FALSE]
-  sim_xcounts <- sim_counts[, model$feature_info$x, drop = FALSE]
-  sim_ycounts <- sim_counts[, model$feature_info$y, drop = FALSE]
-  dimnames(sim_wcounts) <- 
-    dimnames(sim_xcounts) <-
-    dimnames(sim_ycounts) <- 
-    list(cell_info$cell_id, model$feature_info$feature_id)
-  
-  sim_regulation <- model$simulations$regulation[step_ixs, , drop = FALSE]
-  rownames(sim_regulation) <- cell_info$cell_id
-  
-  # combine into final count matrix
-  model$experiment <- list(
-    wcounts = sim_wcounts,
-    xcounts = sim_xcounts,
-    ycounts = sim_ycounts,
-    feature_info =  model$feature_info,
-    cell_info = cell_info,
-    regulation = sim_regulation
+  lst(
+    sim_counts,
+    cell_info,
+    mol_info
   )
-  
-  model
 }
 
 #' @export
@@ -241,7 +292,6 @@ experiment_synchronised <- function(
   ) %>% 
     unlist()
 }
-
 
 .generate_experiment_fetch_realcount <- function(model) {
   realcount_ <- model$experiment_params$realcount

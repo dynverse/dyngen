@@ -8,14 +8,24 @@
 #' @param output_dir If not `NULL`, then the generated model and dynwrap 
 #'   dataset will be written to files in this directory.
 #' @param make_plots Whether or not to generate an overview of the dataset.
-#' @param store_grn Whether or not to store the gene regulatory network
-#'   in the dynwrap object as well.
+#' 
+#' @inheritParams wrap_dataset
 #' 
 #' @export
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
 #' @importFrom readr write_rds
-generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store_grn = FALSE) {
+#' @importFrom methods is
+generate_dataset <- function(
+  model, 
+  output_dir = NULL,
+  make_plots = FALSE, 
+  store_dimred = model$simulation_params$compute_dimred,
+  store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
+  store_propensity_ratios = model$simulation_params$compute_propensity_ratios
+) {
+  assert_that(is(model, "dyngen::init"))
+  
   model <- model %>% 
     generate_tf_network() %>% 
     generate_feature_network() %>% 
@@ -24,17 +34,25 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
     generate_cells() %>% 
     generate_experiment()
   
+  if (model$verbose) cat("Wrapping dataset\n")
   dataset <-
-    wrap_dataset(model, store_grn = store_grn)
+    wrap_dataset(
+      model, 
+      store_dimred = store_dimred, 
+      store_cellwise_grn = store_cellwise_grn,
+      store_propensity_ratios = store_propensity_ratios
+    )
   
   # write to file
   if (!is.null(output_dir)) {
+    if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
     write_rds(dataset, paste0(output_dir, "dataset.rds"), compress = "gz")
     write_rds(model, paste0(output_dir, "model.rds"), compress = "gz")
   }
   
   if (make_plots) {
+    if (model$verbose) cat("Making plots\n")
     # make plots :scream:
     g1 <- plot_backbone_statenet(model) + labs(title = "Backbone state network")
     g2 <- plot_backbone_modulenet(model) + labs(title = "Backbone module reg. net.")
@@ -43,12 +61,14 @@ generate_dataset <- function(model, output_dir = NULL, make_plots = FALSE, store
     g5 <- plot_gold_simulations(model) + labs(title = "Gold + simulations")
     g6 <- plot_gold_mappings(model, do_facet = FALSE) + labs(title = "Simulations to gold mapping")
     g7 <- plot_simulations(model) + labs(title = "Simulation time")
-    g8 <- plot_gold_expression(model, what = "w") + labs(title = "Gold pre-mRNA expression over time")
-    g9 <- plot_simulation_expression(model, what = "w") + labs(title = "Simulation 1 pre-mRNA expression over time")
+    g8 <- plot_gold_expression(model, what = "mol_mrna") + labs(title = "Gold mRNA expression over time")
+    g9 <- plot_simulation_expression(model, what = "mol_mrna") + labs(title = "Simulation 1 mRNA expression over time")
     g <- patchwork::wrap_plots(
       g1, g2, g3, g4, g5, g6, g7, g8, g9,
       byrow = TRUE,
-      ncol = 3
+      ncol = 3,
+      widths = rep(1, 3),
+      heights = rep(1, 3)
     ) +
       patchwork::plot_annotation(tag_levels = "A")
     

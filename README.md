@@ -34,7 +34,7 @@ model <-
     backbone = backbone_bifurcating(),
     verbose = TRUE,
     download_cache_dir = "~/.cache/dyngen",
-    num_cores = 
+    num_cores = 8
   )
 
 plot_backbone_statenet(model)
@@ -59,8 +59,9 @@ names(list_backbones())
     ##  [3] "bifurcating_cycle"       "bifurcating_loop"       
     ##  [5] "binary_tree"             "branching"              
     ##  [7] "consecutive_bifurcating" "converging"             
-    ##  [9] "cycle"                   "disconnected"           
-    ## [11] "linear"                  "trifurcating"
+    ##  [9] "cycle"                   "cycle_simple"           
+    ## [11] "disconnected"            "linear"                 
+    ## [13] "linear_simple"           "trifurcating"
 
 ### Step 2: Generate transcription factors (TFs)
 
@@ -114,7 +115,7 @@ parameters of the SSA simulation.
 model <- generate_kinetics(model)
 ```
 
-    ## Generating kinetics for 72 features
+    ## Generating kinetics for 69 features
     ## Generating formulae
 
 ``` r
@@ -142,14 +143,7 @@ model <- generate_gold_standard(model)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ## 
-      |                                                  | 0 % elapsed =00s  
-      |=========                                         | 17% elapsed =00s, remaining ~00s
-      |=================                                 | 33% elapsed =00s, remaining ~00s
-      |=========================                         | 50% elapsed =00s, remaining ~00s
-      |==================================                | 67% elapsed =00s, remaining ~00s
-      |==========================================        | 83% elapsed =00s, remaining ~00s
-      |==================================================| 100% elapsed =00s, remaining ~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
 
 ``` r
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
@@ -161,7 +155,7 @@ The expression of the modules (average of TFs) can be visualised as
 follows.
 
 ``` r
-plot_gold_expression(model, what = "x") # mrna
+plot_gold_expression(model, what = "mol_mrna") # mrna
 ```
 
 ![](man/figures/README_gold_pt-1.png)<!-- -->
@@ -213,7 +207,7 @@ The expression of the modules (average of TFs) of a single simulation
 can be visualised as follows.
 
 ``` r
-plot_simulation_expression(model, 1:4, what = "x")
+plot_simulation_expression(model, 1:4, what = "mol_mrna")
 ```
 
 ![](man/figures/README_expression_sim-1.png)<!-- -->
@@ -267,7 +261,7 @@ all at once and producing plots.
 
 ``` r
 set.seed(1)
-init <- 
+config <- 
   initialise_model(
     num_tfs = 12,
     num_targets = 30,
@@ -277,21 +271,14 @@ init <-
     download_cache_dir = "~/.cache/dyngen",
     num_cores = 8
   )
+
 out <- generate_dataset(
-  init,
+  config,
   make_plots = TRUE
 )
 ```
 
-    ## 
-      |                                                  | 0 % elapsed =00s  
-      |========                                          | 14% elapsed =00s, remaining ~00s
-      |===============                                   | 29% elapsed =00s, remaining ~00s
-      |======================                            | 43% elapsed =00s, remaining ~00s
-      |=============================                     | 57% elapsed =00s, remaining ~00s
-      |====================================              | 71% elapsed =00s, remaining ~00s
-      |===========================================       | 86% elapsed =00s, remaining ~00s
-      |==================================================| 100% elapsed =00s, remaining ~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
 
 ``` r
 dataset <- out$dataset
@@ -343,40 +330,40 @@ backbone <- backbone_bifurcating_loop()
 print(backbone$module_info)
 ```
 
-    ## # A tibble: 13 x 4
-    ##    module_id    a0 burn  color  
-    ##    <chr>     <dbl> <lgl> <chr>  
-    ##  1 A1            1 TRUE  #FF9999
-    ##  2 A2            0 TRUE  #FF4D4D
-    ##  3 A3            1 TRUE  #FF0000
-    ##  4 B1            0 FALSE #CCFF99
-    ##  5 B2            1 TRUE  #80FF00
-    ##  6 C1            0 FALSE #99FFFF
-    ##  7 C2            0 FALSE #4DFFFF
-    ##  8 C3            0 FALSE #00FFFF
-    ##  9 D1            0 FALSE #CC99FF
-    ## 10 D2            0 FALSE #B973FF
-    ## 11 D3            1 TRUE  #A64DFF
-    ## 12 D4            0 FALSE #9326FF
-    ## 13 D5            0 FALSE #8000FF
+    ## # A tibble: 13 x 5
+    ##    module_id basal burn  independence color  
+    ##    <chr>     <dbl> <lgl>        <dbl> <chr>  
+    ##  1 A1            1 TRUE             1 #FF9999
+    ##  2 A2            0 TRUE             1 #FF4D4D
+    ##  3 A3            1 TRUE             1 #FF0000
+    ##  4 B1            0 FALSE            1 #CCFF99
+    ##  5 B2            1 TRUE             1 #80FF00
+    ##  6 C1            0 FALSE            1 #99FFFF
+    ##  7 C2            0 FALSE            1 #4DFFFF
+    ##  8 C3            0 FALSE            1 #00FFFF
+    ##  9 D1            0 FALSE            1 #CC99FF
+    ## 10 D2            0 FALSE            1 #B973FF
+    ## 11 D3            1 TRUE             1 #A64DFF
+    ## 12 D4            0 FALSE            1 #9326FF
+    ## 13 D5            0 FALSE            1 #8000FF
 
 ``` r
 print(backbone$module_network)
 ```
 
     ## # A tibble: 22 x 5
-    ##    from  to    effect strength cooperativity
-    ##    <chr> <chr>  <dbl>    <dbl>         <dbl>
-    ##  1 A1    A2         1       10             2
-    ##  2 A2    A3        -1       10             2
-    ##  3 A2    B1         1        1             2
-    ##  4 B1    B2        -1       10             2
-    ##  5 B1    C1         1        1             2
-    ##  6 B1    D1         1        1             2
-    ##  7 C1    C1         1       10             2
-    ##  8 C1    D1        -1      100             2
-    ##  9 C1    C2         1        1             2
-    ## 10 C2    C3         1        1             2
+    ##    from  to    effect strength  hill
+    ##    <chr> <chr>  <int>    <dbl> <dbl>
+    ##  1 A1    A2         1       10     2
+    ##  2 A2    A3        -1       10     2
+    ##  3 A2    B1         1        1     2
+    ##  4 B1    B2        -1       10     2
+    ##  5 B1    C1         1        1     2
+    ##  6 B1    D1         1        1     2
+    ##  7 C1    C1         1       10     2
+    ##  8 C1    D1        -1      100     2
+    ##  9 C1    C2         1        1     2
+    ## 10 C2    C3         1        1     2
     ## # … with 12 more rows
 
 ``` r
@@ -386,11 +373,11 @@ print(backbone$expression_patterns)
     ## # A tibble: 5 x 6
     ##   from  to    module_progression              start burn   time
     ##   <chr> <chr> <chr>                           <lgl> <lgl> <dbl>
-    ## 1 sBurn sA    +A1,+A2,+A3,+B2,+D3             TRUE  TRUE      2
-    ## 2 sA    sB    +B1                             FALSE FALSE     2
-    ## 3 sB    sC    +C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2 FALSE FALSE     3
-    ## 4 sB    sD    +D1,+D2,+D4,+D5                 FALSE FALSE     4
-    ## 5 sC    sA    +A1,+A2                         FALSE FALSE     2
+    ## 1 sBurn sA    +A1,+A2,+A3,+B2,+D3             TRUE  TRUE     40
+    ## 2 sA    sB    +B1                             FALSE FALSE    40
+    ## 3 sB    sC    +C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2 FALSE FALSE    60
+    ## 4 sB    sD    +D1,+D2,+D4,+D5                 FALSE FALSE    80
+    ## 5 sC    sA    +A1,+A2                         FALSE FALSE    40
 
 This allows you to simulate the following dataset.
 
@@ -408,15 +395,7 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
-    ## 
-      |                                                  | 0 % elapsed =00s  
-      |========                                          | 14% elapsed =00s, remaining ~00s
-      |===============                                   | 29% elapsed =00s, remaining ~00s
-      |======================                            | 43% elapsed =00s, remaining ~00s
-      |=============================                     | 57% elapsed =00s, remaining ~00s
-      |====================================              | 71% elapsed =00s, remaining ~00s
-      |===========================================       | 86% elapsed =00s, remaining ~00s
-      |==================================================| 100% elapsed =00s, remaining ~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 print(out$plot)
@@ -453,14 +432,7 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
-    ## 
-      |                                                  | 0 % elapsed =00s  
-      |=========                                         | 17% elapsed =00s, remaining ~00s
-      |=================                                 | 33% elapsed =00s, remaining ~00s
-      |=========================                         | 50% elapsed =00s, remaining ~00s
-      |==================================                | 67% elapsed =00s, remaining ~00s
-      |==========================================        | 83% elapsed =00s, remaining ~00s
-      |==================================================| 100% elapsed =00s, remaining ~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
 
 ``` r
 print(out$plot)
@@ -475,20 +447,53 @@ list of changes.
 
 <!-- This section gets automatically generated from NEWS.md -->
 
-### Recent changes in dyngen 0.2.2 (unreleased)
+### Recent changes in dyngen 0.3.0 (2020-04-06)
 
-  - MINOR CHANGES: Fix module naming of backbones derived from
-    `backbone_branching()`.
+#### NEW FEATURES:
 
-  - MINOR CHANGES: Allow to plot labels in
-    `plot_simulation_expression()`.
+  - Implement knockdown / knockouts / overexpression experiments.
 
-  - FIX: Implement fix for double positives in `bblego` backbones.
+  - Implement better single-cell regulatory activity by determining the
+    effect on propensity values after knocking out a transcription
+    factor.
 
-  - FIX: Fix graph plotting mixup of interaction effects (up/down).
+  - Implement adding noise to the kinetic params of individual
+    simulations.
 
-  - MINOR CHANGES: Improve `backbone_disconnected()` and
-    `backbone_converging()`.
+  - Kinetics (transcription rate, translation rate, decay rate, …) are
+    based on Schwannhausser et al. 2011.
+
+  - Changed many parameter names to better explain its purpose.
+
+#### MINOR CHANGES:
+
+  - Fix module naming of backbones derived from `backbone_branching()`.
+
+  - Allow to plot labels in `plot_simulation_expression()`.
+
+  - Improve `backbone_disconnected()` and `backbone_converging()`.
+
+  - Rename required columns in `backbone()` input data.
+
+  - Use `backbone_linear()` to make `backbone_cyclic()` randomised.
+
+  - Added a decay rate for pre-mRNAs as well.
+
+  - Kinetics: redefine the decay rates in terms of the half-life of
+    these molecules.
+
+  - Only compute dimred if desired.
+
+  - Allow computing the propensity ratios as ground-truth for rna
+    velocity.
+
+#### BUG FIXES:
+
+  - Implement fix for double positives in `bblego` backbones.
+
+  - Fix graph plotting mixup of interaction effects (up/down).
+
+  - Made a fix to the computation of `feature_info$max_protein`.
 
 ### Recent changes in dyngen 0.2.1 (2019-07-17)
 

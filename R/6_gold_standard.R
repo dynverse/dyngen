@@ -38,8 +38,8 @@ generate_gold_standard <- function(model) {
 #' @export
 #' @rdname generate_gold_standard
 gold_standard_default <- function(
-  tau = .001,
-  census_interval = .01
+  tau = 30 / 3600,
+  census_interval = 10 / 60
 ) {
   lst(
     tau,
@@ -54,7 +54,7 @@ gold_standard_default <- function(
       substate = map(mod_diff, seq_along)
     ) %>% 
     select(-module_progression) %>% 
-    unnest(mod_diff, substate) %>% 
+    unnest(c(mod_diff, substate)) %>% 
     mutate(
       mod_diff2 = strsplit(mod_diff, ","),
       mod_on = map(mod_diff2, function(x) x %>% keep(grepl("\\+", .)) %>% gsub("\\+", "", .)),
@@ -76,7 +76,7 @@ gold_standard_default <- function(
   tf_info <- model$feature_info %>% filter(is_tf)
   
   # select relevant functions
-  tf_molecules <- tf_info %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
+  tf_molecules <- tf_info %>% select(mol_premrna, mol_mrna, mol_protein) %>% gather(col, val) %>% pull(val)
   
   # filter reactions
   reactions <- sim_system$reactions %>% 
@@ -145,7 +145,7 @@ gold_standard_default <- function(
     
     # which tfs are on
     tfs_on <- tf_info %>% filter(module_id %in% mods)
-    molecules_on <- tfs_on %>% select(w, x, y) %>% gather(col, val) %>% pull(val)
+    molecules_on <- tfs_on %>% select(mol_premrna, mol_mrna, mol_protein) %>% gather(col, val) %>% pull(val)
     
     # fetch initial state
     new_initial_state <- rowMeans(gold_sim_vectors[[from_]])

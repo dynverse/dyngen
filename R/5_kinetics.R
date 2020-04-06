@@ -5,18 +5,43 @@
 #' [kinetics_default()] is used to configure parameters pertaining this process.
 #' 
 #' @param model A dyngen intermediary model for which the feature network has been generated with [generate_feature_network()].
-#' @param sample_wpr A function specifying the distribution from which to sample the pre-mRNA production rate.
-#' @param sample_wsr A function specifying the distribution from which to sample the splicing rate.
-#' @param sample_xdr A function specifying the distribution from which to sample the mRNA decay rate.
-#' @param sample_ypr A function specifying the distribution from which to sample the protein production rate.
-#' @param sample_ydr A function specifying the distribution from which to sample the protein decay rate.
-#' @param sample_ind A function specifying the distribution from which to sample the regulator independence factor.
-#' @param sample_effect A function specifying the distribution from which to sample the effect of an interaction.
-#' @param sample_strength A function specifing the distribution from which to sample the strength of an interaction.
-#' @param sample_cooperativity A function specifing the distribution from which to sample the cooperativity of an interaction from.
+#' 
+#' @details To write different kinetics settings, you need to write three functions
+#' with interface `function(feature_info, feature_network, cache_dir, verbose)`. 
+#' Described below are the default kinetics samplers.
+#' 
+#' `sampler_tfs()` mutates the `feature_info` data frame by adding the following columns:
+#'  * `transcription_rate`: the rate at which pre-mRNAs are transcribed, 
+#'     in pre-mRNA / hour. Default distribution: U(1, 2).
+#'  * `translation_rate`:  the rate at which mRNAs are translated into proteins,
+#'     in protein / mRNA / hour. Default distribution: U(100, 150).
+#'  * `mrna_halflife`: the half-life of (pre-)mRNA molecules, in hours. 
+#'     Default distribution: U(2.5, 5).
+#'  * `protein_halflife`: the half-life of proteins, in hours. 
+#'     Default distribution: U(5, 10).
+#'  * `splicing_rate`: the rate at which pre-mRNAs are spliced into mRNAs, 
+#'     in reactions / hour. Default value: log(2) / (10/60), which corresponds to a half-life of 10 minutes.
+#'  * `independence`: the degree to which all regulators need to be bound for transcription to occur (0), or 
+#'     whether transcription can occur if only one of the regulators is bound (1).
+#'     
+#' `sampler_nontfs()` samples the `transcription_rate`, `translation_rate`, 
+#'   `mrna_halflife` and `protein_halflife` from a supplementary file of Schwannhäusser et al., 
+#'   2011, doi.org/10.1038/nature10098. `splicing_rate` is by default the same as in `sampler_tfs()`. 
+#'   `independence` is sampled from U(0, 1).
+#'   
+#' `sampler_interactions()` mutates the `feature_network` data frame by adding the following columns.
+#'  * `effect`: the effect of the interaction; upregulating = +1, downregulating = -1.
+#'    By default, sampled from {-1, 1} with probabilities {.25, .75}.
+#'  * `strength`: the strength of the interaction. Default distribution: 10^U(0, 2).
+#'  * `hill`: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
 #' 
 #' @export
 generate_kinetics <- function(model) {
+  assert_that(
+    !is.null(model$feature_info),
+    !is.null(model$feature_network)
+  )
+  
   # generate kinetics params
   model <- .kinetics_generate_gene_kinetics(model)
   
@@ -25,11 +50,15 @@ generate_kinetics <- function(model) {
   
   # create variables
   fid <- model$feature_info$feature_id
-  model$feature_info$w <- paste0("w_", fid)
-  model$feature_info$x <- paste0("x_", fid)
-  model$feature_info$y <- paste0("y_", fid)
+  model$feature_info$mol_premrna <- paste0("mol_premrna_", fid)
+  model$feature_info$mol_mrna <- paste0("mol_mrna_", fid)
+  model$feature_info$mol_protein <- paste0("mol_protein_", fid)
   
-  molecule_ids <- c(model$feature_info$w, model$feature_info$x, model$feature_info$y)
+  molecule_ids <- c(
+    model$feature_info$mol_premrna, 
+    model$feature_info$mol_mrna,
+    model$feature_info$mol_protein
+  )
 
   initial_state <- set_names(
     rep(0, length(molecule_ids)),
@@ -37,13 +66,16 @@ generate_kinetics <- function(model) {
   )
   
   # extract params
-  parameters <- .kinetics_extract_parameters(model)
+  parameters <- .kinetics_extract_parameters(
+    model$feature_info, 
+    model$feature_network
+  )
   
   # determine variables to be used during burn in
   burn_variables <- 
     model$feature_info %>% 
     filter(burn) %>% 
-    select(w, x, y) %>% 
+    select(mol_premrna, mol_mrna, mol_protein) %>% 
     gather(col, val) %>% 
     pull(val)
     
@@ -61,65 +93,101 @@ generate_kinetics <- function(model) {
 
 #' @export
 #' @rdname generate_kinetics
-#' @importFrom stats rnorm runif
-kinetics_default <- function(
-  sample_wpr = function(n) rnorm(n, 100, 20) %>% pmax(10),
-  sample_wsr = function(n) rnorm(n, 10, 2) %>% pmax(2),
-  sample_xdr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_ypr = function(n) rnorm(n, 5, 1) %>% pmax(2),
-  sample_ydr = function(n) rnorm(n, 3, .5) %>% pmax(1),
-  sample_ind = function(n) runif(n, 0, 1),
+#' @importFrom stats runif
+kinetics_default <- function() {
+  sampler_tfs <-
+    function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+      feature_info %>%  mutate(
+        transcription_rate = transcription_rate %|% runif(n(), 1, 2),
+        translation_rate = translation_rate %|% runif(n(), 100, 150),
+        mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
+        protein_halflife = protein_halflife %|% runif(n(), 5, 10),
+        independence = independence %|% 1,
+        splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
+      )
+    }
   
-  sample_effect = function(n) sample(c(-1, 1), n, replace = TRUE, prob = c(.25, .75)),
-  sample_strength = function(n) 10 ^ runif(n, log10(1), log10(100)),
-  sample_cooperativity = function(n) runif(n, 0.5, 2)
-) {
-  lst(
-    sample_wpr,
-    sample_wsr,
-    sample_xdr,
-    sample_ypr,
-    sample_ydr,
-    sample_ind,
-    
-    sample_effect,
-    sample_strength,
-    sample_cooperativity
-  )
+  sampler_nontfs <- 
+    function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+      if (!is.null(feature_info) && nrow(feature_info) > 0) {
+        real_kinetics <- .download_cacheable_file(
+          url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
+          cache_dir = model$download_cache_dir, 
+          verbose = model$verbose
+        )
+        smpld <- 
+          real_kinetics %>% 
+          sample_n(nrow(feature_info), replace = TRUE) %>% 
+          select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
+        feature_info %>% 
+          mutate(
+            # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
+            # See data-raw/decay_rates.R for more info
+            transcription_rate = transcription_rate %|% smpld$transcription_rate,
+            translation_rate = translation_rate %|% smpld$translation_rate,
+            mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
+            protein_halflife = protein_halflife %|% smpld$protein_halflife,
+            independence = independence %|% runif(n(), 0, 1),
+            splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
+          )
+      } else {
+        feature_info
+      }
+    }
+  
+  sampler_interactions <-
+    function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+      feature_network %>% 
+        mutate(
+          effect = effect %|% sample(c(-1, 1), n(), replace = TRUE, prob = c(.25, .75)),
+          strength = strength %|% 10 ^ runif(n(), log10(1), log10(100)),
+          hill = hill %|% rnorm_bounded(n(), 2, 2, min = 1, max = 10)
+        )
+    }
+  
+  lst(sampler_tfs, sampler_nontfs, sampler_interactions)
 }
+
 
 .kinetics_generate_gene_kinetics <- function(model) {
   if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
   params <- model$kinetics_params
   
-  feature_info <-
-    model$feature_info %>% 
+  # fetch feature info and network
+  feature_info <- model$feature_info %>%
+    .kinetics_add_columns(c("transcription_rate", "splicing_rate", "translation_rate", "mrna_halflife", "protein_halflife", "independence"), NA_real_)
+  feature_network <- model$feature_network %>%
+    .kinetics_add_columns(c("effect", "strength", "hill"), NA_real_)
+  
+  # generate relatively stable kinetics for TFs
+  feature_info_tf <- params$sampler_tfs(
+    feature_info %>% filter(is_tf),
+    feature_network
+  )
+  
+  # sample kinetics from dataset for non-tfs
+  feature_info_nontf <- params$sampler_tfs(
+    feature_info %>% filter(!is_tf),
+    feature_network, 
+    cache_dir = model$download_cache_dir,
+    verbose = model$verbose
+  )
+
+  # combine feature info
+  feature_info <- 
+    bind_rows(feature_info_tf, feature_info_nontf) %>% 
     mutate(
-      wpr = params$sample_wpr(n()),
-      wsr = params$sample_wsr(n()),
-      xdr = params$sample_xdr(n()),
-      ypr = params$sample_ypr(n()),
-      ydr = params$sample_ydr(n()),
-      max_protein = wpr / xdr * ypr / ydr,
-      ind = ind %|% params$sample_ind(n())
+      mrna_decay_rate = log(2) / mrna_halflife,
+      protein_decay_rate = log(2) / protein_halflife
     )
   
-  # remove previous 'as' if present
-  if (feature_info %has_name% "as") {
-    feature_info <- feature_info %>% select(-as)
-  }
+  # sample network kinetics from distributions
+  feature_network <- params$sampler_interactions(feature_info, feature_network)
   
-  # sample effect, cooperativity and strength
   # calculate k
-  feature_network <- 
-    model$feature_network %>% 
-    left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
-    mutate(
-      effect = effect %|% params$sample_effect(n()),
-      cooperativity = cooperativity %|% params$sample_cooperativity(n()),
-      strength = strength %|% params$sample_strength(n()),
-      k = max_protein / 2 / strength
-    )
+  dis_out <- .kinetics_calculate_dissociation(feature_info, feature_network)
+  feature_info <- dis_out$feature_info
+  feature_network <- dis_out$feature_network
   
   # calculate ba and a
   feature_info <- 
@@ -129,16 +197,16 @@ kinetics_default <- function(
         rename(feature_id = to) %>% 
         group_by(feature_id) %>% 
         summarise(
-          ba_2 = .kinetics_calculate_ba(effect)
+          basal_2 = .kinetics_calculate_basal(effect)
         ),
       by = "feature_id"
     ) %>% 
     mutate(
       # 1 for genes that are not being regulated by any other genes,
-      # yet did not already have an ba defined
-      ba = ba %|% ba_2 %|% 1 
+      # yet did not already have a value for 'basal' defined
+      basal = basal %|% basal_2 %|% 1 
     ) %>% 
-    select(-ba_2)
+    select(-basal_2)
   
   model$feature_info <- feature_info
   model$feature_network <- feature_network
@@ -176,28 +244,30 @@ kinetics_default <- function(
       
       fid <- info$feature_id
       
-      w <- paste0("w_", fid)
-      x <- paste0("x_", fid)
-      y <- paste0("y_", fid)
+      w <- paste0("mol_premrna_", fid)
+      x <- paste0("mol_mrna_", fid)
+      y <- paste0("mol_protein_", fid)
       
-      wpr <- paste0("wpr_", fid)
-      wsr <- paste0("wsr_", fid)
-      xdr <- paste0("xdr_", fid)
-      ypr <- paste0("ypr_", fid)
-      ydr <- paste0("ydr_", fid)
+      transcription_rate <- paste0("transcription_rate_", fid)
+      splicing_rate <- paste0("splicing_rate_", fid)
+      translation_rate <- paste0("translation_rate_", fid)
+      mrna_decay_rate <- paste0("mrna_decay_rate_", fid)
+      protein_decay_rate <- paste0("protein_decay_rate_", fid)
       
-      ba <- paste0("ba_", fid)
-      ind <- paste0("ind_", fid)
+      basal <- paste0("bas_", fid)
+      independence <- paste0("ind_", fid)
       
       if (!is.null(info$regulators)) {
         rid <- info$regulators$from
         eff <- info$regulators$effect
-        reg_ys <- paste0("y_", rid)
-        reg_ks <- paste0("k_", rid, "_", fid)
-        reg_cs <- paste0("c_", rid, "_", fid)
-        regulation_var <- paste0("regulation_", rid, "_", fid)
+        str <- info$regulators$strength
+        reg_ys <- paste0("mol_protein_", rid)
+        reg_diss <- paste0("dis_", rid, "_", fid)
+        reg_hills <- paste0("hill_", rid, "_", fid)
+        reg_strs <- paste0("str_", rid, "_", fid)
+        regulation_var <- paste0("chi_", rid, "_", fid)
         
-        reg_affinity_calc <- paste(paste0(regulation_var, " = pow(", reg_ys, "/", reg_ks, ", ", reg_cs, "); "), collapse = "")
+        reg_affinity_calc <- paste(paste0(regulation_var, " = ", reg_strs, " * pow(", reg_ys, "/", reg_diss, ", ", reg_hills, "); "), collapse = "")
         
         # Several optimisations have been applied.
         #
@@ -214,15 +284,15 @@ kinetics_default <- function(
         
         numerator <-
           if (sum(eff > 0) > 0) {
-            paste0(ba, " - pow(", ind, ",", sum(eff > 0), ") + ", paste("(", regulation_var[eff > 0], " + ", ind, ")", collapse = " * ", sep = ""))
+            paste0(basal, " - pow(", independence, ",", sum(eff > 0), ") + ", paste("(", regulation_var[eff > 0], " + ", independence, ")", collapse = " * ", sep = ""))
           } else {
-            ba
+            basal
           }
         denominator <- paste("(", regulation_var, " + 1)", collapse = " * ", sep = "")
         
-        wpr_function <- paste0(reg_affinity_calc, wpr, " * (", numerator, ")/(", denominator, ")")
+        act_function <- paste0(reg_affinity_calc, transcription_rate, " * (", numerator, ")/(", denominator, ")")
       } else {
-        wpr_function <- paste0(wpr, " * ", ba)
+        act_function <- paste0(transcription_rate, " * ", basal)
         regulation_var <- character()
       }
       
@@ -231,31 +301,37 @@ kinetics_default <- function(
         reaction(
           name = paste0("transcription_", fid),
           effect = set_names(1, w),
-          propensity = wpr_function
+          propensity = paste0(act_function)
         ),
         # splicing
         reaction(
           name = paste0("splicing_", fid),
           effect = set_names(c(1, -1), c(x, w)),
-          propensity = paste0(wsr, " * ", w)
-        ),
-        # mRNA degradation
-        reaction(
-          name = paste0("mrna_degradation_", fid),
-          effect = set_names(-1, x),
-          propensity = paste0(xdr, " * ", x)
+          propensity = paste0(splicing_rate, " * ", w)
         ),
         # protein production
         reaction(
           name = paste0("translation_", fid), 
           effect = set_names(1, y),
-          propensity = paste0(ypr, " * ", x)
+          propensity = paste0(translation_rate, " * ", x)
+        ),
+        # pre-mRNA degradation
+        reaction(
+          name = paste0("premrna_degradation_", fid),
+          effect = set_names(-1, w),
+          propensity = paste0(mrna_decay_rate, " * ", w)
+        ),
+        # mRNA degradation
+        reaction(
+          name = paste0("mrna_degradation_", fid),
+          effect = set_names(-1, x),
+          propensity = paste0(mrna_decay_rate, " * ", x)
         ),
         # protein degradation
         reaction(
           name = paste0("protein_degradation_", fid),
           effect = set_names(-1, y),
-          propensity = paste0(ydr, " * ", y)
+          propensity = paste0(protein_decay_rate, " * ", y)
         )
       )
       
@@ -268,20 +344,20 @@ kinetics_default <- function(
   unlist(out, recursive = FALSE)
 }
 
-.kinetics_extract_parameters <- function(model) {
-  # extract m to qr, d, p, q, and ba
+.kinetics_extract_parameters <- function(feature_info, feature_network) {
+  # extract production / degradation rates, ind and bas
   feature_params <- 
-    model$feature_info %>% 
-    select(feature_id, wpr, wsr, xdr, ypr, ydr, ba, ind) %>% 
+    feature_info %>% 
+    select(feature_id, transcription_rate, splicing_rate, translation_rate, mrna_decay_rate, protein_decay_rate, bas = basal, ind = independence) %>% 
     gather(param, value, -feature_id) %>% 
     mutate(id = paste0(param, "_", feature_id)) %>% 
     select(id, value) %>% 
     deframe()
   
-  # extract k and c
+  # extract dis, hill, str
   edge_params <- 
-    model$feature_network %>% 
-    select(from, to, k, c = cooperativity) %>% 
+    feature_network %>% 
+    select(from, to, dis = dissociation, hill, str = strength) %>% 
     gather(param, value, -from, -to) %>% 
     mutate(id = paste0(param, "_", from, "_", to)) %>% 
     select(id, value) %>% 
@@ -290,10 +366,43 @@ kinetics_default <- function(
   c(feature_params, edge_params)
 }
 
-.kinetics_calculate_ba <- function(effects) {
+.kinetics_calculate_basal <- function(effects) {
   case_when(
     all(effects == -1) ~ 1,
     all(effects == 1) ~ 0.0001,
     TRUE ~ 0.5
   )
+}
+
+.kinetics_calculate_dissociation <- function(feature_info, feature_network) {
+  remove <- c("max_premrna", "max_mrna", "max_protein", "dissociation", "k", "max_protein")
+  
+  feature_info <- feature_info[, !colnames(feature_info) %in% remove]
+  feature_network <- feature_network[, !colnames(feature_network) %in% remove]
+  
+  feature_info <- 
+    feature_info %>%
+    mutate(
+      max_premrna = transcription_rate / (mrna_decay_rate + splicing_rate),
+      max_mrna = splicing_rate / mrna_decay_rate * max_premrna,
+      max_protein = translation_rate / protein_decay_rate * max_mrna
+    )
+  
+  feature_network <- 
+    feature_network %>% 
+    left_join(feature_info %>% select(from = feature_id, max_protein), by = "from") %>% 
+    mutate(
+      dissociation = max_protein / 2
+    )
+  
+  lst(feature_info, feature_network)
+}
+
+.kinetics_add_columns <- function(df, colnames, fill = NA) {
+  for (colname in colnames) {
+    if (!colname %in% colnames(df)) {
+      df[[colname]] <- fill
+    }
+  }
+  df
 }

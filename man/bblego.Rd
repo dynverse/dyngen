@@ -10,18 +10,33 @@
 \usage{
 bblego(..., .list = NULL)
 
-bblego_linear(from, to, type = sample(c("simple", "doublerep1",
-  "doublerep2", "flipflop"), 1), num_modules = sample(4:6, 1),
-  burn = FALSE)
+bblego_linear(
+  from,
+  to,
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
+  num_modules = sample(4:6, 1),
+  burn = FALSE
+)
 
-bblego_branching(from, to, type = c("robust", "simple"),
-  num_modules = length(to) * 2 + 2, burn = FALSE)
+bblego_branching(
+  from,
+  to,
+  type = "simple",
+  num_modules = length(to) + 3,
+  burn = FALSE
+)
 
-bblego_start(to, type = sample(c("simple", "doublerep1", "doublerep2",
-  "flipflop"), 1), num_modules = sample(4:6, 1))
+bblego_start(
+  to,
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
+  num_modules = sample(4:6, 1)
+)
 
-bblego_end(from, type = sample(c("simple", "doublerep1", "doublerep2",
-  "flipflop"), 1), num_modules = sample(4:6, 1))
+bblego_end(
+  from,
+  type = sample(c("simple", "doublerep1", "doublerep2"), 1),
+  num_modules = sample(4:6, 1)
+)
 }
 \arguments{
 \item{..., .list}{\code{bblego} components, either as separate args or as a list.}
@@ -70,7 +85,7 @@ having been specified as the second argument.
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
   bblego_linear("A", "B", type = "simple", num_modules = 3),
-  bblego_branching("B", c("C", "D"), type = "robust", num_modules = 6),
+  bblego_branching("B", c("C", "D"), type = "simple", num_modules = 6),
   bblego_end("C", type = "flipflop", num_modules = 4),
   bblego_end("D", type = "doublerep1", num_modules = 7)
 )

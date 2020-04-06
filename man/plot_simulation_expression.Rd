@@ -4,9 +4,13 @@
 \alias{plot_simulation_expression}
 \title{Visualise the expression of the simulations over simulation time}
 \usage{
-plot_simulation_expression(model, simulation_i = 1:4, what = c("w",
-  "x", "y"), facet = c("simulation", "module_group", "module_id",
-  "none"), label_nonzero = FALSE)
+plot_simulation_expression(
+  model,
+  simulation_i = 1:4,
+  what = c("mol_premrna", "mol_mrna", "mol_protein"),
+  facet = c("simulation", "module_group", "module_id", "none"),
+  label_nonzero = FALSE
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}

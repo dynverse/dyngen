@@ -3,8 +3,7 @@
 \docType{package}
 \name{dyngen}
 \alias{dyngen}
-\alias{dyngen-package}
-\title{Generating TI data}
+\title{dyngen: Synthetic single cell data}
 \description{
-Generating TI data
+A toolkit for generating synthetic single cell data.
 }

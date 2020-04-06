@@ -1,7 +1,7 @@
 Package: dyngen
 Type: Package
 Title: Synthetic single cell data
-Version: 0.2.2
+Version: 0.3.0
 Authors@R: c(
     person(
       "Robrecht", 
@@ -19,19 +19,21 @@ Authors@R: c(
     )
   )
 Description: A toolkit for generating synthetic single cell data.
-License: GPL-3
+License: MIT + file LICENSE
 LazyData: TRUE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
+URL: https://github.com/dynverse/dyngen
+BugReports: https://github.com/dynverse/dyngen/issues
 Depends:
   R (>= 3.0.0)
 Imports:
   assertthat,
   dplyr,
   dynutils (>= 1.0.4),
-  dynwrap (>= 1.0.0),
-  GillespieSSA2 (>= 0.2.4),
+  dynwrap (>= 1.2.0),
+  GillespieSSA2 (>= 0.2.6),
   ggplot2,
   ggraph (>= 2.0),
   ggrepel,
@@ -46,7 +48,7 @@ Imports:
   pbapply,
   purrr,
   readr,
-  rlang (> 0.4.0),
+  rlang (>= 0.4.1),
   stats,
   tibble,
   tidygraph,
@@ -58,9 +60,4 @@ Suggests:
   knitr,
   rmarkdown,
   testthat
-Remotes:
-  r-lib/rlang,
-  dynverse/dynwrap@master,
-  dynverse/lmds@master,
-  rcannood/GillespieSSA2@master
 VignetteBuilder: knitr

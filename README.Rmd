@@ -36,7 +36,7 @@ model <-
     backbone = backbone_bifurcating(),
     verbose = TRUE,
     download_cache_dir = "~/.cache/dyngen",
-    num_cores = 
+    num_cores = 8
   )
 
 plot_backbone_statenet(model)
@@ -90,7 +90,7 @@ plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 
 The expression of the modules (average of TFs) can be visualised as follows.
 ```{r gold_pt, fig.width=10, fig.height=10}
-plot_gold_expression(model, what = "x") # mrna
+plot_gold_expression(model, what = "mol_mrna") # mrna
 plot_gold_expression(model, label_changing = FALSE) # premrna, mrna, and protein
 ```
 
@@ -114,7 +114,7 @@ plot_gold_mappings(model, do_facet = FALSE) + scale_colour_brewer(palette = "Dar
 
 The expression of the modules (average of TFs) of a single simulation can be visualised as follows.
 ```{r expression_sim}
-plot_simulation_expression(model, 1:4, what = "x")
+plot_simulation_expression(model, 1:4, what = "mol_mrna")
 ```
 
 ### Step 7: Experiment emulation
@@ -148,7 +148,7 @@ plot_dimred(pred)
 all of the steps all at once and producing plots.
 ```{r oneshot_run, message=FALSE, fig.width=20, fig.height=20}
 set.seed(1)
-init <- 
+config <- 
   initialise_model(
     num_tfs = 12,
     num_targets = 30,
@@ -158,10 +158,12 @@ init <-
     download_cache_dir = "~/.cache/dyngen",
     num_cores = 8
   )
+
 out <- generate_dataset(
-  init,
+  config,
   make_plots = TRUE
 )
+
 dataset <- out$dataset
 model <- out$model
 print(out$plot)
