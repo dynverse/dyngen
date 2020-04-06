@@ -1,4 +1,4 @@
-# dyngen 0.2.2 (unreleased)
+# dyngen 0.3.0 (2020-04-06)
 
 ## NEW FEATURES:
 
@@ -8,6 +8,11 @@
   the effect on propensity values after knocking out a transcription factor.
   
 * Implement adding noise to the kinetic params of individual simulations.
+
+* Kinetics (transcription rate, translation rate, decay rate, ...) are 
+  based on Schwannhausser et al. 2011.
+
+* Changed many parameter names to better explain its purpose.
 
 ## MINOR CHANGES:
 
@@ -21,11 +26,13 @@
 
 * Use `backbone_linear()` to make `backbone_cyclic()` randomised.
 
-* Added a decay rate for pre-mRNAs as well.s
+* Added a decay rate for pre-mRNAs as well.
 
-* Kinetics: redefine `wdr`, `xdr` and `ydr` in terms of the half-life of these molecules.
+* Kinetics: redefine the decay rates in terms of the half-life of these molecules.
 
 * Only compute dimred if desired.
+
+* Allow computing the propensity ratios as ground-truth for rna velocity.
 
 ## BUG FIXES:
 
@@ -33,7 +40,8 @@
 
 * Fix graph plotting mixup of interaction effects (up/down).
 
-* Made a fix to the computation of `feature_info$max_protein`. Also, this variable has been renamed to `max_y`. 
+* Made a fix to the computation of `feature_info$max_protein`.
+
 
 # dyngen 0.2.1 (2019-07-17)
 

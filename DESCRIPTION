@@ -1,7 +1,7 @@
 Package: dyngen
 Type: Package
 Title: Synthetic single cell data
-Version: 0.2.2
+Version: 0.3.0
 Authors@R: c(
     person(
       "Robrecht", 
