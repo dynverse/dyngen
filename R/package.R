@@ -14,13 +14,8 @@
 #' @import dynwrap
 #' @importFrom Matrix t Matrix sparseMatrix summary
 #' @importFrom pbapply pblapply 
+#' @importFrom rlang %|%
 #'
 #' @docType package
 #' @name dyngen
 NULL
-
-# when next version of rlang is released
-# @importFrom rlang %|%
-`%|%` <- function(x, y) {
-  ifelse(is.na(x), y, x)
-}

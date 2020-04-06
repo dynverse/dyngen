@@ -139,7 +139,7 @@ kinetics_default <- function() {
     function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
       feature_network %>% 
         mutate(
-          effect = effect %|% sample(c(-1, 1), n(), replace = TRUE, prob = c(.25, .75)),
+          effect = effect %|% sample(c(-1L, 1L), n(), replace = TRUE, prob = c(.25, .75)),
           strength = strength %|% 10 ^ runif(n(), log10(1), log10(100)),
           hill = hill %|% rnorm_bounded(n(), 2, 2, min = 1, max = 10)
         )
