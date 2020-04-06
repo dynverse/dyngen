@@ -62,7 +62,7 @@ initialise_model <- function(
       simtime_from_backbone(backbone, burn = FALSE)
   }
     
-  lst(
+  l <- lst(
     backbone,
     numbers = lst(
       num_cells,
@@ -84,4 +84,7 @@ initialise_model <- function(
     num_cores,
     id
   )
+  
+  class(l) <- c(class(l), "dyngen::init")
+  l
 }

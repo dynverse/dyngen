@@ -8,8 +8,9 @@ generate_dataset(
   model,
   output_dir = NULL,
   make_plots = FALSE,
-  store_grn = FALSE,
-  store_propensity_ratios = FALSE
+  store_dimred = model$simulation_params$compute_dimred,
+  store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
+  store_propensity_ratios = model$simulation_params$compute_propensity_ratios
 )
 }
 \arguments{
@@ -20,7 +21,9 @@ dataset will be written to files in this directory.}
 
 \item{make_plots}{Whether or not to generate an overview of the dataset.}
 
-\item{store_grn}{Whether or not to also store (cellwise) GRN information.}
+\item{store_dimred}{Whether or not to store the dimensionality reduction constructed on the true counts.}
+
+\item{store_cellwise_grn}{Whether or not to also store cellwise GRN information.}
 
 \item{store_propensity_ratios}{WHether or not to store the propensity ratios.}
 }

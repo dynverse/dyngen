@@ -3,7 +3,7 @@
 #' The output of this object can be used with \pkg{dyno}.
 #' 
 #' @param model A dyngen output model for which the experiment has been emulated with [generate_experiment()].
-#' @param store_grn Whether or not to also store (cellwise) GRN information.
+#' @param store_cellwise_grn Whether or not to also store cellwise GRN information.
 #' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
 #' @param store_propensity_ratios WHether or not to store the propensity ratios.
 #' 
@@ -11,10 +11,15 @@
 #' @importFrom dynwrap wrap_expression add_trajectory add_dimred add_regulatory_network
 wrap_dataset <- function(
   model,
-  store_grn = FALSE, 
-  store_dimred = FALSE,
-  store_propensity_ratios = FALSE
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_dimred = !is.null(model$experiment$dimred),
+  store_propensity_ratios = !is.null(model$experiment$propensity_rations)
 ) {
+  assert_that(
+    !is.null(model$experiment), 
+    msg = "model should be an object that was initialised with `initialise_model()`."
+  )
+  
   dataset <- wrap_expression(
     id = model$id,
     counts = model$experiment$counts_mrna,
@@ -41,7 +46,7 @@ wrap_dataset <- function(
   }
   
   # add a few more values
-  if (store_grn) {
+  if (store_cellwise_grn) {
     regulatory_network <- model$feature_network %>% 
       select(regulator = from, target = to, strength, effect)
     regulation_sc <- model$experiment$cellwise_grn

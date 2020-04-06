@@ -8,19 +8,24 @@
 #' @param output_dir If not `NULL`, then the generated model and dynwrap 
 #'   dataset will be written to files in this directory.
 #' @param make_plots Whether or not to generate an overview of the dataset.
+#' 
 #' @inheritParams wrap_dataset
 #' 
 #' @export
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
 #' @importFrom readr write_rds
+#' @importFrom methods is
 generate_dataset <- function(
   model, 
   output_dir = NULL,
   make_plots = FALSE, 
-  store_grn = FALSE,
-  store_propensity_ratios = FALSE
+  store_dimred = model$simulation_params$compute_dimred,
+  store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
+  store_propensity_ratios = model$simulation_params$compute_propensity_ratios
 ) {
+  assert_that(is(model, "dyngen::init"))
+  
   model <- model %>% 
     generate_tf_network() %>% 
     generate_feature_network() %>% 
@@ -34,7 +39,7 @@ generate_dataset <- function(
     wrap_dataset(
       model, 
       store_dimred = store_dimred, 
-      store_grn = store_grn,
+      store_cellwise_grn = store_cellwise_grn,
       store_propensity_ratios = store_propensity_ratios
     )
   
