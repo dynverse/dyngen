@@ -98,42 +98,42 @@ kinetics_default <- function() {
   sampler_tfs <-
     function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
       feature_info %>%  mutate(
-        transcription_rate = transcription_rate %|% runif(n(), 1, 2),
+        transcription_rate = transcription_rate %|% runif(n(), 10, 20),
         translation_rate = translation_rate %|% runif(n(), 100, 150),
         mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
         protein_halflife = protein_halflife %|% runif(n(), 5, 10),
         independence = independence %|% 1,
-        splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
+        splicing_rate = splicing_rate %|% (log(2) / 2)
       )
     }
   
-  sampler_nontfs <- 
-    function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
-      if (!is.null(feature_info) && nrow(feature_info) > 0) {
-        real_kinetics <- .download_cacheable_file(
-          url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
-          cache_dir = model$download_cache_dir, 
-          verbose = model$verbose
-        )
-        smpld <- 
-          real_kinetics %>% 
-          sample_n(nrow(feature_info), replace = TRUE) %>% 
-          select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
-        feature_info %>% 
-          mutate(
-            # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
-            # See data-raw/decay_rates.R for more info
-            transcription_rate = transcription_rate %|% smpld$transcription_rate,
-            translation_rate = translation_rate %|% smpld$translation_rate,
-            mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
-            protein_halflife = protein_halflife %|% smpld$protein_halflife,
-            independence = independence %|% runif(n(), 0, 1),
-            splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
-          )
-      } else {
-        feature_info
-      }
-    }
+    # sampler_nontfs <- 
+    #   function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
+    #     if (!is.null(feature_info) && nrow(feature_info) > 0) {
+    #       real_kinetics <- .download_cacheable_file(
+    #         url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
+    #         cache_dir = model$download_cache_dir, 
+    #         verbose = model$verbose
+    #       )
+    #       smpld <- 
+    #         real_kinetics %>% 
+    #         sample_n(nrow(feature_info), replace = TRUE) %>% 
+    #         select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
+    #       feature_info %>% 
+    #         mutate(
+    #           # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
+    #           # See data-raw/decay_rates.R for more info
+    #           transcription_rate = transcription_rate %|% smpld$transcription_rate,
+    #           translation_rate = translation_rate %|% smpld$translation_rate,
+    #           mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
+    #           protein_halflife = protein_halflife %|% smpld$protein_halflife,
+    #           independence = independence %|% runif(n(), 0, 1),
+    #           splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
+    #         )
+    #     } else {
+    #       feature_info
+    #     }
+    #   }
   
   sampler_interactions <-
     function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
@@ -145,7 +145,7 @@ kinetics_default <- function() {
         )
     }
   
-  lst(sampler_tfs, sampler_nontfs, sampler_interactions)
+  lst(sampler_tfs, sampler_nontfs = sampler_tfs, sampler_interactions)
 }
 
 
