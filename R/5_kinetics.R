@@ -97,7 +97,7 @@ generate_kinetics <- function(model) {
 kinetics_default <- function() {
   sampler_tfs <-
     function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
-      feature_info %>%  mutate(
+      feature_info %>% mutate(
         transcription_rate = transcription_rate %|% runif(n(), 10, 20),
         translation_rate = translation_rate %|% runif(n(), 100, 150),
         mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
