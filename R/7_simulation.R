@@ -325,9 +325,9 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       NULL
     }
   
-  propensity_ratios <- 
+  log_propensity_ratios <- 
     if (sim_params$compute_propensity_ratios) {
-      .generate_cells_compute_propensity_rations(model, reaction_propensities)
+      .generate_cells_compute_log_propensity_ratios(model, reaction_propensities)
     } else {
       NULL
     }
@@ -342,7 +342,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   lst(
     meta, counts, cellwise_grn, 
     reaction_firings, reaction_propensities, 
-    propensity_ratios,
+    log_propensity_ratios,
     kd_multiplier, perturbed_parameters
   )
 }
@@ -467,7 +467,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   sim_meta
 }
 
-.generate_cells_compute_propensity_rations <- function(model, reaction_propensities) {
+.generate_cells_compute_log_propensity_ratios <- function(model, reaction_propensities) {
   feature_info <- model$feature_info
   sim_system <- model$simulation_system
   
@@ -511,7 +511,8 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   
   # Calculate the ratio between these propensities, which is the ground truth velocities.
   propensity_ratios <- production_propensity / degradation_propensity
-  propensity_ratios@x[is.na(propensity_ratios@x)] <- 0
+  propensity_ratios@x[is.na(propensity_ratios@x)] <- 1
+  propensity_ratios@x <- log10(propensity_ratios@x)
   propensity_ratios <- Matrix::drop0(propensity_ratios)
   colnames(propensity_ratios) <- feature_ids
   
