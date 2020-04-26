@@ -168,76 +168,105 @@ bblego_linear <- function(
     start = FALSE,
     burn = burn,
     time = case_when(
-      type == "flipflop" ~ num_modules * 30,
-      num_modules == 1 ~ 20,
-      num_modules == 2 ~ 30,
-      TRUE ~ as.numeric(num_modules) * 10
+      type == "flipflop" ~ num_modules * 60,
+      num_modules == 1 ~ 40,
+      num_modules == 2 ~ 60,
+      TRUE ~ as.numeric(num_modules) * 30
     )
   )
   
   lst(module_info, module_network, expression_patterns)
 }
 
+
+
 #' @rdname bblego
 #' @export
 bblego_branching <- function(
-  from, 
-  to, 
+  from,
+  to,
   type = "simple",
-  num_modules = length(to) + 3,
+  num_steps = 3,
+  num_modules = 2 + length(to) * (3 + num_steps),
   burn = FALSE
 ) {
+  reversible <- FALSE
+  
   assert_that(
     length(to) >= 2,
-    num_modules >= length(to) + 3
+    num_modules >= (3 + num_steps) * length(to) + 2
   )
-  
+
   type <- match.arg(type)
-  
-  lin_length <- num_modules - length(to)
-  
-  my_module_ids <- paste0(from, seq_len(lin_length-1))
-  notmy_module_ids <- paste0(from, lin_length)
-  our_module_ids <- paste0(from, seq(lin_length + 1, num_modules))
-  their_module_ids <- paste0(to, 1)
-  module_ids <- c(my_module_ids, notmy_module_ids, our_module_ids, their_module_ids)
-  
+
+  num_start <- num_modules - (3 + num_steps) * length(to) - 1
+  starts <- paste0("START", seq_len(num_start)-1)
+  xor <- "XOR"
+  me <- paste0("step", to, "0") %>% set_names(to)
+  notme <- paste0("not", to) %>% set_names(to)
+  meandnotrest <- paste0(to, "andnotrest") %>% set_names(to)
+  step_groups <- map(to, ~ paste0("step", ., seq_len(num_steps))) %>% set_names(to)
+  their <- paste0(to, "1")
+
   module_info <- tibble(
-    module_id = c(my_module_ids, notmy_module_ids, our_module_ids),
-    basal = ifelse(module_id == notmy_module_ids, 1, 0),
-    burn = basal > 0 | burn,
-    independence = 1
+    tmp = c(starts, me, notme, meandnotrest, xor, unlist(step_groups)),
+    module_id = paste0(from, seq_along(tmp)),
+    basal = ifelse(tmp %in% notme, 1, 0),
+    burn = basal > 0,
+    independence = ifelse(tmp %in% c(meandnotrest, unlist(step_groups)), 0, ifelse(tmp %in% me, .5, 1))
   )
-  
+  name_map <- c(module_info %>% select(tmp, module_id) %>% deframe(), set_names(their, their))
+  module_info <- module_info %>% select(-tmp)
+
   module_network <- bind_rows(
-    modnet_chain(my_module_ids),
-    modnet_edge(last(my_module_ids), our_module_ids),
-    modnet_edge(first(my_module_ids), notmy_module_ids, effect = -1L, strength = 50),
-    modnet_edge(notmy_module_ids, our_module_ids, effect = -1L, strength = 10),
-    modnet_edge(our_module_ids, our_module_ids, strength = 2),
-    modnet_pairwise(our_module_ids, effect = -1L, strength = 10),
-    modnet_edge(our_module_ids, their_module_ids)
+    modnet_chain(starts),
+    modnet_edge(last(starts), me),
+    modnet_pairwise(me, effect = -1L, strength = 10),
+    
+    modnet_edge(me, notme, effect = -1L, strength = 100),
+    modnet_edge(me, meandnotrest),
+    modnet_pairwise(notme, meandnotrest),
+    modnet_edge(meandnotrest, xor),
+    map_df(to, function(too) {
+      bind_rows(
+        modnet_edge(me[[too]], step_groups[[too]]),
+        modnet_edge(xor, step_groups[[too]])
+      )
+    }),
+    modnet_edge(map_chr(step_groups, last), their)
   )
+  if (!reversible) {
+    module_network <- module_network %>% bind_rows(
+      modnet_self(me, effect = 1L, strength = 2),
+    )
+  }
   
+  module_network <- module_network %>% 
+    mutate(
+      from = name_map[from], 
+      to = name_map[to],
+      hill = 4 # override hill parameter to counter the repeated AND gates
+    )
+
   expression_patterns <- bind_rows(
     tibble(
       from = paste0("s", from),
       to = paste0("s", !!from, "mid"),
-      module_progression = paste0("+", my_module_ids, collapse = ","),
+      module_progression = paste0("+", name_map[c(starts, notme)], collapse = ","),
       start = FALSE,
       burn = burn,
-      time = num_modules * 10
+      time = (length(starts) + 1) * 20
     ),
     tibble(
       from = paste0("s", from, "mid"),
       to = paste0("s", to),
-      module_progression = paste0("+", our_module_ids),
+      module_progression = map_chr(!!to, ~ paste0("+", name_map[c(me[[.]], meandnotrest[[.]], xor, step_groups[[.]])], collapse = ",")),
       start = FALSE,
       burn = burn,
-      time = 20
+      time = (num_steps + 1) * 30
     )
   )
-  
+
   lst(module_info, module_network, expression_patterns)
 }
 

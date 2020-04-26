@@ -22,7 +22,8 @@ bblego_branching(
   from,
   to,
   type = "simple",
-  num_modules = length(to) + 3,
+  num_steps = 3,
+  num_modules = 2 + length(to) * (3 + num_steps),
   burn = FALSE
 )
 
