@@ -4,7 +4,12 @@
 \alias{plot_gold_simulations}
 \title{Visualise the simulations using the dimred}
 \usage{
-plot_gold_simulations(model, detailed = FALSE, mapping = aes(comp_1, comp_2))
+plot_gold_simulations(
+  model,
+  detailed = FALSE,
+  mapping = aes(comp_1, comp_2),
+  highlight = 0
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
@@ -12,6 +17,8 @@ plot_gold_simulations(model, detailed = FALSE, mapping = aes(comp_1, comp_2))
 \item{detailed}{Whether or not to colour according to each separate sub-edge in the gold standard.}
 
 \item{mapping}{Which components to plot.}
+
+\item{highlight}{Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.}
 }
 \description{
 Visualise the simulations using the dimred

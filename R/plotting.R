@@ -231,9 +231,10 @@ plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
 #' @param detailed Whether or not to colour according to each separate sub-edge in the gold standard.
 #' @param mapping Which components to plot.
+#' @param highlight Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.
 #' 
 #' @export
-plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2)) {
+plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2), highlight = 0) {
   plot_df <- 
     bind_cols(
       model$gold_standard$meta,
@@ -257,8 +258,8 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
   }
   
   ggplot(mapping = mapping) +
-    geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i > 0), colour = "darkgray") +
-    geom_path(aes(colour = edge, group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == 0), size = 2) +
+    geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i != highlight), colour = "darkgray") +
+    geom_path(aes(colour = edge, group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == highlight), size = 2) +
     theme_bw()
 }
 
