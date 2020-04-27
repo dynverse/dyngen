@@ -335,7 +335,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   meta <- meta %>% mutate(simulation_i) %>% select(simulation_i, everything())
   
   # only store if specifically asked for
-  if (sim_params$store_reaction_propensities) {
+  if (!sim_params$store_reaction_propensities) {
     reaction_propensities <- NULL
   }
   
