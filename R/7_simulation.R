@@ -44,6 +44,7 @@ generate_cells <- function(model) {
     reaction_firings = do.call(rbind, map(simulations, "reaction_firings")),
     reaction_propensities = do.call(rbind, map(simulations, "reaction_propensities")),
     log_propensity_ratios = do.call(rbind, map(simulations, "log_propensity_ratios")),
+    net_propensity = do.call(rbind, map(simulations, "net_propensity")),
     kd_multiplier = do.call(rbind, map(simulations, "kd_multiplier")),
     perturbed_parameters = do.call(rbind, map(simulations, "perturbed_parameters"))
   )
@@ -325,12 +326,20 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
       NULL
     }
   
-  log_propensity_ratios <- 
+  # log_propensity_ratios <- 
+  #   if (sim_params$compute_log_propensity_ratios) {
+  #     .generate_cells_compute_log_propensity_ratios(model, reaction_propensities)
+  #   } else {
+  #     NULL
+  #   }
+  out <- 
     if (sim_params$compute_log_propensity_ratios) {
       .generate_cells_compute_log_propensity_ratios(model, reaction_propensities)
     } else {
-      NULL
+      lst()
     }
+  log_propensity_ratios <- out$ratios
+  net_propensity <- out$diff
   
   meta <- meta %>% mutate(simulation_i) %>% select(simulation_i, everything())
   
@@ -342,7 +351,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   lst(
     meta, counts, cellwise_grn, 
     reaction_firings, reaction_propensities, 
-    log_propensity_ratios,
+    log_propensity_ratios, net_propensity,
     kd_multiplier, perturbed_parameters
   )
 }
@@ -516,7 +525,11 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   propensity_ratios <- Matrix::drop0(propensity_ratios)
   colnames(propensity_ratios) <- feature_ids
   
-  propensity_ratios
+  propensity_diff <- production_propensity - degradation_propensity
+  propensity_diff@x[is.na(propensity_diff@x)] <- 0
+  colnames(propensity_diff) <- feature_ids
+  
+  lst(ratios = propensity_ratios, diff = propensity_diff)
 }
 
 #' @param num_simulations The number of simulations to run.

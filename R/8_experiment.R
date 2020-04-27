@@ -76,9 +76,11 @@ generate_experiment <- function(model) {
   
   if (model$simulation_params$compute_log_propensity_ratios) {
     sim_log_propensity_ratios <- model$simulations$log_propensity_ratios[step_ixs, , drop = FALSE]
-    rownames(sim_log_propensity_ratios) <- cell_info$cell_id
+    sim_net_propensity <- model$simulations$net_propensity[step_ixs, , drop = FALSE]
+    rownames(sim_net_propensity) <- rownames(sim_log_propensity_ratios) <- cell_info$cell_id
   } else {
     sim_log_propensity_ratios <- NULL
+    sim_net_propensity <- NULL
   }
   
   # combine into final count matrix
@@ -89,7 +91,8 @@ generate_experiment <- function(model) {
     feature_info =  model$feature_info,
     cell_info = cell_info,
     cellwise_grn = sim_cellwise_grn,
-    log_propensity_ratios = sim_log_propensity_ratios
+    log_propensity_ratios = sim_log_propensity_ratios,
+    net_propensity = sim_net_propensity
   )
   
   model
