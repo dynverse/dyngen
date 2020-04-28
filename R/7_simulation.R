@@ -482,7 +482,8 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   
   # Get the names of the genes and corresponding mRNA molecules
   feature_ids <- feature_info$feature_id
-  relevant_molecules <- feature_info$mol_mrna
+  relevant_molecules <- c(feature_info$mol_mrna, feature_info$mol_premrna)
+  map <- set_names(relevant_molecules, c(feature_ids, feature_ids))
   
   # Extract for each spliced mRNA its relevant reactions.
   reaction_effects <- map_dfr(
@@ -498,7 +499,8 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     }) %>%
     mutate(
       row = row_number(),
-      molecule_ix = match(feature_id, relevant_molecules)
+      gene = map[feature_id],
+      molecule_ix = match(gene, feature_ids)
     )
   
   # Get the propensities of the relevant reactions
@@ -507,14 +509,14 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   # Get the propensities of production reactions, per mRNA
   production_mat <- with(
     reaction_effects %>% filter(effect > 0),
-    Matrix::sparseMatrix(i = row, j = molecule_ix, x = effect, dims = c(nrow(reaction_effects), length(relevant_molecules)))
+    Matrix::sparseMatrix(i = row, j = molecule_ix, x = effect, dims = c(nrow(reaction_effects), length(feature_ids)))
   )
   production_propensity <- propensities %*% production_mat
   
   # Get the propensities of degradation reactions, per mRNA.
   degradation_mat <- with(
     reaction_effects %>% filter(effect < 0),
-    Matrix::sparseMatrix(i = row, j = molecule_ix, x = 1, dims = c(nrow(reaction_effects), length(relevant_molecules)))
+    Matrix::sparseMatrix(i = row, j = molecule_ix, x = 1, dims = c(nrow(reaction_effects), length(feature_ids)))
   )
   degradation_propensity <- propensities %*% degradation_mat
   
