@@ -483,7 +483,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   # Get the names of the genes and corresponding mRNA molecules
   feature_ids <- feature_info$feature_id
   relevant_molecules <- c(feature_info$mol_mrna, feature_info$mol_premrna)
-  map <- set_names(relevant_molecules, c(feature_ids, feature_ids))
+  map <- set_names(c(feature_ids, feature_ids), relevant_molecules)
   
   # Extract for each spliced mRNA its relevant reactions.
   reaction_effects <- map_dfr(
