@@ -22,7 +22,7 @@ generate_dataset <- function(
   make_plots = FALSE, 
   store_dimred = model$simulation_params$compute_dimred,
   store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
-  store_log_propensity_ratios = model$simulation_params$compute_log_propensity_ratios
+  store_rna_velocity = model$simulation_params$compute_rna_velocity
 ) {
   assert_that(is(model, "dyngen::init"))
   
@@ -40,7 +40,7 @@ generate_dataset <- function(
       model, 
       store_dimred = store_dimred, 
       store_cellwise_grn = store_cellwise_grn,
-      store_log_propensity_ratios = store_log_propensity_ratios
+      store_rna_velocity = store_rna_velocity
     )
   
   # write to file

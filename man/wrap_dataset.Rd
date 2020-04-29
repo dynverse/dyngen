@@ -8,7 +8,7 @@ wrap_dataset(
   model,
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_dimred = !is.null(model$experiment$dimred),
-  store_log_propensity_ratios = !is.null(model$experiment$log_propensity_rations)
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ wrap_dataset(
 
 \item{store_dimred}{Whether or not to store the dimensionality reduction constructed on the true counts.}
 
-\item{store_log_propensity_ratios}{WHether or not to store the log propensity ratios.}
+\item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 }
 \description{
 The output of this object can be used with \pkg{dyno}.

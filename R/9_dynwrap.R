@@ -5,7 +5,7 @@
 #' @param model A dyngen output model for which the experiment has been emulated with [generate_experiment()].
 #' @param store_cellwise_grn Whether or not to also store cellwise GRN information.
 #' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
-#' @param store_log_propensity_ratios WHether or not to store the log propensity ratios.
+#' @param store_rna_velocity WHether or not to store the log propensity ratios.
 #' 
 #' @export
 #' @importFrom dynwrap wrap_expression add_trajectory add_dimred add_regulatory_network
@@ -13,7 +13,7 @@ wrap_dataset <- function(
   model,
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_dimred = !is.null(model$experiment$dimred),
-  store_log_propensity_ratios = !is.null(model$experiment$log_propensity_rations)
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
   assert_that(
     !is.null(model$experiment), 
@@ -73,11 +73,10 @@ wrap_dataset <- function(
       )
   }
   
-  if (store_log_propensity_ratios) {
+  if (store_rna_velocity) {
     dataset <- dataset %>% extend_with(
-      "dynwrap::with_log_propensity_ratios",
-      log_propensity_ratios = model$experiment$log_propensity_ratios,
-      net_propensity = model$experiment$net_propensity
+      "dynwrap::with_rna_velocity",
+      rna_velocity = model$experiment$rna_velocity
     )
   }
   
