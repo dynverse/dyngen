@@ -490,8 +490,8 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     }) %>%
     mutate(
       row = row_number(),
-      gene = map[feature_id],
-      molecule_ix = match(gene, feature_ids)
+      feature_id = map[feature_id],
+      molecule_ix = match(feature_id, feature_ids)
     )
   
   # Get the propensities of the relevant reactions
