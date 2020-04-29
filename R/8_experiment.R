@@ -74,11 +74,11 @@ generate_experiment <- function(model) {
     sim_cellwise_grn <- NULL
   }
   
-  if (model$simulation_params$compute_log_propensity_ratios) {
-    sim_log_propensity_ratios <- model$simulations$log_propensity_ratios[step_ixs, , drop = FALSE]
-    rownames(sim_log_propensity_ratios) <- cell_info$cell_id
+  if (model$simulation_params$compute_rna_velocity) {
+    sim_rna_velocity <- model$simulations$rna_velocity[step_ixs, , drop = FALSE]
+    rownames(sim_rna_velocity) <- cell_info$cell_id
   } else {
-    sim_log_propensity_ratios <- NULL
+    sim_rna_velocity <- NULL
   }
   
   # combine into final count matrix
@@ -89,7 +89,7 @@ generate_experiment <- function(model) {
     feature_info =  model$feature_info,
     cell_info = cell_info,
     cellwise_grn = sim_cellwise_grn,
-    log_propensity_ratios = sim_log_propensity_ratios
+    rna_velocity = sim_rna_velocity
   )
   
   model
