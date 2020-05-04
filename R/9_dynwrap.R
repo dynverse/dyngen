@@ -23,6 +23,7 @@ wrap_dataset <- function(
   dataset <- wrap_expression(
     id = model$id,
     counts = model$experiment$counts_mrna,
+    counts_unspliced = model$experiment$counts_premrna,
     expression = as(log2(model$experiment$counts_mrna + 1), "dgCMatrix"),
     expression_unspliced = as(log2(model$experiment$counts_premrna + 1), "dgCMatrix"),
     expression_protein = as(log2(model$experiment$counts_protein + 1), "dgCMatrix"),
