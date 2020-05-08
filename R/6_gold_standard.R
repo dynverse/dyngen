@@ -207,16 +207,24 @@ gold_standard_default <- function(
 }
 
 .generate_gold_standard_generate_network <- function(model) {
-  gs_dimred <- model$gold_standard$dimred
-  gs_meta <- model$gold_standard$meta
-  
-  gs_meta %>% 
+  model$backbone$expression_patterns %>%
     filter(!burn) %>% 
-    mutate(i = row_number()) %>% 
-    group_by(from, to) %>% 
-    summarise(
-      length = sqrt(sum((gs_dimred[i[-1], , drop = FALSE] - gs_dimred[i[-n()], , drop = FALSE])^2)),
+    transmute(
+      from, 
+      to,
+      length = time / sum(time) * length(time),
       directed = TRUE
-    ) %>% 
-    ungroup()
+    )
+  # gs_dimred <- model$gold_standard$dimred
+  # gs_meta <- model$gold_standard$meta
+  # 
+  # gs_meta %>% 
+  #   filter(!burn) %>% 
+  #   mutate(i = row_number()) %>% 
+  #   group_by(from, to) %>% 
+  #   summarise(
+  #     length = sqrt(sum((gs_dimred[i[-1], , drop = FALSE] - gs_dimred[i[-n()], , drop = FALSE])^2)),
+  #     directed = TRUE
+  #   ) %>% 
+  #   ungroup()
 }
