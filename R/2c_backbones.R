@@ -339,7 +339,7 @@ backbone_converging <- function() {
     "preC", "sC", "+C3", FALSE, FALSE, 60,
     "sB", "sD", "+D1,+C1,+C2,+C3", FALSE, FALSE, 100,
     "sC", "sD", "+D1,+B1,+B2,+B3", FALSE, FALSE, 100,
-    "sD", "sE", "+E1,+E2,+E3", FALSE, FALSE, 100
+    "sD", "sE", "+E1,+E2,+E3,+E4,+E5", FALSE, FALSE, 150
   )
   
   backbone(module_info, module_network, expression_patterns)
