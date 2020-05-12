@@ -42,11 +42,14 @@ modnet_pairwise <- function(from, to = from, self = FALSE, effect = 1L, strength
     length(strength) == 1 || length(strength) == max_len,
     length(hill) == 1 || length(hill) == max_len
   )
-  crossing(
+  df <- crossing(
     fromi = seq_along(from),
     toi = seq_along(to)
-  ) %>% 
-    filter(fromi != toi) %>% 
+  ) 
+  if (!self) {
+    df <- df %>% filter(fromi != toi)
+  }
+  df %>% 
     transmute(
       from = from[fromi],
       to = to[toi],
