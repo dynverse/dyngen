@@ -20,14 +20,14 @@ wrap_dataset <- function(
     msg = "model should be an object that was initialised with `initialise_model()`."
   )
   
+  counts <- model$experiment$counts_mrna + model$experiment$counts_premrna
   dataset <- wrap_expression(
     id = model$id,
-    counts = model$experiment$counts_mrna,
+    counts = counts,
+    counts_spliced = model$experiment$counts_mrna,
     counts_unspliced = model$experiment$counts_premrna,
     counts_protein = model$experiment$counts_protein,
-    expression = as(log2(model$experiment$counts_mrna + 1), "dgCMatrix"),
-    expression_unspliced = as(log2(model$experiment$counts_premrna + 1), "dgCMatrix"),
-    expression_protein = as(log2(model$experiment$counts_protein + 1), "dgCMatrix"),
+    expression = as(log2(counts + 1), "dgCMatrix"),
     cell_info = model$experiment$cell_info %>% select(-from, -to, -time),
     feature_info = model$experiment$feature_info
   ) %>% 
