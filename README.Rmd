@@ -9,7 +9,7 @@ editor_options:
 knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
 ```
 
-[![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen) [![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)
+[![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen) [![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
 
 A package for generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps:
 
@@ -227,7 +227,7 @@ Here is an example of a bifurcating trajectory.
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
   bblego_linear("A", "B", type = "flipflop", num_modules = 4),
-  bblego_branching("B", c("C", "D"), type = "simple", num_modules = 6),
+  bblego_branching("B", c("C", "D"), type = "simple"),
   bblego_end("C", type = "doublerep2", num_modules = 4),
   bblego_end("D", type = "doublerep1", num_modules = 7)
 )

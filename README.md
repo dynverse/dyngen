@@ -3,7 +3,7 @@ dyngen
 
 [![Build
 Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen)
-[![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)
+[![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
 
 A package for generating synthetic single-cell data starting from
 regulatory networks. The data is generated in several steps:
@@ -115,7 +115,7 @@ parameters of the SSA simulation.
 model <- generate_kinetics(model)
 ```
 
-    ## Generating kinetics for 69 features
+    ## Generating kinetics for 78 features
     ## Generating formulae
 
 ``` r
@@ -143,7 +143,7 @@ model <- generate_gold_standard(model)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
@@ -373,11 +373,11 @@ print(backbone$expression_patterns)
     ## # A tibble: 5 x 6
     ##   from  to    module_progression              start burn   time
     ##   <chr> <chr> <chr>                           <lgl> <lgl> <dbl>
-    ## 1 sBurn sA    +A1,+A2,+A3,+B2,+D3             TRUE  TRUE     40
-    ## 2 sA    sB    +B1                             FALSE FALSE    40
-    ## 3 sB    sC    +C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2 FALSE FALSE    60
-    ## 4 sB    sD    +D1,+D2,+D4,+D5                 FALSE FALSE    80
-    ## 5 sC    sA    +A1,+A2                         FALSE FALSE    40
+    ## 1 sBurn sA    +A1,+A2,+A3,+B2,+D3             TRUE  TRUE     60
+    ## 2 sA    sB    +B1                             FALSE FALSE    60
+    ## 3 sB    sC    +C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2 FALSE FALSE    80
+    ## 4 sB    sD    +D1,+D2,+D4,+D5                 FALSE FALSE   120
+    ## 5 sC    sA    +A1,+A2                         FALSE FALSE    60
 
 This allows you to simulate the following dataset.
 
@@ -395,7 +395,7 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 print(out$plot)
@@ -416,7 +416,7 @@ Here is an example of a bifurcating trajectory.
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
   bblego_linear("A", "B", type = "flipflop", num_modules = 4),
-  bblego_branching("B", c("C", "D"), type = "simple", num_modules = 6),
+  bblego_branching("B", c("C", "D"), type = "simple"),
   bblego_end("C", type = "doublerep2", num_modules = 4),
   bblego_end("D", type = "doublerep1", num_modules = 7)
 )
@@ -432,7 +432,7 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 print(out$plot)
@@ -446,6 +446,18 @@ Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full
 list of changes.
 
 <!-- This section gets automatically generated from NEWS.md -->
+
+### Recent changes in dyngen 0.3.1
+
+#### MAJOR CHANGES:
+
+  - `wrap_dataset()`: Outputted `$counts` now contains counts of both
+    spliced and unspliced reads, whereas `$counts_unspliced` and
+    `$counts_spliced` contains separated counts.
+
+#### MINOR CHANGES:
+
+  - Added logo to package.
 
 ### Recent changes in dyngen 0.3.0 (2020-04-06)
 
@@ -494,11 +506,3 @@ list of changes.
   - Fix graph plotting mixup of interaction effects (up/down).
 
   - Made a fix to the computation of `feature_info$max_protein`.
-
-### Recent changes in dyngen 0.2.1 (2019-07-17)
-
-  - MAJOR CHANGES: Custom backbones can be defined using backbone lego
-    pieces. See `?bblego` for more information.
-
-  - MAJOR CHANGES: Splicing reactions have been reworked to better
-    reflect biology.

@@ -4,6 +4,10 @@
 
 * `wrap_dataset()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
   `$counts_unspliced` and `$counts_spliced` contains separated counts.
+  
+## MINOR CHANGES:
+
+* Added logo to package.
 
 # dyngen 0.3.0 (2020-04-06)
 
