@@ -17,8 +17,8 @@ rmarkdown::render("vignettes/backbones.Rmd", output_format = "github_document")
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 30,
-  fig.height = 25,
+  fig.width = 20,
+  fig.height = 15,
   eval = FALSE
 )
 ```
@@ -241,7 +241,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 out$plot
 ```
 
-# Linear fixed
+# Linear simple
 ```{r linear_simple}
 backbone <- backbone_linear_simple()
 
@@ -258,7 +258,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 out$plot
 ```
 
-# Cycle fixed
+# Cycle simple
 ```{r cycle_simple}
 backbone <- backbone_cycle_simple()
 

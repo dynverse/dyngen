@@ -8,20 +8,20 @@
 #' @param store_rna_velocity WHether or not to store the log propensity ratios.
 #' 
 #' @export
-#' @importFrom dynwrap wrap_expression add_trajectory add_dimred add_regulatory_network
 wrap_dataset <- function(
   model,
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_dimred = !is.null(model$experiment$dimred),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
+  requireNamespace("dynwrap")
   assert_that(
     !is.null(model$experiment), 
     msg = "model should be an object that was initialised with `initialise_model()`."
   )
   
   counts <- model$experiment$counts_mrna + model$experiment$counts_premrna
-  dataset <- wrap_expression(
+  dataset <- dynwrap::wrap_expression(
     id = model$id,
     counts = counts,
     counts_spliced = model$experiment$counts_mrna,
@@ -31,16 +31,18 @@ wrap_dataset <- function(
     cell_info = model$experiment$cell_info %>% select(-from, -to, -time),
     feature_info = model$experiment$feature_info
   ) %>% 
-    add_trajectory(
+    dynwrap::add_trajectory(
       milestone_network = model$gold_standard$network,
       progressions = model$experiment$cell_info %>% select(cell_id, from, to, percentage = time)
     )
   
   if (store_dimred) {
+    dimred <- model$simulations$dimred[model$experiment$cell_info$step_ix, ]
+    rownames(dimred) <- model$experiment$cell_info$cell_id
+    
     dataset <- dataset %>% 
-      add_dimred(
-        dimred = model$simulations$dimred[model$experiment$cell_info$step_ix, ] %>% 
-          magrittr::set_rownames(model$experiment$cell_info$cell_id),
+      dynwrap::add_dimred(
+        dimred = dimred,
         dimred_segment_points = model$gold_standard$dimred[!model$gold_standard$meta$burn,],
         dimred_segment_progressions = model$gold_standard$meta[!model$gold_standard$meta$burn,] %>% 
           select(from, to, percentage = time)

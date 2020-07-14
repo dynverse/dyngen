@@ -87,9 +87,9 @@ plot_backbone_modulenet <- function(model) {
     gr %>% 
     igraph::layout.graphopt(charge = .01, niter = 10000) %>% 
     dynutils::scale_minmax() %>% 
-    magrittr::set_rownames(nodes$name) %>% 
-    magrittr::set_colnames(c("x", "y")) %>% 
     as.data.frame() 
+  rownames(layout) <- nodes$name
+  colnames(layout) <- c("x", "y")
   
   r <- .03
   cap <- circle(4, "mm")
@@ -181,9 +181,10 @@ plot_feature_network <- function(
   gr <- tbl_graph(nodes = feature_info, edges = feature_network)
   layout <- igraph::layout_with_fr(gr) %>% 
     dynutils::scale_minmax() %>%
-    magrittr::set_rownames(feature_info$feature_id) %>%
-    magrittr::set_colnames(c("x", "y")) %>%
     as.data.frame()
+  rownames(layout) <- feature_info$feature_id
+  colnames(layout) <- c("x", "y")
+  
   gr <- gr %>% activate(edges) %>% filter(is.na(effect) | effect != -2)
   
   cap <- circle(2.5, "mm")

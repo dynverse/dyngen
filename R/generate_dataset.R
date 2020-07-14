@@ -14,7 +14,6 @@
 #' @export
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
-#' @importFrom readr write_rds
 #' @importFrom methods is
 generate_dataset <- function(
   model, 
@@ -47,8 +46,8 @@ generate_dataset <- function(
   if (!is.null(output_dir)) {
     if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
-    write_rds(dataset, paste0(output_dir, "dataset.rds"), compress = "gz")
-    write_rds(model, paste0(output_dir, "model.rds"), compress = "gz")
+    saveRDS(dataset, paste0(output_dir, "dataset.rds"))
+    saveRDS(model, paste0(output_dir, "model.rds"))
   }
   
   if (make_plots) {
