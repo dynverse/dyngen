@@ -1,63 +1,61 @@
-Package: dyngen
 Type: Package
+Package: dyngen
 Title: Synthetic single cell data
 Version: 0.3.0
-Authors@R: c(
-    person(
-      "Robrecht", 
-      "Cannoodt", 
-      email = "rcannood@gmail.com", 
-      role = c("aut", "cre"),
-      comment = c(ORCID = "0000-0003-3641-729X")
-    ),
-    person(
-      "Wouter", 
-      "Saelens", 
-      email = "wouter.saelens@ugent.be", 
-      role = c("aut"), 
-      comment = c(ORCID = "0000-0002-7114-6248")
-    )
-  )
-Description: A toolkit for generating synthetic single cell data.
+Authors@R: 
+    c(person(given = "Robrecht",
+             family = "Cannoodt",
+             role = c("aut", "cre"),
+             email = "rcannood@gmail.com",
+             comment = c(ORCID = "0000-0003-3641-729X")),
+      person(given = "Wouter",
+             family = "Saelens",
+             role = "aut",
+             email = "wouter.saelens@ugent.be",
+             comment = c(ORCID = "0000-0002-7114-6248")))
+Description: A toolkit for generating synthetic single cell
+    data.
 License: MIT + file LICENSE
-LazyData: TRUE
-RoxygenNote: 7.1.0
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
 URL: https://github.com/dynverse/dyngen
 BugReports: https://github.com/dynverse/dyngen/issues
 Depends:
-  R (>= 3.0.0)
+    R (>= 3.0.0)
 Imports:
-  assertthat,
-  dplyr,
-  dynutils (>= 1.0.4),
-  dynwrap (>= 1.2.0),
-  GillespieSSA2 (>= 0.2.6),
-  ggplot2,
-  ggraph (>= 2.0),
-  ggrepel,
-  grDevices,
-  grid,
-  igraph,
-  lmds,
-  magrittr,
-  Matrix,
-  methods,
-  patchwork,
-  pbapply,
-  purrr,
-  readr,
-  rlang (>= 0.4.1),
-  stats,
-  tibble,
-  tidygraph,
-  tidyr,
-  utils,
-  viridis
+    assertthat,
+    dplyr,
+    dynutils (>= 1.0.4),
+    dynwrap (>= 1.2.0),
+    furrr,
+    ggplot2,
+    ggraph (>= 2.0),
+    ggrepel,
+    GillespieSSA2 (>= 0.2.7),
+    grDevices,
+    grid,
+    igraph,
+    lmds,
+    magrittr,
+    Matrix,
+    methods,
+    patchwork,
+    pbapply,
+    purrr,
+    readr,
+    rlang (>= 0.4.1),
+    stats,
+    tibble,
+    tidygraph,
+    tidyr,
+    utils,
+    viridis
 Suggests:
-  covr,
-  knitr,
-  rmarkdown,
-  testthat
-VignetteBuilder: knitr
+    covr,
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: TRUE
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
