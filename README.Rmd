@@ -1,17 +1,19 @@
 ---
-title: "dyngen"
-output: github_document
+output:
+  github_document:
+    html_preview: false
 editor_options: 
   chunk_output_type: console
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
 ```
 
-[![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen) [![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
+# dyngen
 
-A package for generating synthetic single-cell data starting from regulatory networks. The data is generated in several steps:
+[![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
+
+A multi-modal simulator for spearheading single-cell omics analyses. The data is generated in several steps:
 
 ![generation_overview](man/figures/generation_overview_v1.svg)
 

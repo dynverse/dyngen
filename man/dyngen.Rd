@@ -3,7 +3,7 @@
 \docType{package}
 \name{dyngen}
 \alias{dyngen}
-\title{dyngen: Synthetic single cell data}
+\title{dyngen: A multi-modal simulator for spearheading single-cell omics analyses}
 \description{
 A toolkit for generating synthetic single cell data.
 }

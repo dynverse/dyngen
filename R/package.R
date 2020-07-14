@@ -1,4 +1,4 @@
-#' dyngen: Synthetic single cell data
+#' dyngen: A multi-modal simulator for spearheading single-cell omics analyses
 #' 
 #' A toolkit for generating synthetic single cell data. 
 #'

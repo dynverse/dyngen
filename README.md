@@ -1,12 +1,11 @@
-dyngen
-================
+
+# dyngen
 
 [![Build
-Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen)
-[![codecov](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
+Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
 
-A package for generating synthetic single-cell data starting from
-regulatory networks. The data is generated in several steps:
+A multi-modal simulator for spearheading single-cell omics analyses. The
+data is generated in several steps:
 
 ![generation\_overview](man/figures/generation_overview_v1.svg)
 
@@ -278,8 +277,6 @@ out <- generate_dataset(
 )
 ```
 
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
-
 ``` r
 dataset <- out$dataset
 model <- out$model
@@ -395,8 +392,6 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
-
 ``` r
 print(out$plot)
 ```
@@ -431,8 +426,6 @@ out <-
   ) %>% 
   generate_dataset(make_plots = TRUE)
 ```
-
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 print(out$plot)
