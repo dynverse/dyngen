@@ -19,7 +19,7 @@
 #' 
 #' @importFrom stats rmultinom rnorm quantile
 #' @export
-generate_experiment <- function(model) {
+generate_experiment <- function(model, cell_id = "cell") {
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
   step_ixs <- .generate_experiment_sample_cells(model)
@@ -40,7 +40,7 @@ generate_experiment <- function(model) {
   cell_info <-
     cell_info %>% 
     mutate(
-      cell_id = paste0("cell", row_number())
+      cell_id = paste0(cell_id, row_number())
     ) %>% 
     select(cell_id, step_ix, simulation_i, sim_time, from, to, time, everything())
   
