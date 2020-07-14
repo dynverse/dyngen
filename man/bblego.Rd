@@ -69,6 +69,8 @@ one another and upregulate themselves. This causes a branching to occur in the t
 Various components might require a minimum number of components in order to work properly.}
 
 \item{burn}{Whether or not these components are part of the warm-up simulation.}
+
+\item{num_steps}{The number of branching steps to reduce the odds of double positive cells occurring.}
 }
 \description{
 You can use the \code{bblego} functions in order to create

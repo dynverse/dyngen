@@ -181,6 +181,7 @@ bblego_linear <- function(
 
 
 #' @rdname bblego
+#' @param num_steps The number of branching steps to reduce the odds of double positive cells occurring. 
 #' @export
 bblego_branching <- function(
   from,
