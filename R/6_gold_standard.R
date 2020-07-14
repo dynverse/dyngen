@@ -125,11 +125,13 @@ gold_standard_default <- function(
   gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state[tf_molecules] %>% as.matrix
   gold_sim_modules[[start_state]] <- c()
   
-  timer <- pbapply::timerProgressBar(
-    min = 0, 
-    max = nrow(mod_changes),
-    width = 50
-  )
+  if (model$verbose) {
+    timer <- pbapply::timerProgressBar(
+      min = 0, 
+      max = nrow(mod_changes),
+      width = 50
+    )
+  }
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
     to_ <- mod_changes$to_[[i]]
@@ -175,7 +177,7 @@ gold_standard_default <- function(
     meta <- tibble(from_, to_, time = time_out)
     counts <- state_out %>% Matrix::Matrix(sparse = TRUE)
       
-    pbapply::setTimerProgressBar(timer, value = i)
+    if (model$verbose) pbapply::setTimerProgressBar(timer, value = i)
     
     gold_sim_outputs[[i]] <- lst(meta, counts)
     

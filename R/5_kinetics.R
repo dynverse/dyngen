@@ -236,9 +236,9 @@ kinetics_default <- function() {
     )
   
   # generate formula per feature
-  out <- pbapply::pblapply(
+  out <- furrr:::future_map(
     seq_len(nrow(feature_info)),
-    cl = model$num_cores,
+    .progress = model$verbose,
     function(i) {
       info <- feature_info %>% extract_row_to_list(i)
       

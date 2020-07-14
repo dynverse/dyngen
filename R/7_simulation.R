@@ -28,10 +28,10 @@ generate_cells <- function(model) {
   # simulate cells one by one
   if (model$verbose) cat("Running ", nrow(model$simulation_params$experiment_params), " simulations\n", sep = "")
   simulations <- 
-    pbapply::pblapply(
-      X = seq_len(nrow(model$simulation_params$experiment_params)),
-      cl = model$num_cores,
-      FUN = .generate_cells_simulate_cell,
+    furrr::future_map(
+      seq_len(nrow(model$simulation_params$experiment_params)),
+      .generate_cells_simulate_cell,
+      .progress = model$verbose,
       model = model,
       reactions = reactions
     )

@@ -118,7 +118,7 @@ tf_network_default <- function(
   }
   
   model$feature_network <- 
-    bind_rows(tf_network) %>% 
+    bind_rows(unname(tf_network)) %>% 
     left_join(module_network %>% rename(from_module = from, to_module = to), by = c("from_module", "to_module"))
   
   model

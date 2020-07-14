@@ -13,7 +13,7 @@
 #' @import dynutils
 #' @import dynwrap
 #' @importFrom Matrix t Matrix sparseMatrix summary
-#' @importFrom pbapply pblapply 
+#' @importFrom furrr future_map
 #' @importFrom rlang %|%
 #'
 #' @docType package
