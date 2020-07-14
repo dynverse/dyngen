@@ -28,7 +28,7 @@ Imports:
     ggplot2,
     ggraph (>= 2.0),
     ggrepel,
-    GillespieSSA2 (>= 0.2.7),
+    GillespieSSA2 (>= 0.2.6),
     grDevices,
     grid,
     igraph,
