@@ -47,6 +47,9 @@ backbone <- function(
   module_network,
   expression_patterns
 ) {
+  # satisfy r cmd check
+  `.` <- module_id <- group <- group_colour <- basal <- NULL
+  
   assert_that(
     is.data.frame(module_info),
     module_info %has_names% c("module_id", "basal", "burn", "independence"),

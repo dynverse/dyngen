@@ -35,6 +35,9 @@ modnet_self <- function(mids, effect = 1L, strength = 1, hill = 2) {
   )
 }
 modnet_pairwise <- function(from, to = from, self = FALSE, effect = 1L, strength = 1, hill = 2) {
+  # satisfy r cmd check
+  fromi <- toi <- NULL
+
   max_len <- length(from) * ifelse(self, length(to), length(to) - 1)
   assert_that(
     self || length(from) == length(to),

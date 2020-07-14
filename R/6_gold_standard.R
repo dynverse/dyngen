@@ -48,6 +48,9 @@ gold_standard_default <- function(
 }
 
 .generate_gold_standard_mod_changes <- function(expression_patterns) {
+  # satisfy r cmd check
+  module_progression <- mod_diff <- substate <- mod_diff2 <- `.` <- from <- to <- from_ <- NULL
+  
   expression_patterns %>% 
     mutate(
       mod_diff = module_progression %>% strsplit("\\|"),
@@ -71,6 +74,10 @@ gold_standard_default <- function(
 
 #' @importFrom GillespieSSA2 compile_reactions
 .generate_gold_precompile_reactions <- function(model) {
+  # satisfy r cmd check
+  is_tf <- mol_premrna <- mol_mrna <- mol_protein <- val <- NULL
+  
+  
   # fetch paraneters and settings
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
@@ -102,6 +109,10 @@ gold_standard_default <- function(
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
 #' @importFrom GillespieSSA2 ssa ode_em
 .generate_gold_standard_simulations <- function(model, prep_data) {
+  # satisfy r cmd check
+  is_tf <- module_id <- mol_premrna <- mol_mrna <- mol_protein <- val <- from <- to <- 
+    substate <- burn <- time_per_edge <- simulation_i <- sim_time <- NULL
+  
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
   gold_params <- model$gold_standard_params
@@ -209,6 +220,9 @@ gold_standard_default <- function(
 }
 
 .generate_gold_standard_generate_network <- function(model) {
+  # satisfy r cmd check
+  burn <- from <- to <- time <- NULL
+  
   model$backbone$expression_patterns %>%
     filter(!burn) %>% 
     transmute(

@@ -63,6 +63,9 @@ bblego_linear <- function(
   num_modules = sample(4:6, 1),
   burn = FALSE
 ) {
+  # satisfy r cmd check
+  basal <- effect <- `.` <- NULL
+  
   assert_that(num_modules >= 1)
   
   module_ids <- c(
@@ -191,6 +194,9 @@ bblego_branching <- function(
   num_modules = 2 + length(to) * (3 + num_steps),
   burn = FALSE
 ) {
+  # satisfy r cmd check
+  tmp <- basal <- module_id <- NULL
+  
   reversible <- FALSE
   
   assert_that(
@@ -276,6 +282,9 @@ bblego_branching <- function(
 bblego_start <- dynutils::inherit_default_params(
   list(bblego_linear), 
   function(to, type, num_modules) {
+    # satisfy r cmd check
+    module_id <- basal <- NULL
+    
     out <- bblego_linear(
       from = "Burn", 
       to = to,
@@ -298,6 +307,9 @@ bblego_start <- dynutils::inherit_default_params(
 bblego_end <- dynutils::inherit_default_params(
   list(bblego_linear), 
   function(from, type, num_modules) {
+    # satisfy r cmd check
+    to <- time <- NULL
+    
     out <- bblego_linear(from, paste0("End", from), type = type, num_modules = num_modules)
     out$module_network <- out$module_network %>% filter(!grepl("^End", to))
     out$expression_patterns <- out$expression_patterns %>% mutate(

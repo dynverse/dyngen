@@ -20,6 +20,9 @@
 #' @importFrom stats rmultinom rnorm quantile
 #' @export
 generate_experiment <- function(model) {
+  # satisfy r cmd check
+  cell_id <- step_ix <- sim_time <- simulation_i <- from <- to <- time <- NULL
+  
   if (model$verbose) cat("Simulating experiment\n")
   # first sample the cells from the sample, using the desired number of cells
   step_ixs <- .generate_experiment_sample_cells(model)
@@ -102,6 +105,9 @@ generate_experiment <- function(model) {
   cell_info = tibble(cell_id = rownames(tsim_counts)), 
   sample_capture_rate = function(n) rnorm(n, 1, 0.05) %>% pmax(0)
 ) {
+  # satisfy r cmd check
+  num_molecules <- mult <- id <- NULL
+  
   # simulate library size variation from real data
   realsums <- Matrix::rowSums(realcount)
   dist_vals <- realsums / mean(realsums)
@@ -166,6 +172,9 @@ experiment_snapshot <- function(
   sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
   weight_bw = 0.1
 ) {
+  # satisfy r cmd check
+  realcounts <- NULL
+  
   if (is.null(realcount)) {
     data(realcounts, package = "dyngen", envir = environment())
     realcount <- sample(realcounts$name, 1)
@@ -186,6 +195,9 @@ experiment_synchronised <- function(
   num_timepoints = 8,
   pct_between = .75
 ) {
+  # satisfy r cmd check
+  realcounts <- NULL
+  
   if (is.null(realcount)) {
     data(realcounts, package = "dyngen", envir = environment())
     realcount <- sample(realcounts$name, 1)
@@ -200,6 +212,9 @@ experiment_synchronised <- function(
 }
 
 .generate_experiment_sample_cells <- function(model) {
+  # satisfy r cmd check
+  sim_time <- to <- time <- NULL
+  
   network <- 
     model$gold_standard$network
   
@@ -227,6 +242,9 @@ experiment_synchronised <- function(
   params,
   num_cells
 ) {
+  # satisfy r cmd check
+  pct <- cum_pct <- from <- to <- time <- `.` <- NULL
+  
   network <- 
     network %>%
     mutate(
@@ -264,6 +282,9 @@ experiment_synchronised <- function(
   params,
   num_cells
 ) {
+  # satisfy r cmd check
+  sim_time <- t_scale <- timepoint_group <- selectable <- pct <- cum_pct <- timepoint_group <- orig_ix <- NULL
+  
   sim_meta2 <- 
     sim_meta %>% 
     mutate(
@@ -294,6 +315,9 @@ experiment_synchronised <- function(
 }
 
 .generate_experiment_fetch_realcount <- function(model) {
+  # satisfy r cmd check
+  realcounts <- NULL
+  
   realcount_ <- model$experiment_params$realcount
   
   # download realcount if needed-

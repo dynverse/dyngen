@@ -22,6 +22,9 @@
 #' @importFrom GillespieSSA2 ssa
 #' @export
 generate_cells <- function(model) {
+  # satisfy r cmd check
+  time <- NULL
+  
   if (model$verbose) cat("Precompiling reactions for simulations\n")
   reactions <- .generate_cells_precompile_reactions(model)
   
@@ -137,6 +140,9 @@ kinetics_noise_none <- function() {
 #' @rdname kinetics_noise
 #' @export
 kinetics_noise_simple <- function(mean = 1, sd = .005) {
+  # satisfy r cmd check
+  mrna_halflife <- protein_halflife <- NULL
+  
   function(feature_info, feature_network) {
     feature_info <- 
       feature_info %>% 
@@ -159,6 +165,9 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
 }
 
 .generate_cells_simulate_cell <- function(simulation_i, model, reactions, verbose = FALSE, debug = FALSE) {
+  # satisfy r cmd check
+  time <- NULL
+  
   sim_params <- model$simulation_params
   sim_system <- model$simulation_system
   expr_params <- sim_params$experiment_params %>% extract_row_to_list(simulation_i)
@@ -368,6 +377,9 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
 }
 
 .generate_cells_compute_cellwise_grn <- function(feature_info, feature_network, new_initial_state, reactions, counts, sim) {
+  # satisfy r cmd check
+  feature_id <- transcription_rate <- from <- to <- reg_y_match <- `.` <- j <- transcription_rate <- ko_effect <- NULL
+  
   fn <- 
     feature_network %>% 
     left_join(feature_info %>% select(to = feature_id, transcription_rate), by = "to") %>% 
@@ -439,6 +451,8 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
 }
 
 .generate_cells_predict_state <- function(model) {
+  simulation_i <- time <- from <- to <- NULL
+  
   # fetch gold standard data
   gs_meta <- model$gold_standard$meta
   gold_ix <- !gs_meta$burn
@@ -488,6 +502,9 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
 }
 
 .generate_cells_compute_rna_velocity <- function(model, reaction_propensities) {
+  # satisfy r cmd check
+  feature_id <- NULL
+  
   feature_info <- model$feature_info
   sim_system <- model$simulation_system
   
@@ -497,7 +514,7 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   map <- set_names(c(feature_ids, feature_ids), relevant_molecules)
   
   # Extract for each spliced mRNA its relevant reactions.
-  reaction_effects <- map_dfr(
+  reaction_effects <- map_df(
     seq_along(sim_system$reactions),
     function(reaction_ix) {
       reaction <- sim_system$reactions[[reaction_ix]]

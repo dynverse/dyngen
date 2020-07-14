@@ -1,6 +1,6 @@
 #' @importFrom tidygraph tbl_graph activate
-#' @importFrom ggraph circle ggraph geom_edge_loop geom_edge_fan geom_node_circle geom_node_text geom_node_point theme_graph scale_edge_width_continuous geom_node_label
-#' @importFrom ggplot2 ggplot scale_fill_manual coord_equal scale_colour_manual scale_size_manual coord_equal labs geom_path theme_bw aes facet_wrap geom_line geom_text geom_step geom_point
+#' @importFrom ggplot2 ggsave labs aes coord_equal scale_colour_manual scale_size_manual facet_wrap geom_line geom_text ggplot theme_bw geom_path geom_point geom_step
+#' @importFrom ggraph circle geom_edge_fan geom_edge_loop geom_node_circle geom_node_text ggraph scale_edge_width_continuous theme_graph geom_node_label geom_node_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
 NULL
@@ -23,6 +23,10 @@ effect_colour <- function(effect) {
 #' 
 #' @export
 plot_backbone_statenet <- function(model, detailed = FALSE) {
+  # satisfy r cmd check 
+  from_ <- to_ <- from <- to <- mod_diff <- name <- time <- module_progression <- 
+    from_cap <- to_cap <- main <- NULL
+  
   edges <- model$backbone$expression_patterns
   
   large_cap <- 4
@@ -77,6 +81,9 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
 #' @importFrom igraph layout.graphopt V E
 #' @export
 plot_backbone_modulenet <- function(model) {
+  # satisfy r cmd check
+  module_id <- color <- from <- to <- strength <- effect <- name <- NULL
+  
   node_legend <- model$backbone$module_info %>% select(module_id, color) %>% deframe()
   
   nodes <- model$backbone$module_info %>% rename(name = module_id)
@@ -125,6 +132,10 @@ plot_feature_network <- function(
   show_targets = TRUE,
   show_hks = FALSE
 ) {
+  # satisfy r cmd check
+  module_id <- color <- is_tf <- is_hk <- color_by <- from <- to <- 
+    feature_id <- `.` <- edges <- effect <- NULL
+  
   # get feature info
   feature_info <- 
     model$feature_info %>%
@@ -215,6 +226,9 @@ plot_feature_network <- function(
 #' 
 #' @export
 plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
+  # satisfy r cmd check
+  comp_1 <- comp_2 <- sim_time <- simulation_i <- NULL
+  
   plot_df <- 
     bind_cols(
       model$simulations$meta,
@@ -236,6 +250,9 @@ plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
 #' 
 #' @export
 plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2), highlight = 0) {
+  # satisfy r cmd check
+  comp_1 <- comp_2 <- burn <- sim_time <- from_ <- to_ <- from <- to <- simulation_i <- edge <- NULL
+  
   plot_df <- 
     bind_cols(
       model$gold_standard$meta,
@@ -273,6 +290,9 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
 #' 
 #' @export
 plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes(comp_1, comp_2)) {
+  # satisfy r cmd check
+  comp_1 <- comp_2 <- sim_time <- burn <- simulation_i <- from <- to <- edge <- NULL
+  
   plot_df <- 
     bind_rows(
       bind_cols(
@@ -317,6 +337,10 @@ plot_gold_expression <- function(
   what = c("mol_premrna", "mol_mrna", "mol_protein"),
   label_changing = TRUE
 ) {
+  # satisfy r cmd check
+  from_ <- to_ <- edge <- is_tf <- mol <- val <- molecule <- value <- module_id <- 
+    type <- sim_time <- simulation_i <- burn <- from <- to <- time <- color <- NULL
+  
   assert_that(what %all_in% c("mol_premrna", "mol_mrna", "mol_protein"))
   
   edge_levels <- 
@@ -378,6 +402,10 @@ plot_simulation_expression <- function(
   facet = c("simulation", "module_group", "module_id", "none"),
   label_nonzero = FALSE
 ) {
+  # satisfy r check
+  is_tf <- mol <- val <- molecule <- value <- module_id <- type <- sim_time <- 
+    color <- module_group <- x <- y <- `.` <- NULL
+  
   assert_that(what %all_in% c("mol_premrna", "mol_mrna", "mol_protein"))
   facet <- match.arg(facet)
   

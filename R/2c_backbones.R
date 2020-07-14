@@ -197,6 +197,9 @@ backbone_branching <- function(
   min_degree = 3,
   max_degree = sample(min_degree:5, 1)
 ) {
+  # satisfy r cmd check
+  from <- to <- NULL
+  
   assert_that(
     num_modifications >= 0,
     min_degree >= 3,
@@ -467,6 +470,9 @@ backbone_disconnected <- function(
   right_backbone = list_backbones() %>% keep(., names(.) != "disconnected") %>% sample(1) %>% first(),
   num_common_modules = 10
 ) {
+  # satisfy r cmd check
+  `.` <- module_id <- from <- to <- module_progression <- basal <- start <- color <- NULL
+  
   if (is.character(left_backbone)) {
     left_backbone <- list_backbones()[[left_backbone]]
   }

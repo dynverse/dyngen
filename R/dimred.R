@@ -5,6 +5,9 @@ calculate_dimred <- function(
   dimred_simulations = TRUE,
   dimred_gold = TRUE
 ) {
+  # satisfy r cmd check
+  is_tf <- NULL
+  
   # set rcpp thread options to model$num_cores
   prev_num_cores <- Sys.getenv("RCPP_PARALLEL_NUM_THREADS")
   Sys.setenv(RCPP_PARALLEL_NUM_THREADS = model$num_cores)

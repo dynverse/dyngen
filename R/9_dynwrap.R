@@ -14,6 +14,9 @@ wrap_dataset <- function(
   store_dimred = !is.null(model$experiment$dimred),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
+  # satisfy r cmd check
+  from <- to <- time <- cell_id <- strength <- effect <- i <- j <- x <- NULL
+  
   requireNamespace("dynwrap")
   assert_that(
     !is.null(model$experiment), 
@@ -69,7 +72,7 @@ wrap_dataset <- function(
     
     
     dataset <- dataset %>% 
-      add_regulatory_network(
+      dynwrap::add_regulatory_network(
         regulatory_network = regulatory_network,
         regulatory_network_sc = regulatory_network_sc,
         regulators = regulators,
