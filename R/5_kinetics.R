@@ -236,7 +236,7 @@ kinetics_default <- function() {
     )
   
   # generate formula per feature
-  out <- furrr:::future_map(
+  out <- furrr::future_map(
     seq_len(nrow(feature_info)),
     .progress = model$verbose,
     function(i) {

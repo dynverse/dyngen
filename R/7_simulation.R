@@ -247,8 +247,28 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
   sim$run()
   
   # get output
-  out <- GillespieSSA2:::return_output(sim, new_initial_state, reactions)
+  # based on GillespieSSA2:::return_output
+  out <- list(
+    time = sim$output_time,
+    state = sim$output_state,
+    propensity = sim$output_propensity,
+    firings = sim$output_firings,
+    buffer = sim$output_buffer,
+    stats = sim$get_statistics()
+  )
+  # set names of objects
+  colnames(out$state) <- names(new_initial_state)
+  if (sim$log_propensity) {
+    colnames(out$propensity) <- reactions$reaction_ids
+  }
+  if (sim$log_buffer) {
+    colnames(out$buffer) <- reactions$buffer_ids
+  }
+  if (sim$log_firings) {
+    colnames(out$firings) <- reactions$reaction_ids
+  }
   
+  # reformat output
   meta <- 
     tibble(
       time = c(head(out$time, -1), total_time)
