@@ -1,4 +1,4 @@
-# dyngen 0.3.1
+# dyngen 0.4.0 (2020-07-15)
 
 ## MAJOR CHANGES:
 

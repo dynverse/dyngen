@@ -73,7 +73,7 @@ list of changes.
 
 <!-- This section gets automatically generated from NEWS.md -->
 
-### Recent changes in dyngen 0.3.1
+### Recent changes in dyngen 0.4.0 (2020-07-15)
 
 #### MAJOR CHANGES:
 
