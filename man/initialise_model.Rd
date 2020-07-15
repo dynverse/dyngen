@@ -7,9 +7,9 @@
 initialise_model(
   backbone,
   num_cells = 1000,
-  num_tfs = 100,
-  num_targets = 500,
-  num_hks = 400,
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 100,
+  num_hks = 50,
   distance_metric = c("pearson", "spearman", "cosine", "euclidean", "manhattan"),
   tf_network_params = tf_network_default(),
   feature_network_params = feature_network_default(),

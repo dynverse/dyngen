@@ -10,16 +10,15 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/backbones.Rmd", output_format = "github_document")
+rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = "github_document")
 -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 30,
-  fig.height = 25,
-  eval = FALSE
+  fig.width = 20,
+  fig.height = 15
 )
 ```
 
@@ -40,6 +39,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -58,6 +58,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -75,6 +76,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -92,6 +94,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -109,6 +112,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -128,6 +132,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -149,6 +154,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -166,6 +172,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -200,6 +207,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -217,6 +225,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -234,6 +243,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   download_cache_dir = "~/.cache/dyngen/",
   num_cores = 7
 )
@@ -241,7 +251,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 out$plot
 ```
 
-# Linear fixed
+# Linear simple
 ```{r linear_simple}
 backbone <- backbone_linear_simple()
 
@@ -258,7 +268,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 out$plot
 ```
 
-# Cycle fixed
+# Cycle simple
 ```{r cycle_simple}
 backbone <- backbone_cycle_simple()
 

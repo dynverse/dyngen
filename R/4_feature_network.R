@@ -110,6 +110,9 @@ feature_network_default <- function(
   target_resampling = Inf,
   max_in_degree = 5
 ) {
+  # satisfy r cmd check
+  realnets <- NULL
+  
   if (is.null(realnet)) {
     data(realnets, package = "dyngen", envir = environment())
     realnet <- sample(realnets$name, 1)
@@ -124,6 +127,9 @@ feature_network_default <- function(
 
 #' @importFrom utils data
 .feature_network_fetch_realnet <- function(model) {
+  # satisfy r cmd check
+  realnets <- NULL
+  
   realnet <- model$feature_network_params$realnet
   
   data(realnets, package = "dyngen", envir = environment())
@@ -146,6 +152,9 @@ feature_network_default <- function(
   num_targets = model$numbers$num_targets, 
   target_index_offset = 0
 ) {
+  # satisfy r cmd check
+  j <- x <- i <- score <- feature_id <- from <- to <- NULL
+  
   requireNamespace("igraph")
   
   # determine desired number of targets for each tf
@@ -256,6 +265,8 @@ feature_network_default <- function(
   num_hks = model$numbers$num_hks, 
   hk_index_offset = 0
 ) {
+  j <- x <- i <- `.` <- from <- to <- NULL
+  
   requireNamespace("igraph")
   
   # convert to igraph

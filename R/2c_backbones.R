@@ -50,11 +50,11 @@ backbone_bifurcating_converging <- function() {
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
     "sBurn", "sA", "+A1", TRUE, TRUE, 40,
     "sA", "sB", "+B1,+B2", FALSE, FALSE, 40,
-    "sB", "sC", "+C1,+C2,+C3,+C4", FALSE, FALSE, 40,
-    "sB", "sD", "+D1,+D2,+D3,+D4", FALSE, FALSE, 40,
-    "sC", "sE", "+E1,+D1,+D2,+D3,+D4", FALSE, FALSE, 80,
-    "sD", "sE", "+E1,+C1,+C3,+C3,+C4", FALSE, FALSE, 80,
-    "sE", "sF", "+F1,+F2", FALSE, FALSE, 40
+    "sB", "sC", "+C1,+C2,+C3,+C4", FALSE, FALSE, 60,
+    "sB", "sD", "+D1,+D2,+D3,+D4", FALSE, FALSE, 60,
+    "sC", "sE", "+E1,+D1,+D2,+D3,+D4", FALSE, FALSE, 120,
+    "sD", "sE", "+E1,+C1,+C3,+C3,+C4", FALSE, FALSE, 120,
+    "sE", "sF", "+F1,+F2", FALSE, FALSE, 80
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -115,11 +115,11 @@ backbone_bifurcating_cycle <- function() {
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
     "sBurn", "sB", "+A1,+A2,+A3,+B1,+B2", TRUE, TRUE, 60,
-    "sB", "sC", "+C1,+C2,+C3", FALSE, FALSE, 40,
-    "sB", "sD", "+D1,+D2,+D3", FALSE, FALSE, 40,
-    "sC", "sE", "+E1", FALSE, FALSE, 80,
-    "sD", "sE", "+E1", FALSE, FALSE, 80,
-    "sE", "sA", "+E2,+E3,-B1,-B2,-C1,-C2,-C3,-D1,-D2,-D3", FALSE, FALSE, 80,
+    "sB", "sC", "+C1,+C2,+C3", FALSE, FALSE, 60,
+    "sB", "sD", "+D1,+D2,+D3", FALSE, FALSE, 60,
+    "sC", "sE", "+E1", FALSE, FALSE, 120,
+    "sD", "sE", "+E1", FALSE, FALSE, 120,
+    "sE", "sA", "+E2,+E3,-B1,-B2,-C1,-C2,-C3,-D1,-D2,-D3", FALSE, FALSE, 120,
     "sA", "sB", "+B1,+B2,-E1,-E2|-E3", FALSE, FALSE, 40
   )
   
@@ -175,11 +175,11 @@ backbone_bifurcating_loop <- function() {
   
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sBurn", "sA", "+A1,+A2,+A3,+B2,+D3", TRUE, TRUE, 40,
-    "sA", "sB", "+B1", FALSE, FALSE, 40,
-    "sB", "sC", "+C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2", FALSE, FALSE, 60,
-    "sB", "sD", "+D1,+D2,+D4,+D5", FALSE, FALSE, 80,
-    "sC", "sA", "+A1,+A2", FALSE, FALSE, 40
+    "sBurn", "sA", "+A1,+A2,+A3,+B2,+D3", TRUE, TRUE, 60,
+    "sA", "sB", "+B1", FALSE, FALSE, 60,
+    "sB", "sC", "+C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2", FALSE, FALSE, 80,
+    "sB", "sD", "+D1,+D2,+D4,+D5", FALSE, FALSE, 120,
+    "sC", "sA", "+A1,+A2", FALSE, FALSE, 60
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -197,6 +197,9 @@ backbone_branching <- function(
   min_degree = 3,
   max_degree = sample(min_degree:5, 1)
 ) {
+  # satisfy r cmd check
+  from <- to <- NULL
+  
   assert_that(
     num_modifications >= 0,
     min_degree >= 3,
@@ -333,13 +336,13 @@ backbone_converging <- function() {
   expression_patterns <- tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
     "sBurn1", "sBurn2", "+A1,+A2,+A3,+D2", TRUE, TRUE, 100,
-    "sBurn2", "preB", "+B1,+B2", FALSE, TRUE, 60,
-    "sBurn2", "preC", "+C1,+C2", FALSE, TRUE, 60,
+    "sBurn2", "preB", "+B1,+B2", FALSE, TRUE, 80,
+    "sBurn2", "preC", "+C1,+C2", FALSE, TRUE, 80,
     "preB", "sB", "+B3", FALSE, FALSE, 60,
     "preC", "sC", "+C3", FALSE, FALSE, 60,
-    "sB", "sD", "+D1,+C1,+C2,+C3", FALSE, FALSE, 60,
-    "sC", "sD", "+D1,+B1,+B2,+B3", FALSE, FALSE, 60,
-    "sD", "sE", "+E1,+E2,+E3", FALSE, FALSE, 60
+    "sB", "sD", "+D1,+C1,+C2,+C3", FALSE, FALSE, 100,
+    "sC", "sD", "+D1,+B1,+B2,+B3", FALSE, FALSE, 100,
+    "sD", "sE", "+E1,+E2,+E3,+E4,+E5", FALSE, FALSE, 150
   )
   
   backbone(module_info, module_network, expression_patterns)
@@ -366,10 +369,10 @@ backbone_cycle <- function() {
     module_grouping, 
     tribble(
       ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-      "sBurn", "s1", paste0("+", c(Burn, A, B), collapse = ","), TRUE, TRUE, 200,
-      "s1", "s2", paste0(paste0("+", C, collapse = ","), ",", paste0("-", B, collapse = ",")), FALSE, FALSE, 200,
-      "s2", "s3", paste0(paste0("+", B, collapse = ","), ",", paste0("-", A, collapse = ",")), FALSE, FALSE, 200,
-      "s3", "s1", paste0(paste0("+", A, collapse = ","), ",", paste0("-", C, collapse = ",")), FALSE, FALSE, 200,
+      "sBurn", "s1", paste0("+", c(Burn, A, B), collapse = ","), TRUE, TRUE, 300,
+      "s1", "s2", paste0(paste0("+", C, collapse = ","), ",", paste0("-", B, collapse = ",")), FALSE, FALSE, 300,
+      "s2", "s3", paste0(paste0("+", B, collapse = ","), ",", paste0("-", A, collapse = ",")), FALSE, FALSE, 300,
+      "s3", "s1", paste0(paste0("+", A, collapse = ","), ",", paste0("-", C, collapse = ",")), FALSE, FALSE, 300,
     )
   )
   
@@ -467,6 +470,9 @@ backbone_disconnected <- function(
   right_backbone = list_backbones() %>% keep(., names(.) != "disconnected") %>% sample(1) %>% first(),
   num_common_modules = 10
 ) {
+  # satisfy r cmd check
+  `.` <- module_id <- from <- to <- module_progression <- basal <- start <- color <- NULL
+  
   if (is.character(left_backbone)) {
     left_backbone <- list_backbones()[[left_backbone]]
   }
@@ -554,9 +560,9 @@ backbone_disconnected <- function(
     bind_rows(
       tribble(
         ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-        "sBurn", "sA", paste0("+", c("A1", "A2", "A3", common_modules), collapse = ","), TRUE, TRUE, 60,
-        "sA", leps, "+A4,+A6", FALSE, TRUE, 60,
-        "sA", reps, "+A5,+A7", FALSE, TRUE, 60
+        "sBurn", "sA", paste0("+", c("A1", "A2", "A3", common_modules), collapse = ","), TRUE, TRUE, 100,
+        "sA", leps, "+A4,+A6", FALSE, TRUE, 100,
+        "sA", reps, "+A5,+A7", FALSE, TRUE, 100
       ),
       lep %>% mutate(start = FALSE),
       rep %>% mutate(start = FALSE)

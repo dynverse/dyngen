@@ -1,26 +1,20 @@
-#' dyngen: Synthetic single cell data
+#' dyngen: A multi-modal simulator for spearheading single-cell omics analyses
 #' 
 #' A toolkit for generating synthetic single cell data. 
 #'
-#' @import dplyr
-#' @import tidyr
-#' @importFrom purrr %>% map map_df map_chr map_lgl map_int map_dbl discard keep pmap map2 set_names
-#' @importFrom tibble is_tibble as_tibble as_data_frame tibble data_frame enframe deframe lst tribble rownames_to_column column_to_rownames
-#' @importFrom magrittr set_rownames set_colnames
+#' @importFrom dplyr bind_rows filter group_by mutate mutate_all n pull sample_n select transmute ungroup do left_join last
+#' @importFrom dplyr row_number bind_cols full_join summarise inner_join slice rename case_when arrange first mutate_at vars nth
+#' @importFrom tidyr gather unnest everything one_of crossing
+#' @importFrom purrr %>% map map_df map_chr keep pmap map2 set_names map_int map_dbl
+#' @importFrom tibble as_tibble tibble enframe deframe lst tribble
 #' @importFrom methods as
 #' @importFrom utils head tail
-#' @import assertthat
-#' @import dynutils
-#' @import dynwrap
+#' @importFrom assertthat assert_that %has_name%
+#' @importFrom dynutils %all_in% extract_row_to_list is_sparse %has_names% add_class extend_with
 #' @importFrom Matrix t Matrix sparseMatrix summary
-#' @importFrom pbapply pblapply 
+#' @importFrom furrr future_map
+#' @importFrom rlang %|%
 #'
 #' @docType package
 #' @name dyngen
 NULL
-
-# when next version of rlang is released
-# @importFrom rlang %|%
-`%|%` <- function(x, y) {
-  ifelse(is.na(x), y, x)
-}

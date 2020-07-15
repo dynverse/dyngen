@@ -5,9 +5,12 @@
 #' 
 #' @export
 simtime_from_backbone <- function(backbone, burn = FALSE) {
+  start <- from <- `.` <- NULL
+  
   exp_pat <- backbone$expression_patterns
   if (burn) exp_pat <- exp_pat %>% filter(burn)
-  sim_time_sum <- exp_pat %>% filter(start) %>% pull(from) %>% set_names(rep(0, length(.)), .)
+  sim_time_sum <- exp_pat %>% filter(start) %>% pull(from) 
+  sim_time_sum <- set_names(rep(0, length(sim_time_sum)), sim_time_sum)
   for (i in seq_len(nrow(exp_pat))) {
     sim_time_sum[[exp_pat$to[[i]]]] <- sim_time_sum[[exp_pat$from[[i]]]] + exp_pat$time[[i]]
   }

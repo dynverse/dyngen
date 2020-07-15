@@ -14,7 +14,6 @@
 #' @export
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
-#' @importFrom readr write_rds
 #' @importFrom methods is
 generate_dataset <- function(
   model, 
@@ -22,7 +21,7 @@ generate_dataset <- function(
   make_plots = FALSE, 
   store_dimred = model$simulation_params$compute_dimred,
   store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
-  store_propensity_ratios = model$simulation_params$compute_propensity_ratios
+  store_rna_velocity = model$simulation_params$compute_rna_velocity
 ) {
   assert_that(is(model, "dyngen::init"))
   
@@ -40,15 +39,15 @@ generate_dataset <- function(
       model, 
       store_dimred = store_dimred, 
       store_cellwise_grn = store_cellwise_grn,
-      store_propensity_ratios = store_propensity_ratios
+      store_rna_velocity = store_rna_velocity
     )
   
   # write to file
   if (!is.null(output_dir)) {
     if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
-    write_rds(dataset, paste0(output_dir, "dataset.rds"), compress = "gz")
-    write_rds(model, paste0(output_dir, "model.rds"), compress = "gz")
+    saveRDS(dataset, paste0(output_dir, "dataset.rds"))
+    saveRDS(model, paste0(output_dir, "model.rds"))
   }
   
   if (make_plots) {

@@ -10,7 +10,7 @@ generate_dataset(
   make_plots = FALSE,
   store_dimred = model$simulation_params$compute_dimred,
   store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
-  store_propensity_ratios = model$simulation_params$compute_propensity_ratios
+  store_rna_velocity = model$simulation_params$compute_rna_velocity
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ dataset will be written to files in this directory.}
 
 \item{store_cellwise_grn}{Whether or not to also store cellwise GRN information.}
 
-\item{store_propensity_ratios}{WHether or not to store the propensity ratios.}
+\item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 }
 \description{
 This function contains the complete pipeline for generating a dataset

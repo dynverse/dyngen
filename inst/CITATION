@@ -3,14 +3,15 @@ citEntry(
   author   = c(
     person("Robrecht", "Cannoodt"),
     person("Wouter", "Saelens"),
+    person("Louise", "Deconinck"),
     person("Yvan", "Saeys")
   ),
-  author   = "Robrecht Cannoodt and Wouter Saelens and Yvan Saeys",
-  title    = "dyngen: Simulating single-cell data using gene regulatory networks",
-  journal  = "Manuscript in preparation",
-  year     = "2019",
-  month    = "",
-  doi      = "",
-  url      = "",
-  textVersion = "dyngen: Simulating single-cell data using gene regulatory networks. Manuscript in preparation."
+  author   = "Robrecht Cannoodt and Wouter Saelens and Louise Deconinck and Yvan Saeys",
+  title    = "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses",
+  journal  = "bioRxiv",
+  year     = "2020",
+  month    = "2",
+  doi      = "10.1101/2020.02.06.936971 ",
+  url      = "https://www.biorxiv.org/content/10.1101/2020.02.06.936971v2",
+  textVersion = "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses. Robrecht Cannoodt, Wouter Saelens, Louise Deconinck, Yvan Saeys. bioRxiv 2020.02.06.936971; doi: https://doi.org/10.1101/2020.02.06.936971."
 )

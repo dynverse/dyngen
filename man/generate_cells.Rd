@@ -13,14 +13,14 @@ simulation_default(
   burn_time = NULL,
   total_time = NULL,
   ssa_algorithm = ssa_etl(tau = 30/3600),
-  census_interval = 1,
+  census_interval = 4,
   experiment_params = bind_rows(simulation_type_wild_type(num_simulations = 32),
     simulation_type_knockdown(num_simulations = 0)),
   store_reaction_firings = FALSE,
   store_reaction_propensities = FALSE,
   compute_cellwise_grn = FALSE,
   compute_dimred = TRUE,
-  compute_propensity_ratios = FALSE,
+  compute_rna_velocity = FALSE,
   kinetics_noise_function = kinetics_noise_simple(mean = 1, sd = 0.005)
 )
 
@@ -59,7 +59,7 @@ simulation_type_knockdown(
 
 \item{compute_dimred}{Whether to perform a dimensionality reduction after simulation.}
 
-\item{compute_propensity_ratios}{Whether or not to compute the propensity ratios after simulation.}
+\item{compute_rna_velocity}{Whether or not to compute the propensity ratios after simulation.}
 
 \item{kinetics_noise_function}{A function that will generate noise to the kinetics of each simulation.
 It takes the \code{feature_info} and \code{feature_network} as input parameters,

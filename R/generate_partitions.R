@@ -1,4 +1,7 @@
 .generate_partitions <- function(num_elements, num_groups, min_elements_per_group) {
+  # satisfy r cmd check
+  `.` <- NULL
+  
   assert_that(
     min_elements_per_group >= 0, 
     num_groups * min_elements_per_group <= num_elements

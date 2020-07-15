@@ -37,6 +37,9 @@ tf_network_default <- function(
 }
 
 .generate_tf_info <- function(model) {
+  # satisfy r cmd check
+  module_id <- num_tfs <- feature_id <- NULL
+  
   module_info <- model$backbone$module_info
   module_network <- model$backbone$module_network
   numbers <- model$numbers
@@ -62,6 +65,9 @@ tf_network_default <- function(
 }
 
 .generate_tf_network <- function(model) {
+  # satisfy r cmd check
+  to <- from <- module_id <- feature_id <- NULL
+  
   module_network <- model$backbone$module_network
   tf_info <- model$feature_info
   
@@ -118,7 +124,7 @@ tf_network_default <- function(
   }
   
   model$feature_network <- 
-    bind_rows(tf_network) %>% 
+    bind_rows(unname(tf_network)) %>% 
     left_join(module_network %>% rename(from_module = from, to_module = to), by = c("from_module", "to_module"))
   
   model

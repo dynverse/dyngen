@@ -48,6 +48,9 @@ gold_standard_default <- function(
 }
 
 .generate_gold_standard_mod_changes <- function(expression_patterns) {
+  # satisfy r cmd check
+  module_progression <- mod_diff <- substate <- mod_diff2 <- `.` <- from <- to <- from_ <- NULL
+  
   expression_patterns %>% 
     mutate(
       mod_diff = module_progression %>% strsplit("\\|"),
@@ -71,6 +74,10 @@ gold_standard_default <- function(
 
 #' @importFrom GillespieSSA2 compile_reactions
 .generate_gold_precompile_reactions <- function(model) {
+  # satisfy r cmd check
+  is_tf <- mol_premrna <- mol_mrna <- mol_protein <- val <- NULL
+  
+  
   # fetch paraneters and settings
   sim_system <- model$simulation_system
   tf_info <- model$feature_info %>% filter(is_tf)
@@ -102,6 +109,10 @@ gold_standard_default <- function(
 #' @importFrom pbapply timerProgressBar setTimerProgressBar
 #' @importFrom GillespieSSA2 ssa ode_em
 .generate_gold_standard_simulations <- function(model, prep_data) {
+  # satisfy r cmd check
+  is_tf <- module_id <- mol_premrna <- mol_mrna <- mol_protein <- val <- from <- to <- 
+    substate <- burn <- time_per_edge <- simulation_i <- sim_time <- NULL
+  
   # fetch paraneters and settings
   mod_changes <- model$gold_standard$mod_changes
   gold_params <- model$gold_standard_params
@@ -125,11 +136,13 @@ gold_standard_default <- function(
   gold_sim_vectors[[start_state]] <- model$simulation_system$initial_state[tf_molecules] %>% as.matrix
   gold_sim_modules[[start_state]] <- c()
   
-  timer <- pbapply::timerProgressBar(
-    min = 0, 
-    max = nrow(mod_changes),
-    width = 50
-  )
+  if (model$verbose) {
+    timer <- pbapply::timerProgressBar(
+      min = 0, 
+      max = nrow(mod_changes),
+      width = 50
+    )
+  }
   for (i in seq_len(nrow(mod_changes))) {
     from_ <- mod_changes$from_[[i]]
     to_ <- mod_changes$to_[[i]]
@@ -175,7 +188,7 @@ gold_standard_default <- function(
     meta <- tibble(from_, to_, time = time_out)
     counts <- state_out %>% Matrix::Matrix(sparse = TRUE)
       
-    pbapply::setTimerProgressBar(timer, value = i)
+    if (model$verbose) pbapply::setTimerProgressBar(timer, value = i)
     
     gold_sim_outputs[[i]] <- lst(meta, counts)
     
@@ -207,16 +220,27 @@ gold_standard_default <- function(
 }
 
 .generate_gold_standard_generate_network <- function(model) {
-  gs_dimred <- model$gold_standard$dimred
-  gs_meta <- model$gold_standard$meta
+  # satisfy r cmd check
+  burn <- from <- to <- time <- NULL
   
-  gs_meta %>% 
+  model$backbone$expression_patterns %>%
     filter(!burn) %>% 
-    mutate(i = row_number()) %>% 
-    group_by(from, to) %>% 
-    summarise(
-      length = sqrt(sum((gs_dimred[i[-1], , drop = FALSE] - gs_dimred[i[-n()], , drop = FALSE])^2)),
+    transmute(
+      from, 
+      to,
+      length = time / sum(time) * length(time),
       directed = TRUE
-    ) %>% 
-    ungroup()
+    )
+  # gs_dimred <- model$gold_standard$dimred
+  # gs_meta <- model$gold_standard$meta
+  # 
+  # gs_meta %>% 
+  #   filter(!burn) %>% 
+  #   mutate(i = row_number()) %>% 
+  #   group_by(from, to) %>% 
+  #   summarise(
+  #     length = sqrt(sum((gs_dimred[i[-1], , drop = FALSE] - gs_dimred[i[-n()], , drop = FALSE])^2)),
+  #     directed = TRUE
+  #   ) %>% 
+  #   ungroup()
 }

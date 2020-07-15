@@ -37,6 +37,9 @@
 #' 
 #' @export
 generate_kinetics <- function(model) {
+  # satisfy r cmd check
+  burn <- mol_premrna <- mol_mrna <- mol_protein <- val <- NULL
+  
   assert_that(
     !is.null(model$feature_info),
     !is.null(model$feature_network)
@@ -95,61 +98,41 @@ generate_kinetics <- function(model) {
 #' @rdname generate_kinetics
 #' @importFrom stats runif
 kinetics_default <- function() {
+  # satisfy r cmd check
+  transcription_rate <- translation_rate <- mrna_halflife <- protein_halflife <- 
+    independence <- splicing_rate <- effect <- strength <- hill <- NULL
+  
   sampler_tfs <-
     function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
-      feature_info %>%  mutate(
-        transcription_rate = transcription_rate %|% runif(n(), 1, 2),
+      feature_info %>% mutate(
+        transcription_rate = transcription_rate %|% runif(n(), 10, 20),
         translation_rate = translation_rate %|% runif(n(), 100, 150),
         mrna_halflife = mrna_halflife %|% runif(n(), 2.5, 5),
         protein_halflife = protein_halflife %|% runif(n(), 5, 10),
         independence = independence %|% 1,
-        splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
+        splicing_rate = splicing_rate %|% (log(2) / 2)
       )
-    }
-  
-  sampler_nontfs <- 
-    function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
-      if (!is.null(feature_info) && nrow(feature_info) > 0) {
-        real_kinetics <- .download_cacheable_file(
-          url = "https://github.com/dynverse/dyngen/raw/data_files/schwannhausser2011_imputed.rds", 
-          cache_dir = model$download_cache_dir, 
-          verbose = model$verbose
-        )
-        smpld <- 
-          real_kinetics %>% 
-          sample_n(nrow(feature_info), replace = TRUE) %>% 
-          select(transcription_rate, translation_rate, mrna_halflife, protein_halflife)
-        feature_info %>% 
-          mutate(
-            # transcription rate, translation rate, and halflives are based on Schannhäuser 2011 et al.
-            # See data-raw/decay_rates.R for more info
-            transcription_rate = transcription_rate %|% smpld$transcription_rate,
-            translation_rate = translation_rate %|% smpld$translation_rate,
-            mrna_halflife = mrna_halflife %|% smpld$mrna_halflife,
-            protein_halflife = protein_halflife %|% smpld$protein_halflife,
-            independence = independence %|% runif(n(), 0, 1),
-            splicing_rate = splicing_rate %|% (log(2) / (10 / 60))
-          )
-      } else {
-        feature_info
-      }
     }
   
   sampler_interactions <-
     function(feature_info, feature_network, cache_dir = NULL, verbose = FALSE) {
       feature_network %>% 
         mutate(
-          effect = effect %|% sample(c(-1, 1), n(), replace = TRUE, prob = c(.25, .75)),
+          effect = effect %|% sample(c(-1L, 1L), n(), replace = TRUE, prob = c(.25, .75)),
           strength = strength %|% 10 ^ runif(n(), log10(1), log10(100)),
           hill = hill %|% rnorm_bounded(n(), 2, 2, min = 1, max = 10)
         )
     }
   
-  lst(sampler_tfs, sampler_nontfs, sampler_interactions)
+  lst(sampler_tfs, sampler_nontfs = sampler_tfs, sampler_interactions)
 }
 
 
 .kinetics_generate_gene_kinetics <- function(model) {
+  # satisfy r cmd check
+  is_tf <- mrna_halflife <- protein_halflife <- to <- feature_id <- effect <- 
+    basal <- basal_2 <- num_molecules <- mult <- id <- NULL
+  
   if (model$verbose) cat("Generating kinetics for ", nrow(model$feature_info), " features\n", sep = "")
   params <- model$kinetics_params
   
@@ -216,6 +199,10 @@ kinetics_default <- function() {
 
 #' @importFrom GillespieSSA2 reaction
 .kinetics_generate_formulae <- function(model) {
+  # satisfy r cmd check
+  from <- to <- `.` <- NULL
+  
+  
   if (model$verbose) cat("Generating formulae\n")
   
   # add helper information to feature info
@@ -236,9 +223,9 @@ kinetics_default <- function() {
     )
   
   # generate formula per feature
-  out <- pbapply::pblapply(
+  out <- furrr::future_map(
     seq_len(nrow(feature_info)),
-    cl = model$num_cores,
+    .progress = model$verbose,
     function(i) {
       info <- feature_info %>% extract_row_to_list(i)
       
@@ -345,6 +332,10 @@ kinetics_default <- function() {
 }
 
 .kinetics_extract_parameters <- function(feature_info, feature_network) {
+  # satisfy r cmd check
+  feature_id <- transcription_rate <- splicing_rate <- translation_rate <- mrna_decay_rate <- protein_decay_rate <-
+    basal <- independence <- param <- value <- id <- from <- to <- dissociation <- hill <- strength <- `.` <- from <- NULL
+  
   # extract production / degradation rates, ind and bas
   feature_params <- 
     feature_info %>% 
@@ -375,6 +366,10 @@ kinetics_default <- function() {
 }
 
 .kinetics_calculate_dissociation <- function(feature_info, feature_network) {
+  # satisfy r cmd check
+  transcription_rate <- mrna_decay_rate <- splicing_rate <- max_premrna <- translation_rate <- 
+    protein_decay_rate <- max_mrna <- feature_id <- max_protein <- NULL
+  
   remove <- c("max_premrna", "max_mrna", "max_protein", "dissociation", "k", "max_protein")
   
   feature_info <- feature_info[, !colnames(feature_info) %in% remove]

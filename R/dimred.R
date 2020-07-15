@@ -3,9 +3,11 @@ calculate_dimred <- function(
   model, 
   num_landmarks = 1000,
   dimred_simulations = TRUE,
-  dimred_gold = TRUE,
-  dimred_premrna = TRUE
+  dimred_gold = TRUE
 ) {
+  # satisfy r cmd check
+  is_tf <- NULL
+  
   # set rcpp thread options to model$num_cores
   prev_num_cores <- Sys.getenv("RCPP_PARALLEL_NUM_THREADS")
   Sys.setenv(RCPP_PARALLEL_NUM_THREADS = model$num_cores)
@@ -14,34 +16,20 @@ calculate_dimred <- function(
   has_sim <- dimred_simulations && model %has_name% "simulations" && model$simulations %has_name% "counts"
   if (has_sim) {
     sim_counts <- model$simulations$counts
-    if (dimred_premrna) {
-      sim_ix <- seq_len(2 * nrow(sim_counts))
-      simw_ix <- seq_len(nrow(sim_counts))
-      simx_ix <- simw_ix + length(simw_ix)
-    } else {
-      simx_ix <- sim_ix <- seq_len(nrow(sim_counts))
-      simw_ix <- numeric(0)
-    }
+    sim_ix <- seq_len(nrow(sim_counts))
   } else {
     sim_counts <- NULL
-    sim_ix <- simw_ix <- simx_ix <- numeric(0)
+    sim_ix <- numeric(0)
   }
   
   # check whether the gold standard has been run
   has_gs <- dimred_gold && model %has_name% "gold_standard" && model$gold_standard %has_name% "counts"
   if (has_gs) {
     gs_counts <- model$gold_standard$counts
-    if (dimred_premrna) {
-      gs_ix <- length(sim_ix) + seq_len(2 * nrow(gs_counts))
-      gsw_ix <- length(sim_ix) + seq_len(nrow(gs_counts))
-      gsx_ix <- gsw_ix + length(gsw_ix)
-    } else {
-      gs_ix <- gsx_ix <- length(sim_ix) + seq_len(nrow(gs_counts))
-      gsw_ix <- numeric(0)
-    }
+    gs_ix <- length(sim_ix) + seq_len(nrow(gs_counts))
   } else {
     gs_counts <- NULL
-    gs_ix <- gsw_ix <- gsx_ix <- numeric(0)
+    gs_ix <- numeric(0)
   }
   
   # throw error if neither have run
@@ -71,19 +59,10 @@ calculate_dimred <- function(
   # combine data and select landmarks
   # WARNING: do not change the order of this rbind without changing the sim_ix and gs_ix objects
   # (and vice versa)
-  if (dimred_premrna) {
-    counts <- rbind(
-      sim_wcounts, 
-      sim_xcounts,
-      gs_wcounts,
-      gs_xcounts
-    ) 
-  } else {
-    counts <- rbind(
-      sim_xcounts,
-      gs_xcounts
-    )
-  }
+  counts <- rbind(
+    sim_xcounts,
+    gs_xcounts
+  )
   
   # log2 transformation
   counts@x <- log2(counts@x + 1)
@@ -99,20 +78,11 @@ calculate_dimred <- function(
   
   # sample matching indices from w and x  
   # WARNING: do not change the order of this rbind without changing the sim_ix and gs_ix objects
-  wix <- c(gsw_ix, simw_ix)
-  xix <- c(gsx_ix, simx_ix)
+  landmark_ix <- c(gs_ix, sim_ix)
   
-  landmark_ix <- 
-    if (length(xix) > num_landmarks) {
-      ix <- sample.int(length(xix), num_landmarks)
-      if (dimred_premrna) {
-        c(wix[ix], xix[ix])
-      } else {
-        xix[ix]
-      }
-    } else {
-      c(wix, xix)
-    }
+  if (length(landmark_ix) > num_landmarks) {
+    landmark_ix <- sample(landmark_ix, num_landmarks)
+  }
   
   # calculate distances to lndmarks
   dist_2lm <- as.matrix(dynutils::calculate_distance(
@@ -131,20 +101,10 @@ calculate_dimred <- function(
   
   # separate out sim dimred and gs dimred
   if (has_sim) {
-    model$simulations$dimred <- dimred[simx_ix, , drop = FALSE]
-    if (dimred_premrna) {
-      model$simulations$dimred_projected <- dimred[simw_ix, , drop = FALSE]
-    } else {
-      model$simulations$dimred_projected <- NULL
-    }
+    model$simulations$dimred <- dimred[sim_ix, , drop = FALSE]
   }
   if (has_gs) {
-    model$gold_standard$dimred <- dimred[gsx_ix, , drop = FALSE]
-    if (dimred_premrna) {
-      model$gold_standard$dimred_projected <- dimred[gsw_ix, , drop = FALSE]
-    } else {
-      model$gold_standard$dimred_projected <- NULL
-    }
+    model$gold_standard$dimred <- dimred[gs_ix, , drop = FALSE]
   }
   
   # restore previous setting
