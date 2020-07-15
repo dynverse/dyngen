@@ -1,8 +1,7 @@
 
 # dyngen
 
-[![Build
-Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
+![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)<br><img src="man/figures/logo.png" align="right" />
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic
 cellular processes at single-cell resolution. dyngen is more flexible
@@ -90,6 +89,12 @@ list of changes.
   - Added logo to package.
 
   - Clean up internal code, mostly to satisfy R CMD check.
+
+#### DOCUMENTATION:
+
+  - Added two vignettes.
+
+  - Expanded the README.
 
 ### Recent changes in dyngen 0.3.0 (2020-04-06)
 

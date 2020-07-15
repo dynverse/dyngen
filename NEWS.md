@@ -13,6 +13,12 @@
 
 * Clean up internal code, mostly to satisfy R CMD check.
 
+## DOCUMENTATION:
+
+* Added two vignettes.
+
+* Expanded the README.
+
 # dyngen 0.3.0 (2020-04-06)
 
 ## NEW FEATURES:
