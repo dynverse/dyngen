@@ -1,8 +1,8 @@
 ---
-title: "Step-by-step example run"
+title: "Getting started"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Step-by-step example run}
+  %\VignetteIndexEntry{Getting started}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -10,7 +10,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/example.Rmd", output_format = "github_document")
+rmarkdown::render("vignettes/getting_started.Rmd", output_format = "github_document")
 -->
 
 ## Step 1: Define backbone and other parameters

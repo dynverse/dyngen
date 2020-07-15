@@ -13,7 +13,7 @@ docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstud
 docker run --rm --ulimit="nofile=4096" -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstudio/workdir dynverse/dyngen
 -->
 
-Keep this window open, and open up a browser and go to [127.0.0.1:8787](127.0.0.1:8787). Open up the file `example.R` for a small example on how to run a dyngen simulation.
+Keep this window open, and open up a browser and go to [127.0.0.1:8787](127.0.0.1:8787). Open up the file `getting_started.R` for a small example on how to run a dyngen simulation.
 
 The command can be dissected as follows.
 

@@ -10,4 +10,4 @@ RUN Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packag
   # set default dynwrap backend to r_wrapper (for example.R)
   echo "options(dynwrap_backend = 'r_wrapper')" >> /usr/local/lib/R/etc/Rprofile.site
   
-ADD example.R /home/rstudio/
+ADD getting_started.R /home/rstudio/

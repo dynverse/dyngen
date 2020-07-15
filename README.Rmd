@@ -68,7 +68,7 @@ walk(
 )
 ```
 
-## Docker
+## Getting started with Docker
 To run dyngen in a docker container, run the following command.
 
 ```sh

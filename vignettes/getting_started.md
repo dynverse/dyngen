@@ -1,4 +1,4 @@
-Step-by-step example run
+Getting started
 ================
 
 <!-- github markdown built using 

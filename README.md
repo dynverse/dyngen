@@ -50,12 +50,12 @@ remotes::install_github("dynverse/dyngen", dependencies = TRUE, build_vignettes 
 To learn about how dyngen, check out the example vignette below.
 Expected execution time for rerunning the code is about 5 minutes.
 
-  - [Step-by-step example run](vignettes/example.md):  
-    `vignette("example", package="dyngen")`
+  - [Getting started](vignettes/getting_started.md):  
+    `vignette("getting_started", package="dyngen")`
   - [Showcase different backbones](vignettes/showcase_backbones.md):  
     `vignette("showcase_backbones", package="dyngen")`
 
-## Docker
+## Getting started with Docker
 
 To run dyngen in a docker container, run the following command.
 
