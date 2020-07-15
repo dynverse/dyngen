@@ -1,6 +1,7 @@
 Type: Package
 Package: dyngen
-Title: A Multi-Modal Simulator for Spearheading Single-Cell Omics Analyses
+Title: A Multi-Modal Simulator for Spearheading Single-Cell
+    Omics Analyses
 Version: 0.4.0
 Authors@R: 
     c(person(given = "Robrecht",
@@ -13,8 +14,12 @@ Authors@R:
              role = "aut",
              email = "wouter.saelens@ugent.be",
              comment = c(ORCID = "0000-0002-7114-6248")))
-Description: A toolkit for generating synthetic single cell
-    data. Cannoodt et al. (2020) <doi:10.1101/2020.02.06.936971>
+Description: A novel, multi-modal simulation engine for
+    studying dynamic cellular processes at single-cell resolution. dyngen
+    is more flexible than current single-cell simulation engines. It
+    allows better method development and benchmarking, thereby stimulating
+    development and testing of novel computational methods. Cannoodt et
+    al. (2020) <doi:10.1101/2020.02.06.936971>.
 License: MIT + file LICENSE
 URL: https://github.com/dynverse/dyngen
 BugReports: https://github.com/dynverse/dyngen/issues
@@ -49,12 +54,12 @@ Suggests:
     covr,
     dynwrap (>= 1.2.0),
     knitr,
-    rmarkdown,
     R.rsp,
+    rmarkdown,
     testthat
 VignetteBuilder: 
-  knitr,
-  R.rsp
+    knitr,
+    R.rsp
 Encoding: UTF-8
 LazyData: TRUE
 Roxygen: list(markdown = TRUE)
