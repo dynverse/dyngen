@@ -37,6 +37,14 @@ docker run \
   dynverse/dyngen
 ```
 
+## Update the container
+
+If a newer version of the container has been released, you can update it by running the following command.
+```sh
+docker pull dynverse/dyngen
+```
+
+
 ## Building the container
 
 To rebuild this docker container from scratch, run the following command.

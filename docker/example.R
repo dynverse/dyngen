@@ -92,9 +92,9 @@ dataset <- wrap_dataset(model)
 library(dyno)
 plot_dimred(dataset)
 plot_graph(dataset)
+plot_heatmap(simplify_trajectory(dataset), features_oi = 30)
 
 ### Infer trajectory on expression data
-library(dyno)
 pred <- infer_trajectory(dataset, ti_slingshot())
 plot_dimred(pred)
 
@@ -104,8 +104,6 @@ plot_dimred(pred)
 ## One-shot function
 # `dyngen` also provides a one-shot function for running 
 # all of the steps all at once and producing plots.
-set.seed(1)
-
 model <- 
   initialise_model(
     num_tfs = 12,
@@ -132,9 +130,9 @@ dataset <- out$dataset
 model <- out$model
 
 # write output to files for later reuse
-write_rds(dataset, "dataset.rds", compress = "gz")
-write_rds(model, "model.rds", compress = "gz")
-ggsave("plot.pdf", out$plot, width = 20, height = 15)
+write_rds(dataset, "workdir/dataset.rds", compress = "gz")
+write_rds(model, "workdir/model.rds", compress = "gz")
+ggsave("workdir/plot.pdf", out$plot, width = 20, height = 15)
 
 # `dataset` and `model` can be used in much the same way as before.
 plot_dimred(dataset)
