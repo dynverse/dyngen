@@ -7,6 +7,9 @@ editor_options:
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
+
+library(tidyverse)
+submission_to_cran <- FALSE
 ```
 
 # dyngen
@@ -15,247 +18,64 @@ knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=F
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods.
 
-![generation_overview](man/figures/generation_overview_v1.svg)
+A preprint is available on [bioRxiv](https://www.biorxiv.org/content/10.1101/2020.02.06.936971v2). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
+
+## System requirements
+This package is supported for Linux, but should also work on Mac OS X and Windows. It has been tested with [Github Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check) for R 3.5, 3.6 and 4.0 on the following systems:
+
+* Mac OS X: Catalina (10.15.5)
+* Linux: Ubuntu Xenial (16.04.6)
+* Windows: Windows Server 2019 (10.0.17763)
 
 ## Installation
-You can install dyngen by running the following command.
+You can install dyngen by running the following command. This should take no more than 10 minutes to install.
+
 ```r
 install.packages("remotes")
 remotes::install_github("dynverse/dyngen", dependencies = TRUE)
 ```
 
-This software should work on Linux, Mac OS X, and Windows, for versions R 3.5 and upwards, and is tested with [Github Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check).
+To build the vignettes upon installation, run the following command instead. This might take a while depending on on the computer this is
+run on (>30min).
 
-## Step-by-step example run
-
-### Step 1: Define backbone and other parameters
-A dyngen simulation can be started by providing a backbone to the `initialise_model()` function.
-The backbone of a `dyngen` model is what determines the overall dynamic process 
-that a cell will undergo during a simulation. It consists of a set of gene modules, which regulate
-eachother in such a way that expression of certain genes change over time in a specific manner.
-
-```{r init, message=FALSE, fig.width = 10, fig.height = 6}
-library(tidyverse)
-library(dyngen)
-
-set.seed(10)
-model <- 
-  initialise_model(
-    num_tfs = 12,
-    num_targets = 30,
-    num_hks = 15,
-    backbone = backbone_bifurcating(),
-    verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
-  )
-
-plot_backbone_statenet(model)
-plot_backbone_modulenet(model)
+```r
+remotes::install_github("dynverse/dyngen", dependencies = TRUE, build_vignettes = TRUE)
 ```
 
-For backbones with all different sorts of topologies, check `list_backbones()`:
-```{r list_backbones}
-names(list_backbones())
-```
+## Vignettes
+To learn about how dyngen, check out the example vignette below. Expected execution time for rerunning the code is about 5 minutes.
 
-### Step 2: Generate transcription factors (TFs)
-Each gene module consists of a set of transcription factors.
-These can be generated and visualised as follows.
-```{r tf_network}
-model <- generate_tf_network(model)
-plot_feature_network(model, show_targets = FALSE)
-```
-
-### Step 3: Sample target genes and housekeeping genes (HKs) 
-Next, target genes and housekeeping genes are added to the network by
-sampling a gold standard gene regulatory network using the Page Rank algorithm.
-Target genes are regulated by TFs or other target genes, while HKs are only regulated
-by themselves.
-```{r target_network}
-model <- generate_feature_network(model)
-plot_feature_network(model)
-plot_feature_network(model, show_hks = TRUE)
-```
-
-### Step 4: Generate kinetics
-Note that the target network does not show the effect of some interactions, 
-because these are generated along with other kinetics parameters of the 
-SSA simulation.
-
-```{r ssa}
-model <- generate_kinetics(model)
-plot_feature_network(model)
-plot_feature_network(model, show_hks = TRUE)
-```
-
-### Step 5: Simulate gold standard
-The gold standard is simulated by enabling certain parts of 
-the module network and performing ODE simulations. The gold standard
-are visualised by performing a dimensionality reduction on the 
-mRNA expression values.
-```{r gold_standard}
-model <- generate_gold_standard(model)
-plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
-```
-
-The expression of the modules (average of TFs) can be visualised as follows.
-```{r gold_pt, fig.width=10, fig.height=10}
-plot_gold_expression(model, what = "mol_mrna") # mrna
-plot_gold_expression(model, label_changing = FALSE) # premrna, mrna, and protein
-```
-
-### Step 6: Simulate cells.
-Cells are simulated by running SSA simulations. The simulations are again
-using dimensionality reduction.
-```{r simulations}
-model <- generate_cells(model)
-plot_simulations(model)
-```
-
-The gold standard can be overlayed on top of the simulations.
-```{r overlay}
-plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
-```
-
-We can check how each segment of a simulation is mapped to the gold standard.
-```{r compare}
-plot_gold_mappings(model, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
-```
-
-The expression of the modules (average of TFs) of a single simulation can be visualised as follows.
-```{r expression_sim}
-plot_simulation_expression(model, 1:4, what = "mol_mrna")
-```
-
-### Step 7: Experiment emulation
-Effects from performing a single-cell RNA-seq experiment can be emulated as follows.
-```{r experiment}
-model <- generate_experiment(model)
-```
-
-### Step 8: Convert to a dynwrap object
-```{r wrap}
-dataset <- wrap_dataset(model)
-```
-
-### Visualise with `dynplot`
-```{r dynplot}
-library(dynplot)
-plot_dimred(dataset)
-plot_graph(dataset)
-```
-
-### Infer trajectory on expression data
-```{r dyno}
-library(dyno)
-pred <- infer_trajectory(dataset, ti_slingshot())
-plot_dimred(pred)
-```
-
-## One-shot function
-
-`dyngen` also provides a one-shot function for running 
-all of the steps all at once and producing plots.
-```{r oneshot_run, message=FALSE, fig.width=20, fig.height=20}
-set.seed(1)
-config <- 
-  initialise_model(
-    num_tfs = 12,
-    num_targets = 30,
-    num_hks = 15,
-    backbone = backbone_bifurcating_converging(),
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
-  )
-
-out <- generate_dataset(
-  config,
-  make_plots = TRUE
+```{r vignettes, results='asis', echo=FALSE}
+walk(
+  list.files("vignettes", pattern = "*.Rmd"),
+  function(file) {
+    title <- 
+      read_lines(paste0("vignettes/", file)) %>% 
+      keep(~grepl("^title: ", .)) %>% 
+      gsub("title: \"(.*)\"", "\\1", .)
+    vignette_name <- gsub("\\.Rmd", "", file)
+    markdown_name <- gsub("\\.Rmd", ".md", file)
+    cat(
+      "* ",
+      ifelse(submission_to_cran, "", "["),
+      title, 
+      ifelse(submission_to_cran, "", paste0("](vignettes/", markdown_name, ")")),
+      ":  \n",
+      "`vignette(\"", vignette_name, "\", package=\"dyngen\")`\n",
+      sep = ""
+    )
+  }
 )
-
-dataset <- out$dataset
-model <- out$model
-print(out$plot)
 ```
 
-`dataset` and `model` can be used in much the same way as before.
+## Docker
+To run dyngen in a docker container, run the following command.
 
-```{r oneshot_plot}
-plot_dimred(dataset)
-plot_graph(dataset)
-pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
-plot_dimred(pred)
+```sh
+docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstudio/workdir dynverse/dyngen
 ```
 
-## Experimental feature: construct your own backbone
-
-In addition to the backbones already defined by `dyngen`, you can
-define your own custom backbone by using one of two ways.
-
-### Manually
-The first approach is to study the `?backbone` documentation. This will allow 
-you to create any sort of backbone you like (disconnected, cyclic, converging, ...),
-but also requires you to understand the backbone in detail and will typically 
-involve experimenting with the different parameters a little bit.
-
-This is an example of what data structures a backbone consists of.
-```{r bifurcatingloop_print}
-backbone <- backbone_bifurcating_loop()
-
-print(backbone$module_info)
-print(backbone$module_network)
-print(backbone$expression_patterns)
-```
-
-This allows you to simulate the following dataset.
-```{r bifurcatingloop_plot, fig.width = 20, fig.height = 20}
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
-
-print(out$plot)
-```
-
-### Backbone lego
-Alternatively, you can use the `bblego` functions in order to create 
-custom backbones using various components. Please note that the `bblego` 
-functions currently only allow you to create tree-like backbones. 
-See `?bblego` for more details.
-
-Here is an example of a bifurcating trajectory.
-
-```{r bblego, fig.width = 20, fig.height = 20}
-backbone <- bblego(
-  bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
-  bblego_branching("B", c("C", "D"), type = "simple"),
-  bblego_end("C", type = "doublerep2", num_modules = 4),
-  bblego_end("D", type = "doublerep1", num_modules = 7)
-)
-
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
-
-print(out$plot)
-```
-
+More information on running and building the docker container is available [here](https://github.com/dynverse/dyngen/tree/master/docker).
 
 ## Latest changes
 
