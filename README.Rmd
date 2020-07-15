@@ -36,7 +36,7 @@ remotes::install_github("dynverse/dyngen", dependencies = TRUE)
 ```
 
 To build the vignettes upon installation, run the following command instead. This might take a while depending on on the computer this is
-run on (>30min).
+run on (30 ~ 60 min).
 
 ```r
 remotes::install_github("dynverse/dyngen", dependencies = TRUE, build_vignettes = TRUE)
