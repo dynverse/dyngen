@@ -14,7 +14,7 @@ Authors@R:
              email = "wouter.saelens@ugent.be",
              comment = c(ORCID = "0000-0002-7114-6248")))
 Description: A toolkit for generating synthetic single cell
-    data.
+    data. Cannoodt et al. (2020) <doi:10.1101/2020.02.06.936971>
 License: MIT + file LICENSE
 URL: https://github.com/dynverse/dyngen
 BugReports: https://github.com/dynverse/dyngen/issues
@@ -50,9 +50,11 @@ Suggests:
     dynwrap (>= 1.2.0),
     knitr,
     rmarkdown,
+    R.rsp,
     testthat
 VignetteBuilder: 
-    knitr
+  knitr,
+  R.rsp
 Encoding: UTF-8
 LazyData: TRUE
 Roxygen: list(markdown = TRUE)

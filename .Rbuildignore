@@ -16,3 +16,7 @@
 ^man/figures/dependencies\.png$
 ^\.github$
 ^docker$
+^vignettes/.*\.md$
+^vignettes/.*/.*\.png$
+^vignettes/example.Rmd$
+^vignettes/showcase_backbones.Rmd$
