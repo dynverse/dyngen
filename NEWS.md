@@ -5,9 +5,13 @@
 * `wrap_dataset()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
   `$counts_unspliced` and `$counts_spliced` contains separated counts.
   
+* Added a docker container containing the necessary code to run a dyngen simulation.
+  
 ## MINOR CHANGES:
 
 * Added logo to package.
+
+* Clean up internal code, mostly to satisfy R CMD check.
 
 # dyngen 0.3.0 (2020-04-06)
 

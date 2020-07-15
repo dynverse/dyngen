@@ -13,9 +13,18 @@ knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=F
 
 [![Build Status](https://travis-ci.org/dynverse/dyngen.svg)](https://travis-ci.org/dynverse/dyngen)<br><img src="man/figures/logo.png" align="right" />
 
-A multi-modal simulator for spearheading single-cell omics analyses. The data is generated in several steps:
+dyngen is a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods.
 
 ![generation_overview](man/figures/generation_overview_v1.svg)
+
+## Installation
+You can install dyngen by running the following command.
+```r
+install.packages("remotes")
+remotes::install_github("dynverse/dyngen", dependencies = TRUE)
+```
+
+This software should work on Linux, Mac OS X, and Windows, for versions R 3.5 and upwards, and is tested with [Github Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check).
 
 ## Step-by-step example run
 
