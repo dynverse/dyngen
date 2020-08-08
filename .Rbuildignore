@@ -20,3 +20,4 @@
 ^vignettes/.*/.*\.png$
 ^vignettes/getting_started.Rmd$
 ^vignettes/showcase_backbones.Rmd$
+^cran-comments\.md$

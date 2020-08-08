@@ -15,7 +15,7 @@ Authors@R:
              email = "wouter.saelens@ugent.be",
              comment = c(ORCID = "0000-0002-7114-6248")))
 Description: A novel, multi-modal simulation engine for
-    studying dynamic cellular processes at single-cell resolution. dyngen
+    studying dynamic cellular processes at single-cell resolution. 'dyngen'
     is more flexible than current single-cell simulation engines. It
     allows better method development and benchmarking, thereby stimulating
     development and testing of novel computational methods. Cannoodt et
