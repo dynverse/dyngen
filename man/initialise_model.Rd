@@ -74,3 +74,12 @@ cached in this directory.}
 \description{
 Initial settings for simulating a dyngen dataset
 }
+\examples{
+model <- initialise_model(
+  backbone = backbone_bifurcating()
+)
+
+\dontrun{
+out <- generate_dataset(model)
+}
+}

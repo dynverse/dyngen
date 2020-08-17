@@ -21,3 +21,6 @@ rnorm_bounded(n, mean = 0, sd = 1, min = -Inf, max = Inf)
 \description{
 A bounded version of rnorm
 }
+\examples{
+rnorm_bounded(10)
+}

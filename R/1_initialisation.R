@@ -33,6 +33,15 @@
 #' @param id An identifier for the model.
 #'   
 #' @export
+#' 
+#' @examples
+#' model <- initialise_model(
+#'   backbone = backbone_bifurcating()
+#' )
+#' 
+#' \dontrun{
+#' out <- generate_dataset(model)
+#' }
 initialise_model <- function(
   backbone,
   num_cells = 1000,

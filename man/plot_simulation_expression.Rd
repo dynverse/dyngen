@@ -26,3 +26,7 @@ plot_simulation_expression(
 \description{
 Visualise the expression of the simulations over simulation time
 }
+\examples{
+data("example_model")
+plot_simulation_expression(example_model)
+}

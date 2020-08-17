@@ -51,3 +51,21 @@ By default, sampled from {-1, 1} with probabilities {.25, .75}.
 \item \code{hill}: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
 }
 }
+\examples{
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    kinetics = kinetics_default()
+  ) \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network() \%>\%
+  generate_kinetics()
+  
+\dontrun{
+model <- model \%>\%
+  generate_gold_standard() \%>\%
+  generate_cells() \%>\%
+  generate_experiment()
+dataset <- wrap_dataset(dataset)
+}
+}

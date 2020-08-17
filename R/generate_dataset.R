@@ -11,10 +11,21 @@
 #' 
 #' @inheritParams wrap_dataset
 #' 
-#' @export
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
 #' @importFrom methods is
+#' 
+#' @export
+#' 
+#' @examples
+#' out <- 
+#'   initialise_model(
+#'     backbone = backbone_bifurcating()
+#'   ) %>%
+#'   generate_dataset()
+#'   
+#' model <- out$model
+#' dataset <- out$dataset
 generate_dataset <- function(
   model, 
   output_dir = NULL,

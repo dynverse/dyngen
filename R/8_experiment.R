@@ -19,6 +19,31 @@
 #' 
 #' @importFrom stats rmultinom rnorm quantile
 #' @export
+#' 
+#' @examples
+#' names(list_experiment_samplers())
+#' 
+#' model <- 
+#'   initialise_model(
+#'     backbone = backbone_bifurcating(),
+#'     experiment = experiment_synchronised()
+#'   )
+#'   
+#' model <- 
+#'   initialise_model(
+#'     backbone = backbone_bifurcating(),
+#'     experiment = experiment_snapshot()
+#'   ) %>%
+#'   generate_tf_network() %>%
+#'   generate_feature_network() %>%
+#'   generate_kinetics() %>%
+#'   generate_gold_standard() %>%
+#'   generate_cells() %>%
+#'   generate_experiment()
+#'   
+#' \dontrun{
+#' dataset <- wrap_dataset(dataset)
+#' }
 generate_experiment <- function(model) {
   # satisfy r cmd check
   cell_id <- step_ix <- sim_time <- simulation_i <- from <- to <- time <- NULL

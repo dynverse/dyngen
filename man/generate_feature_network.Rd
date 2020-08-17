@@ -32,3 +32,21 @@ Alternatively, a custom GRN can be used by passing a weighted sparse matrix.}
 by the previously generated TFs, and also a separate network of housekeeping genes (HKs).
 \code{\link[=feature_network_default]{feature_network_default()}} is used to configure parameters pertaining this process.
 }
+\examples{
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    feature_network = feature_network_default(damping = 0.1)
+  ) \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network()
+  
+\dontrun{
+model <- model \%>\%
+  generate_kinetics() \%>\%
+  generate_gold_standard() \%>\%
+  generate_cells() \%>\%
+  generate_experiment()
+dataset <- wrap_dataset(dataset)
+}
+}

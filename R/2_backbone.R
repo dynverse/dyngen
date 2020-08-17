@@ -42,6 +42,27 @@
 #' @export
 #' 
 #' @seealso [list_backbones()] for a list of all backbone methods.
+#' 
+#' @examples
+#' library(tibble)
+#' backbone <- backbone(
+#'   module_info = tribble(
+#'     ~module_id, ~basal, ~burn, ~independence,
+#'     "M1",       1,      TRUE,  1,
+#'     "M2",       0,      FALSE, 1,
+#'     "M3",       0,      FALSE, 1
+#'   ),
+#'   module_network = tribble(
+#'     ~from, ~to,  ~effect, ~strength, ~hill,
+#'     "M1",  "M2", 1L,      1,         2,
+#'     "M2",  "M3", 1L,      1,         2
+#'   ), 
+#'   expression_patterns = tribble(
+#'     ~from, ~to,  ~module_progression, ~start, ~burn, ~time,
+#'     "s0",  "s1", "+M1",               TRUE,   TRUE,  15,
+#'     "s1",  "s2", "+M2,+M3",           FALSE,  FALSE, 30
+#'   )
+#' )
 backbone <- function(
   module_info,
   module_network,
@@ -151,6 +172,33 @@ backbone <- function(
 #' @rdname backbone_models
 #' 
 #' @seealso [backbone()] for more information on the data structures that define the backbone.
+#' 
+#' @examples
+#' # get a list of all the available backbones
+#' names(list_backbones())
+#' 
+#' bb <- backbone_bifurcating()
+#' bb <- backbone_bifurcating_converging()
+#' bb <- backbone_bifurcating_cycle()
+#' bb <- backbone_bifurcating_loop()
+#' bb <- backbone_binary_tree()
+#' bb <- backbone_branching()
+#' bb <- backbone_consecutive_bifurcating()
+#' bb <- backbone_converging()
+#' bb <- backbone_cycle()
+#' bb <- backbone_cycle_simple()
+#' bb <- backbone_disconnected()
+#' bb <- backbone_linear()
+#' bb <- backbone_linear_simple()
+#' bb <- backbone_trifurcating()
+#' 
+#' model <- initialise_model(
+#'   backbone = bb
+#' )
+#' 
+#' \dontrun{
+#' out <- generate_dataset(model)
+#' }
 list_backbones <- function() {
   list(
     bifurcating = backbone_bifurcating,

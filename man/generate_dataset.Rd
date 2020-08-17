@@ -32,3 +32,13 @@ This function contains the complete pipeline for generating a dataset
 with \pkg{dyngen}. In order to have more control over how the dataset
 is generated, run each of the steps in this function separately.
 }
+\examples{
+out <- 
+  initialise_model(
+    backbone = backbone_bifurcating()
+  ) \%>\%
+  generate_dataset()
+  
+model <- out$model
+dataset <- out$dataset
+}

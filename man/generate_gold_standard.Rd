@@ -21,3 +21,21 @@ gold_standard_default(tau = 30/3600, census_interval = 10/60)
 of the simulations.
 \code{\link[=gold_standard_default]{gold_standard_default()}} is used to configure parameters pertaining this process.
 }
+\examples{
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    gold_standard = gold_standard_default(tau = .01, census_interval = 1)
+  ) \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network() \%>\%
+  generate_kinetics() \%>\%
+  generate_gold_standard()
+  
+\dontrun{
+model <- model \%>\%
+  generate_cells() \%>\%
+  generate_experiment()
+dataset <- wrap_dataset(dataset)
+}
+}

@@ -23,3 +23,7 @@ plot_gold_simulations(
 \description{
 Visualise the simulations using the dimred
 }
+\examples{
+data("example_model")
+plot_gold_simulations(example_model)
+}

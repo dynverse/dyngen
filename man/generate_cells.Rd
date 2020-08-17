@@ -82,3 +82,28 @@ modifies them, and returns them as a list. See \code{\link[=kinetics_noise_none]
 of the simulations.
 \code{\link[=simulation_default]{simulation_default()}} is used to configure parameters pertaining this process.
 }
+\examples{
+library(dplyr)
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    simulation = simulation_default(
+      ssa_algorithm = ssa_etl(tau = .1),
+      experiment_params = bind_rows(
+        simulation_type_wild_type(num_simulations = 4),
+        simulation_type_knockdown(num_simulations = 4)
+      )
+    )
+  ) \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network() \%>\%
+  generate_kinetics() \%>\%
+  generate_gold_standard() \%>\%
+  generate_cells()
+  
+\dontrun{
+model <- model \%>\%
+  generate_experiment()
+dataset <- wrap_dataset(dataset)
+}
+}

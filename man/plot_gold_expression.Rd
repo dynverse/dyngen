@@ -20,3 +20,7 @@ plot_gold_expression(
 \description{
 Visualise the expression of the gold standard over simulation time
 }
+\examples{
+data("example_model")
+plot_gold_expression(example_model, what = "mol_mrna", label_changing = FALSE)
+}

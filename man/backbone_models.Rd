@@ -78,6 +78,33 @@ one or more genes from one module will regulate the expression of
 another module. By creating chains of modules, a dynamic behaviour in gene
 regulation can be created.
 }
+\examples{
+# get a list of all the available backbones
+names(list_backbones())
+
+bb <- backbone_bifurcating()
+bb <- backbone_bifurcating_converging()
+bb <- backbone_bifurcating_cycle()
+bb <- backbone_bifurcating_loop()
+bb <- backbone_binary_tree()
+bb <- backbone_branching()
+bb <- backbone_consecutive_bifurcating()
+bb <- backbone_converging()
+bb <- backbone_cycle()
+bb <- backbone_cycle_simple()
+bb <- backbone_disconnected()
+bb <- backbone_linear()
+bb <- backbone_linear_simple()
+bb <- backbone_trifurcating()
+
+model <- initialise_model(
+  backbone = bb
+)
+
+\dontrun{
+out <- generate_dataset(model)
+}
+}
 \seealso{
 \code{\link[=backbone]{backbone()}} for more information on the data structures that define the backbone.
 }

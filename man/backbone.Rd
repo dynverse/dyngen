@@ -49,6 +49,27 @@ one or more genes from one module will regulate the expression of
 another module. By creating chains of modules, a dynamic behaviour in gene
 regulation can be created.
 }
+\examples{
+library(tibble)
+backbone <- backbone(
+  module_info = tribble(
+    ~module_id, ~basal, ~burn, ~independence,
+    "M1",       1,      TRUE,  1,
+    "M2",       0,      FALSE, 1,
+    "M3",       0,      FALSE, 1
+  ),
+  module_network = tribble(
+    ~from, ~to,  ~effect, ~strength, ~hill,
+    "M1",  "M2", 1L,      1,         2,
+    "M2",  "M3", 1L,      1,         2
+  ), 
+  expression_patterns = tribble(
+    ~from, ~to,  ~module_progression, ~start, ~burn, ~time,
+    "s0",  "s1", "+M1",               TRUE,   TRUE,  15,
+    "s1",  "s2", "+M2,+M3",           FALSE,  FALSE, 30
+  )
+)
+}
 \seealso{
 \code{\link[=list_backbones]{list_backbones()}} for a list of all backbone methods.
 }

@@ -46,3 +46,28 @@ Cells will thus be sampled uniformily from the trajectory.
 \code{\link[=experiment_synchronised]{experiment_synchronised()}} assumes that all the cells are synchronised and
 are sampled at different timepoints.
 }
+\examples{
+names(list_experiment_samplers())
+
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    experiment = experiment_synchronised()
+  )
+  
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    experiment = experiment_snapshot()
+  ) \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network() \%>\%
+  generate_kinetics() \%>\%
+  generate_gold_standard() \%>\%
+  generate_cells() \%>\%
+  generate_experiment()
+  
+\dontrun{
+dataset <- wrap_dataset(dataset)
+}
+}

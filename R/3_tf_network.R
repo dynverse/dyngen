@@ -12,6 +12,25 @@
 #' 
 #' @export
 #' @rdname generate_tf_network
+#' 
+#' @examples
+#' model <- 
+#'   initialise_model(
+#'     backbone = backbone_bifurcating(),
+#'     tf_network = tf_network_default(min_tfs_per_module = 1L)
+#'   ) %>%
+#'   generate_tf_network()
+#'   
+#' \dontrun{
+#' model <- model %>%
+#'   generate_feature_network() %>%
+#'   generate_kinetics() %>%
+#'   generate_gold_standard() %>%
+#'   generate_cells() %>%
+#'   generate_experiment()
+#' dataset <- wrap_dataset(dataset)
+#' }
+#'
 generate_tf_network <- function(
   model
 ) {

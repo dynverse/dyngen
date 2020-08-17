@@ -23,3 +23,7 @@ plot_gold_mappings(
 \description{
 Visualise the mapping of the simulations to the gold standard
 }
+\examples{
+data("example_model")
+plot_gold_mappings(example_model)
+}

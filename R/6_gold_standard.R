@@ -9,6 +9,24 @@
 #' @param census_interval A granularity parameter of the gold standard time steps. Should be larger than or equal to `tau`.
 #' 
 #' @export
+#' 
+#' @examples
+#' model <- 
+#'   initialise_model(
+#'     backbone = backbone_bifurcating(),
+#'     gold_standard = gold_standard_default(tau = .01, census_interval = 1)
+#'   ) %>%
+#'   generate_tf_network() %>%
+#'   generate_feature_network() %>%
+#'   generate_kinetics() %>%
+#'   generate_gold_standard()
+#'   
+#' \dontrun{
+#' model <- model %>%
+#'   generate_cells() %>%
+#'   generate_experiment()
+#' dataset <- wrap_dataset(dataset)
+#' }
 generate_gold_standard <- function(model) {
   model$gold_standard <- list()
   

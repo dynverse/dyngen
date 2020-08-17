@@ -28,3 +28,22 @@ sampling (by rank) or not.}
 drive the dynamic process a cell undergoes.
 \code{\link[=tf_network_default]{tf_network_default()}} is used to configure parameters pertaining this process.
 }
+\examples{
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    tf_network = tf_network_default(min_tfs_per_module = 1L)
+  ) \%>\%
+  generate_tf_network()
+  
+\dontrun{
+model <- model \%>\%
+  generate_feature_network() \%>\%
+  generate_kinetics() \%>\%
+  generate_gold_standard() \%>\%
+  generate_cells() \%>\%
+  generate_experiment()
+dataset <- wrap_dataset(dataset)
+}
+
+}

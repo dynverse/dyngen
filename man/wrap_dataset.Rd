@@ -23,3 +23,7 @@ wrap_dataset(
 \description{
 The output of this object can be used with \pkg{dyno}.
 }
+\examples{
+data("example_model")
+dataset <- wrap_dataset(example_model)
+}

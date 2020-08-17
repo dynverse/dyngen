@@ -8,6 +8,10 @@
 #' @param store_rna_velocity WHether or not to store the log propensity ratios.
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' dataset <- wrap_dataset(example_model)
 wrap_dataset <- function(
   model,
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),

@@ -23,3 +23,7 @@ plot_feature_network(
 \description{
 Visualise the feature network of a model
 }
+\examples{
+data("example_model")
+plot_feature_network(example_model)
+}

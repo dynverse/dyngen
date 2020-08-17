@@ -14,3 +14,7 @@ plot_simulations(model, mapping = aes(comp_1, comp_2))
 \description{
 Visualise the simulations using the dimred
 }
+\examples{
+data("example_model")
+plot_simulations(example_model)
+}

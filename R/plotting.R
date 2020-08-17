@@ -22,6 +22,10 @@ effect_colour <- function(effect) {
 #' @param detailed Whether or not to also plot the substates of transitions.
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_backbone_statenet(example_model)
 plot_backbone_statenet <- function(model, detailed = FALSE) {
   # satisfy r cmd check 
   from_ <- to_ <- from <- to <- mod_diff <- name <- time <- module_progression <- 
@@ -80,6 +84,10 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
 #' 
 #' @importFrom igraph layout.graphopt V E
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_backbone_modulenet(example_model)
 plot_backbone_modulenet <- function(model) {
   # satisfy r cmd check
   module_id <- color <- from <- to <- strength <- effect <- name <- NULL
@@ -126,6 +134,10 @@ plot_backbone_modulenet <- function(model) {
 #' 
 #' @importFrom igraph layout_with_fr V E
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_feature_network(example_model)
 plot_feature_network <- function(
   model,
   show_tfs = TRUE,
@@ -225,6 +237,10 @@ plot_feature_network <- function(
 #' @param mapping Which components to plot.
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_simulations(example_model)
 plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
   # satisfy r cmd check
   comp_1 <- comp_2 <- sim_time <- simulation_i <- NULL
@@ -249,6 +265,10 @@ plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
 #' @param highlight Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_gold_simulations(example_model)
 plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2), highlight = 0) {
   # satisfy r cmd check
   comp_1 <- comp_2 <- burn <- sim_time <- from_ <- to_ <- from <- to <- simulation_i <- edge <- NULL
@@ -289,6 +309,10 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
 #' @param mapping Which components to plot.
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_gold_mappings(example_model)
 plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes(comp_1, comp_2)) {
   # satisfy r cmd check
   comp_1 <- comp_2 <- sim_time <- burn <- simulation_i <- from <- to <- edge <- NULL
@@ -332,6 +356,10 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
 #' @param label_changing Whether or not to add a label next to changing molecules.
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_gold_expression(example_model, what = "mol_mrna", label_changing = FALSE)
 plot_gold_expression <- function(
   model, 
   what = c("mol_premrna", "mol_mrna", "mol_protein"),
@@ -395,6 +423,10 @@ plot_gold_expression <- function(
 #' @importFrom stats approx
 #' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_simulation_expression(example_model)
 plot_simulation_expression <- function(
   model, 
   simulation_i = 1:4,

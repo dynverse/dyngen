@@ -14,3 +14,7 @@ plot_backbone_statenet(model, detailed = FALSE)
 \description{
 Visualise the backbone state network of a model
 }
+\examples{
+data("example_model")
+plot_backbone_statenet(example_model)
+}
