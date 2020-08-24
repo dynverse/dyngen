@@ -21,14 +21,15 @@
 #'   ) %>%
 #'   generate_tf_network()
 #'   
-#' \dontrun{
+#' \donttest{
 #' model <- model %>%
 #'   generate_feature_network() %>%
 #'   generate_kinetics() %>%
 #'   generate_gold_standard() %>%
 #'   generate_cells() %>%
 #'   generate_experiment()
-#' dataset <- wrap_dataset(dataset)
+#'   
+#' dataset <- wrap_dataset(model)
 #' }
 #'
 generate_tf_network <- function(

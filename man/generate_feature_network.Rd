@@ -37,16 +37,16 @@ model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     feature_network = feature_network_default(damping = 0.1)
-  ) \%>\%
-  generate_tf_network() \%>\%
-  generate_feature_network()
+  )
   
-\dontrun{
+\donttest{
 model <- model \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network() \%>\%
   generate_kinetics() \%>\%
   generate_gold_standard() \%>\%
   generate_cells() \%>\%
   generate_experiment()
-dataset <- wrap_dataset(dataset)
+dataset <- wrap_dataset(model)
 }
 }

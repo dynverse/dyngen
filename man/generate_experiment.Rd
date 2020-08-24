@@ -54,20 +54,17 @@ model <-
     backbone = backbone_bifurcating(),
     experiment = experiment_synchronised()
   )
-  
+
+\donttest{
 model <- 
-  initialise_model(
-    backbone = backbone_bifurcating(),
-    experiment = experiment_snapshot()
-  ) \%>\%
+  model \%>\%
   generate_tf_network() \%>\%
   generate_feature_network() \%>\%
   generate_kinetics() \%>\%
   generate_gold_standard() \%>\%
   generate_cells() \%>\%
-  generate_experiment()
+  generate_experiment() 
   
-\dontrun{
-dataset <- wrap_dataset(dataset)
+dataset <- wrap_dataset(model)
 }
 }

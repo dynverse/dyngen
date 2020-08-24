@@ -42,17 +42,18 @@
 #'   initialise_model(
 #'     backbone = backbone_bifurcating(),
 #'     kinetics = kinetics_default()
-#'   ) %>%
+#'   )
+#'   
+#' \donttest{
+#' model <- model %>%
 #'   generate_tf_network() %>%
 #'   generate_feature_network() %>%
-#'   generate_kinetics()
-#'   
-#' \dontrun{
-#' model <- model %>%
+#'   generate_kinetics() %>%
 #'   generate_gold_standard() %>%
 #'   generate_cells() %>%
 #'   generate_experiment()
-#' dataset <- wrap_dataset(dataset)
+#'   
+#' dataset <- wrap_dataset(model)
 #' }
 generate_kinetics <- function(model) {
   # satisfy r cmd check

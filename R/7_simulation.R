@@ -34,17 +34,18 @@
 #'         simulation_type_knockdown(num_simulations = 4)
 #'       )
 #'     )
-#'   ) %>%
+#'   )
+#' 
+#' \donttest{
+#' model <- model %>%
 #'   generate_tf_network() %>%
 #'   generate_feature_network() %>%
 #'   generate_kinetics() %>%
 #'   generate_gold_standard() %>%
-#'   generate_cells()
-#'   
-#' \dontrun{
-#' model <- model %>%
+#'   generate_cells() %>%
 #'   generate_experiment()
-#' dataset <- wrap_dataset(dataset)
+#'   
+#' dataset <- wrap_dataset(model)
 #' }
 generate_cells <- function(model) {
   # satisfy r cmd check

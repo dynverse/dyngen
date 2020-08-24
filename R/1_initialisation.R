@@ -39,8 +39,17 @@
 #'   backbone = backbone_bifurcating()
 #' )
 #' 
-#' \dontrun{
-#' out <- generate_dataset(model)
+#' \donttest{
+#' model <- 
+#'   model %>%
+#'   generate_tf_network() %>%
+#'   generate_feature_network() %>%
+#'   generate_kinetics() %>%
+#'   generate_gold_standard() %>%
+#'   generate_cells() %>%
+#'   generate_experiment() 
+#'   
+#' dataset <- wrap_dataset(model)
 #' }
 initialise_model <- function(
   backbone,

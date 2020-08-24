@@ -63,6 +63,19 @@
 #'     "s1",  "s2", "+M2,+M3",           FALSE,  FALSE, 30
 #'   )
 #' )
+#' 
+#' \donttest{
+#' model <- 
+#'   initialise_model(backbone = backbone) %>%
+#'   generate_tf_network() %>%
+#'   generate_feature_network() %>%
+#'   generate_kinetics() %>%
+#'   generate_gold_standard() %>%
+#'   generate_cells() %>%
+#'   generate_experiment() 
+#'   
+#' dataset <- wrap_dataset(model)
+#' }
 backbone <- function(
   module_info,
   module_network,

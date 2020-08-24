@@ -15,17 +15,18 @@
 #'   initialise_model(
 #'     backbone = backbone_bifurcating(),
 #'     gold_standard = gold_standard_default(tau = .01, census_interval = 1)
-#'   ) %>%
+#'   )
+#'   
+#' \donttest{
+#' model <- model %>%
 #'   generate_tf_network() %>%
 #'   generate_feature_network() %>%
 #'   generate_kinetics() %>%
-#'   generate_gold_standard()
-#'   
-#' \dontrun{
-#' model <- model %>%
+#'   generate_gold_standard() %>%
 #'   generate_cells() %>%
-#'   generate_experiment()
-#' dataset <- wrap_dataset(dataset)
+#'   generate_experiment
+#' 
+#' dataset <- wrap_dataset(model)
 #' }
 generate_gold_standard <- function(model) {
   model$gold_standard <- list()

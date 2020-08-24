@@ -18,6 +18,7 @@
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' out <- 
 #'   initialise_model(
 #'     backbone = backbone_bifurcating()
@@ -26,6 +27,7 @@
 #'   
 #' model <- out$model
 #' dataset <- out$dataset
+#' }
 generate_dataset <- function(
   model, 
   output_dir = NULL,
