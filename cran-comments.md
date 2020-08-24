@@ -1,3 +1,8 @@
+# Resubmission
+
+* Fixed description (package name in quote, added copyright information)
+* Added executable examples to Rd files of each exported function
+
 # dyngen 0.4.0
 Initial release of dyngen on CRAN.
 
