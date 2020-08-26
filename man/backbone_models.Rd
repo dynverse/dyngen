@@ -101,7 +101,7 @@ model <- initialise_model(
   backbone = bb
 )
 
-\dontrun{
+\donttest{
 out <- generate_dataset(model)
 }
 }

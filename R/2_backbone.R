@@ -209,7 +209,7 @@ backbone <- function(
 #'   backbone = bb
 #' )
 #' 
-#' \dontrun{
+#' \donttest{
 #' out <- generate_dataset(model)
 #' }
 list_backbones <- function() {
