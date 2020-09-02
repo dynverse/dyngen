@@ -14,6 +14,9 @@ kinetics_noise_simple(mean = 1, sd = 0.005)
 
 \item{sd}{The sd of the noise (should be a relatively small value)}
 }
+\value{
+A list of noise generators for the kinetics.
+}
 \description{
 Add small noise to the kinetics of each simulation
 }

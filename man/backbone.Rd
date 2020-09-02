@@ -42,6 +42,9 @@ not get sampled from these cell states.
 \item time (numeric): The duration of an transition.
 }}
 }
+\value{
+A dyngen backbone.
+}
 \description{
 A module is a group of genes which, to some extent, shows the same
 expression behaviour. Several modules are connected together such that

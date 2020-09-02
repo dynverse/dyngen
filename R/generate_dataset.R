@@ -17,6 +17,8 @@
 #' 
 #' @export
 #' 
+#' @return A list containing a dyngen model (`li$model`) and a dynwrap dataset (`li$dataset`).
+#' 
 #' @examples
 #' \donttest{
 #' out <- 

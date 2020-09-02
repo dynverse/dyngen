@@ -20,6 +20,9 @@ plot_gold_mappings(
 
 \item{mapping}{Which components to plot.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the mapping of the simulations to the gold standard
 }

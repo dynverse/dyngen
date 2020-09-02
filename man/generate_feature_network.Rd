@@ -27,6 +27,9 @@ Alternatively, a custom GRN can be used by passing a weighted sparse matrix.}
 
 \item{max_in_degree}{The maximum in-degree of a target / HK.}
 }
+\value{
+A dyngen model.
+}
 \description{
 \code{\link[=generate_feature_network]{generate_feature_network()}} generates a network of target genes that are regulated
 by the previously generated TFs, and also a separate network of housekeeping genes (HKs).
@@ -42,7 +45,11 @@ model <-
 \donttest{
 model <- model \%>\%
   generate_tf_network() \%>\%
-  generate_feature_network() \%>\%
+  generate_feature_network()
+  
+plot_feature_network(model)
+  
+model <- model \%>\%
   generate_kinetics() \%>\%
   generate_gold_standard() \%>\%
   generate_cells() \%>\%

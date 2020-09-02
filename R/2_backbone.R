@@ -41,6 +41,8 @@
 #' @importFrom grDevices rainbow
 #' @export
 #' 
+#' @return A dyngen backbone.
+#' 
 #' @seealso [list_backbones()] for a list of all backbone methods.
 #' 
 #' @examples
@@ -186,8 +188,9 @@ backbone <- function(
 #' 
 #' @seealso [backbone()] for more information on the data structures that define the backbone.
 #' 
+#' @return A list of all the available backbone generators.
+#' 
 #' @examples
-#' # get a list of all the available backbones
 #' names(list_backbones())
 #' 
 #' bb <- backbone_bifurcating()

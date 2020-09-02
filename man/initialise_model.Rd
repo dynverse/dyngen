@@ -71,6 +71,9 @@ cached in this directory.}
 
 \item{id}{An identifier for the model.}
 }
+\value{
+A dyngen model.
+}
 \description{
 Initial settings for simulating a dyngen dataset
 }
@@ -78,6 +81,8 @@ Initial settings for simulating a dyngen dataset
 model <- initialise_model(
   backbone = backbone_bifurcating()
 )
+plot_backbone_modulenet(model)
+plot_backbone_statenet(model)
 
 \donttest{
 model <- 

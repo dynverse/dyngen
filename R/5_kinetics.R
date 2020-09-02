@@ -37,6 +37,8 @@
 #' 
 #' @export
 #' 
+#' @return A dyngen model.
+#' 
 #' @examples
 #' model <- 
 #'   initialise_model(

@@ -31,6 +31,8 @@
 #'   cached in this directory.
 #' @param num_cores Parallellisation parameter for various steps in the pipeline. 
 #' @param id An identifier for the model.
+#' 
+#' @return A dyngen model.
 #'   
 #' @export
 #' 
@@ -38,6 +40,8 @@
 #' model <- initialise_model(
 #'   backbone = backbone_bifurcating()
 #' )
+#' plot_backbone_modulenet(model)
+#' plot_backbone_statenet(model)
 #' 
 #' \donttest{
 #' model <- 

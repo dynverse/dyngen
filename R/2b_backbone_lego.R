@@ -36,6 +36,8 @@
 #' 
 #' @export
 #' 
+#' @return A dyngen backbone.
+#' 
 #' @examples 
 #' backbone <- bblego(
 #'   bblego_start("A", type = "simple", num_modules = 2),

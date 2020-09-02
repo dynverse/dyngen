@@ -20,10 +20,15 @@ wrap_dataset(
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 }
+\value{
+A dynwrap object.
+}
 \description{
 The output of this object can be used with \pkg{dyno}.
 }
 \examples{
 data("example_model")
 dataset <- wrap_dataset(example_model)
+
+# dynplot::plot_dimred(dataset)
 }

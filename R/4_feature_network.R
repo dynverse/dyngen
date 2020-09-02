@@ -14,6 +14,8 @@
 #' 
 #' @export
 #' 
+#' @return A dyngen model.
+#' 
 #' @examples
 #' model <- 
 #'   initialise_model(
@@ -24,7 +26,11 @@
 #' \donttest{
 #' model <- model %>%
 #'   generate_tf_network() %>%
-#'   generate_feature_network() %>%
+#'   generate_feature_network()
+#'   
+#' plot_feature_network(model)
+#'   
+#' model <- model %>%
 #'   generate_kinetics() %>%
 #'   generate_gold_standard() %>%
 #'   generate_cells() %>%

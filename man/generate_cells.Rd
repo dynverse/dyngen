@@ -77,6 +77,9 @@ modifies them, and returns them as a list. See \code{\link[=kinetics_noise_none]
 
 \item{multiplier}{The strength of the knockdown. Use 0 for a full knockout, 0<x<1 for a knockdown, and >1 for an overexpression.}
 }
+\value{
+A dyngen model.
+}
 \description{
 \code{\link[=generate_cells]{generate_cells()}} runs simulations in order to determine the gold standard
 of the simulations.
@@ -102,7 +105,13 @@ model <- model \%>\%
   generate_feature_network() \%>\%
   generate_kinetics() \%>\%
   generate_gold_standard() \%>\%
-  generate_cells() \%>\%
+  generate_cells()
+  
+plot_simulations(model)
+plot_gold_mappings(model)
+plot_simulation_expression(model)
+
+model <- model \%>\%
   generate_experiment()
   
 dataset <- wrap_dataset(model)

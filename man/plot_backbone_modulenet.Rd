@@ -9,6 +9,9 @@ plot_backbone_modulenet(model)
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the backbone of a model
 }

@@ -12,6 +12,9 @@ kinetics_default()
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
 }
+\value{
+A dyngen model.
+}
 \description{
 \code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which
 the kinetics have not yet been defined.

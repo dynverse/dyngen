@@ -23,6 +23,9 @@ plot_simulation_expression(
 
 \item{label_nonzero}{Plot labels for non-zero molecules.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the expression of the simulations over simulation time
 }

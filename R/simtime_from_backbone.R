@@ -5,6 +5,8 @@
 #' 
 #' @export
 #' 
+#' @return An estimation of the required simulation time
+#' 
 #' @examples 
 #' backbone <- backbone_linear()
 #' 

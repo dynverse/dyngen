@@ -19,6 +19,8 @@
 #'   It takes the `feature_info` and `feature_network` as input parameters,
 #'   modifies them, and returns them as a list. See [kinetics_noise_none()] and [kinetics_noise_simple()].
 #' 
+#' @return A dyngen model.
+#' 
 #' @importFrom GillespieSSA2 ssa
 #' @export
 #' 
@@ -42,7 +44,13 @@
 #'   generate_feature_network() %>%
 #'   generate_kinetics() %>%
 #'   generate_gold_standard() %>%
-#'   generate_cells() %>%
+#'   generate_cells()
+#'   
+#' plot_simulations(model)
+#' plot_gold_mappings(model)
+#' plot_simulation_expression(model)
+#' 
+#' model <- model %>%
 #'   generate_experiment()
 #'   
 #' dataset <- wrap_dataset(model)
@@ -154,6 +162,8 @@ simulation_default <- function(
 #' 
 #' @param mean The mean level of noise (should be 1)
 #' @param sd The sd of the noise (should be a relatively small value)
+#' 
+#' @return A list of noise generators for the kinetics.
 #' 
 #' @rdname kinetics_noise
 #' @export

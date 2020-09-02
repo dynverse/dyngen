@@ -20,6 +20,9 @@ plot_feature_network(
 
 \item{show_hks}{Whether or not to show the housekeeping genes.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the feature network of a model
 }

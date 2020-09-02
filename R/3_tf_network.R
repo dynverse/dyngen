@@ -13,6 +13,8 @@
 #' @export
 #' @rdname generate_tf_network
 #' 
+#' @return A dyngen model.
+#' 
 #' @examples
 #' model <- 
 #'   initialise_model(
@@ -20,6 +22,8 @@
 #'     tf_network = tf_network_default(min_tfs_per_module = 1L)
 #'   ) %>%
 #'   generate_tf_network()
+#'   
+#' plot_feature_network(model)
 #'   
 #' \donttest{
 #' model <- model %>%

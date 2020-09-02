@@ -6,6 +6,8 @@
 #'
 #' @importFrom stats pnorm qnorm
 #' 
+#' @return Generates values with rnorm, bounded by \[min, max\]
+#' 
 #' @export 
 #' 
 #' @examples

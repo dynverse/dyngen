@@ -11,6 +11,9 @@ plot_simulations(model, mapping = aes(comp_1, comp_2))
 
 \item{mapping}{Which components to plot.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the simulations using the dimred
 }

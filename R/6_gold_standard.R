@@ -10,6 +10,8 @@
 #' 
 #' @export
 #' 
+#' @return A dyngen model.
+#' 
 #' @examples
 #' model <- 
 #'   initialise_model(
@@ -22,7 +24,13 @@
 #'   generate_tf_network() %>%
 #'   generate_feature_network() %>%
 #'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
+#'   generate_gold_standard()
+#'   
+#' plot_gold_simulations(model)
+#' plot_gold_mappings(model)
+#' plot_gold_expression(model)
+#'   
+#' model <- model %>%
 #'   generate_cells() %>%
 #'   generate_experiment
 #' 

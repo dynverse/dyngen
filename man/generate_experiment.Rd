@@ -39,6 +39,9 @@ cells along each edge in order to perform weighted sampling.}
 
 \item{pct_between}{[synchronised] The percentage of 'unused' simulation time.}
 }
+\value{
+A dyngen model.
+}
 \description{
 \code{\link[=generate_experiment]{generate_experiment()}} runs samples cells along the different simulations.
 \code{\link[=experiment_snapshot]{experiment_snapshot()}} assumes that cells are sampled from a heterogeneous pool of cells.

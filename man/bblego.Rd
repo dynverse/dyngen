@@ -72,6 +72,9 @@ Various components might require a minimum number of components in order to work
 
 \item{num_steps}{The number of branching steps to reduce the odds of double positive cells occurring.}
 }
+\value{
+A dyngen backbone.
+}
 \description{
 You can use the \code{bblego} functions in order to create
 custom backbones using various components. Please note that the \code{bblego}

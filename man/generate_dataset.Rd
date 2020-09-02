@@ -27,6 +27,9 @@ dataset will be written to files in this directory.}
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 }
+\value{
+A list containing a dyngen model (\code{li$model}) and a dynwrap dataset (\code{li$dataset}).
+}
 \description{
 This function contains the complete pipeline for generating a dataset
 with \pkg{dyngen}. In order to have more control over how the dataset

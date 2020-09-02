@@ -71,6 +71,9 @@ backbone_disconnected(
 
 \item{num_common_modules}{The number of modules which are regulated by either backbone.}
 }
+\value{
+A list of all the available backbone generators.
+}
 \description{
 A module is a group of genes which, to some extent, shows the same
 expression behaviour. Several modules are connected together such that
@@ -79,7 +82,6 @@ another module. By creating chains of modules, a dynamic behaviour in gene
 regulation can be created.
 }
 \examples{
-# get a list of all the available backbones
 names(list_backbones())
 
 bb <- backbone_bifurcating()

@@ -20,6 +20,9 @@ plot_gold_simulations(
 
 \item{highlight}{Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the simulations using the dimred
 }

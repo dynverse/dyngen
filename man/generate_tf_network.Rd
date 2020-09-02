@@ -23,6 +23,9 @@ tf_network_default(
 \item{weighted_sampling}{When determining what TFs another TF is regulated by, whether to perform weighted
 sampling (by rank) or not.}
 }
+\value{
+A dyngen model.
+}
 \description{
 \code{\link[=generate_tf_network]{generate_tf_network()}} generates the transcription factors (TFs) that
 drive the dynamic process a cell undergoes.
@@ -35,6 +38,8 @@ model <-
     tf_network = tf_network_default(min_tfs_per_module = 1L)
   ) \%>\%
   generate_tf_network()
+  
+plot_feature_network(model)
   
 \donttest{
 model <- model \%>\%

@@ -16,6 +16,9 @@ gold_standard_default(tau = 30/3600, census_interval = 10/60)
 
 \item{census_interval}{A granularity parameter of the gold standard time steps. Should be larger than or equal to \code{tau}.}
 }
+\value{
+A dyngen model.
+}
 \description{
 \code{\link[=generate_gold_standard]{generate_gold_standard()}} runs simulations in order to determine the gold standard
 of the simulations.
@@ -33,7 +36,13 @@ model <- model \%>\%
   generate_tf_network() \%>\%
   generate_feature_network() \%>\%
   generate_kinetics() \%>\%
-  generate_gold_standard() \%>\%
+  generate_gold_standard()
+  
+plot_gold_simulations(model)
+plot_gold_mappings(model)
+plot_gold_expression(model)
+  
+model <- model \%>\%
   generate_cells() \%>\%
   generate_experiment
 

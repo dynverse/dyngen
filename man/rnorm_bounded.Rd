@@ -18,6 +18,9 @@ rnorm_bounded(n, mean = 0, sd = 1, min = -Inf, max = Inf)
 
 \item{max}{upper limits of the distribution.}
 }
+\value{
+Generates values with rnorm, bounded by [min, max]
+}
 \description{
 A bounded version of rnorm
 }

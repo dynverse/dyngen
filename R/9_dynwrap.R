@@ -7,11 +7,15 @@
 #' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
 #' @param store_rna_velocity WHether or not to store the log propensity ratios.
 #' 
+#' @return A dynwrap object.
+#' 
 #' @export
 #' 
 #' @examples
 #' data("example_model")
 #' dataset <- wrap_dataset(example_model)
+#' 
+#' # dynplot::plot_dimred(dataset)
 wrap_dataset <- function(
   model,
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),

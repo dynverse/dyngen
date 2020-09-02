@@ -21,6 +21,8 @@ effect_colour <- function(effect) {
 #' @param model A dyngen initial model created with [initialise_model()].
 #' @param detailed Whether or not to also plot the substates of transitions.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
 #' 
 #' @examples
@@ -82,6 +84,8 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
 #' 
 #' @param model A dyngen initial model created with [initialise_model()].
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @importFrom igraph layout.graphopt V E
 #' @export
 #' 
@@ -131,6 +135,8 @@ plot_backbone_modulenet <- function(model) {
 #' @param show_tfs Whether or not to show the transcription factors.
 #' @param show_targets Whether or not to show the targets.
 #' @param show_hks Whether or not to show the housekeeping genes.
+#' 
+#' @return A ggplot2 object.
 #' 
 #' @importFrom igraph layout_with_fr V E
 #' @export
@@ -236,6 +242,8 @@ plot_feature_network <- function(
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
 #' @param mapping Which components to plot.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
 #' 
 #' @examples
@@ -263,6 +271,8 @@ plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
 #' @param detailed Whether or not to colour according to each separate sub-edge in the gold standard.
 #' @param mapping Which components to plot.
 #' @param highlight Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.
+#' 
+#' @return A ggplot2 object.
 #' 
 #' @export
 #' 
@@ -307,6 +317,8 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
 #' @param selected_simulations Which simulation indices to visualise.
 #' @param do_facet Whether or not to facet according to simulation index.
 #' @param mapping Which components to plot.
+#' 
+#' @return A ggplot2 object.
 #' 
 #' @export
 #' 
@@ -354,6 +366,8 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_gold_standard()].
 #' @param what Which molecule types to visualise.
 #' @param label_changing Whether or not to add a label next to changing molecules.
+#' 
+#' @return A ggplot2 object.
 #' 
 #' @export
 #' 
@@ -418,6 +432,8 @@ plot_gold_expression <- function(
 #' @param what Which molecule types to visualise.
 #' @param facet What to facet on.
 #' @param label_nonzero Plot labels for non-zero molecules.
+#' 
+#' @return A ggplot2 object.
 #' 
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom stats approx

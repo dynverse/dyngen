@@ -15,6 +15,8 @@
 #'   dataset will be sampled from [realcounts].
 #' @param sample_capture_rate A function that samples values for the simulated capture rates of genes.
 #' 
+#' @return A dyngen model.
+#' 
 #' @rdname generate_experiment
 #' 
 #' @importFrom stats rmultinom rnorm quantile

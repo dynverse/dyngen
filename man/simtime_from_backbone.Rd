@@ -11,6 +11,9 @@ simtime_from_backbone(backbone, burn = FALSE)
 
 \item{burn}{Whether or not to compute the simtime for only the burn phase}
 }
+\value{
+An estimation of the required simulation time
+}
 \description{
 Determine simulation time from backbone
 }
