@@ -39,21 +39,42 @@ by the previously generated TFs, and also a separate network of housekeeping gen
 model <- 
   initialise_model(
     backbone = backbone_bifurcating(),
-    feature_network = feature_network_default(damping = 0.1)
+    feature_network = feature_network_default(damping = 0.1),
+    # set this to the number of cores in your system
+    num_cores = 4, 
+    # set this to a directory where dyngen can cache some files
+    download_cache_dir = "~/.cache/dyngen" 
   )
-  
+\dontshow{
+# actually use a smaller example 
+# to reduce execution time during
+# testing of the examples
+model <- initialise_model(
+  backbone = model$backbone,
+  num_cells = 5,
+  num_targets = 0,
+  num_hks = 0,
+  gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
+  simulation_params = simulation_default(
+    burn_time = 10,
+    total_time = 10,
+    census_interval = 1,
+    ssa_algorithm = ssa_etl(tau = 0.1),
+    experiment_params = simulation_type_wild_type(num_simulations = 1)
+  )
+)
+}
 \donttest{
 model <- model \%>\%
   generate_tf_network() \%>\%
-  generate_feature_network()
-  
-plot_feature_network(model)
-  
-model <- model \%>\%
+  generate_feature_network() \%>\%
   generate_kinetics() \%>\%
   generate_gold_standard() \%>\%
   generate_cells() \%>\%
   generate_experiment()
+  
+plot_feature_network(model)
+
 dataset <- wrap_dataset(model)
 }
 }

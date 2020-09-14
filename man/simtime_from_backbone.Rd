@@ -27,6 +27,10 @@ model <- initialise_model(
   simulation_params = simulation_default(
     burn_time = simtime_from_backbone(backbone, burn = TRUE),
     total_time = simtime_from_backbone(backbone, burn = FALSE)
-  )
+  ),
+  # set this to the number of cores in your system
+  num_cores = 4, 
+  # set this to a directory where dyngen can cache some files
+  download_cache_dir = "~/.cache/dyngen" 
 )
 }
