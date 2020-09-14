@@ -1,19 +1,24 @@
+# dyngen 0.4.1 
+
+## BUG FIX
+* `wrap_dataset()`: Fix `drop = FALSE` bug when only cell is being sampled.
+
 # dyngen 0.4.0 (2020-07-15)
 
-## MAJOR CHANGES:
+## MAJOR CHANGES
 
 * `wrap_dataset()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
   `$counts_unspliced` and `$counts_spliced` contains separated counts.
   
 * Added a docker container containing the necessary code to run a dyngen simulation.
   
-## MINOR CHANGES:
+## MINOR CHANGES
 
 * Added logo to package.
 
 * Clean up internal code, mostly to satisfy R CMD check.
 
-## DOCUMENTATION:
+## DOCUMENTATION
 
 * Added two vignettes.
 
@@ -21,7 +26,7 @@
 
 # dyngen 0.3.0 (2020-04-06)
 
-## NEW FEATURES:
+## NEW FEATURES
 
 * Implement knockdown / knockouts / overexpression experiments.
 
@@ -35,7 +40,7 @@
 
 * Changed many parameter names to better explain its purpose.
 
-## MINOR CHANGES:
+## MINOR CHANGES
 
 * Fix module naming of backbones derived from `backbone_branching()`.
 
@@ -55,7 +60,7 @@
 
 * Allow computing the propensity ratios as ground-truth for rna velocity.
 
-## BUG FIXES:
+## BUG FIXES
 
 * Implement fix for double positives in `bblego` backbones.
 

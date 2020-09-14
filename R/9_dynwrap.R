@@ -18,8 +18,8 @@
 #' # dynplot::plot_dimred(dataset)
 wrap_dataset <- function(
   model,
+  store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
-  store_dimred = !is.null(model$experiment$dimred),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
   # satisfy r cmd check
@@ -48,14 +48,14 @@ wrap_dataset <- function(
     )
   
   if (store_dimred) {
-    dimred <- model$simulations$dimred[model$experiment$cell_info$step_ix, ]
+    dimred <- model$simulations$dimred[model$experiment$cell_info$step_ix, , drop = FALSE]
     rownames(dimred) <- model$experiment$cell_info$cell_id
     
     dataset <- dataset %>% 
       dynwrap::add_dimred(
         dimred = dimred,
-        dimred_segment_points = model$gold_standard$dimred[!model$gold_standard$meta$burn,],
-        dimred_segment_progressions = model$gold_standard$meta[!model$gold_standard$meta$burn,] %>% 
+        dimred_segment_points = model$gold_standard$dimred[!model$gold_standard$meta$burn, , drop = FALSE],
+        dimred_segment_progressions = model$gold_standard$meta[!model$gold_standard$meta$burn, , drop = FALSE] %>% 
           select(from, to, percentage = time)
       )
   }
