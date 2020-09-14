@@ -13,12 +13,14 @@ submission_to_cran <- FALSE
 ```
 
 # dyngen
-
+[![CRAN Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org/package=dyngen)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
+[![DOI](https://zenodo.org/badge/DOI/10.1101/2020.02.06.936971)](https://doi.org/10.1101/2020.02.06.936971)  
 ![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)<br><img src="man/figures/logo.png" align="right" />
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods.
 
-A preprint is available on [bioRxiv](https://www.biorxiv.org/content/10.1101/2020.02.06.936971v2). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
+A preprint is available on [bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
 ## System requirements
 This package is supported for Linux, but should also work on Mac OS X and Windows. It has been tested with [Github Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check) for R 3.5, 3.6 and 4.0 on the following systems:
@@ -28,18 +30,16 @@ This package is supported for Linux, but should also work on Mac OS X and Window
 * Windows: Windows Server 2019 (10.0.17763)
 
 ## Installation
-You can install dyngen by running the following command. This should take no more than 10 minutes to install.
+dyngen is available on CRAN, so you can install it with the following command
+```r
+install.packags("dyngen")
+```
+
+If you would like to install the development version of dyngen from GitHub instead, run the following command. Use at your own risk!
 
 ```r
 install.packages("remotes")
-remotes::install_github("dynverse/dyngen", dependencies = TRUE)
-```
-
-To build the vignettes upon installation, run the following command instead. This might take a while depending on on the computer this is
-run on (30 ~ 60 min).
-
-```r
-remotes::install_github("dynverse/dyngen", dependencies = TRUE, build_vignettes = TRUE)
+remotes::install_github("dynverse/dyngen@devel", dependencies = TRUE)
 ```
 
 ## Vignettes
