@@ -33,13 +33,13 @@ model <-
 plot_backbone_statenet(model)
 ```
 
-![](example_files/figure-gfm/init-1.png)<!-- -->
+![](getting_started_files/figure-gfm/init-1.png)<!-- -->
 
 ``` r
 plot_backbone_modulenet(model)
 ```
 
-![](example_files/figure-gfm/init-2.png)<!-- -->
+![](getting_started_files/figure-gfm/init-2.png)<!-- -->
 
 For backbones with all different sorts of topologies, check
 `list_backbones()`:
@@ -67,7 +67,7 @@ model <- generate_tf_network(model)
 plot_feature_network(model, show_targets = FALSE)
 ```
 
-![](example_files/figure-gfm/tf_network-1.png)<!-- -->
+![](getting_started_files/figure-gfm/tf_network-1.png)<!-- -->
 
 ## Step 3: Sample target genes and housekeeping genes (HKs)
 
@@ -86,13 +86,13 @@ model <- generate_feature_network(model)
 plot_feature_network(model)
 ```
 
-![](example_files/figure-gfm/target_network-1.png)<!-- -->
+![](getting_started_files/figure-gfm/target_network-1.png)<!-- -->
 
 ``` r
 plot_feature_network(model, show_hks = TRUE)
 ```
 
-![](example_files/figure-gfm/target_network-2.png)<!-- -->
+![](getting_started_files/figure-gfm/target_network-2.png)<!-- -->
 
 ## Step 4: Generate kinetics
 
@@ -111,13 +111,13 @@ model <- generate_kinetics(model)
 plot_feature_network(model)
 ```
 
-![](example_files/figure-gfm/ssa-1.png)<!-- -->
+![](getting_started_files/figure-gfm/ssa-1.png)<!-- -->
 
 ``` r
 plot_feature_network(model, show_hks = TRUE)
 ```
 
-![](example_files/figure-gfm/ssa-2.png)<!-- -->
+![](getting_started_files/figure-gfm/ssa-2.png)<!-- -->
 
 ## Step 5: Simulate gold standard
 
@@ -138,7 +138,7 @@ model <- generate_gold_standard(model)
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 ```
 
-![](example_files/figure-gfm/gold_standard-1.png)<!-- -->
+![](getting_started_files/figure-gfm/gold_standard-1.png)<!-- -->
 
 The expression of the modules (average of TFs) can be visualised as
 follows.
@@ -147,13 +147,13 @@ follows.
 plot_gold_expression(model, what = "mol_mrna") # mrna
 ```
 
-![](example_files/figure-gfm/gold_pt-1.png)<!-- -->
+![](getting_started_files/figure-gfm/gold_pt-1.png)<!-- -->
 
 ``` r
 plot_gold_expression(model, label_changing = FALSE) # premrna, mrna, and protein
 ```
 
-![](example_files/figure-gfm/gold_pt-2.png)<!-- -->
+![](getting_started_files/figure-gfm/gold_pt-2.png)<!-- -->
 
 ## Step 6: Simulate cells.
 
@@ -173,7 +173,7 @@ model <- generate_cells(model)
 plot_simulations(model)
 ```
 
-![](example_files/figure-gfm/simulations-1.png)<!-- -->
+![](getting_started_files/figure-gfm/simulations-1.png)<!-- -->
 
 The gold standard can be overlayed on top of the simulations.
 
@@ -181,7 +181,7 @@ The gold standard can be overlayed on top of the simulations.
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
 ```
 
-![](example_files/figure-gfm/overlay-1.png)<!-- -->
+![](getting_started_files/figure-gfm/overlay-1.png)<!-- -->
 
 We can check how each segment of a simulation is mapped to the gold
 standard.
@@ -190,7 +190,7 @@ standard.
 plot_gold_mappings(model, do_facet = FALSE) + scale_colour_brewer(palette = "Dark2")
 ```
 
-![](example_files/figure-gfm/compare-1.png)<!-- -->
+![](getting_started_files/figure-gfm/compare-1.png)<!-- -->
 
 The expression of the modules (average of TFs) of a single simulation
 can be visualised as follows.
@@ -199,7 +199,7 @@ can be visualised as follows.
 plot_simulation_expression(model, 1:4, what = "mol_mrna")
 ```
 
-![](example_files/figure-gfm/expression_sim-1.png)<!-- -->
+![](getting_started_files/figure-gfm/expression_sim-1.png)<!-- -->
 
 ## Step 7: Experiment emulation
 
@@ -229,7 +229,7 @@ plot_dimred(dataset)
 
     ## Using milestone_percentages from trajectory
 
-![](example_files/figure-gfm/dynplot-1.png)<!-- -->
+![](getting_started_files/figure-gfm/dynplot-1.png)<!-- -->
 
 ``` r
 plot_graph(dataset)
@@ -238,7 +238,7 @@ plot_graph(dataset)
     ## Coloring by milestone
     ## Using milestone_percentages from trajectory
 
-![](example_files/figure-gfm/dynplot-2.png)<!-- -->
+![](getting_started_files/figure-gfm/dynplot-2.png)<!-- -->
 
 ## Infer trajectory on expression data
 
@@ -259,7 +259,7 @@ plot_dimred(pred)
 
     ## Using milestone_percentages from trajectory
 
-![](example_files/figure-gfm/dyno-1.png)<!-- -->
+![](getting_started_files/figure-gfm/dyno-1.png)<!-- -->
 
 # One-shot function
 
@@ -291,7 +291,7 @@ model <- out$model
 print(out$plot)
 ```
 
-![](example_files/figure-gfm/oneshot_run-1.png)<!-- -->
+![](getting_started_files/figure-gfm/oneshot_run-1.png)<!-- -->
 
 `dataset` and `model` can be used in much the same way as before.
 
@@ -303,7 +303,7 @@ plot_dimred(dataset)
 
     ## Using milestone_percentages from trajectory
 
-![](example_files/figure-gfm/oneshot_plot-1.png)<!-- -->
+![](getting_started_files/figure-gfm/oneshot_plot-1.png)<!-- -->
 
 ``` r
 plot_graph(dataset)
@@ -312,7 +312,7 @@ plot_graph(dataset)
     ## Coloring by milestone
     ## Using milestone_percentages from trajectory
 
-![](example_files/figure-gfm/oneshot_plot-2.png)<!-- -->
+![](getting_started_files/figure-gfm/oneshot_plot-2.png)<!-- -->
 
 ``` r
 pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
@@ -329,7 +329,7 @@ plot_dimred(pred)
     ## Coloring by milestone
     ## Using milestone_percentages from trajectory
 
-![](example_files/figure-gfm/oneshot_plot-3.png)<!-- -->
+![](getting_started_files/figure-gfm/oneshot_plot-3.png)<!-- -->
 
 ## Construct your own backbone
 
@@ -421,7 +421,7 @@ out <-
 print(out$plot)
 ```
 
-![](example_files/figure-gfm/bifurcatingloop_plot-1.png)<!-- -->
+![](getting_started_files/figure-gfm/bifurcatingloop_plot-1.png)<!-- -->
 
 ### Backbone lego
 
@@ -456,4 +456,4 @@ out <-
 print(out$plot)
 ```
 
-![](example_files/figure-gfm/bblego-1.png)<!-- -->
+![](getting_started_files/figure-gfm/bblego-1.png)<!-- -->
