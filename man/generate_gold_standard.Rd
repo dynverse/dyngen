@@ -7,7 +7,11 @@
 \usage{
 generate_gold_standard(model)
 
-gold_standard_default(tau = 30/3600, census_interval = 10/60)
+gold_standard_default(
+  tau = 30/3600,
+  census_interval = 10/60,
+  simulate_targets = FALSE
+)
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the kinetics of the feature network has been generated with \code{\link[=generate_kinetics]{generate_kinetics()}}.}
@@ -15,6 +19,8 @@ gold_standard_default(tau = 30/3600, census_interval = 10/60)
 \item{tau}{The time step of the ODE algorithm used to generate the gold standard.}
 
 \item{census_interval}{A granularity parameter of the gold standard time steps. Should be larger than or equal to \code{tau}.}
+
+\item{simulate_targets}{Also simulate the targets during the gold standard simulation}
 }
 \value{
 A dyngen model.
