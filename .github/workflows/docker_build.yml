@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:
+      - master
+      - devel
+  schedule:
+    - cron: "0 0 * * 1"
+
+name: make
+
+jobs:
+  build_containers:
+    runs-on: 'ubuntu-latest'
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    name: build container
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          VERSION=`cat DESCRIPTION | grep Version | sed 's#.*: ##'`
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          docker build --build-arg GITHUB_PAT=${{ secrets.PAT }} -t dynbuild .
+          docker tag dynbuild $GITHUB_REPOSITORY:$BRANCH
+          if [[ $BRANCH == "master" ]] ; then
+            docker tag dynbuild $GITHUB_REPOSITORY:$VERSION
+            docker tag dynbuild $GITHUB_REPOSITORY:latest
+          fi
+
+      - name: Push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push $GITHUB_REPOSITORY
