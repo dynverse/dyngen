@@ -1,5 +1,11 @@
 # dyngen 0.4.1 
 
+## MINOR CHANGES
+
+* `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
+  to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively, 
+  so you can change the system settings with your R profile.
+
 ## BUG FIX
 * `wrap_dataset()`: Fix `drop = FALSE` bug when only cell is being sampled.
 

@@ -35,11 +35,7 @@
 #'         simulation_type_wild_type(num_simulations = 4),
 #'         simulation_type_knockdown(num_simulations = 4)
 #'       )
-#'     ),
-#'     # set this to the number of cores in your system
-#'     num_cores = 4, 
-#'     # set this to a directory where dyngen can cache some files
-#'     download_cache_dir = "~/.cache/dyngen" 
+#'     )
 #'   )
 #' \dontshow{
 #' # actually use a smaller example 
@@ -85,10 +81,10 @@ generate_cells <- function(model) {
   # simulate cells one by one
   if (model$verbose) cat("Running ", nrow(model$simulation_params$experiment_params), " simulations\n", sep = "")
   simulations <- 
-    furrr::future_map(
-      seq_len(nrow(model$simulation_params$experiment_params)),
-      .generate_cells_simulate_cell,
-      .progress = model$verbose,
+    pbapply::pblapply(
+      X = seq_len(nrow(model$simulation_params$experiment_params)),
+      cl = model$num_cores,
+      FUN = .generate_cells_simulate_cell,
       model = model,
       reactions = reactions
     )

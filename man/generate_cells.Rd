@@ -96,11 +96,7 @@ model <-
         simulation_type_wild_type(num_simulations = 4),
         simulation_type_knockdown(num_simulations = 4)
       )
-    ),
-    # set this to the number of cores in your system
-    num_cores = 4, 
-    # set this to a directory where dyngen can cache some files
-    download_cache_dir = "~/.cache/dyngen" 
+    )
   )
 \dontshow{
 # actually use a smaller example 

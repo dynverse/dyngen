@@ -38,11 +38,7 @@
 #' 
 #' @examples
 #' model <- initialise_model(
-#'   backbone = backbone_bifurcating(),
-#'   # set this to the number of cores in your system
-#'   num_cores = 4, 
-#'   # set this to a directory where dyngen can cache some files
-#'   download_cache_dir = "~/.cache/dyngen" 
+#'   backbone = backbone_bifurcating()
 #' )
 #' \dontshow{
 #' # actually use a smaller example 
@@ -92,8 +88,8 @@ initialise_model <- function(
   simulation_params = simulation_default(),
   experiment_params = experiment_snapshot(),
   verbose = TRUE,
-  download_cache_dir = NULL,
-  num_cores = 1,
+  download_cache_dir = getOption("dyngen_download_cache_dir"),
+  num_cores = getOption("Ncpus") %||% 1L,
   id = NULL
 ) {
   distance_metric <- match.arg(distance_metric)

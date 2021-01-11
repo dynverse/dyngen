@@ -34,11 +34,7 @@ of the simulations.
 model <- 
   initialise_model(
     backbone = backbone_bifurcating(),
-    gold_standard = gold_standard_default(tau = .01, census_interval = 1),
-    # set this to the number of cores in your system
-    num_cores = 4, 
-    # set this to a directory where dyngen can cache some files
-    download_cache_dir = "~/.cache/dyngen" 
+    gold_standard = gold_standard_default(tau = .01, census_interval = 1)
   )
 \dontshow{
 # actually use a smaller example 

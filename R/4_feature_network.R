@@ -20,11 +20,7 @@
 #' model <- 
 #'   initialise_model(
 #'     backbone = backbone_bifurcating(),
-#'     feature_network = feature_network_default(damping = 0.1),
-#'     # set this to the number of cores in your system
-#'     num_cores = 4, 
-#'     # set this to a directory where dyngen can cache some files
-#'     download_cache_dir = "~/.cache/dyngen" 
+#'     feature_network = feature_network_default(damping = 0.1)
 #'   )
 #' \dontshow{
 #' # actually use a smaller example 

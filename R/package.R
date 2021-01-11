@@ -12,19 +12,15 @@
 #' @importFrom assertthat assert_that %has_name%
 #' @importFrom dynutils %all_in% extract_row_to_list is_sparse %has_names% add_class extend_with
 #' @importFrom Matrix t Matrix sparseMatrix summary
-#' @importFrom furrr future_map
-#' @importFrom rlang %|%
+#' @importFrom pbapply pblapply 
+#' @importFrom rlang %|% %||%
 #'
 #' @docType package
 #' @name dyngen
 #' 
 #' @examples 
 #' model <- initialise_model(
-#'   backbone = backbone_bifurcating(),
-#'   # set this to the number of cores in your system
-#'   num_cores = 4, 
-#'   # set this to a directory where dyngen can cache some files
-#'   download_cache_dir = "~/.cache/dyngen" 
+#'   backbone = backbone_bifurcating()
 #' )
 #' \dontshow{
 #' # actually use a smaller example 

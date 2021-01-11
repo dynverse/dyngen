@@ -22,11 +22,7 @@
 #' @examples
 #' model <- 
 #'   initialise_model(
-#'     backbone = backbone_bifurcating(),
-#'     # set this to the number of cores in your system
-#'     num_cores = 4, 
-#'     # set this to a directory where dyngen can cache some files
-#'     download_cache_dir = "~/.cache/dyngen" 
+#'     backbone = backbone_bifurcating()
 #'   )
 #' \dontshow{
 #' # actually use a smaller example 

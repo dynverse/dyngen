@@ -13,6 +13,23 @@ editor_options:
 rmarkdown::render("vignettes/getting_started.Rmd", output_format = "github_document")
 -->
 
+## Installation
+To install dyngen, run `install.packages("dyngen")`.
+
+It's recommended to let dyngen know where it can cache downloaded files and how 
+many cores the host system has. You can edit your R profile as follows:
+
+```r
+install.packages("usethis")
+usethis::edit_r_profile()
+```
+
+Add the following lines:
+```r
+options(Ncpus = 8L) # change this to the number of cores in your system
+options(dyngen_download_cache_dir = "~/.cache/dyngen")
+```
+
 ## Step 1: Define backbone and other parameters
 A dyngen simulation can be started by providing a backbone to the `initialise_model()` function.
 The backbone of a `dyngen` model is what determines the overall dynamic process 
@@ -30,9 +47,7 @@ model <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating(),
-    verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
+    verbose = TRUE
   )
 
 plot_backbone_statenet(model)
@@ -150,9 +165,7 @@ config <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating_converging(),
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
+    verbose = FALSE
   )
 
 out <- generate_dataset(
@@ -202,9 +215,7 @@ out <-
     num_tfs = 40,
     num_targets = 0,
     num_hks = 0,
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 
+    verbose = FALSE
   ) %>% 
   generate_dataset(make_plots = TRUE)
 

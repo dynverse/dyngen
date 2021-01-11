@@ -100,11 +100,7 @@ bb <- backbone_linear_simple()
 bb <- backbone_trifurcating()
 
 model <- initialise_model(
-  backbone = bb,
-  # set this to the number of cores in your system
-  num_cores = 4, 
-  # set this to a directory where dyngen can cache some files
-  download_cache_dir = "~/.cache/dyngen" 
+  backbone = bb
 )
 \dontshow{
 # actually use a smaller example 

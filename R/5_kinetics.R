@@ -43,11 +43,7 @@
 #' model <- 
 #'   initialise_model(
 #'     backbone = backbone_bifurcating(),
-#'     kinetics_params = kinetics_default(),
-#'     # set this to the number of cores in your system
-#'     num_cores = 4, 
-#'     # set this to a directory where dyngen can cache some files
-#'     download_cache_dir = "~/.cache/dyngen" 
+#'     kinetics_params = kinetics_default()
 #'   )
 #' \dontshow{
 #' # actually use a smaller example 
@@ -266,9 +262,9 @@ kinetics_default <- function() {
     )
   
   # generate formula per feature
-  out <- furrr::future_map(
+  out <- pbapply::pblapply(
     seq_len(nrow(feature_info)),
-    .progress = model$verbose,
+    cl = model$num_cores,
     function(i) {
       info <- feature_info %>% extract_row_to_list(i)
       
