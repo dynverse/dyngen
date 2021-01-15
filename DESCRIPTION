@@ -50,6 +50,7 @@ Imports:
     utils,
     viridis
 Suggests:
+    anndata,
     covr,
     dynwrap (>= 1.2.0),
     knitr,

@@ -3,6 +3,7 @@
 \name{as_dyno}
 \alias{as_dyno}
 \alias{wrap_dataset}
+\alias{as_anndata}
 \title{Convert simulation output to different formats.}
 \usage{
 as_dyno(
@@ -13,6 +14,13 @@ as_dyno(
 )
 
 wrap_dataset(
+  model,
+  store_dimred = !is.null(model$simulations$dimred),
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
+)
+
+as_anndata(
   model,
   store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
