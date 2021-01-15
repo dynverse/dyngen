@@ -5,15 +5,17 @@
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
   to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively, 
   so you can change the system settings with your R profile.
+  
+* `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
 
 ## BUG FIX
-* `wrap_dataset()`: Fix `drop = FALSE` bug when only cell is being sampled.
+* `as_dyno()`: Fix `drop = FALSE` bug when only cell is being sampled.
 
 # dyngen 0.4.0 (2020-07-15)
 
 ## MAJOR CHANGES
 
-* `wrap_dataset()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
+* `as_dyno()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
   `$counts_unspliced` and `$counts_spliced` contains separated counts.
   
 * Added a docker container containing the necessary code to run a dyngen simulation.

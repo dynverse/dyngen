@@ -59,7 +59,7 @@
 #'   generate_cells() %>%
 #'   generate_experiment() 
 #'   
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' }
 generate_experiment <- function(model) {
   # satisfy r cmd check

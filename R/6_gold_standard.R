@@ -51,7 +51,7 @@
 #' plot_gold_mappings(model)
 #' plot_gold_expression(model)
 #' 
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' }
 generate_gold_standard <- function(model) {
   model$gold_standard <- list()

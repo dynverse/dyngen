@@ -130,7 +130,7 @@ model <- model \%>\%
   generate_cells() \%>\%
   generate_experiment() 
   
-dataset <- wrap_dataset(model)
+dataset <- as_dyno(model)
 }
 }
 \seealso{

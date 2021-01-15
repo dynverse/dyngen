@@ -50,7 +50,7 @@
 #'   
 #' plot_feature_network(model)
 #'   
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' }
 generate_tf_network <- function(
   model

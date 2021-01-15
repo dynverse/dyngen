@@ -96,7 +96,7 @@
 #'   generate_cells() %>%
 #'   generate_experiment() 
 #'   
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' }
 backbone <- function(
   module_info,
@@ -259,7 +259,7 @@ backbone <- function(
 #'   generate_cells() %>%
 #'   generate_experiment() 
 #'   
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' }
 list_backbones <- function() {
   list(

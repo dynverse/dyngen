@@ -136,7 +136,7 @@ model <- generate_experiment(model)
 
 ## Step 8: Convert to a dynwrap object
 ```{r wrap}
-dataset <- wrap_dataset(model)
+dataset <- as_dyno(model)
 ```
 
 ## Visualise with `dynplot`

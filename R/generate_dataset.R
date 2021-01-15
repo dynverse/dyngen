@@ -9,7 +9,7 @@
 #'   dataset will be written to files in this directory.
 #' @param make_plots Whether or not to generate an overview of the dataset.
 #' 
-#' @inheritParams wrap_dataset
+#' @inheritParams as_dyno
 #' 
 #' @importFrom patchwork wrap_plots plot_annotation
 #' @importFrom ggplot2 ggsave
@@ -71,7 +71,7 @@ generate_dataset <- function(
   
   if (model$verbose) cat("Wrapping dataset\n")
   dataset <-
-    wrap_dataset(
+    as_dyno(
       model, 
       store_dimred = store_dimred, 
       store_cellwise_grn = store_cellwise_grn,

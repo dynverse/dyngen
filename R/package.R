@@ -2,7 +2,7 @@
 #' 
 #' A toolkit for generating synthetic single cell data. 
 #'
-#' @importFrom dplyr bind_rows filter group_by mutate mutate_all n pull sample_n select transmute ungroup do left_join last
+#' @importFrom dplyr bind_rows filter group_by mutate mutate_all n pull sample_n select transmute ungroup do left_join last .data
 #' @importFrom dplyr row_number bind_cols full_join summarise inner_join slice rename case_when arrange first mutate_at vars nth
 #' @importFrom tidyr gather unnest everything one_of crossing
 #' @importFrom purrr %>% map map_df map_chr keep pmap map2 set_names map_int map_dbl
@@ -50,7 +50,7 @@
 #'   generate_cells() %>%
 #'   generate_experiment()
 #'   
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' 
 #' # dynplot::plot_dimred(dataset)
 #' }

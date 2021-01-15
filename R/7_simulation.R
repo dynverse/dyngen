@@ -69,7 +69,7 @@
 #' plot_gold_mappings(model)
 #' plot_simulation_expression(model)
 #' 
-#' dataset <- wrap_dataset(model)
+#' dataset <- as_dyno(model)
 #' }
 generate_cells <- function(model) {
   # satisfy r cmd check
