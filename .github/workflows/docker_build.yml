@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: "0 0 * * 1"
 
-name: make
+name: docker_build
 
 jobs:
   build_containers:
@@ -21,11 +21,11 @@ jobs:
         run: |
           VERSION=`cat DESCRIPTION | grep Version | sed 's#.*: ##'`
           BRANCH="${GITHUB_REF#refs/heads/}"
-          docker build --build-arg GITHUB_PAT=${{ secrets.PAT }} -t dynbuild .
-          docker tag dynbuild $GITHUB_REPOSITORY:$BRANCH
+          cd docker
+          docker build -t $GITHUB_REPOSITORY:$BRANCH -f docker/Dockerfile .
           if [[ $BRANCH == "master" ]] ; then
-            docker tag dynbuild $GITHUB_REPOSITORY:$VERSION
-            docker tag dynbuild $GITHUB_REPOSITORY:latest
+            docker tag $GITHUB_REPOSITORY:$BRANCH $GITHUB_REPOSITORY:$VERSION
+            docker tag $GITHUB_REPOSITORY:$BRANCH $GITHUB_REPOSITORY:latest
           fi
 
       - name: Push

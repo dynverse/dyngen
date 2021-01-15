@@ -29,9 +29,9 @@ docker run \
   # disable authentication because I'm lazy
   -e DISABLE_AUTH=true \
   
-  # mount the current working directory to the rstudio home folder
+  # mount the current working directory in the rstudio home folder
   # so you will see it right away when rstudio starts
-  -v `pwd`:/home/rstudio/ \
+  -v `pwd`:/home/rstudio/workdir \
   
   # specify which container to run
   dynverse/dyngen
@@ -47,10 +47,10 @@ docker pull dynverse/dyngen
 
 ## Building the container
 
-To rebuild this docker container from scratch, run the following command.
+To build this docker container from scratch, run the following command.
 
 ```sh
-docker build -t dynverse/dyngen --build-arg GITHUB_PAT=$GITHUB_PAT .
+docker build -t dynverse/dyngen -f docker/Dockerfile .
 ```
 
 GITHUB_PAT should be an environment variable corresponding to the Personal Access Token created by following [this tutorial](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).
