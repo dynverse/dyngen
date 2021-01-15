@@ -21,7 +21,6 @@ jobs:
         run: |
           VERSION=`cat DESCRIPTION | grep Version | sed 's#.*: ##'`
           BRANCH="${GITHUB_REF#refs/heads/}"
-          cd docker
           docker build -t $GITHUB_REPOSITORY:$BRANCH -f docker/Dockerfile .
           if [[ $BRANCH == "master" ]] ; then
             docker tag $GITHUB_REPOSITORY:$BRANCH $GITHUB_REPOSITORY:$VERSION
