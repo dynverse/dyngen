@@ -1,0 +1,99 @@
+---
+title: "Advanced: Simulating a knockout experiment"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Advanced: Simulating a knockout experiment}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- github markdown built using 
+rmarkdown::render("vignettes/advanced_simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
+-->
+
+dyngen supports simulating knockout (or knockdown) experiments. 
+
+## Single-gene KO vs. WT
+In this experiment, dyngen is run twice (similar to the vignette on simulating batch effects), 
+once for the wild type (WT), and once for the knockout (KO).
+
+### The common part of dyngen
+First, create the 'common' part of the dyngen simulation as follows. This will 
+ensure that the gene regulatory network-part of the simulation is exactly the same.
+```{r init, message=FALSE, fig.width = 10, fig.height = 6}
+library(tidyverse)
+library(dyngen)
+
+set.seed(1)
+
+backbone <- backbone_bifurcating()
+
+model_common <-
+  initialise_model(
+  backbone = backbone,
+  num_cells = 1000,
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 250,
+  num_hks = 250,
+  simulation_params = simulation_default(
+    census_interval = 10, 
+    ssa_algorithm = ssa_etl(tau = 300 / 3600),
+    experiment_params = simulation_type_wild_type(num_simulations = 100)
+  )
+) %>%
+  generate_tf_network() %>%
+  generate_feature_network() %>% 
+  generate_kinetics() %>%
+  generate_gold_standard()
+
+plot_backbone_modulenet(model_common)
+plot_feature_network(model_common)
+```
+
+### Simulate wild type
+
+Simulating the wild type is easy, as it is the standard dyngen way of simulating cells.
+
+```{r wildtype} 
+model_wt <- model_common %>%
+  generate_cells()
+```
+
+### Simulate knockout
+```{r knockout}
+model_ko <- model_common
+model_ko$simulation_params$experiment_params <- simulation_type_knockdown(
+  num_simulations = 100L,
+  timepoint = 0, 
+  genes = "B3_TF1", 
+  num_genes = 1, 
+  multiplier = 0
+)
+
+model_ko <- model_ko %>%
+  generate_cells()
+```
+
+### Combine outputs and visualise
+Finally, combine the simulations as follows.
+```{r combine}
+model_comb <-
+  combine_models(list(WT = model_wt, KO = model_ko)) %>% 
+  generate_experiment()
+```
+
+Show a dimensionality reduction.
+```{r plot, fig.width = 10, fig.height = 6}
+plot_simulations(model_comb)
+plot_gold_mappings(model_comb, do_facet = FALSE)
+```
+
+Visualise the dataset using dyno.
+```{r dyno, fig.width = 10, fig.height = 6}
+library(dyno)
+dataset <- as_dyno(model_comb)
+plot_dimred(dataset)
+plot_heatmap(dataset, features_oi = 50)
+```
