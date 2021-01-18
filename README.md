@@ -25,27 +25,47 @@ available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 This package is supported for Linux, but should also work on Mac OS X
 and Windows. It has been tested with [Github
 Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
-for R 3.5, 3.6 and 4.0 on the following systems:
-
-  - Mac OS X: Catalina (10.15.5)
-  - Linux: Ubuntu Xenial (16.04.6)
-  - Windows: Windows Server 2019 (10.0.17763)
+for R 3.5, 3.6 and 4.0 on the following systems Ubuntu, Windows Server
+and Mac OS X.
 
 ## Installation
 
+## Step 1: Install from CRAN or GitHub
+
 dyngen is available on CRAN, so you can install it with the following
-command
+command.
 
 ``` r
-install.packags("dyngen")
+install.packages("dyngen")
 ```
 
 If you would like to install the development version of dyngen from
-GitHub instead, run the following command. Use at your own risk\!
+GitHub instead, run the following command. Use at your own risk!
 
 ``` r
 install.packages("remotes")
 remotes::install_github("dynverse/dyngen@devel", dependencies = TRUE)
+```
+
+## Step 2: Configure host system
+
+It’s recommended to let dyngen know where it can cache downloaded files
+and how many cores the host system has. If you don’t perform these
+steps, running dyngen simulations will take a lot longer than it needs
+to.
+
+To do so, start editing your Rprofile by running the following commands:
+
+``` r
+install.packages("usethis")
+usethis::edit_r_profile()
+```
+
+Inside your Rprofile, add the following lines:
+
+``` r
+options(Ncpus = 8L) # change this to the number of cores in your system
+options(dyngen_download_cache_dir = "~/.cache/dyngen")
 ```
 
 ## Vignettes
@@ -53,9 +73,12 @@ remotes::install_github("dynverse/dyngen@devel", dependencies = TRUE)
 To learn about how dyngen, check out the example vignette below.
 Expected execution time for rerunning the code is about 5 minutes.
 
-  - [Getting started](vignettes/getting_started.md):  
+-   [Advanced: Construct your own
+    backbone](vignettes/advanced_constructing_backbone.md):  
+    `vignette("advanced_constructing_backbone", package="dyngen")`
+-   [Getting started](vignettes/getting_started.md):  
     `vignette("getting_started", package="dyngen")`
-  - [Showcase different backbones](vignettes/showcase_backbones.md):  
+-   [Showcase different backbones](vignettes/showcase_backbones.md):  
     `vignette("showcase_backbones", package="dyngen")`
 
 ## Getting started with Docker
@@ -78,30 +101,38 @@ list of changes.
 
 ### Recent changes in dyngen 0.4.1
 
+#### MINOR CHANGES
+
+-   `initialise_model()`: Change defaults of `num_cores` and
+    `download_cache_dir` to `getOption("Ncpus")` and
+    `getOption("dyngen_download_cache_dir")` respectively, so you can
+    change the system settings with your R profile.
+
+-   `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
+
 #### BUG FIX
 
-  - `wrap_dataset()`: Fix `drop = FALSE` bug when only cell is being
-    sampled.
+-   `as_dyno()`: Fix `drop = FALSE` bug when only cell is being sampled.
 
 ### Recent changes in dyngen 0.4.0 (2020-07-15)
 
 #### MAJOR CHANGES
 
-  - `wrap_dataset()`: Outputted `$counts` now contains counts of both
-    spliced and unspliced reads, whereas `$counts_unspliced` and
+-   `as_dyno()`: Outputted `$counts` now contains counts of both spliced
+    and unspliced reads, whereas `$counts_unspliced` and
     `$counts_spliced` contains separated counts.
 
-  - Added a docker container containing the necessary code to run a
+-   Added a docker container containing the necessary code to run a
     dyngen simulation.
 
 #### MINOR CHANGES
 
-  - Added logo to package.
+-   Added logo to package.
 
-  - Clean up internal code, mostly to satisfy R CMD check.
+-   Clean up internal code, mostly to satisfy R CMD check.
 
 #### DOCUMENTATION
 
-  - Added two vignettes.
+-   Added two vignettes.
 
-  - Expanded the README.
+-   Expanded the README.

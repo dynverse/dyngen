@@ -1,0 +1,116 @@
+---
+title: "Advanced: Construct your own backbone"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- github markdown built using 
+rmarkdown::render("vignettes/advanced_constructing_backbone.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
+-->
+
+You may want to construct your own custom backbone as opposed to those predefined 
+in dyngen in order to obtain a desired effect. You can do so in one of two ways.
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+lines <- read_lines(rprojroot::find_package_root_file("R/2c_backbones.R"))
+funs_start <- grep("^[^ ]+ <- function\\(", lines)
+funs_end <- grep("^}[[:space:]]*$", lines)
+
+backbone_type_df <- map2_dfr(funs_start, funs_end, function(sta, end) {
+  concat <- paste(lines[sta:end], collapse = "\n")
+  tibble(
+    name = gsub("^([^ ]+) <- function\\(.*", "\\1", concat),
+    type = ifelse(grepl("bblego\\(", concat), "bblego", "manual"),
+    line_start = sta,
+    line_end = end,
+    url = paste0("https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L", sta, "-L", end),
+    markdown = paste0(" * [", name, "](", url, ")\n")
+  )
+}) %>% 
+  arrange(name)
+```
+
+### Backbone lego
+You can use the `bblego` functions in order to create 
+custom backbones using so-called 'backbone lego blocks'. 
+Please note that `bblego` only allows you to create tree-shaped backbones 
+(so no cycles), but in 90% of cases will be exactly what you need and 
+in the remaining 10% of cases these functions will still get you 80% of where
+you need to be.
+
+Here is an example of a bifurcating trajectory.
+
+```{r bblego, fig.width = 20, fig.height = 20}
+library(dyngen)
+
+backbone <- bblego(
+  bblego_start("A", type = "simple", num_modules = 2),
+  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
+  bblego_branching("B", c("C", "D"), type = "simple"),
+  bblego_end("C", type = "doublerep2", num_modules = 4),
+  bblego_end("D", type = "doublerep1", num_modules = 7)
+)
+
+out <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = 40,
+    num_targets = 0,
+    num_hks = 0,
+    verbose = FALSE
+  ) %>% 
+  generate_dataset(make_plots = TRUE)
+
+print(out$plot)
+```
+
+Check the following predefined backbones for some examples.
+
+```{r backbones_lego, results='asis', echo=FALSE}
+backbone_type_df %>% filter(type == "bblego") %>% .$markdown %>% cat(sep = "")
+```
+
+
+### Manually constructing backbone data frames
+
+To get the most control over how a dyngen simulation is performed, 
+you can construct a backbone manually (see `?backbone` for the full spec). 
+This is the only way to create some of the more specific backbone shapes such as
+disconnected, cyclic and converging.
+
+This is an example of what data structures a backbone consists of.
+```{r bifurcatingloop_print}
+backbone <- backbone_bifurcating_loop()
+
+print(backbone$module_info)
+print(backbone$module_network)
+print(backbone$expression_patterns)
+```
+
+This allows you to simulate the following dataset.
+```{r bifurcatingloop_plot, fig.width = 20, fig.height = 20}
+out <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = 40,
+    num_targets = 0,
+    num_hks = 0,
+    verbose = FALSE
+  ) %>% 
+  generate_dataset(make_plots = TRUE)
+
+print(out$plot)
+```
+
+Check the following predefined backbones for some examples.
+
+```{r backbones_manual, results='asis', echo=FALSE}
+backbone_type_df %>% filter(type == "manual") %>% .$markdown %>% cat(sep = "")
+```

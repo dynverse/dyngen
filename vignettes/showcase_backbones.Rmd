@@ -10,7 +10,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = "github_document")
+rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
 -->
 
 ```{r, include = FALSE}
@@ -26,7 +26,11 @@ knitr::opts_chunk$set(
 library(dyngen)
 ```
 
-dyngen supports different trajectory topologies, such as bifurcating and cyclic. You can find a full list of backbones using `?list_backbones`. This vignette will showcase each of them individually.
+This vignette demonstrates the different dynamic processes topologies (e.g. bifurcating and cyclic).
+If you haven't done so already, first check out the installation instructions 
+in the README.
+
+You can find a full list of backbones using `?list_backbones`. This vignette will showcase each of them individually.
 
 # Linear
 
@@ -39,9 +43,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -58,9 +60,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -76,9 +76,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -94,9 +92,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -112,9 +108,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -132,9 +126,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -154,9 +146,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -172,9 +162,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -189,9 +177,7 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25,
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  num_hks = 25
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -207,9 +193,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -225,9 +209,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -243,9 +225,7 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -260,9 +240,7 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25,
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  num_hks = 25
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -277,9 +255,7 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25,
-  download_cache_dir = "~/.cache/dyngen/",
-  num_cores = 7
+  num_hks = 25
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot

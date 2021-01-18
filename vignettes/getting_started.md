@@ -2,8 +2,12 @@ Getting started
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/example.Rmd", output_format = "github_document")
+rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
 -->
+
+This vignette demonstrates the basics of running a dyngen simulation. If
+you haven’t done so already, first check out the installation
+instructions in the README.
 
 ## Step 1: Define backbone and other parameters
 
@@ -25,9 +29,7 @@ model <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating(),
-    verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
+    verbose = TRUE
   )
 
 plot_backbone_statenet(model)
@@ -48,9 +50,8 @@ For backbones with all different sorts of topologies, check
 names(list_backbones())
 ```
 
-    ##  [1] "bifurcating"             "bifurcating_converging"  "bifurcating_cycle"       "bifurcating_loop"        "binary_tree"            
-    ##  [6] "branching"               "consecutive_bifurcating" "converging"              "cycle"                   "cycle_simple"           
-    ## [11] "disconnected"            "linear"                  "linear_simple"           "trifurcating"
+    ##  [1] "bifurcating"             "bifurcating_converging"  "bifurcating_cycle"       "bifurcating_loop"        "binary_tree"             "branching"               "consecutive_bifurcating" "converging"              "cycle"                  
+    ## [10] "cycle_simple"            "disconnected"            "linear"                  "linear_simple"           "trifurcating"
 
 ## Step 2: Generate transcription factors (TFs)
 
@@ -132,7 +133,7 @@ model <- generate_gold_standard(model)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
@@ -212,13 +213,17 @@ model <- generate_experiment(model)
 
     ## Simulating experiment
 
-## Step 8: Convert to a dynwrap object
+## Step 8: Convert to a dyno object
+
+Converting the dyngen to a dyno object allows you to visualise the
+dataset using the `dynplot` functions, or infer trajectories using
+`dynmethods`.
 
 ``` r
-dataset <- wrap_dataset(model)
+dataset <- as_dyno(model)
 ```
 
-## Visualise with `dynplot`
+### Visualise with `dynplot`
 
 ``` r
 library(dynplot)
@@ -240,16 +245,24 @@ plot_graph(dataset)
 
 ![](getting_started_files/figure-gfm/dynplot-2.png)<!-- -->
 
-## Infer trajectory on expression data
+### Infer trajectory on expression data
 
 ``` r
 library(dyno)
 pred <- infer_trajectory(dataset, ti_slingshot())
 ```
 
-    ## Using full covariance matrix
+    ## Following packages have to be installed: tislingshot
+    ## Do you want to install these packages? 
+    ## 1: Yes [default]
+    ## 2: No
 
-    ## Warning in if (class(X) == "dist") X <- as.matrix(X): the condition has length > 1 and only the first element will be used
+    ## Using github PAT from envvar GITHUB_PAT
+
+    ## Skipping install of 'tislingshot' from a github remote, the SHA1 (98a7cc7f) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
+
+    ## Using full covariance matrix
 
 ``` r
 plot_dimred(pred)
@@ -260,6 +273,29 @@ plot_dimred(pred)
     ## Using milestone_percentages from trajectory
 
 ![](getting_started_files/figure-gfm/dyno-1.png)<!-- -->
+
+### Save output to file
+
+You can save the output of the model and/or dataset to a file as
+follows.
+
+``` r
+write_rds(model, "model.rds", compress = "gz")
+write_rds(dataset, "dataset.rds", compress = "gz")
+```
+
+## Step 8 alternative: Convert to an anndata object
+
+dyngen (&gt;= 0.4.1) allows converting the output to an `anndata` object
+as well. Check out the [anndata
+documentation](https://cran.r-project.org/package=anndata) on how to
+install anndata for R.
+
+``` r
+library(anndata)
+ad <- as_anndata(model)
+ad$write_h5ad("dataset.h5ad")
+```
 
 # One-shot function
 
@@ -274,9 +310,7 @@ config <-
     num_targets = 30,
     num_hks = 15,
     backbone = backbone_bifurcating_converging(),
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
+    verbose = FALSE
   )
 
 out <- generate_dataset(
@@ -284,6 +318,8 @@ out <- generate_dataset(
   make_plots = TRUE
 )
 ```
+
+    ## Warning in selectChildren(ac[!fin], -1): error 'No child processes' in select
 
 ``` r
 dataset <- out$dataset
@@ -318,142 +354,24 @@ plot_graph(dataset)
 pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
 ```
 
-    ## Using full covariance matrix
+    ## Following packages have to be installed: tislingshot
+    ## Do you want to install these packages? 
+    ## 1: Yes [default]
+    ## 2: No
 
-    ## Warning in if (class(X) == "dist") X <- as.matrix(X): the condition has length > 1 and only the first element will be used
+    ## Using github PAT from envvar GITHUB_PAT
+
+    ## Skipping install of 'tislingshot' from a github remote, the SHA1 (98a7cc7f) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
+
+    ## Using full covariance matrix
 
 ``` r
 plot_dimred(pred)
 ```
 
     ## Coloring by milestone
+
     ## Using milestone_percentages from trajectory
 
 ![](getting_started_files/figure-gfm/oneshot_plot-3.png)<!-- -->
-
-## Construct your own backbone
-
-In addition to the backbones already defined by `dyngen`, you can define
-your own custom backbone by using one of two ways.
-
-### Manually
-
-The first approach is to study the `?backbone` documentation. This will
-allow you to create any sort of backbone you like (disconnected, cyclic,
-converging, …), but also requires you to understand the backbone in
-detail and will typically involve experimenting with the different
-parameters a little bit.
-
-This is an example of what data structures a backbone consists of.
-
-``` r
-backbone <- backbone_bifurcating_loop()
-
-print(backbone$module_info)
-```
-
-    ## # A tibble: 13 x 5
-    ##    module_id basal burn  independence color  
-    ##    <chr>     <dbl> <lgl>        <dbl> <chr>  
-    ##  1 A1            1 TRUE             1 #FF9999
-    ##  2 A2            0 TRUE             1 #FF4D4D
-    ##  3 A3            1 TRUE             1 #FF0000
-    ##  4 B1            0 FALSE            1 #CCFF99
-    ##  5 B2            1 TRUE             1 #80FF00
-    ##  6 C1            0 FALSE            1 #99FFFF
-    ##  7 C2            0 FALSE            1 #4DFFFF
-    ##  8 C3            0 FALSE            1 #00FFFF
-    ##  9 D1            0 FALSE            1 #CC99FF
-    ## 10 D2            0 FALSE            1 #B973FF
-    ## 11 D3            1 TRUE             1 #A64DFF
-    ## 12 D4            0 FALSE            1 #9326FF
-    ## 13 D5            0 FALSE            1 #8000FF
-
-``` r
-print(backbone$module_network)
-```
-
-    ## # A tibble: 22 x 5
-    ##    from  to    effect strength  hill
-    ##    <chr> <chr>  <int>    <dbl> <dbl>
-    ##  1 A1    A2         1       10     2
-    ##  2 A2    A3        -1       10     2
-    ##  3 A2    B1         1        1     2
-    ##  4 B1    B2        -1       10     2
-    ##  5 B1    C1         1        1     2
-    ##  6 B1    D1         1        1     2
-    ##  7 C1    C1         1       10     2
-    ##  8 C1    D1        -1      100     2
-    ##  9 C1    C2         1        1     2
-    ## 10 C2    C3         1        1     2
-    ## # … with 12 more rows
-
-``` r
-print(backbone$expression_patterns)
-```
-
-    ## # A tibble: 5 x 6
-    ##   from  to    module_progression              start burn   time
-    ##   <chr> <chr> <chr>                           <lgl> <lgl> <dbl>
-    ## 1 sBurn sA    +A1,+A2,+A3,+B2,+D3             TRUE  TRUE     60
-    ## 2 sA    sB    +B1                             FALSE FALSE    60
-    ## 3 sB    sC    +C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2 FALSE FALSE    80
-    ## 4 sB    sD    +D1,+D2,+D4,+D5                 FALSE FALSE   120
-    ## 5 sC    sA    +A1,+A2                         FALSE FALSE    60
-
-This allows you to simulate the following dataset.
-
-``` r
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
-```
-
-``` r
-print(out$plot)
-```
-
-![](getting_started_files/figure-gfm/bifurcatingloop_plot-1.png)<!-- -->
-
-### Backbone lego
-
-Alternatively, you can use the `bblego` functions in order to create
-custom backbones using various components. Please note that the `bblego`
-functions currently only allow you to create tree-like backbones. See
-`?bblego` for more details.
-
-Here is an example of a bifurcating trajectory.
-
-``` r
-backbone <- bblego(
-  bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
-  bblego_branching("B", c("C", "D"), type = "simple"),
-  bblego_end("C", type = "doublerep2", num_modules = 4),
-  bblego_end("D", type = "doublerep1", num_modules = 7)
-)
-
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
-```
-
-``` r
-print(out$plot)
-```
-
-![](getting_started_files/figure-gfm/bblego-1.png)<!-- -->
