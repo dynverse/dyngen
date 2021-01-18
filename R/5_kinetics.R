@@ -370,7 +370,7 @@ kinetics_default <- function() {
   unlist(out, recursive = FALSE)
 }
 
-.kinetics_extract_parameters <- function(feature_info, feature_network) {
+.kinetics_extract_parameters_as_df <- function(feature_info, feature_network) {
   # satisfy r cmd check
   feature_id <- transcription_rate <- splicing_rate <- translation_rate <- mrna_decay_rate <- protein_decay_rate <-
     basal <- independence <- param <- value <- id <- from <- to <- dissociation <- hill <- strength <- `.` <- from <- NULL
@@ -380,20 +380,23 @@ kinetics_default <- function() {
     feature_info %>% 
     select(feature_id, transcription_rate, splicing_rate, translation_rate, mrna_decay_rate, protein_decay_rate, bas = basal, ind = independence) %>% 
     gather(param, value, -feature_id) %>% 
-    mutate(id = paste0(param, "_", feature_id)) %>% 
-    select(id, value) %>% 
-    deframe()
+    mutate(id = paste0(param, "_", feature_id), type = "feature_info")
   
   # extract dis, hill, str
   edge_params <- 
     feature_network %>% 
     select(from, to, dis = dissociation, hill, str = strength) %>% 
     gather(param, value, -from, -to) %>% 
-    mutate(id = paste0(param, "_", from, "_", to)) %>% 
+    mutate(id = paste0(param, "_", from, "_", to), type = "feature_network")
+  
+  bind_rows(feature_params, edge_params)
+}
+
+
+.kinetics_extract_parameters <- function(feature_info, feature_network) {
+  .kinetics_extract_parameters_as_df(feature_info, feature_network) %>% 
     select(id, value) %>% 
     deframe()
-  
-  c(feature_params, edge_params)
 }
 
 .kinetics_calculate_basal <- function(effects) {
