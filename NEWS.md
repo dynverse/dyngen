@@ -8,6 +8,8 @@
 
 * The default cache folder for dyngen can be set by adding `options(dyngen_download_cache_dir = ...)` to your Rprofile.
 
+* Combine simular models with different outputs using the `combine_models()` function.
+
 ## MINOR CHANGES
 
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
