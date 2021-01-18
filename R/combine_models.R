@@ -46,15 +46,12 @@
 #'   generate_cells()
 #'
 #' # combine models, do experiment afterwards
-#' model_ab <- combine_models(list("left" = model_a, "right" = model_b) %>%
+#' model_ab <- combine_models(list("left" = model_a, "right" = model_b)) %>%
 #'   generate_experiment()
 #'
 #' # show a dimensionality reduction
 #' plot_simulations(model_ab)
 #' plot_gold_mappings(model_ab, do_facet = FALSE)
-#'
-#' # create a dynwrap dataset
-#' dataset <- wrap_dataset(model_ab)
 #' }
 combine_models <- function(models) {
   assert_that(
@@ -102,7 +99,7 @@ combine_models <- function(models) {
     model_combined$simulations$meta <- bind_rows(
       model_combined$simulations$meta,
       model$simulations$meta %>% mutate_at(c("from", "to"), prefix_fun) %>%
-        mutate(simulation_i = simulation_i + simulation_i_offset)
+        mutate(simulation_i = .data$simulation_i + simulation_i_offset)
     )
     model_combined$simulations$counts <- rbind(
       model_combined$simulations$counts,
@@ -113,8 +110,7 @@ combine_models <- function(models) {
   
   # recalculate the dimred
   if (model$verbose) cat("Recomputing dimred\n")
-  model_combined <- model_combined %>%
-    dyngen:::calculate_dimred()
+  model_combined <- calculate_dimred(model_combined)
   
   # return output
   model_combined

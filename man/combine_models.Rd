@@ -52,14 +52,11 @@ model_b <- model_common \%>\%
   generate_cells()
 
 # combine models, do experiment afterwards
-model_ab <- combine_models(list("left" = model_a, "right" = model_b) \%>\%
+model_ab <- combine_models(list("left" = model_a, "right" = model_b)) \%>\%
   generate_experiment()
 
 # show a dimensionality reduction
 plot_simulations(model_ab)
 plot_gold_mappings(model_ab, do_facet = FALSE)
-
-# create a dynwrap dataset
-dataset <- wrap_dataset(model_ab)
 }
 }

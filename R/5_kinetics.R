@@ -395,7 +395,7 @@ kinetics_default <- function() {
 
 .kinetics_extract_parameters <- function(feature_info, feature_network) {
   .kinetics_extract_parameters_as_df(feature_info, feature_network) %>% 
-    select(id, value) %>% 
+    select(.data$id, .data$value) %>% 
     deframe()
 }
 
