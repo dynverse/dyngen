@@ -325,32 +325,31 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
 #' @examples
 #' data("example_model")
 #' plot_gold_mappings(example_model)
-plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes(comp_1, comp_2)) {
-  # satisfy r cmd check
-  comp_1 <- comp_2 <- sim_time <- burn <- simulation_i <- from <- to <- edge <- NULL
-  
+plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes_string("comp_1", "comp_2")) {
   plot_df <- 
     bind_rows(
       bind_cols(
         model$simulations$meta,
         model$simulations$dimred %>% as.data.frame
-      ) %>% filter(sim_time >= 0),
+      ) %>% filter(.data$sim_time >= 0),
       bind_cols(
         model$gold_standard$meta,
         model$gold_standard$dimred %>% as.data.frame
-      ) %>% filter(!burn)
+      ) %>% filter(!.data$burn)
     )
   
   if (!is.null(selected_simulations)) {
-    plot_df <- plot_df %>% filter(simulation_i %in% selected_simulations)
+    plot_df <- plot_df %>% filter(.data$simulation_i %in% selected_simulations)
   }
   
-  plot_df <- plot_df %>% mutate(edge = paste0(from, "->", to))
+  plot_df <- plot_df %>% mutate(edge = paste0(.data$from, "->", .data$to))
   
   g <- ggplot(mapping = mapping) +
-    geom_path(aes(colour = edge), plot_df %>% filter(simulation_i == 0)) +
-    geom_path(aes(colour = edge, group = simulation_i), plot_df %>% filter(simulation_i != 0)) +
-    theme_bw() 
+    geom_path(aes(colour = .data$edge, linetype = "Gold standard"), plot_df %>% filter(.data$simulation_i == 0)) +
+    geom_path(aes(colour = .data$edge, group = paste0(.data$simulation_i, "//", .data$edge), linetype = "Simulation"), plot_df %>% filter(.data$simulation_i != 0)) +
+    theme_bw() +
+    scale_linetype_manual(values = c("Gold standard" = "dotted", "Simulation" = "solid")) + 
+    labs(linetpye = "Sim. type", colour = "Edge")
   
   if (do_facet) {
     g <- g +
