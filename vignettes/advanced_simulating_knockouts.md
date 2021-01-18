@@ -5,15 +5,12 @@ Advanced: Simulating a knockout experiment
 rmarkdown::render("vignettes/advanced_simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
 -->
 
-dyngen supports simulating knockout (or knockdown) experiments.
+dyngen supports simulating knockout (or knockdown) experiments. In this
+experiment, dyngen is run twice (similar to the vignette on simulating
+batch effects), once for the wild type (WT), and once for the knockout
+(KO).
 
-## Single-gene KO vs. WT
-
-In this experiment, dyngen is run twice (similar to the vignette on
-simulating batch effects), once for the wild type (WT), and once for the
-knockout (KO).
-
-### The common part of dyngen
+## Initialising the experiment
 
 First, create the ‘common’ part of the dyngen simulation as follows.
 This will ensure that the gene regulatory network-part of the simulation
@@ -55,19 +52,7 @@ model_common <-
     ## Running gold simulations
     ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
-``` r
-plot_backbone_modulenet(model_common)
-```
-
-![](advanced_simulating_knockouts_files/figure-gfm/init-1.png)<!-- -->
-
-``` r
-plot_feature_network(model_common)
-```
-
-![](advanced_simulating_knockouts_files/figure-gfm/init-2.png)<!-- -->
-
-### Simulate wild type
+## Simulate wild type
 
 Simulating the wild type is easy, as it is the standard dyngen way of
 simulating cells.
@@ -82,18 +67,60 @@ model_wt <- model_common %>%
     ## Mapping simulations to gold standard
     ## Performing dimred
 
-### Simulate knockout
+``` r
+plot_gold_mappings(model_wt, do_facet = FALSE)
+```
+
+![](advanced_simulating_knockouts_files/figure-gfm/wildtype-1.png)<!-- -->
+
+## Simulate knockout
+
+To simulate a gene knockout, the experiment type of the simulation is
+changed from wild type (see first code block) to knockdown. The
+`simulation_type_knockdown()` function is actually designed to perform
+single-cell knockdowns of 1 to 5 random genes, but this behaviour can be
+overridden by setting the following parameters:
+
+-   `genes`: list of gene ids to be knocked out,
+-   `num_genes`: number of genes to be knocked out per cell (sampled
+    randomly),
+-   `multiplier`: the fraction of transcription rate after KO (0 → no
+    transcription, 1 → no KO).
+
+In this case, looking at the module network of the bifurcation model it
+is possible to see that the B3 gene module is important for
+diversification of cells towards one particular cell lineage (to verify,
+one can draw out `model_common$module_network` on paper).
+
+``` r
+plot_backbone_modulenet(model_common)
+```
+
+![](advanced_simulating_knockouts_files/figure-gfm/visnet-1.png)<!-- -->
+
+``` r
+b3_genes <- model_common$feature_info %>% filter(module_id == "B3") %>% pull(feature_id)
+```
+
+By knocking out the gene "", one of the two branches will be inhibited.
 
 ``` r
 model_ko <- model_common
 model_ko$simulation_params$experiment_params <- simulation_type_knockdown(
   num_simulations = 100L,
   timepoint = 0, 
-  genes = "B3_TF1", 
-  num_genes = 1, 
+  genes = b3_genes,
+  num_genes = length(b3_genes),
   multiplier = 0
 )
+```
 
+Running the simulation will generate a warning stating that some of the
+gold standard edges were not covered by any of the simulations, but
+that’s to be expected since we knocked it out. We can see that indeed no
+simulation managed to enter the second branch (with end state D).
+
+``` r
 model_ko <- model_ko %>%
   generate_cells()
 ```
@@ -106,9 +133,16 @@ model_ko <- model_ko %>%
 
     ## Performing dimred
 
-### Combine outputs and visualise
+``` r
+plot_gold_mappings(model_ko, do_facet = FALSE)
+```
 
-Finally, combine the simulations as follows.
+![](advanced_simulating_knockouts_files/figure-gfm/kosim-1.png)<!-- -->
+
+## Combine outputs and visualise
+
+We can combine both simulations into one simulation and visualise the
+output.
 
 ``` r
 model_comb <-
@@ -121,19 +155,17 @@ model_comb <-
     ## Recomputing dimred
     ## Simulating experiment
 
-Show a dimensionality reduction.
-
 ``` r
 plot_simulations(model_comb)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/plot-1.png)<!-- -->
+![](advanced_simulating_knockouts_files/figure-gfm/combine-1.png)<!-- -->
 
 ``` r
 plot_gold_mappings(model_comb, do_facet = FALSE)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/plot-2.png)<!-- -->
+![](advanced_simulating_knockouts_files/figure-gfm/combine-2.png)<!-- -->
 
 Visualise the dataset using dyno.
 
