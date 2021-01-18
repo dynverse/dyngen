@@ -10,13 +10,13 @@ test_that("generating a dataset with linear backbone", {
     num_targets = 5,
     num_hks = 5,
     gold_standard_params = gold_standard_default(
-      census_interval = 1,
-      tau = .1
+      census_interval = 10,
+      tau = .5
     ),
     simulation_params = simulation_default(
-      ssa_algorithm = ssa_etl(tau = .1),
+      ssa_algorithm = ssa_etl(tau = .5),
       experiment_params = simulation_type_wild_type(num_simulations = 1),
-      census_interval = 1,
+      census_interval = 2,
       compute_cellwise_grn = TRUE,
       compute_dimred = TRUE,
       compute_rna_velocity = TRUE
