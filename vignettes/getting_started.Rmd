@@ -10,7 +10,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
+rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document())
 -->
 
 This vignette demonstrates the basics of running a dyngen simulation. 

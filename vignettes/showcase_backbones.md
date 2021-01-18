@@ -2,7 +2,7 @@ Showcase different backbones
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
+rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown::github_document())
 -->
 
 ``` r
@@ -37,7 +37,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=01s, remaining~03s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=02s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
@@ -110,7 +110,6 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
 #> Performing dimred
 #> Simulating experiment
 #> Wrapping dataset
@@ -141,7 +140,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=======                                           | 12% elapsed=00s, remaining~01s  |=============                                     | 25% elapsed=00s, remaining~01s  |===================                               | 38% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |================================                  | 62% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |============================================      | 88% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |=======                                           | 12% elapsed=00s, remaining~01s  |=============                                     | 25% elapsed=00s, remaining~01s  |===================                               | 38% elapsed=01s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |================================                  | 62% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |============================================      | 88% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=02s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
@@ -175,7 +174,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~01s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
@@ -250,7 +249,7 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~04s  |=========                                         | 17% elapsed=01s, remaining~04s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=03s, remaining~01s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~03s  |=========                                         | 17% elapsed=01s, remaining~03s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=02s, remaining~00s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
@@ -285,11 +284,12 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~03s  |=========                                         | 17% elapsed=01s, remaining~04s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=03s, remaining~01s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~03s  |=========                                         | 17% elapsed=01s, remaining~03s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=02s, remaining~00s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
+#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation
+#> likely suffers from bad kinetics; choose a different seed and rerun.
 #> Performing dimred
 #> Simulating experiment
 #> Wrapping dataset
@@ -319,11 +319,10 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 10% elapsed=00s, remaining~02s  |==========                                        | 20% elapsed=01s, remaining~02s  |===============                                   | 30% elapsed=01s, remaining~02s  |====================                              | 40% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=01s, remaining~01s  |==============================                    | 60% elapsed=02s, remaining~01s  |===================================               | 70% elapsed=02s, remaining~01s  |========================================          | 80% elapsed=02s, remaining~01s  |=============================================     | 90% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |=====                                             | 10% elapsed=00s, remaining~03s  |==========                                        | 20% elapsed=01s, remaining~03s  |===============                                   | 30% elapsed=01s, remaining~03s  |====================                              | 40% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=01s, remaining~01s  |==============================                    | 60% elapsed=02s, remaining~01s  |===================================               | 70% elapsed=02s, remaining~01s  |========================================          | 80% elapsed=02s, remaining~01s  |=============================================     | 90% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
 #> Performing dimred
 #> Simulating experiment
 #> Wrapping dataset
@@ -422,10 +421,12 @@ out <- generate_dataset(init, make_plots = TRUE)
 #> Generating gold standard mod changes
 #> Precompiling reactions for gold standard
 #> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |===                                               | 6 % elapsed=00s, remaining~04s  |======                                            | 12% elapsed=00s, remaining~03s  |=========                                         | 18% elapsed=01s, remaining~03s  |============                                      | 24% elapsed=01s, remaining~02s  |===============                                   | 29% elapsed=01s, remaining~02s  |==================                                | 35% elapsed=01s, remaining~02s  |=====================                             | 41% elapsed=01s, remaining~02s  |========================                          | 47% elapsed=01s, remaining~02s  |===========================                       | 53% elapsed=02s, remaining~02s  |==============================                    | 59% elapsed=02s, remaining~01s  |=================================                 | 65% elapsed=02s, remaining~01s  |====================================              | 71% elapsed=02s, remaining~01s  |=======================================           | 76% elapsed=02s, remaining~01s  |==========================================        | 82% elapsed=02s, remaining~01s  |=============================================     | 88% elapsed=03s, remaining~00s  |================================================  | 94% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
+#>   |                                                  | 0 % elapsed=00s     |====                                              | 8 % elapsed=00s, remaining~03s  |========                                          | 15% elapsed=00s, remaining~02s  |============                                      | 23% elapsed=01s, remaining~02s  |================                                  | 31% elapsed=01s, remaining~02s  |====================                              | 38% elapsed=01s, remaining~02s  |========================                          | 46% elapsed=01s, remaining~01s  |===========================                       | 54% elapsed=01s, remaining~01s  |===============================                   | 62% elapsed=02s, remaining~01s  |===================================               | 69% elapsed=02s, remaining~01s  |=======================================           | 77% elapsed=02s, remaining~01s  |===========================================       | 85% elapsed=02s, remaining~00s  |===============================================   | 92% elapsed=02s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
 #> Precompiling reactions for simulations
 #> Running 32 simulations
 #> Mapping simulations to gold standard
+#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation
+#> likely suffers from bad kinetics; choose a different seed and rerun.
 #> Performing dimred
 #> Simulating experiment
 #> Wrapping dataset

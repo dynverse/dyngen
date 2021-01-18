@@ -1,8 +1,8 @@
-Advanced: Construct your own backbone
+Advanced: Constructing a custom backbone
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_constructing_backbone.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
+rmarkdown::render("vignettes/advanced_constructing_backbone.Rmd", output_format = rmarkdown::github_document())
 -->
 
 You may want to construct your own custom backbone as opposed to those
@@ -40,8 +40,6 @@ out <-
   ) %>% 
   generate_dataset(make_plots = TRUE)
 ```
-
-    ## Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
 
 ``` r
 print(out$plot)

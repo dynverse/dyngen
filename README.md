@@ -73,7 +73,7 @@ options(dyngen_download_cache_dir = "~/.cache/dyngen")
 To learn about how dyngen, check out the example vignette below.
 Expected execution time for rerunning the code is about 5 minutes.
 
--   [Advanced: Construct your own
+-   [Advanced: Constructing a custom
     backbone](vignettes/advanced_constructing_backbone.md):  
     `vignette("advanced_constructing_backbone", package="dyngen")`
 -   [Advanced: Running dyngen from a docker
@@ -120,26 +120,3 @@ list of changes.
 #### DOCUMENTATION
 
 -   Extended the vignettes with more examples.
-
-### Recent changes in dyngen 0.4.0 (2020-07-15)
-
-#### MAJOR CHANGES
-
--   `as_dyno()`: Outputted `$counts` now contains counts of both spliced
-    and unspliced reads, whereas `$counts_unspliced` and
-    `$counts_spliced` contains separated counts.
-
--   Added a docker container containing the necessary code to run a
-    dyngen simulation.
-
-#### MINOR CHANGES
-
--   Added logo to package.
-
--   Clean up internal code, mostly to satisfy R CMD check.
-
-#### DOCUMENTATION
-
--   Added two vignettes.
-
--   Expanded the README.

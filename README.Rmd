@@ -91,5 +91,5 @@ Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full list of ch
 <!-- This section gets automatically generated from NEWS.md -->
 
 ```{r news, echo=FALSE, results="asis"}
-cat(dynutils::recent_news())
+cat(dynutils::recent_news(n = 1))
 ```

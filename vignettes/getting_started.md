@@ -2,7 +2,7 @@ Getting started
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
+rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document())
 -->
 
 This vignette demonstrates the basics of running a dyngen simulation. If
@@ -133,7 +133,7 @@ model <- generate_gold_standard(model)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
@@ -318,8 +318,6 @@ out <- generate_dataset(
   make_plots = TRUE
 )
 ```
-
-    ## Warning in selectChildren(ac[!fin], -1): error 'No child processes' in select
 
 ``` r
 dataset <- out$dataset
