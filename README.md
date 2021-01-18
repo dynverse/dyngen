@@ -79,6 +79,12 @@ Expected execution time for rerunning the code is about 5 minutes.
 -   [Advanced: Running dyngen from a docker
     container](vignettes/advanced_run_dyngen_from_docker.md):  
     `vignette("advanced_run_dyngen_from_docker", package="dyngen")`
+-   [Advanced: Simulating batch
+    effects](vignettes/advanced_simulating_batch_effects.md):  
+    `vignette("advanced_simulating_batch_effects", package="dyngen")`
+-   [Advanced: Simulating a knockout
+    experiment](vignettes/advanced_simulating_knockouts.md):  
+    `vignette("advanced_simulating_knockouts", package="dyngen")`
 -   [Getting started](vignettes/getting_started.md):  
     `vignette("getting_started", package="dyngen")`
 -   [Showcase different backbones](vignettes/showcase_backbones.md):  
@@ -103,6 +109,9 @@ list of changes.
 
 -   The default cache folder for dyngen can be set by adding
     `options(dyngen_download_cache_dir = ...)` to your Rprofile.
+
+-   Combine simular models with different outputs using the
+    `combine_models()` function.
 
 #### MINOR CHANGES
 
