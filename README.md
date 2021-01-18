@@ -74,20 +74,20 @@ To learn about how dyngen, check out the example vignette below.
 Expected execution time for rerunning the code is about 5 minutes.
 
 -   [Advanced: Constructing a custom
-    backbone](vignettes/advanced_constructing_backbone.md):  
+    backbone](vignettes/advanced_constructing_backbone.md)
     `vignette("advanced_constructing_backbone", package="dyngen")`
 -   [Advanced: Running dyngen from a docker
-    container](vignettes/advanced_run_dyngen_from_docker.md):  
+    container](vignettes/advanced_run_dyngen_from_docker.md)
     `vignette("advanced_run_dyngen_from_docker", package="dyngen")`
 -   [Advanced: Simulating batch
-    effects](vignettes/advanced_simulating_batch_effects.md):  
+    effects](vignettes/advanced_simulating_batch_effects.md)
     `vignette("advanced_simulating_batch_effects", package="dyngen")`
 -   [Advanced: Simulating a knockout
-    experiment](vignettes/advanced_simulating_knockouts.md):  
+    experiment](vignettes/advanced_simulating_knockouts.md)
     `vignette("advanced_simulating_knockouts", package="dyngen")`
--   [Getting started](vignettes/getting_started.md):  
+-   [Getting started](vignettes/getting_started.md)
     `vignette("getting_started", package="dyngen")`
--   [Showcase different backbones](vignettes/showcase_backbones.md):  
+-   [Showcase different backbones](vignettes/showcase_backbones.md)
     `vignette("showcase_backbones", package="dyngen")`
 
 ## Latest changes

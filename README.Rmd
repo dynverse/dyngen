@@ -76,7 +76,7 @@ walk(
       ifelse(submission_to_cran, "", "["),
       title, 
       ifelse(submission_to_cran, "", paste0("](vignettes/", markdown_name, ")")),
-      ":  \n",
+      "\n",
       "`vignette(\"", vignette_name, "\", package=\"dyngen\")`\n",
       sep = ""
     )
