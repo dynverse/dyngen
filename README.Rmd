@@ -58,7 +58,6 @@ options(dyngen_download_cache_dir = "~/.cache/dyngen")
 ```
 
 
-
 ## Vignettes
 To learn about how dyngen, check out the example vignette below. Expected execution time for rerunning the code is about 5 minutes.
 
@@ -84,15 +83,6 @@ walk(
   }
 )
 ```
-
-## Getting started with Docker
-To run dyngen in a docker container, run the following command.
-
-```sh
-docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstudio/workdir dynverse/dyngen
-```
-
-More information on running and building the docker container is available [here](https://github.com/dynverse/dyngen/tree/master/docker).
 
 ## Latest changes
 

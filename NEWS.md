@@ -1,15 +1,27 @@
 # dyngen 0.4.1 
 
+## NEW FEATURES
+
+* `as_anndata()`: Added a function for converting the dyngen output to an anndata object.
+
+* The default number of cores used can be set by adding `options(Ncpus = ...)` to your Rprofile.
+
+* The default cache folder for dyngen can be set by adding `options(dyngen_download_cache_dir = ...)` to your Rprofile.
+
 ## MINOR CHANGES
 
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
-  to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively, 
-  so you can change the system settings with your R profile.
+  to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively.
   
 * `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
 
 ## BUG FIX
-* `as_dyno()`: Fix `drop = FALSE` bug when only cell is being sampled.
+
+* `as_dyno()`: Fix `drop = FALSE` bug when only one cell is being sampled.
+
+## DOCUMENTATION
+
+* Extended the vignettes with more examples.
 
 # dyngen 0.4.0 (2020-07-15)
 

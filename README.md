@@ -76,21 +76,13 @@ Expected execution time for rerunning the code is about 5 minutes.
 -   [Advanced: Construct your own
     backbone](vignettes/advanced_constructing_backbone.md):  
     `vignette("advanced_constructing_backbone", package="dyngen")`
+-   [Advanced: Running dyngen from a docker
+    container](vignettes/advanced_run_dyngen_from_docker.md):  
+    `vignette("advanced_run_dyngen_from_docker", package="dyngen")`
 -   [Getting started](vignettes/getting_started.md):  
     `vignette("getting_started", package="dyngen")`
 -   [Showcase different backbones](vignettes/showcase_backbones.md):  
     `vignette("showcase_backbones", package="dyngen")`
-
-## Getting started with Docker
-
-To run dyngen in a docker container, run the following command.
-
-``` sh
-docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstudio/workdir dynverse/dyngen
-```
-
-More information on running and building the docker container is
-available [here](https://github.com/dynverse/dyngen/tree/master/docker).
 
 ## Latest changes
 
@@ -101,18 +93,33 @@ list of changes.
 
 ### Recent changes in dyngen 0.4.1
 
+#### NEW FEATURES
+
+-   `as_anndata()`: Added a function for converting the dyngen output to
+    an anndata object.
+
+-   The default number of cores used can be set by adding
+    `options(Ncpus = ...)` to your Rprofile.
+
+-   The default cache folder for dyngen can be set by adding
+    `options(dyngen_download_cache_dir = ...)` to your Rprofile.
+
 #### MINOR CHANGES
 
 -   `initialise_model()`: Change defaults of `num_cores` and
     `download_cache_dir` to `getOption("Ncpus")` and
-    `getOption("dyngen_download_cache_dir")` respectively, so you can
-    change the system settings with your R profile.
+    `getOption("dyngen_download_cache_dir")` respectively.
 
 -   `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
 
 #### BUG FIX
 
--   `as_dyno()`: Fix `drop = FALSE` bug when only cell is being sampled.
+-   `as_dyno()`: Fix `drop = FALSE` bug when only one cell is being
+    sampled.
+
+#### DOCUMENTATION
+
+-   Extended the vignettes with more examples.
 
 ### Recent changes in dyngen 0.4.0 (2020-07-15)
 
