@@ -1,5 +1,5 @@
 #' @importFrom tidygraph tbl_graph activate
-#' @importFrom ggplot2 ggsave labs aes coord_equal scale_colour_manual scale_size_manual facet_wrap geom_line geom_text ggplot theme_bw geom_path geom_point geom_step aes_string
+#' @importFrom ggplot2 ggsave labs aes coord_equal scale_colour_manual scale_size_manual facet_wrap geom_line geom_text ggplot theme_bw geom_path geom_point geom_step aes_string scale_linetype_manual
 #' @importFrom ggraph circle geom_edge_fan geom_edge_loop geom_node_circle geom_node_text ggraph scale_edge_width_continuous theme_graph geom_node_label geom_node_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
