@@ -23,7 +23,11 @@
 
 ## DOCUMENTATION
 
-* Extended the vignettes with more examples.
+* Extended vignettes:
+  - Advanced: Simulating batch effects
+  - Advanced: Simulating a knockout experiment
+  - Advanced: Running dyngen from a docker container
+  - Advanced: Constructing a custom backbone
 
 # dyngen 0.4.0 (2020-07-15)
 

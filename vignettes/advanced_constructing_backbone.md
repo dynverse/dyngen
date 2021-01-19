@@ -9,7 +9,7 @@ You may want to construct your own custom backbone as opposed to those
 predefined in dyngen in order to obtain a desired effect. You can do so
 in one of two ways.
 
-### Backbone lego
+## Backbone lego
 
 You can use the `bblego` functions in order to create custom backbones
 using so-called ‘backbone lego blocks’. Please note that `bblego` only
@@ -21,6 +21,7 @@ Here is an example of a bifurcating trajectory.
 
 ``` r
 library(dyngen)
+library(tidyverse)
 
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
@@ -53,7 +54,7 @@ Check the following predefined backbones for some examples.
 -   [backbone\_branching](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L195-L273)
 -   [backbone\_linear](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L420-L427)
 
-### Manually constructing backbone data frames
+## Manually constructing backbone data frames
 
 To get the most control over how a dyngen simulation is performed, you
 can construct a backbone manually (see `?backbone` for the full spec).
@@ -62,73 +63,155 @@ such as disconnected, cyclic and converging.
 
 This is an example of what data structures a backbone consists of.
 
-``` r
-backbone <- backbone_bifurcating_loop()
+### Module info
 
-print(backbone$module_info)
-```
+A tibble containing meta information on the modules themselves. A module
+is a group of genes which, to some extent, shows the same expression
+behaviour. Several modules are connected together such that one or more
+genes from one module will regulate the expression of another module. By
+creating chains of modules, a dynamic behaviour in gene regulation can
+be created.
 
-    ## # A tibble: 13 x 5
-    ##    module_id basal burn  independence color  
-    ##    <chr>     <dbl> <lgl>        <dbl> <chr>  
-    ##  1 A1            1 TRUE             1 #FF9999
-    ##  2 A2            0 TRUE             1 #FF4D4D
-    ##  3 A3            1 TRUE             1 #FF0000
-    ##  4 B1            0 FALSE            1 #CCFF99
-    ##  5 B2            1 TRUE             1 #80FF00
-    ##  6 C1            0 FALSE            1 #99FFFF
-    ##  7 C2            0 FALSE            1 #4DFFFF
-    ##  8 C3            0 FALSE            1 #00FFFF
-    ##  9 D1            0 FALSE            1 #CC99FF
-    ## 10 D2            0 FALSE            1 #B973FF
-    ## 11 D3            1 TRUE             1 #A64DFF
-    ## 12 D4            0 FALSE            1 #9326FF
-    ## 13 D5            0 FALSE            1 #8000FF
+-   module\_id (character): the name of the module
+-   basal (numeric): basal expression level of genes in this module,
+    must be between \[0, 1\]
+-   burn (logical): whether or not outgoing edges of this module will be
+    active during the burn in phase
+-   independence (numeric): the independence factor between regulators
+    of this module, must be between \[0, 1\]
 
 ``` r
-print(backbone$module_network)
+module_info <- tribble(
+  ~module_id, ~basal, ~burn, ~independence,
+  "A1", 1, TRUE, 1,
+  "A2", 0, TRUE, 1,
+  "A3", 1, TRUE, 1,
+  "B1", 0, FALSE, 1,
+  "B2", 1, TRUE, 1,
+  "C1", 0, FALSE, 1,
+  "C2", 0, FALSE, 1,
+  "C3", 0, FALSE, 1,
+  "D1", 0, FALSE, 1,
+  "D2", 0, FALSE, 1,
+  "D3", 1, TRUE, 1,
+  "D4", 0, FALSE, 1,
+  "D5", 0, FALSE, 1
+)
 ```
 
-    ## # A tibble: 22 x 5
-    ##    from  to    effect strength  hill
-    ##    <chr> <chr>  <int>    <dbl> <dbl>
-    ##  1 A1    A2         1       10     2
-    ##  2 A2    A3        -1       10     2
-    ##  3 A2    B1         1        1     2
-    ##  4 B1    B2        -1       10     2
-    ##  5 B1    C1         1        1     2
-    ##  6 B1    D1         1        1     2
-    ##  7 C1    C1         1       10     2
-    ##  8 C1    D1        -1      100     2
-    ##  9 C1    C2         1        1     2
-    ## 10 C2    C3         1        1     2
-    ## # … with 12 more rows
+### Module network
+
+A tibble describing which modules regulate which other modules.
+
+-   from (character): the regulating module
+-   to (character): the target module
+-   effect (integer): 1L if the regulating module upregulates the target
+    module, -1L if it downregulates
+-   strength (numeric): the strength of the interaction
+-   hill (numeric): hill coefficient, larger than 1 for positive
+    cooperativity, between 0 and 1 for negative cooperativity
 
 ``` r
-print(backbone$expression_patterns)
+module_network <- tribble(
+  ~from, ~to, ~effect, ~strength, ~hill,
+  "A1", "A2", 1L, 10, 2,
+  "A2", "A3", -1L, 10, 2,
+  "A2", "B1", 1L, 1, 2,
+  "B1", "B2", -1L, 10, 2,
+  "B1", "C1", 1L, 1, 2,
+  "B1", "D1", 1L, 1, 2,
+  "C1", "C1", 1L, 10, 2,
+  "C1", "D1", -1L, 100, 2,
+  "C1", "C2", 1L, 1, 2,
+  "C2", "C3", 1L, 1, 2,
+  "C2", "A2", -1L, 10, 2,
+  "C2", "B1", -1L, 10, 2,
+  "C3", "A1", -1L, 10, 2,
+  "C3", "C1", -1L, 10, 2,
+  "C3", "D1", -1L, 10, 2,
+  "D1", "D1", 1L, 10, 2,
+  "D1", "C1", -1L, 100, 2,
+  "D1", "D2", 1L, 1, 2,
+  "D1", "D3", -1L, 10, 2,
+  "D2", "D4", 1L, 1, 2,
+  "D4", "D5", 1L, 1, 2,
+  "D3", "D5", -1L, 10, 2
+)
 ```
 
-    ## # A tibble: 5 x 6
-    ##   from  to    module_progression              start burn   time
-    ##   <chr> <chr> <chr>                           <lgl> <lgl> <dbl>
-    ## 1 sBurn sA    +A1,+A2,+A3,+B2,+D3             TRUE  TRUE     60
-    ## 2 sA    sB    +B1                             FALSE FALSE    60
-    ## 3 sB    sC    +C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2 FALSE FALSE    80
-    ## 4 sB    sD    +D1,+D2,+D4,+D5                 FALSE FALSE   120
-    ## 5 sC    sA    +A1,+A2                         FALSE FALSE    60
+### Expression patterns
+
+A tibble describing the expected expression pattern changes when a cell
+is simulated by dyngen. Each row represents one transition between two
+cell states.
+
+-   from (character): name of a cell state
+-   to (character): name of a cell state
+-   module\_progression (character): differences in module expression
+    between the two states. Example: “+4,-1\|+9\|-4” means the
+    expression of module 4 will go up at the same time as module 1 goes
+    down; afterwards module 9 expression will go up, and afterwards
+    module 4 expression will go down again.
+-   start (logical): Whether or not this from cell state is the start of
+    the trajectory
+-   burn (logical): Whether these cell states are part of the burn in
+    phase. Cells will not get sampled from these cell states.
+-   time (numeric): The duration of an transition.
+
+``` r
+expression_patterns <- tribble(
+  ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+  "sBurn", "sA", "+A1,+A2,+A3,+B2,+D3", TRUE, TRUE, 60,
+  "sA", "sB", "+B1", FALSE, FALSE, 60,
+  "sB", "sC", "+C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2", FALSE, FALSE, 80,
+  "sB", "sD", "+D1,+D2,+D4,+D5", FALSE, FALSE, 120,
+  "sC", "sA", "+A1,+A2", FALSE, FALSE, 60
+)
+```
+
+### Visualising the backbone
+
+By wrapping these data structures as a backbone object, we can now
+visualise the topology of the backbone. Drawing the backbone module
+network by hand on a piece of paper can help you understand how the gene
+regulatory network works.
+
+``` r
+backbone <- backbone(
+  module_info = module_info,
+  module_network = module_network,
+  expression_patterns = expression_patterns
+)
+
+model <- initialise_model(
+  backbone = backbone,
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 0,
+  num_hks = 0,
+  simulation_params = simulation_default(
+    experiment_params = simulation_type_wild_type(num_simulations = 100),
+    total_time = 600
+  ),
+  verbose = FALSE
+)
+
+plot_backbone_modulenet(model)
+```
+
+![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_print-1.png)<!-- -->
+
+``` r
+plot_backbone_statenet(model)
+```
+
+![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_print-2.png)<!-- -->
+
+### Simulation
 
 This allows you to simulate the following dataset.
 
 ``` r
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+out <- generate_dataset(model, make_plots = TRUE)
 ```
 
 ``` r
@@ -137,7 +220,10 @@ print(out$plot)
 
 ![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_plot-1.png)<!-- -->
 
-Check the following predefined backbones for some examples.
+### More information
+
+dyngen has a lot of predefined backbones. The following predefined
+backbones construct the backbone manually (as opposed to using bblego).
 
 -   [backbone\_bifurcating\_converging](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L16-L61)
 -   [backbone\_bifurcating\_cycle](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L66-L127)
@@ -150,3 +236,166 @@ Check the following predefined backbones for some examples.
 -   [backbone\_disconnected](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L468-L572)
 -   [backbone\_linear\_simple](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L432-L457)
 -   [backbone\_trifurcating](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L293-L295)
+
+<!--
+## Combination of bblego and manual
+
+You can also use parts of the 'bblego' framework to construct a backbone manually.
+That's because the bblego functions simply generate the three data frames 
+(`module_info`, `module_network` and `expression_patterns`) required to construct
+a backbone manually. For example:
+
+
+```r
+part1 <- bblego_start("A", type = "simple", num_modules = 2)
+part1
+```
+
+```
+## $module_info
+## # A tibble: 2 x 4
+##   module_id basal burn  independence
+##   <chr>     <dbl> <lgl>        <dbl>
+## 1 Burn1         1 TRUE             1
+## 2 Burn2         0 TRUE             1
+## 
+## $module_network
+## # A tibble: 2 x 5
+##   from  to    effect strength  hill
+##   <chr> <chr>  <int>    <dbl> <dbl>
+## 1 Burn1 Burn2      1        1     2
+## 2 Burn2 A1         1        1     2
+## 
+## $expression_patterns
+## # A tibble: 1 x 6
+##   from  to    module_progression start burn   time
+##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
+## 1 sBurn sA    +Burn1,+Burn2      TRUE  TRUE     60
+```
+
+
+```r
+part2 <- bblego_linear("A", "B", type = "flipflop", num_modules = 4)
+part2
+```
+
+```
+## $module_info
+## # A tibble: 4 x 4
+##   module_id basal burn  independence
+##   <chr>     <dbl> <lgl>        <dbl>
+## 1 A1            0 FALSE            1
+## 2 A2            0 FALSE            1
+## 3 A3            0 FALSE            1
+## 4 A4            0 FALSE            1
+## 
+## $module_network
+## # A tibble: 7 x 5
+##   from  to    effect strength  hill
+##   <chr> <chr>  <int>    <dbl> <dbl>
+## 1 A1    A2         1        1     2
+## 2 A2    A3         1        1     2
+## 3 A3    A4         1        1     2
+## 4 A4    B1         1        1     2
+## 5 A4    A1        -1       10     2
+## 6 A3    B1        -1      100     2
+## 7 A4    A4         1        1     2
+## 
+## $expression_patterns
+## # A tibble: 1 x 6
+##   from  to    module_progression start burn   time
+##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
+## 1 sA    sB    +A1,+A2,+A3,+A4    FALSE FALSE   240
+```
+
+
+```r
+part3 <- bblego_linear("B", "C", type = "simple", num_modules = 2)
+part3
+```
+
+```
+## $module_info
+## # A tibble: 2 x 4
+##   module_id basal burn  independence
+##   <chr>     <dbl> <lgl>        <dbl>
+## 1 B1            0 FALSE            1
+## 2 B2            0 FALSE            1
+## 
+## $module_network
+## # A tibble: 2 x 5
+##   from  to    effect strength  hill
+##   <chr> <chr>  <int>    <dbl> <dbl>
+## 1 B1    B2         1        1     2
+## 2 B2    C1         1        1     2
+## 
+## $expression_patterns
+## # A tibble: 1 x 6
+##   from  to    module_progression start burn   time
+##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
+## 1 sB    sC    +B1,+B2            FALSE FALSE    60
+```
+
+You can create a cyclic dataset by adding a module that represses the A1 module.
+
+
+
+```r
+part4 <- list(
+  module_info = tribble(
+    ~module_id, ~basal, ~burn, ~independence,
+    "C1", 1, TRUE, 1
+  ),
+  module_network = tribble(
+    ~from, ~to, ~effect, ~strength, ~hill,
+    "C1", "A1", -1L, 100, 2
+  ),
+  expression_patterns = tribble(
+    ~from, ~to, ~module_progression, ~start, ~burn, ~time,
+    "sC", "sA", "+C1", FALSE, FALSE, 30
+  )
+)
+
+backbone <- bblego(
+  part1,
+  part2,
+  part3,
+  part4
+)
+
+model <- initialise_model(
+  backbone = backbone,
+  num_tfs = 40,
+  num_targets = 0,
+  num_hks = 0,
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
+)
+
+plot_backbone_modulenet(model)
+```
+
+![](advanced_constructing_backbone_files/figure-gfm/cyclic_backbone-1.png)<!-- -->
+
+``` r
+plot_backbone_statenet(model)
+```
+
+![](advanced_constructing_backbone_files/figure-gfm/cyclic_backbone-2.png)<!-- -->
+
+``` r
+out <- generate_dataset(model, make_plots = TRUE)
+```
+
+``` r
+print(out$plot)
+```
+
+![](advanced_constructing_backbone_files/figure-gfm/cyclic_sim-1.png)<!-- -->
+
+Note that, for the gold standard to function correctly, the expression
+patterns of part2 and part3 need to be modified, because if the A, B,
+and C modules are all on we don’t know in which state the gold standard
+simulation will find itself.
+
+–&gt;
