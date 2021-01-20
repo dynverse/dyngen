@@ -23,9 +23,11 @@ Here is an example of a bifurcating trajectory.
 library(dyngen)
 library(tidyverse)
 
+set.seed(1)
+
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
+  bblego_linear("A", "B", type = "simple", num_modules = 4),
   bblego_branching("B", c("C", "D"), type = "simple"),
   bblego_end("C", type = "doublerep2", num_modules = 4),
   bblego_end("D", type = "doublerep1", num_modules = 7)
@@ -34,9 +36,9 @@ backbone <- bblego(
 out <- 
   initialise_model(
     backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 500,
+    num_hks = 500,
     verbose = FALSE
   ) %>% 
   generate_dataset(make_plots = TRUE)
@@ -186,8 +188,8 @@ backbone <- backbone(
 model <- initialise_model(
   backbone = backbone,
   num_tfs = nrow(backbone$module_info),
-  num_targets = 0,
-  num_hks = 0,
+  num_targets = 500,
+  num_hks = 500,
   simulation_params = simulation_default(
     experiment_params = simulation_type_wild_type(num_simulations = 100),
     total_time = 600
@@ -237,126 +239,74 @@ backbones construct the backbone manually (as opposed to using bblego).
 -   [backbone\_linear\_simple](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L432-L457)
 -   [backbone\_trifurcating](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L293-L295)
 
-<!--
 ## Combination of bblego and manual
 
-You can also use parts of the 'bblego' framework to construct a backbone manually.
-That's because the bblego functions simply generate the three data frames 
-(`module_info`, `module_network` and `expression_patterns`) required to construct
-a backbone manually. For example:
+You can also use parts of the ‘bblego’ framework to construct a backbone
+manually. That’s because the bblego functions simply generate the three
+data frames (`module_info`, `module_network` and `expression_patterns`)
+required to construct a backbone manually. For example:
 
+``` r
+part0 <- bblego_start("A", type = "simple", num_modules = 2)
+part1 <- bblego_linear("A", "B", type = "simple", num_modules = 3)
+part3 <- bblego_end("C", type = "simple", num_modules = 3)
+part4 <- bblego_end("D", type = "simple", num_modules = 3)
 
-```r
-part1 <- bblego_start("A", type = "simple", num_modules = 2)
 part1
 ```
 
-```
-## $module_info
-## # A tibble: 2 x 4
-##   module_id basal burn  independence
-##   <chr>     <dbl> <lgl>        <dbl>
-## 1 Burn1         1 TRUE             1
-## 2 Burn2         0 TRUE             1
-## 
-## $module_network
-## # A tibble: 2 x 5
-##   from  to    effect strength  hill
-##   <chr> <chr>  <int>    <dbl> <dbl>
-## 1 Burn1 Burn2      1        1     2
-## 2 Burn2 A1         1        1     2
-## 
-## $expression_patterns
-## # A tibble: 1 x 6
-##   from  to    module_progression start burn   time
-##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
-## 1 sBurn sA    +Burn1,+Burn2      TRUE  TRUE     60
-```
+    ## $module_info
+    ## # A tibble: 3 x 4
+    ##   module_id basal burn  independence
+    ##   <chr>     <dbl> <lgl>        <dbl>
+    ## 1 A1            0 FALSE            1
+    ## 2 A2            0 FALSE            1
+    ## 3 A3            0 FALSE            1
+    ## 
+    ## $module_network
+    ## # A tibble: 3 x 5
+    ##   from  to    effect strength  hill
+    ##   <chr> <chr>  <int>    <dbl> <dbl>
+    ## 1 A1    A2         1        1     2
+    ## 2 A2    A3         1        1     2
+    ## 3 A3    B1         1        1     2
+    ## 
+    ## $expression_patterns
+    ## # A tibble: 1 x 6
+    ##   from  to    module_progression start burn   time
+    ##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
+    ## 1 sA    sB    +A1,+A2,+A3        FALSE FALSE    90
 
+You can combine these components with a custom bifurcation component
+which can switch back and forth between end states.
 
-```r
-part2 <- bblego_linear("A", "B", type = "flipflop", num_modules = 4)
-part2
-```
-
-```
-## $module_info
-## # A tibble: 4 x 4
-##   module_id basal burn  independence
-##   <chr>     <dbl> <lgl>        <dbl>
-## 1 A1            0 FALSE            1
-## 2 A2            0 FALSE            1
-## 3 A3            0 FALSE            1
-## 4 A4            0 FALSE            1
-## 
-## $module_network
-## # A tibble: 7 x 5
-##   from  to    effect strength  hill
-##   <chr> <chr>  <int>    <dbl> <dbl>
-## 1 A1    A2         1        1     2
-## 2 A2    A3         1        1     2
-## 3 A3    A4         1        1     2
-## 4 A4    B1         1        1     2
-## 5 A4    A1        -1       10     2
-## 6 A3    B1        -1      100     2
-## 7 A4    A4         1        1     2
-## 
-## $expression_patterns
-## # A tibble: 1 x 6
-##   from  to    module_progression start burn   time
-##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
-## 1 sA    sB    +A1,+A2,+A3,+A4    FALSE FALSE   240
-```
-
-
-```r
-part3 <- bblego_linear("B", "C", type = "simple", num_modules = 2)
-part3
-```
-
-```
-## $module_info
-## # A tibble: 2 x 4
-##   module_id basal burn  independence
-##   <chr>     <dbl> <lgl>        <dbl>
-## 1 B1            0 FALSE            1
-## 2 B2            0 FALSE            1
-## 
-## $module_network
-## # A tibble: 2 x 5
-##   from  to    effect strength  hill
-##   <chr> <chr>  <int>    <dbl> <dbl>
-## 1 B1    B2         1        1     2
-## 2 B2    C1         1        1     2
-## 
-## $expression_patterns
-## # A tibble: 1 x 6
-##   from  to    module_progression start burn   time
-##   <chr> <chr> <chr>              <lgl> <lgl> <dbl>
-## 1 sB    sC    +B1,+B2            FALSE FALSE    60
-```
-
-You can create a cyclic dataset by adding a module that represses the A1 module.
-
-
-
-```r
-part4 <- list(
+``` r
+part2 <- list(
   module_info = tribble(
     ~module_id, ~basal, ~burn, ~independence,
-    "C1", 1, TRUE, 1
+    "B1", 0, FALSE, 1,
+    "B2", 0, FALSE, 1,
+    "B3", 0, FALSE, 1
   ),
   module_network = tribble(
     ~from, ~to, ~effect, ~strength, ~hill,
-    "C1", "A1", -1L, 100, 2
+    "B1", "B2", 1L, 1, 2,
+    "B1", "B3", 1L, 1, 2,
+    "B2", "B3", -1L, 3, 2,
+    "B3", "B2", -1L, 3, 2,
+    "B2", "C1", 1L, 1, 2,
+    "B3", "D1", 1L, 1, 2
   ),
   expression_patterns = tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sC", "sA", "+C1", FALSE, FALSE, 30
+    "sB", "sBmid", "+B1", FALSE, FALSE, 40,
+    "sBmid", "sC", "+B2", FALSE, FALSE, 40,
+    "sBmid", "sD", "+B3", FALSE, FALSE, 30
   )
 )
 
 backbone <- bblego(
+  part0,
   part1,
   part2,
   part3,
@@ -365,23 +315,28 @@ backbone <- bblego(
 
 model <- initialise_model(
   backbone = backbone,
-  num_tfs = 40,
-  num_targets = 0,
-  num_hks = 0,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 500,
+  num_hks = 500,
+  simulation_params = simulation_default(
+    total_time = simtime_from_backbone(backbone) * 2
+  ),
   verbose = FALSE
 )
 
 plot_backbone_modulenet(model)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/cyclic_backbone-1.png)<!-- -->
+![](advanced_constructing_backbone_files/figure-gfm/bifur_backbone-1.png)<!-- -->
 
 ``` r
 plot_backbone_statenet(model)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/cyclic_backbone-2.png)<!-- -->
+![](advanced_constructing_backbone_files/figure-gfm/bifur_backbone-2.png)<!-- -->
+
+Looking at the gene expression over time shows that a simulation can
+indeed switch between C3 and D3 expression.
 
 ``` r
 out <- generate_dataset(model, make_plots = TRUE)
@@ -391,11 +346,10 @@ out <- generate_dataset(model, make_plots = TRUE)
 print(out$plot)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/cyclic_sim-1.png)<!-- -->
+![](advanced_constructing_backbone_files/figure-gfm/bifur_sim-1.png)<!-- -->
 
-Note that, for the gold standard to function correctly, the expression
-patterns of part2 and part3 need to be modified, because if the A, B,
-and C modules are all on we don’t know in which state the gold standard
-simulation will find itself.
+``` r
+plot_simulation_expression(out$model, simulation_i = 1:8, what = "mol_mrna")
+```
 
-–&gt;
+![](advanced_constructing_backbone_files/figure-gfm/bifur_sim-2.png)<!-- -->

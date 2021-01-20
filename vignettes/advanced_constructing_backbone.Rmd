@@ -47,13 +47,15 @@ you need to be.
 
 Here is an example of a bifurcating trajectory.
 
-```{r bblego, fig.width = 20, fig.height = 20}
+```{r bblego, fig.width = 16, fig.height = 12}
 library(dyngen)
 library(tidyverse)
 
+set.seed(1)
+
 backbone <- bblego(
   bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
+  bblego_linear("A", "B", type = "simple", num_modules = 4),
   bblego_branching("B", c("C", "D"), type = "simple"),
   bblego_end("C", type = "doublerep2", num_modules = 4),
   bblego_end("D", type = "doublerep1", num_modules = 7)
@@ -62,9 +64,9 @@ backbone <- bblego(
 out <- 
   initialise_model(
     backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 500,
+    num_hks = 500,
     verbose = FALSE
   ) %>% 
   generate_dataset(make_plots = TRUE)
@@ -182,7 +184,7 @@ By wrapping these data structures as a backbone object, we can now visualise the
 Drawing the backbone module network by hand on a piece of paper can help you understand how the gene
 regulatory network works.
 
-```{r bifurcatingloop_print, fig.width = 10, fig.height = 10}
+```{r bifurcatingloop_print, fig.width = 8, fig.height = 6}
 backbone <- backbone(
   module_info = module_info,
   module_network = module_network,
@@ -192,8 +194,8 @@ backbone <- backbone(
 model <- initialise_model(
   backbone = backbone,
   num_tfs = nrow(backbone$module_info),
-  num_targets = 0,
-  num_hks = 0,
+  num_targets = 500,
+  num_hks = 500,
   simulation_params = simulation_default(
     experiment_params = simulation_type_wild_type(num_simulations = 100),
     total_time = 600
@@ -207,7 +209,7 @@ plot_backbone_statenet(model)
 
 ### Simulation
 This allows you to simulate the following dataset.
-```{r bifurcatingloop_plot, fig.width = 20, fig.height = 20}
+```{r bifurcatingloop_plot, fig.width = 16, fig.height = 12}
 out <- generate_dataset(model, make_plots = TRUE)
 
 print(out$plot)
@@ -222,7 +224,7 @@ backbone_type_df %>% filter(type == "manual") %>% .$markdown %>% cat(sep = "")
 ```
 
 
-<!--
+
 ## Combination of bblego and manual
 
 You can also use parts of the 'bblego' framework to construct a backbone manually.
@@ -230,41 +232,46 @@ That's because the bblego functions simply generate the three data frames
 (`module_info`, `module_network` and `expression_patterns`) required to construct
 a backbone manually. For example:
 
-```{r cyclic_part1} 
-part1 <- bblego_start("A", type = "simple", num_modules = 2)
+```{r bifur_bblegos} 
+part0 <- bblego_start("A", type = "simple", num_modules = 2)
+part1 <- bblego_linear("A", "B", type = "simple", num_modules = 3)
+part3 <- bblego_end("C", type = "simple", num_modules = 3)
+part4 <- bblego_end("D", type = "simple", num_modules = 3)
+
 part1
 ```
 
-```{r cyclic_part2} 
-part2 <- bblego_linear("A", "B", type = "flipflop", num_modules = 4)
-part2
-```
 
-```{r cyclic_part3} 
-part3 <- bblego_linear("B", "C", type = "simple", num_modules = 2)
-part3
-```
+You can combine these components with a custom bifurcation component
+which can switch back and forth between end states.
 
-You can create a cyclic dataset by adding a module that represses the A1 module.
-
-
-```{r cyclic_backbone}
-part4 <- list(
+```{r bifur_backbone}
+part2 <- list(
   module_info = tribble(
     ~module_id, ~basal, ~burn, ~independence,
-    "C1", 1, TRUE, 1
+    "B1", 0, FALSE, 1,
+    "B2", 0, FALSE, 1,
+    "B3", 0, FALSE, 1
   ),
   module_network = tribble(
     ~from, ~to, ~effect, ~strength, ~hill,
-    "C1", "A1", -1L, 100, 2
+    "B1", "B2", 1L, 1, 2,
+    "B1", "B3", 1L, 1, 2,
+    "B2", "B3", -1L, 3, 2,
+    "B3", "B2", -1L, 3, 2,
+    "B2", "C1", 1L, 1, 2,
+    "B3", "D1", 1L, 1, 2
   ),
   expression_patterns = tribble(
     ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-    "sC", "sA", "+C1", FALSE, FALSE, 30
+    "sB", "sBmid", "+B1", FALSE, FALSE, 40,
+    "sBmid", "sC", "+B2", FALSE, FALSE, 40,
+    "sBmid", "sD", "+B3", FALSE, FALSE, 30
   )
 )
 
 backbone <- bblego(
+  part0,
   part1,
   part2,
   part3,
@@ -273,10 +280,12 @@ backbone <- bblego(
 
 model <- initialise_model(
   backbone = backbone,
-  num_tfs = 40,
-  num_targets = 0,
-  num_hks = 0,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  num_tfs = nrow(backbone$module_info),
+  num_targets = 500,
+  num_hks = 500,
+  simulation_params = simulation_default(
+    total_time = simtime_from_backbone(backbone) * 2
+  ),
   verbose = FALSE
 )
 
@@ -284,15 +293,11 @@ plot_backbone_modulenet(model)
 plot_backbone_statenet(model)
 ```
 
-
-```{r cyclic_sim}
+Looking at the gene expression over time shows that a simulation can indeed switch between C3 and D3 expression.
+```{r bifur_sim, fig.width = 16, fig.height = 12}
 out <- generate_dataset(model, make_plots = TRUE)
 
 print(out$plot)
+
+plot_simulation_expression(out$model, simulation_i = 1:8, what = "mol_mrna")
 ```
-
-Note that, for the gold standard to function correctly, the expression patterns of part2 and part3
-need to be modified, because if the A, B, and C modules are all on we don't know
-in which state the gold standard simulation will find itself.
-
--->
