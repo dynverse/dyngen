@@ -6,8 +6,6 @@
 #' Return the timings of each of the dyngen steps
 #' @param model A dyngen object
 #' 
-#' @importFrom RColorBrewer brewer.pal
-#' 
 #' @export
 #' 
 #' @examples 
