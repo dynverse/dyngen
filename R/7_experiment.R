@@ -176,7 +176,7 @@ generate_experiment <- function(model) {
   
   # simulate sampling of molecules
   tsim_counts_t <- Matrix::t(tsim_counts)
-  for (cell_i in seq_len(nrow(cell_info))) {
+  new_vals <- unlist(map(seq_len(nrow(cell_info)), function(cell_i) {
     pi <- tsim_counts_t@p[[cell_i]] + 1
     pj <- tsim_counts_t@p[[cell_i + 1]]
     gene_is <- tsim_counts_t@i[pi:pj] + 1
@@ -188,10 +188,9 @@ generate_experiment <- function(model) {
     probs <- cap_rates * gene_vals
     probs[probs < 0] <- 0 # sometimes these can become zero due to rounding errors
     
-    new_vals <- rmultinom(1, lib_size, probs)
-    
-    tsim_counts_t@x[pi:pj] <- new_vals
-  }
+    rmultinom(1, lib_size, probs)
+  })) %>% as.numeric
+  tsim_counts_t@x <- new_vals
   sim_counts <- Matrix::drop0(Matrix::t(tsim_counts_t))
   
   lst(
