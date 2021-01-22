@@ -10,12 +10,16 @@
 
 * Combine simular models with different outputs using the `combine_models()` function.
 
+* Store the timings throughout the dyngen execution. Extract the timings from a model using `get_timings()`.
+
 ## MINOR CHANGES
 
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
   to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively.
   
 * `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
+
+* `generate_experiment()`: Drastically speed up sampling of moleciles.
 
 ## BUG FIX
 

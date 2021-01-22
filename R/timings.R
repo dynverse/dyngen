@@ -35,6 +35,5 @@ get_timings <- function(model) {
         NULL
       }
     }) %>% 
-    mutate(alpha = seq(1, .2, length.out = n())) %>% 
     ungroup()
 }
