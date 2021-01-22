@@ -151,7 +151,7 @@ backbone <- function(
       module_info <-
         module_info %>% 
         mutate(
-          group = gsub("[0-9]*$", "", module_id)
+          group = gsub("[0-9]*$", "", .data$module_id)
         )
       group_names <- unique(module_info$group)
       group_colours <- grDevices::rainbow(length(group_names))
@@ -159,11 +159,11 @@ backbone <- function(
       module_info <- module_info %>% 
         group_by(group) %>% 
         mutate(
-          group_colour = group_colours[match(group, group_names)],
-          color = colour_brighten(group_colour, rev(seq(1, .4, length.out = n())))
+          group_colour = group_colours[match(.data$group, group_names)],
+          color = colour_brighten(.data$group_colour, rev(seq(1, .4, length.out = n())))
         ) %>% 
         ungroup() %>% 
-        select(-group, -group_colour)
+        select(-.data$group, -.data$group_colour)
     } else {
       module_info <-
         module_info %>% 
@@ -172,7 +172,7 @@ backbone <- function(
   }
   
   # add burn modules to burn transition
-  extra_modules <- module_info %>% filter(basal > 0) %>% pull(module_id)
+  extra_modules <- module_info %>% filter(.data$basal > 0) %>% pull(.data$module_id)
   if (length(extra_modules) > 0) {
     expression_patterns$module_progression[[1]] <- 
       c(
