@@ -57,6 +57,8 @@
 generate_feature_network <- function(
   model
 ) {
+  model <- .add_timing(model, "3_feature_network", "checks")
+  
   if (model$verbose) cat("Sampling feature network from real network\n")
   
   # verify that this function has all the data it needs
@@ -66,6 +68,7 @@ generate_feature_network <- function(
   )
   
   # process realnet
+  model <- .add_timing(model, "3_feature_network", "process realnet")
   realnet <- model$feature_network_params$realnet
   
   if (is.character(realnet)) {
@@ -96,6 +99,8 @@ generate_feature_network <- function(
   )
   
   # sample target network from realnet
+  model <- .add_timing(model, "3_feature_network", "sample target network")
+  
   if (sample_tfs_per > 0) {
     num_target_start <- seq(1, model$numbers$num_targets, by = sample_tfs_per)
     num_target_stop <- c((num_target_start - 1) %>% tail(-1), model$numbers$num_targets)
@@ -111,6 +116,8 @@ generate_feature_network <- function(
   }
   
   # sample house keeping
+  model <- .add_timing(model, "3_feature_network", "sample housekeeping network")
+  
   if (sample_hks_per > 0) {
     num_hk_start <- seq(1, model$numbers$num_hks, by = sample_hks_per)
     num_hk_stop <- c((num_hk_start - 1) %>% tail(-1), model$numbers$num_hks)
@@ -126,6 +133,8 @@ generate_feature_network <- function(
   }
   
   # return output
+  model <- .add_timing(model, "3_feature_network", "return output")
+  
   model$feature_info <- 
     bind_rows(
       model$feature_info,
@@ -140,7 +149,7 @@ generate_feature_network <- function(
       hk_network
     )
   
-  model
+  model %>% .add_timing("3_feature_network", "end")
 }
 
 #' @export

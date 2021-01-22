@@ -76,6 +76,8 @@
 #' dataset <- as_dyno(model)
 #' }
 generate_kinetics <- function(model) {
+  model <- .add_timing(model, "4_kinetics", "checks")
+  
   # satisfy r cmd check
   burn <- mol_premrna <- mol_mrna <- mol_protein <- val <- NULL
   
@@ -85,12 +87,15 @@ generate_kinetics <- function(model) {
   )
   
   # generate kinetics params
+  model <- .add_timing(model, "4_kinetics", "generate kinetics")
   model <- .kinetics_generate_gene_kinetics(model)
   
   # generate formulae
+  model <- .add_timing(model, "4_kinetics", "generate formulae")
   formulae <- .kinetics_generate_formulae(model)
   
   # create variables
+  model <- .add_timing(model, "4_kinetics", "create variables")
   fid <- model$feature_info$feature_id
   model$feature_info$mol_premrna <- paste0("mol_premrna_", fid)
   model$feature_info$mol_mrna <- paste0("mol_mrna_", fid)
@@ -108,6 +113,7 @@ generate_kinetics <- function(model) {
   )
   
   # extract params
+  model <- .add_timing(model, "4_kinetics", "extract parameters")
   parameters <- .kinetics_extract_parameters(
     model$feature_info, 
     model$feature_network
@@ -122,6 +128,7 @@ generate_kinetics <- function(model) {
     pull(val)
     
   # return system
+  model <- .add_timing(model, "4_kinetics", "create output")
   model$simulation_system <- lst(
     reactions = formulae, 
     molecule_ids,
@@ -130,7 +137,7 @@ generate_kinetics <- function(model) {
     burn_variables
   )
   
-  model
+  .add_timing(model, "4_kinetics", "end")
 }
 
 #' @export

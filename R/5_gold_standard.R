@@ -58,25 +58,30 @@ generate_gold_standard <- function(model) {
   
   # compute changes in modules along the edges
   if (model$verbose) cat("Generating gold standard mod changes\n")
+  model <- .add_timing(model, "5_gold_standard", "generate mod changes")
   model$gold_standard$mod_changes <- .generate_gold_standard_mod_changes(model$backbone$expression_patterns)
   
   # precompile propensity functions
   if (model$verbose) cat("Precompiling reactions for gold standard\n")
+  model <- .add_timing(model, "5_gold_standard", "precompiling reactions for gold standard")
   prep_data <- .generate_gold_precompile_reactions(model)
   
   # run gold standard simulations
   if (model$verbose) cat("Running gold simulations\n")
+  model <- .add_timing(model, "5_gold_standard", "running gold simulations")
   simulations <- .generate_gold_standard_simulations(model, prep_data)
   model$gold_standard$meta <- simulations$meta
   model$gold_standard$counts <- simulations$counts
   
   # do combined dimred
+  model <- .add_timing(model, "5_gold_standard", "compute dimred")
   model <- model %>% calculate_dimred()
   
   # construct simulation network from dimred
+  model <- .add_timing(model, "5_gold_standard", "generate simulation network from dimred")
   model$gold_standard$network <- .generate_gold_standard_generate_network(model)
   
-  model
+  .add_timing(model, "5_gold_standard", "end")
 }
 
 #' @export

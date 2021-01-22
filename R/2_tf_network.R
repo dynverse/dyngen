@@ -58,8 +58,11 @@ generate_tf_network <- function(
   if (model$verbose) cat("Generating TF network\n")
   
   model %>% 
+    .add_timing("2_tf_network", "generate_tf_info") %>% 
     .generate_tf_info() %>% 
-    .generate_tf_network()
+    .add_timing("2_tf_network", "generate_tf_network") %>% 
+    .generate_tf_network() %>% 
+    .add_timing("2_tf_network", "end")
 }
 
 #' @export

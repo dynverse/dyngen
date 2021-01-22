@@ -92,6 +92,8 @@ initialise_model <- function(
   num_cores = getOption("Ncpus") %||% 1L,
   id = NULL
 ) {
+  timer_init <- .add_timing(list(), "1_initialisation", "initialisation")
+  
   distance_metric <- match.arg(distance_metric)
   
   if (is.null(simulation_params$burn_time)) {
@@ -103,7 +105,7 @@ initialise_model <- function(
       simtime_from_backbone(backbone, burn = FALSE)
   }
     
-  l <- lst(
+  out <- lst(
     backbone,
     numbers = lst(
       num_cells,
@@ -123,9 +125,13 @@ initialise_model <- function(
     verbose,
     download_cache_dir,
     num_cores,
-    id
+    id,
+    timings = timer_init$timings
   )
   
-  class(l) <- c(class(l), "dyngen::init")
-  l
+  class(out) <- c(class(out), "dyngen::init")
+  
+  out <- .add_timing(out, "1_initialisation", "end")
+  
+  out
 }

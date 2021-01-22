@@ -76,10 +76,12 @@ generate_cells <- function(model) {
   time <- NULL
   
   if (model$verbose) cat("Precompiling reactions for simulations\n")
+  model <- .add_timing(model, "6_simulations", "precompile reactions for simulations")
   reactions <- .generate_cells_precompile_reactions(model)
   
   # simulate cells one by one
   if (model$verbose) cat("Running ", nrow(model$simulation_params$experiment_params), " simulations\n", sep = "")
+  model <- .add_timing(model, "6_simulations", "running simulations")
   simulations <- 
     pbapply::pblapply(
       X = seq_len(nrow(model$simulation_params$experiment_params)),
@@ -90,6 +92,7 @@ generate_cells <- function(model) {
     )
   
   # split up simulation data
+  model <- .add_timing(model, "6_simulations", "generate output")
   model$simulations <- lst(
     meta = map_df(simulations, "meta"),
     counts = do.call(rbind, map(simulations, "counts")),
@@ -103,6 +106,7 @@ generate_cells <- function(model) {
   
   # predict state
   if (model$verbose) cat("Mapping simulations to gold standard\n", sep = "")
+  model <- .add_timing(model, "6_simulations", "map simulations to gold standard")
   if (!is.null(model[["gold_standard"]])) {
     model$simulations$meta <- .generate_cells_predict_state(model)
   } else {
@@ -110,13 +114,14 @@ generate_cells <- function(model) {
   }
   
   # perform dimred
+  model <- .add_timing(model, "6_simulations", "perform dimred")
   if (model$simulation_params$compute_dimred) {
     if (model$verbose) cat("Performing dimred\n", sep = "")
     model <- model %>% calculate_dimred()
   }
   
   # return
-  model
+  .add_timing(model, "6_simulations", "end")
 }
 
 #' @export

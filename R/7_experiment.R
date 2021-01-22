@@ -66,6 +66,7 @@ generate_experiment <- function(model) {
   cell_id <- step_ix <- sim_time <- simulation_i <- from <- to <- time <- NULL
   
   if (model$verbose) cat("Simulating experiment\n")
+  model <- .add_timing(model, "7_experiment", "sample cells")
   # first sample the cells from the sample, using the desired number of cells
   step_ixs <- .generate_experiment_sample_cells(model)
   
@@ -95,15 +96,18 @@ generate_experiment <- function(model) {
   tsim_counts <- model$simulations$counts[step_ixs, , drop = FALSE]
   
   # fetch real expression data
+  model <- .add_timing(model, "7_experiment", "fetch realcount")
   realcount <- .generate_experiment_fetch_realcount(model)
   
   # simulate library size variation from real data
+  model <- .add_timing(model, "7_experiment", "simulate library size variation")
   count_simulation <- .simulate_counts_from_realcounts(tsim_counts, realcount, cell_info, sample_capture_rate = model$experiment_params$sample_capture_rate)
   sim_counts <- count_simulation$sim_counts
   cell_info <- count_simulation$cell_info
   mol_info <- count_simulation$mol_info
   
   # split up molecules
+  model <- .add_timing(model, "7_experiment", "create output")
   sim_wcounts <- sim_counts[, model$feature_info$mol_premrna, drop = FALSE]
   sim_xcounts <- sim_counts[, model$feature_info$mol_mrna, drop = FALSE]
   sim_ycounts <- sim_counts[, model$feature_info$mol_protein, drop = FALSE]
@@ -137,7 +141,7 @@ generate_experiment <- function(model) {
     rna_velocity = sim_rna_velocity
   )
   
-  model
+  .add_timing(model, "7_experiment", "end")
 }
 
 
