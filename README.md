@@ -6,7 +6,10 @@ Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org
 [![CRAN
 Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
 [![DOI](https://img.shields.io/badge/doi-10.1101/2020.02.06.936971-green)](https://doi.org/10.1101/2020.02.06.936971)
-![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)<br><img src="man/figures/logo.png" align="right" />
+![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)
+[![Coverage
+Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
+<br><img src="man/figures/logo.png" align="right" />
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic
 cellular processes at single-cell resolution. dyngen is more flexible
@@ -20,53 +23,12 @@ A preprint is available on
 All source code for reproducing the results in this manuscript are
 available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
-## System requirements
-
-This package is supported for Linux, but should also work on Mac OS X
-and Windows. It has been tested with [Github
-Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
-for R 3.5, 3.6 and 4.0 on the following systems Ubuntu, Windows Server
-and Mac OS X.
-
 ## Installation
 
-## Step 1: Install from CRAN or GitHub
-
-dyngen is available on CRAN, so you can install it with the following
-command.
-
-``` r
-install.packages("dyngen")
-```
-
-If you would like to install the development version of dyngen from
-GitHub instead, run the following command. Use at your own risk!
-
-``` r
-install.packages("remotes")
-remotes::install_github("dynverse/dyngen@devel", dependencies = TRUE)
-```
-
-## Step 2: Configure host system
-
-It’s recommended to let dyngen know where it can cache downloaded files
-and how many cores the host system has. If you don’t perform these
-steps, running dyngen simulations will take a lot longer than it needs
-to.
-
-To do so, start editing your Rprofile by running the following commands:
-
-``` r
-install.packages("usethis")
-usethis::edit_r_profile()
-```
-
-Inside your Rprofile, add the following lines:
-
-``` r
-options(Ncpus = 8L) # change this to the number of cores in your system
-options(dyngen_download_cache_dir = "~/.cache/dyngen")
-```
+dyngen should work straight out of the CRAN box by running
+`install.packages("dyngen")`. Having said that, there are a few
+recommended steps that will make dyngen work even better. Check the
+installation vignette below for more information!
 
 ## Vignettes
 
@@ -87,6 +49,10 @@ Expected execution time for rerunning the code is about 5 minutes.
     `vignette("advanced_simulating_knockouts", package="dyngen")`
 -   [Getting started](vignettes/getting_started.md)  
     `vignette("getting_started", package="dyngen")`
+-   [Installation instructions](vignettes/installation.md)  
+    `vignette("installation", package="dyngen")`
+-   [On runtime and scalability](vignettes/scalability_and_runtime.md)  
+    `vignette("scalability_and_runtime", package="dyngen")`
 -   [Showcase different backbones](vignettes/showcase_backbones.md)  
     `vignette("showcase_backbones", package="dyngen")`
 
@@ -128,4 +94,8 @@ list of changes.
 
 #### DOCUMENTATION
 
--   Extended the vignettes with more examples.
+-   Extended vignettes:
+    -   Advanced: Simulating batch effects
+    -   Advanced: Simulating a knockout experiment
+    -   Advanced: Running dyngen from a docker container
+    -   Advanced: Constructing a custom backbone
