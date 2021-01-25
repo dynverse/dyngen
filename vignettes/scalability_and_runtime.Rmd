@@ -8,6 +8,10 @@ vignette: >
 editor_options: 
   chunk_output_type: console
 ---
+```{r init, message=FALSE, fig.width = 10, fig.height = 6}
+library(tidyverse)
+library(dyngen)
+```
 
 <!-- github markdown built using 
 rmarkdown::render("vignettes/advanced_constructing_backbone.Rmd", output_format = rmarkdown::github_document())
@@ -23,75 +27,36 @@ An example of a resulting dyngen model is shown here. We tweaked some of the par
 * Increased time steps `tau`. This will make the Gillespie algorithm slighty faster but might result in unexpected artifacts in the simulated data. 
 * `census_interval` increased from 4 to 10. This will cause dyngen to store an expression profile only every 10 time units. Since the total simulation time is xxx, each simulation will result in yyy data points. Note that on average only 10 data points are sampled per simulation.
 
-## Single run, 10k cells, 10k features
-```{r bblego, fig.width = 8, fig.height = 4}
+## Experiments
+
+```{r experiments}
 library(dyngen)
 library(tidyverse)
 
 set.seed(1)
 
+save_dir <- "scalability_and_runtime_runs"
+dir.create(save_dir, recursive = TRUE)
+
 backbone <- backbone_bifurcating_cycle()
 
-if (!file.exists("scalability_and_runtime_large.rds")) {
-  num_cells <- 10000
-  num_features <- 10000
-  num_tfs <- nrow(backbone$module_info)
-  num_targets <- round((num_features - num_tfs) / 2)
-  num_hks <- num_features - num_targets - num_tfs
-  
-  model <- 
-    initialise_model(
-      backbone = backbone,
-      num_tfs = num_tfs,
-      num_targets = num_targets,
-      num_hks = num_hks,
-      num_cells = num_cells,
-      gold_standard_params = gold_standard_default(
-        census_interval = 1,
-        tau = 100/3600
-      ),
-      simulation_params = simulation_default(
-        census_interval = 10,
-        ssa_algorithm = ssa_etl(tau = 300/3600),
-        experiment_params = simulation_type_wild_type(
-          num_simulations = 100
-        )
-      ),
-      verbose = TRUE
-    ) %>% 
-    generate_tf_network() %>% 
-    generate_feature_network() %>% 
-    generate_kinetics() %>% 
-    generate_gold_standard() %>%  
-    generate_cells() %>% 
-    generate_experiment()
-  
-  timings0 <- 
-    get_timings(model) %>% 
-    mutate(name = forcats::fct_rev(forcats::fct_inorder(paste0(group, " - ", task))))
-  
-  write_rds(timings0, "scalability_and_runtime_large.rds")
-  # write_rds(timings0, "vignettes/scalability_and_runtime_large.rds", compress = "gz")
-}
+settings <- bind_rows(
+  tibble(num_cells = 10000, num_features = 10000, rep = 1),
+  crossing(
+    num_cells = seq(1000, 10000, by = 1000),
+    num_features = 100,
+    rep = seq_len(3)
+  ),
+  crossing(
+    num_cells = 100,
+    num_features = seq(1000, 10000, by = 1000),
+    rep = seq_len(3)
+  )
+) %>% 
+  mutate(filename = paste0(save_dir, "/cells", num_cells, "_feats", num_features, "_rep", rep, ".rds"))
 
-ggplot(timings0) + 
-  geom_bar(aes(x = name, y = time_elapsed, fill = group), stat = "identity") +
-  scale_fill_brewer(palette = "Dark2") + 
-  theme_classic() +
-  coord_flip() + labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
-```
-
-## Increasing the number of cells
-
-```{r numcells}
-settings <- crossing(
-  num_cells = seq(1000, 10000, by = 1000),
-  num_features = 100,
-  rep = seq_len(3)
-)
-
-if (!file.exists("scalability_and_runtime_numcells.rds")) {
-  timings1 <- pmap_dfr(settings, function(num_cells, num_features, rep) {
+timings <- pmap_dfr(settings, function(num_cells, num_features, rep, filename) {
+  if (!file.exists(filename)) {
     cat("Running num_cells: ", num_cells, ", num_features: ", num_features, ", rep: ", rep, "\n", sep = "")
     num_tfs <- nrow(backbone$module_info)
     num_targets <- round((num_features - num_tfs) / 2)
@@ -123,20 +88,38 @@ if (!file.exists("scalability_and_runtime_numcells.rds")) {
       get_timings(out$model) %>% 
       mutate(rep, num_cells, num_features)
     
-    cat("  time elapsed: ", sum(tim$time_elapsed), "\n", sep = "")
-    
-    tim
-  })
-  write_rds(timings1, "scalability_and_runtime_numcells.rds")
-  # write_rds(timings1, "vignettes/scalability_and_runtime_numcells.rds", compress = "gz")
-}
-
+    write_rds(tim, filename, compress = "gz")
+  }
+  
+  read_rds(filename)
+})
 
 ```
 
+## Single run, 10k cells, 10k features
+
+```{r bblego, fig.width = 8, fig.height = 8}
+timings0 <- 
+  timings %>% 
+  filter(num_cells == 10000, num_features == 10000) %>% 
+  mutate(name = forcats::fct_rev(forcats::fct_inorder(paste0(group, ": ", task))))
+
+ggplot(timings0) + 
+  geom_bar(aes(x = name, y = time_elapsed, fill = group), stat = "identity") +
+  scale_fill_brewer(palette = "Dark2") + 
+  theme_classic() +
+  theme(legend.position = "none") +
+  coord_flip() + 
+  labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
+```
+
+## Increasing the number of cells
+
 
 ```{r figure1, fig.width=10, fig.height=5}
-timings1 <- read_rds("scalability_and_runtime_numcells.rds")
+timings1 <- 
+  timings %>% 
+  filter(num_features == 100)
 
 timings1 %>% 
   group_by(group, task, num_cells, num_features) %>% 
@@ -152,57 +135,10 @@ timings1 %>%
 
 ## Increasing the number of features
 
-```{r numfeatures}
-settings <- crossing(
-  num_cells = 100,
-  num_features = seq(1000, 10000, by = 1000),
-  rep = seq_len(3)
-)
-
-if (!file.exists("scalability_and_runtime_numfeatures.rds")) {
-  timings2 <- pmap_dfr(settings, function(num_cells, num_features, rep) {
-    cat("Running num_cells: ", num_cells, ", num_features: ", num_features, ", rep: ", rep, "\n", sep = "")
-    num_tfs <- nrow(backbone$module_info)
-    num_targets <- round((num_features - num_tfs) / 2)
-    num_hks <- num_features - num_targets - num_tfs
-    
-    out <- 
-      initialise_model(
-        backbone = backbone,
-        num_tfs = num_tfs,
-        num_targets = num_targets,
-        num_hks = num_hks,
-        num_cells = num_cells,
-        gold_standard_params = gold_standard_default(
-          census_interval = 1,
-          tau = 100/3600
-        ),
-        simulation_params = simulation_default(
-          census_interval = 10,
-          ssa_algorithm = ssa_etl(tau = 300/3600),
-          experiment_params = simulation_type_wild_type(
-            num_simulations = num_cells / 10
-          )
-        ),
-        verbose = FALSE
-      ) %>% 
-      generate_dataset()
-    
-    tim <- 
-      get_timings(out$model) %>% 
-      mutate(rep, num_cells, num_features)
-    
-    cat("  time elapsed: ", sum(tim$time_elapsed), "\n", sep = "")
-    
-    tim
-  })
-  write_rds(timings2, "scalability_and_runtime_numfeatures.rds")
-  # write_rds(timings2, "vignettes/scalability_and_runtime_numfeatures.rds", compress = "gz")
-}
-```
-
 ```{r figure2, fig.width=10, fig.height=5}
-timings2 <- read_rds("scalability_and_runtime_numfeatures.rds")
+timings2 <- 
+  timings %>% 
+  filter(num_cells == 100)
 
 timings2 %>% 
   group_by(group, task, num_cells, num_features) %>% 
@@ -216,7 +152,16 @@ timings2 %>%
 ```
 
 
-## Ratio between `num_cells` and `num_simulations` is too large`
+## Ratio between `num_cells` and `num_simulations` is too large
 
 
 ## `tau` is too large
+
+## Execution platform
+
+These timings were measured using 30 (out of 32) threads using a AMD Ryzen 9 5950X clocked at 3.4GHz. 
+
+Session info:
+```{r}
+sessionInfo()
+```
