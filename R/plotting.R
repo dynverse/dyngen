@@ -249,18 +249,15 @@ plot_feature_network <- function(
 #' @examples
 #' data("example_model")
 #' plot_simulations(example_model)
-plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
-  # satisfy r cmd check
-  comp_1 <- comp_2 <- sim_time <- simulation_i <- NULL
-  
+plot_simulations <- function(model, mapping = aes_string("comp_1", "comp_2")) {
   plot_df <- 
     bind_cols(
       model$simulations$meta,
       model$simulations$dimred %>% as.data.frame
     )
   
-  ggplot(plot_df %>% filter(sim_time >= 0), mapping) +
-    geom_path(aes(colour = sim_time, group = simulation_i)) +
+  ggplot(plot_df %>% filter(.data$sim_time >= 0), mapping) +
+    geom_path(aes_string(colour = "sim_time", group = "simulation_i")) +
     viridis::scale_color_viridis() +
     theme_bw()
 }
@@ -279,15 +276,12 @@ plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
 #' @examples
 #' data("example_model")
 #' plot_gold_simulations(example_model)
-plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2), highlight = 0) {
-  # satisfy r cmd check
-  comp_1 <- comp_2 <- burn <- sim_time <- from_ <- to_ <- from <- to <- simulation_i <- edge <- NULL
-  
+plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes_string("comp_1", "comp_2"), highlight = 0) {
   plot_df <- 
     bind_cols(
       model$gold_standard$meta,
       model$gold_standard$dimred %>% as.data.frame
-    ) %>% filter(!burn)
+    ) %>% filter(!.data$burn)
   
   if (!detailed && model %has_names% "simulations" && model$simulations %has_names% "dimred") {
     plot_df <- plot_df %>% 
@@ -295,19 +289,21 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
         bind_cols(
           model$simulations$meta,
           model$simulations$dimred %>% as.data.frame
-        ) %>% filter(sim_time >= 0)
+        ) %>% filter(.data$sim_time >= 0)
       )
   }
   
+  plot_df <- plot_df %>% mutate(group = paste0(.data$from_, "_", .data$to_))
+  
   if (detailed) {
-    plot_df <- plot_df %>% mutate(edge = paste0(from_, "_", to_))
+    plot_df <- plot_df %>% mutate(edge = .data$group)
   } else {
-    plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
+    plot_df <- plot_df %>% mutate(edge = paste0(.data$from, "_", .data$to))
   }
   
   ggplot(mapping = mapping) +
-    geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i != highlight), colour = "darkgray") +
-    geom_path(aes(colour = edge, group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == highlight), size = 2) +
+    geom_path(aes_string(group = "simulation_i"), plot_df %>% filter(.data$simulation_i != highlight), colour = "darkgray") +
+    geom_path(aes_string(colour = "edge", group = "group"), plot_df %>% filter(.data$simulation_i == highlight), size = 2) +
     theme_bw()
 }
 
