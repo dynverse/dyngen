@@ -257,7 +257,7 @@ plot_simulations <- function(model, mapping = aes_string("comp_1", "comp_2")) {
     )
   
   ggplot(plot_df %>% filter(.data$sim_time >= 0), mapping) +
-    geom_path(aes_string(colour = "sim_time", group = "simulation_i")) +
+    geom_path(aes(colour = .data$sim_time, group = .data$simulation_i)) +
     viridis::scale_color_viridis() +
     theme_bw()
 }
@@ -302,8 +302,8 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes_string(
   }
   
   ggplot(mapping = mapping) +
-    geom_path(aes_string(group = "simulation_i"), plot_df %>% filter(.data$simulation_i != highlight), colour = "darkgray") +
-    geom_path(aes_string(colour = "edge", group = "group"), plot_df %>% filter(.data$simulation_i == highlight), size = 2) +
+    geom_path(aes(group = .data$simulation_i), plot_df %>% filter(.data$simulation_i != highlight), colour = "darkgray") +
+    geom_path(aes(colour = .data$edge, group = .data$group), plot_df %>% filter(.data$simulation_i == highlight), size = 2) +
     theme_bw()
 }
 
@@ -342,10 +342,10 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
   
   g <- ggplot(mapping = mapping) +
     geom_path(aes(colour = .data$edge, linetype = "Gold standard"), plot_df %>% filter(.data$simulation_i == 0)) +
-    geom_path(aes(colour = .data$edge, group = paste0(.data$simulation_i, "//", .data$edge), linetype = "Simulation"), plot_df %>% filter(.data$simulation_i != 0)) +
+    geom_path(aes(colour = .data$edge, group = .data$simulation_i, linetype = "Simulation"), plot_df %>% filter(.data$simulation_i != 0)) +
     theme_bw() +
     scale_linetype_manual(values = c("Gold standard" = "dotted", "Simulation" = "solid")) + 
-    labs(linetpye = "Sim. type", colour = "Edge")
+    labs(linetype = "Sim. type", colour = "Edge")
   
   if (do_facet) {
     g <- g +
