@@ -4,11 +4,14 @@
 \alias{combine_models}
 \title{Combine multiple dyngen models}
 \usage{
-combine_models(models)
+combine_models(models, duplicate_gold_standard = TRUE)
 }
 \arguments{
 \item{models}{A named list of models. The names of the list will be used to
 prefix the different cellular states in the combined model.}
+
+\item{duplicate_gold_standard}{Whether or not the gold standards of the models are
+different and should be duplicated and prefixed.}
 }
 \description{
 Assume the given models have the exact same feature ids and ran up until the \code{generate_cells()} step.
@@ -22,11 +25,9 @@ init_config <- initialise_model(
   num_cells = 500,
   num_targets = 250,
   num_hks = 50,
-  gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.05),
+  gold_standard_params = gold_standard_default(census_interval = 5, tau = 0.05),
   simulation_params = simulation_default(
-    # burn_time = 10,
-    # total_time = 10,
-    census_interval = 1,
+    census_interval = 5,
     ssa_algorithm = ssa_etl(tau = 0.05),
     experiment_params = simulation_type_wild_type(num_simulations = 40)
   )

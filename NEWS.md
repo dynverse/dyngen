@@ -8,7 +8,7 @@
 
 * The default cache folder for dyngen can be set by adding `options(dyngen_download_cache_dir = ...)` to your Rprofile.
 
-* Combine simular models with different outputs using the `combine_models()` function.
+* Combine similar models with different outputs using the `combine_models()` function.
 
 * Store the timings throughout the dyngen execution. Extract the timings from a model using `get_timings()`.
 
@@ -19,7 +19,7 @@
   
 * `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
 
-* `generate_experiment()`: Drastically speed up sampling of moleciles.
+* `generate_experiment()`: Drastically speed up sampling of molecules.
 
 ## BUG FIX
 
