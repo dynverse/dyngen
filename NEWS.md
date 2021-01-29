@@ -4,6 +4,8 @@
 
 * `as_anndata()`: Added a function for converting the dyngen output to an anndata object.
 
+* `as_SCE()`: Added a function for converting the dyngen output to an SingleCellExperiment object.
+
 * The default number of cores used can be set by adding `options(Ncpus = ...)` to your Rprofile.
 
 * The default cache folder for dyngen can be set by adding `options(dyngen_download_cache_dir = ...)` to your Rprofile.
@@ -24,6 +26,8 @@
 ## BUG FIX
 
 * `as_dyno()`: Fix `drop = FALSE` bug when only one cell is being sampled.
+
+* Removed names from feature ids in feature info (`unname(model$feature_info$feature_id)`). Thanks @milanmlft!
 
 ## DOCUMENTATION
 
