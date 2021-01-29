@@ -104,7 +104,20 @@ initialise_model <- function(
     simulation_params$total_time <- 
       simtime_from_backbone(backbone, burn = FALSE)
   }
-    
+  
+  # perform check
+  total_time <- simulation_params$total_time
+  census_interval <- simulation_params$census_interval
+  num_simulations <- nrow(simulation_params$experiment_params)
+  if (floor(total_time / census_interval) * num_simulations < num_cells) {
+    warning(
+      "Simulations will not generate enough cells to draw num_cells from.\n", 
+      "Ideally, `floor(total_time / census_interval) * num_simulations / num_cells` should be larger than 10\n", 
+      "Lower the census interval or increase the number of simulations (with simulation_params$experiment_params)."
+    )
+  }
+  
+  # create output
   out <- lst(
     backbone,
     numbers = lst(
