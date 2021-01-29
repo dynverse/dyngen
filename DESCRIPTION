@@ -56,7 +56,7 @@ Suggests:
     knitr,
     R.rsp,
     rmarkdown,
-    SingleCellExperiment,
+    SingleCellExperiment (>= 1.5.3),
     SummarizedExperiment,
     testthat
 VignetteBuilder: 
