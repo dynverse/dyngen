@@ -161,8 +161,10 @@ combine_models <- function(models, duplicate_gold_standard = TRUE) {
   }
   
   # recalculate the dimred
-  if (model$verbose) cat("Recomputing dimred\n")
-  model_combined <- calculate_dimred(model_combined)
+  if (model_combined$simulation_params$compute_dimred) {
+    if (model_combined$verbose) cat("Recomputing dimred\n")
+    model_combined <- calculate_dimred(model_combined)
+  }
   
   # return output
   model_combined
