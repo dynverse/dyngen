@@ -4,6 +4,7 @@
 \alias{as_dyno}
 \alias{wrap_dataset}
 \alias{as_anndata}
+\alias{as_SCE}
 \title{Convert simulation output to different formats.}
 \usage{
 as_dyno(
@@ -21,6 +22,13 @@ wrap_dataset(
 )
 
 as_anndata(
+  model,
+  store_dimred = !is.null(model$simulations$dimred),
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
+)
+
+as_SCE(
   model,
   store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
@@ -61,7 +69,9 @@ model <- initialise_model(
     total_time = 10,
     census_interval = 1,
     ssa_algorithm = ssa_etl(tau = 0.1),
-    experiment_params = simulation_type_wild_type(num_simulations = 1)
+    experiment_params = simulation_type_wild_type(num_simulations = 1),
+    compute_cellwise_grn = TRUE,
+    compute_rna_velocity = TRUE
   )
 )
 }
