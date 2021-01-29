@@ -28,6 +28,14 @@ test_that("generating a dataset with linear backbone", {
   expect_is(out$plot, "ggplot")
   
   expect_true(dynwrap::is_wrapper_with_expression(out$dataset))
+  
+  # test converting to anndata
+  ad <- as_anndata(out$model)
+  expect_equal(dim(ad$X), dim(out$dataset$counts))
+  
+  # test converting to SCE
+  sce <- as_SCE(out$model)
+  expect_equal(dim(sce), dim(t(out$dataset$counts)))
 })
 
 

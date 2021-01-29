@@ -172,7 +172,8 @@ as_anndata <- function(
     layers = list(
       counts_spliced = model$experiment$counts_mrna,
       counts_unspliced = model$experiment$counts_premrna,
-      counts_protein = model$experiment$counts_protein
+      counts_protein = model$experiment$counts_protein,
+      logcounts = as(log2(counts + 1), "dgCMatrix")
     ),
     obs = model$experiment$cell_info %>%
       select(-.data$from, -.data$to, -.data$time) %>% 
@@ -237,6 +238,7 @@ as_SCE <- function(
   sce_args <- list(
     assays = list(
       counts = t(counts),
+      logcounts = t(as(log2(counts + 1), "dgCMatrix")),
       counts_spliced = t(model$experiment$counts_mrna),
       counts_unspliced = t(model$experiment$counts_premrna),
       counts_protein = t(model$experiment$counts_protein)
