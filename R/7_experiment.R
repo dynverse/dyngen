@@ -62,9 +62,6 @@
 #' dataset <- as_dyno(model)
 #' }
 generate_experiment <- function(model) {
-  # satisfy r cmd check
-  cell_id <- step_ix <- sim_time <- simulation_i <- from <- to <- time <- NULL
-  
   if (model$verbose) cat("Simulating experiment\n")
   model <- .add_timing(model, "7_experiment", "sample cells")
   # first sample the cells from the sample, using the desired number of cells
@@ -88,7 +85,16 @@ generate_experiment <- function(model) {
     mutate(
       cell_id = paste0("cell", row_number())
     ) %>% 
-    select(cell_id, step_ix, simulation_i, sim_time, from, to, time, everything())
+    select(
+      .data$cell_id, 
+      .data$step_ix, 
+      .data$simulation_i, 
+      .data$sim_time, 
+      .data$from, 
+      .data$to, 
+      .data$time, 
+      everything()
+    )
   
   step_ixs <- cell_info$step_ix
   
