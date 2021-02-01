@@ -4,7 +4,9 @@
 
 * `as_anndata()`: Added a function for converting the dyngen output to an anndata object.
 
-* `as_SCE()`: Added a function for converting the dyngen output to an SingleCellExperiment object.
+* `as_sce()`: Added a function for converting the dyngen output to an SingleCellExperiment object.
+
+* `as_seurat()`: Added a function for converting the dyngen output to a Seurat object.
 
 * The default number of cores used can be set by adding `options(Ncpus = ...)` to your Rprofile.
 
