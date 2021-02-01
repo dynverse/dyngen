@@ -68,8 +68,8 @@ backbone <- backbone(
   ), 
   expression_patterns = tribble(
     ~from, ~to,  ~module_progression, ~start, ~burn, ~time,
-    "s0",  "s1", "+M1",               TRUE,   TRUE,  15,
-    "s1",  "s2", "+M2,+M3",           FALSE,  FALSE, 30
+    "s0",  "s1", "+M1",               TRUE,   TRUE,  30,
+    "s1",  "s2", "+M2,+M3",           FALSE,  FALSE, 80
   )
 )
 model <- initialise_model(
