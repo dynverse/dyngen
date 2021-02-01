@@ -157,9 +157,6 @@ generate_experiment <- function(model) {
   cell_info = tibble(cell_id = rownames(tsim_counts)), 
   sample_capture_rate = function(n) rnorm(n, 1, 0.05) %>% pmax(0)
 ) {
-  # satisfy r cmd check
-  num_molecules <- mult <- id <- NULL
-  
   # simulate library size variation from real data
   realsums <- Matrix::rowSums(realcount)
   dist_vals <- realsums / mean(realsums)
@@ -170,14 +167,14 @@ generate_experiment <- function(model) {
     mutate(
       num_molecules = Matrix::rowSums(tsim_counts),
       mult = quantile(dist_vals, runif(n())),
-      lib_size = sort(round(mean(num_molecules) * mult))[order(order(num_molecules))]
+      lib_size = sort(round(mean(.data$num_molecules) * .data$mult))[order(order(.data$num_molecules))]
     )
   
   # simulate gene capture variation
   mol_info <- 
     tibble(
       id = colnames(tsim_counts),
-      capture_rate = sample_capture_rate(length(id))
+      capture_rate = sample_capture_rate(ncol(tsim_counts))
     )
   
   # simulate sampling of molecules
@@ -262,9 +259,6 @@ experiment_synchronised <- function(
 }
 
 .generate_experiment_sample_cells <- function(model) {
-  # satisfy r cmd check
-  sim_time <- to <- time <- NULL
-  
   network <- 
     model$gold_standard$network
   
@@ -273,7 +267,7 @@ experiment_synchronised <- function(
   sim_meta <-
     model$simulations$meta %>%
     mutate(orig_ix = row_number()) %>% 
-    filter(sim_time >= 0, !to %in% end_states | time < 1)
+    filter(.data$sim_time >= 0, !.data$to %in% end_states | .data$time < 1)
   
   params <- model$experiment_params
   
@@ -292,32 +286,30 @@ experiment_synchronised <- function(
   params,
   num_cells
 ) {
-  # satisfy r cmd check
-  pct <- cum_pct <- from <- to <- time <- `.` <- NULL
-  
   network <- 
     network %>%
     mutate(
-      pct = length / sum(length), 
-      cum_pct = cumsum(pct),
-      num_cells = diff(c(0, round(cum_pct * num_cells)))
+      pct = .data$length / sum(.data$length), 
+      cum_pct = cumsum(.data$pct),
+      num_cells = diff(c(0, round(.data$cum_pct * num_cells)))
     ) %>% 
-    select(-pct, -cum_pct)
+    select(-.data$pct, -.data$cum_pct)
   
   map(
     seq_len(nrow(network)),
     function(i) {
       edge <- network %>% slice(i)
       meta <- 
-        inner_join(sim_meta, edge %>% select(from, to), c("from", "to"))
+        inner_join(sim_meta, edge %>% select(.data$from, .data$to), c("from", "to"))
       
       if (nrow(meta) > 1) {
-        meta %>% 
+        met <- meta %>% 
           mutate(
-            density = approxfun(density(time, bw = params$weight_bw))(time),
-            weight = 1 / density
-          ) %>% 
-          {sample(.$orig_ix, size = edge$num_cells, replace = TRUE, prob = .$weight)}
+            density = approxfun(density(.data$time, bw = params$weight_bw))(.data$time),
+            weight = 1 / .data$density
+          )
+        
+        sample(met$orig_ix, size = edge$num_cells, replace = TRUE, prob = met$weight)
       } else {
         NULL
       }
@@ -332,33 +324,33 @@ experiment_synchronised <- function(
   params,
   num_cells
 ) {
-  # satisfy r cmd check
-  sim_time <- t_scale <- timepoint_group <- selectable <- pct <- cum_pct <- timepoint_group <- orig_ix <- NULL
-  
   sim_meta2 <- 
     sim_meta %>% 
     mutate(
-      t_scale = sim_time / (max(sim_time)+1e-10) * params$num_timepoints,
-      timepoint_group = floor(t_scale),
-      selectable = (t_scale - timepoint_group) < (1 - params$pct_between)
+      t_scale = .data$sim_time / (max(.data$sim_time)+1e-10) * params$num_timepoints,
+      timepoint_group = floor(.data$t_scale),
+      selectable = (.data$t_scale - .data$timepoint_group) < (1 - params$pct_between)
     ) %>% 
-    filter(selectable)
+    filter(.data$selectable)
   
   numbers <-
     sim_meta2 %>% 
-    group_by(timepoint_group) %>% 
+    group_by(.data$timepoint_group) %>% 
     summarise(n = n()) %>% 
     mutate(
       pct = n / sum(n), 
-      cum_pct = cumsum(pct),
-      num_cells = diff(c(0, round(cum_pct * num_cells)))
+      cum_pct = cumsum(.data$pct),
+      num_cells = diff(c(0, round(.data$cum_pct * num_cells)))
     )
   
   map2(
     numbers$timepoint_group,
     numbers$num_cells,
     function(gr, num) {
-      sim_meta2 %>% filter(timepoint_group == gr) %>% pull(orig_ix) %>% sample(size = num, replace = TRUE)
+      sim_meta2 %>% 
+        filter(.data$timepoint_group == gr) %>%
+        pull(.data$orig_ix) %>% 
+        sample(size = num, replace = TRUE)
     }
   ) %>% 
     unlist()
