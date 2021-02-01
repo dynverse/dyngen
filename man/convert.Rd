@@ -4,7 +4,8 @@
 \alias{as_dyno}
 \alias{wrap_dataset}
 \alias{as_anndata}
-\alias{as_SCE}
+\alias{as_sce}
+\alias{as_seurat}
 \title{Convert simulation output to different formats.}
 \usage{
 as_dyno(
@@ -28,7 +29,14 @@ as_anndata(
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 )
 
-as_SCE(
+as_sce(
+  model,
+  store_dimred = !is.null(model$simulations$dimred),
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
+)
+
+as_seurat(
   model,
   store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),

@@ -219,7 +219,7 @@ as_anndata <- function(
 #' @rdname convert
 #' @importFrom tibble column_to_rownames
 #' @export
-as_SCE <- function(
+as_sce <- function(
   model,
   store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
@@ -288,4 +288,102 @@ as_SCE <- function(
   }
   
   do.call(SingleCellExperiment::SingleCellExperiment, sce_args)
+}
+
+#' @rdname convert
+#' @importFrom tibble column_to_rownames
+#' @export
+as_seurat <- function(
+  model,
+  store_dimred = !is.null(model$simulations$dimred),
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
+) {
+  requireNamespace("Seurat")
+  
+  assert_that(
+    !is.null(model$experiment), 
+    msg = "model should be an object that was initialised with `initialise_model()`."
+  )
+  
+  # collect metadata  
+  feat_metadata <-
+    model$experiment$feature_info %>% 
+    mutate(feature_id = gsub("_", "-", .data$feature_id)) %>% # rename because seurat can't deal with underscores
+    as.data.frame() %>% 
+    column_to_rownames("feature_id")
+  
+  cell_metadata <- 
+    model$experiment$cell_info %>%
+    select(-.data$from, -.data$to, -.data$time) %>%
+    as.data.frame() %>%
+    column_to_rownames("cell_id")
+
+  # create assays
+  counts <- t(model$experiment$counts_mrna + model$experiment$counts_premrna)
+  rownames(counts) <- rownames(feat_metadata)
+  assay_obj <- Seurat::CreateAssayObject(counts = counts) %>% 
+    Seurat::AddMetaData(feat_metadata)
+  # logcounts = t(as(log2(counts + 1), "dgCMatrix")),
+  
+  counts_mrna <- t(model$experiment$counts_mrna)
+  rownames(counts_mrna) <- rownames(feat_metadata)
+  counts_premrna <- t(model$experiment$counts_premrna)
+  rownames(counts_premrna) <- rownames(feat_metadata)
+  counts_protein <- t(model$experiment$counts_protein)
+  rownames(counts_protein) <- rownames(feat_metadata)
+  
+  # construct seurat object and add assays
+  seurat_obj <- Seurat::CreateSeuratObject(assay_obj, meta.data = cell_metadata)
+  seurat_obj[["spliced"]] <- Seurat::CreateAssayObject(counts_mrna)
+  seurat_obj[["unspliced"]] <- Seurat::CreateAssayObject(counts_premrna)
+  seurat_obj[["protein"]] <- Seurat::CreateAssayObject(counts_protein)
+  
+  # add trajectory info
+  Seurat::Misc(seurat_obj, "traj_milestone_network") <- model$gold_standard$network
+  Seurat::Misc(seurat_obj, "traj_progressions") <- model$experiment$cell_info %>%
+    select(.data$cell_id, .data$from, .data$to, percentage = .data$time) %>% 
+    as.data.frame()
+  
+  if (store_dimred) {
+    dimred <- model$simulations$dimred[model$experiment$cell_info$step_ix, , drop = FALSE]
+    rownames(dimred) <- model$experiment$cell_info$cell_id
+    dr <- Seurat::CreateDimReducObject(
+      embeddings = dimred,
+      assay = "RNA"
+    )
+    
+    Seurat::Misc(dr, "traj_segments") <- bind_cols(
+      model$gold_standard$meta[!model$gold_standard$meta$burn, , drop = FALSE],
+      as.data.frame(model$gold_standard$dimred[!model$gold_standard$meta$burn, , drop = FALSE])
+    )
+    
+    seurat_obj@reductions[["MDS"]] <- dr
+  }
+  
+  if (store_cellwise_grn) {
+    grn_feat_metadata <-
+      model$feature_network %>% 
+      select(regulator = .data$from, target = .data$to, .data$strength, .data$effect) %>% 
+      mutate(row_name = gsub("_", "-", paste0(regulator, "->", target))) %>% 
+      column_to_rownames("row_name")
+    
+    grn_cellwise <- t(model$experiment$cellwise_grn)
+    rownames(grn_cellwise) <- rownames(grn_feat_metadata)
+    
+    grn_assay <- Seurat::CreateAssayObject(counts = grn_cellwise) %>% 
+      Seurat::AddMetaData(grn_feat_metadata)
+    Seurat::Misc(grn_assay, "regulators") <- unique(model$feature_network$from)
+    Seurat::Misc(grn_assay, "targets") <- rownames(counts)
+    
+    seurat_obj[["regulatorynetwork"]] <- grn_assay
+  }
+  
+  if (store_rna_velocity) {
+    rna_velocity <- t(model$experiment$rna_velocity)
+    rownames(rna_velocity) <- rownames(feat_metadata)
+    seurat_obj[["rnavelocity"]] <- Seurat::CreateAssayObject(rna_velocity)
+  }
+  
+  seurat_obj
 }
