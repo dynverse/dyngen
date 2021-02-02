@@ -365,7 +365,7 @@ as_seurat <- function(
     grn_feat_metadata <-
       model$feature_network %>% 
       select(regulator = .data$from, target = .data$to, .data$strength, .data$effect) %>% 
-      mutate(row_name = gsub("_", "-", paste0(regulator, "->", target))) %>% 
+      mutate(row_name = gsub("_", "-", paste0(.data$regulator, "->", .data$target))) %>% 
       column_to_rownames("row_name")
     
     grn_cellwise <- t(model$experiment$cellwise_grn)
