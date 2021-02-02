@@ -29,10 +29,14 @@ test_that("generating a dataset with linear backbone", {
   expect_is(out$plot, "ggplot")
   
   expect_true(dynwrap::is_wrapper_with_expression(out$dataset))
-
-    # test converting to SCE
-  sce <- as_SCE(out$model)
+  
+  # test converting to SCE
+  sce <- as_sce(out$model)
   expect_equal(dim(sce), dim(t(out$dataset$counts)))
+  
+  # test converting to Seurat
+  obj <- as_seurat(out$model)
+  expect_equal(dim(obj), dim(t(out$dataset$counts)))
 })
 
 # skip if not rcannood because anndata is probably not installed
