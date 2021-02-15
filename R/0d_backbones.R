@@ -560,9 +560,9 @@ backbone_disconnected <- function(
     bind_rows(
       tribble(
         ~from, ~to, ~module_progression, ~start, ~burn, ~time,
-        "sBurn", "sA", paste0("+", c("A1", "A2", "A3", common_modules), collapse = ","), TRUE, TRUE, 100,
-        "sA", leps, "+A4,+A6", FALSE, TRUE, 100,
-        "sA", reps, "+A5,+A7", FALSE, TRUE, 100
+        "sBurn", "sA", paste0("+", c("A1", "A2", "A3", common_modules), collapse = ","), TRUE, TRUE, 150,
+        "sA", leps, "+A4,+A6", FALSE, TRUE, 150,
+        "sA", reps, "+A5,+A7", FALSE, TRUE, 150
       ),
       lep %>% mutate(start = FALSE),
       rep %>% mutate(start = FALSE)
