@@ -513,3 +513,36 @@ plot_simulation_expression <- function(
   
   g
 }
+
+#' Plot a dimensionality reduction of the final dataset
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_experiment()].
+#' @param mapping Which components to plot.
+#' 
+#' @return A ggplot2 object.
+#' 
+#' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_experiment_dimred(example_model)
+plot_experiment_dimred <- function(model, mapping = aes_string("comp_1", "comp_2")) {
+  # construct data object
+  counts <- model$experiment$counts_mrna + model$experiment$counts_premrna
+  dimred <- lmds::lmds(counts, distance_method = model$distance_metric)
+  
+  progressions <-
+    model$simulations$meta[model$experiment$cell_info$step_ix, ] %>%
+    mutate(
+      milestone_id = ifelse(.data$time < .5, .data$from, .data$to),
+      edge = paste0(.data$from, "->", .data$to)
+    )
+  
+  plot_df <- bind_cols(progressions, as.data.frame(dimred))
+  
+  # create plot
+  ggplot(plot_df, mapping) +
+    geom_point(aes(colour = .data$edge)) +
+    theme_bw() +
+    labs(colour = "Edge")
+}
