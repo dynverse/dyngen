@@ -100,6 +100,11 @@ generate_experiment <- function(model) {
   
   # collect true simulated counts of sampled cells
   tsim_counts <- model$simulations$counts[step_ixs, , drop = FALSE]
+  rownames(tsim_counts) <- cell_info$cell_id
+  
+  mol_info <- model$feature_info %>%
+    gather("mol", "val", .data$mol_premrna, .data$mol_mrna, .data$mol_protein) %>% 
+    select(.data$feature_id, .data$mol, .data$val)
   
   # fetch real expression data
   model <- .add_timing(model, "7_experiment", "fetch realcount")
@@ -107,16 +112,23 @@ generate_experiment <- function(model) {
   
   # simulate library size variation from real data
   model <- .add_timing(model, "7_experiment", "simulate library size variation")
-  count_simulation <- .simulate_counts_from_realcounts(tsim_counts, realcount, cell_info, sample_capture_rate = model$experiment_params$sample_capture_rate)
-  sim_counts <- count_simulation$sim_counts
-  cell_info <- count_simulation$cell_info
-  mol_info <- count_simulation$mol_info
+  
+  # process mrna (both premrna and mature)
+  mrna_ids <- mol_info %>% filter(.data$mol != "mol_protein") %>% pull(.data$val)
+  tsim_counts_mrna <- tsim_counts[, mrna_ids, drop = FALSE]
+  count_mrna_simulation <- .simulate_counts_from_realcounts(tsim_counts_mrna, realcount, sample_capture_rate = model$experiment_params$sample_capture_rate)
+  
+  # process proteins
+  # TODO: should use real protein dataset for this
+  prot_ids <- mol_info %>% filter(.data$mol == "mol_protein") %>% pull(.data$val)
+  # count_prot_simulation <- .simulate_counts_from_realcounts(tsim_counts[, prot_ids, drop = FALSE], realcount, sample_capture_rate = model$experiment_params$sample_capture_rate) 
+  count_prot_simulation <- list(sim_counts = tsim_counts[, prot_ids, drop = FALSE])
   
   # split up molecules
   model <- .add_timing(model, "7_experiment", "create output")
-  sim_wcounts <- sim_counts[, model$feature_info$mol_premrna, drop = FALSE]
-  sim_xcounts <- sim_counts[, model$feature_info$mol_mrna, drop = FALSE]
-  sim_ycounts <- sim_counts[, model$feature_info$mol_protein, drop = FALSE]
+  sim_wcounts <- count_mrna_simulation$sim_counts[, model$feature_info$mol_premrna, drop = FALSE]
+  sim_xcounts <- count_mrna_simulation$sim_counts[, model$feature_info$mol_mrna, drop = FALSE]
+  sim_ycounts <- count_prot_simulation$sim_counts[, model$feature_info$mol_protein, drop = FALSE]
   dimnames(sim_wcounts) <- 
     dimnames(sim_xcounts) <-
     dimnames(sim_ycounts) <- 
@@ -157,17 +169,25 @@ generate_experiment <- function(model) {
   cell_info = tibble(cell_id = rownames(tsim_counts)), 
   sample_capture_rate = function(n) rnorm(n, 1, 0.05) %>% pmax(0)
 ) {
-  # simulate library size variation from real data
-  realsums <- Matrix::rowSums(realcount)
-  dist_vals <- realsums / mean(realsums)
-  lib_size <- quantile(dist_vals, runif(nrow(cell_info)))
+  # calculate lib sizes and cpms
+  realcount_ls <- Matrix::rowSums(realcount)
+  realcount_cpm <- realcount
+  realcount_cpm@x <- realcount@x / realcount_ls[realcount@i+1] * 1e6
   
+  tsim_counts_ls <- Matrix::rowSums(tsim_counts)
+  tsim_counts_cpm <- tsim_counts
+  tsim_counts_cpm@x <- tsim_counts@x / tsim_counts_ls[tsim_counts@i+1] * 1e6
+  
+  # map real density on tsim counts
+  tsim_counts_cpm_new <- tsim_counts_cpm
+  tsim_counts_cpm_new@x <- stats::quantile(realcount_cpm@x, dplyr::percent_rank(tsim_counts_cpm@x))
+  
+  # simulate library size variation from real data
   cell_info <-
     cell_info %>% 
     mutate(
-      num_molecules = Matrix::rowSums(tsim_counts),
-      mult = quantile(dist_vals, runif(n())),
-      lib_size = sort(round(mean(.data$num_molecules) * .data$mult))[order(order(.data$num_molecules))]
+      order_orig_size = order(order(tsim_counts_ls)),
+      lib_size = sort(round(stats::quantile(realcount_ls, runif(n()))))[.data$order_orig_size]
     )
   
   # simulate gene capture variation
@@ -178,7 +198,7 @@ generate_experiment <- function(model) {
     )
   
   # simulate sampling of molecules
-  tsim_counts_t <- Matrix::t(tsim_counts)
+  tsim_counts_t <- Matrix::t(tsim_counts_cpm_new)
   new_vals <- unlist(map(seq_len(nrow(cell_info)), function(cell_i) {
     pi <- tsim_counts_t@p[[cell_i]] + 1
     pj <- tsim_counts_t@p[[cell_i + 1]]
