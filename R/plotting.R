@@ -29,24 +29,26 @@ effect_colour <- function(effect) {
 #' data("example_model")
 #' plot_backbone_statenet(example_model)
 plot_backbone_statenet <- function(model, detailed = FALSE) {
-  # satisfy r cmd check 
-  from_ <- to_ <- from <- to <- mod_diff <- name <- time <- module_progression <- 
-    from_cap <- to_cap <- main <- NULL
-  
   edges <- model$backbone$expression_patterns
   
   large_cap <- 4
   small_cap <- 1
   if (detailed) {
     edges <- .generate_gold_standard_mod_changes(edges) %>% 
-      rename(from = from_, to = to_, from_ = from, to_ = to, module_progression = mod_diff) %>% 
+      rename(
+        from = .data$from_, 
+        to = .data$to_, 
+        from_ = .data$from, 
+        to_ = .data$to, 
+        module_progression = .data$mod_diff
+      ) %>% 
       mutate(
-        from_cap = ifelse(from == from_, large_cap, small_cap),
-        to_cap = ifelse(to == to_, large_cap, small_cap)
+        from_cap = ifelse(.data$from == .data$from_, large_cap, small_cap),
+        to_cap = ifelse(.data$to == .data$to_, large_cap, small_cap)
       )
     nodes <- tibble(
       name = unique(c(edges$from, edges$to)),
-      main = name %in% c(edges$from_, edges$to_)
+      main = .data$name %in% c(edges$from_, edges$to_)
     )
   } else {
     nodes <- tibble(
@@ -59,7 +61,7 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
     )
   }
   
-  gr <- tbl_graph(edges = edges %>% rename(weight = time), nodes = nodes)
+  gr <- tbl_graph(edges = edges %>% rename(weight = .data$time), nodes = nodes)
   
   r <- .05
   arrow <- grid::arrow(type = "closed", length = grid::unit(3, "mm"))
@@ -67,15 +69,15 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
   ggraph(gr, layout = "igraph", algorithm = "kk") +
     geom_edge_fan(
       aes(
-        label = module_progression,
-        start_cap = circle(from_cap, "mm"),
-        end_cap = circle(to_cap, "mm")
+        label = .data$module_progression,
+        start_cap = circle(.data$from_cap, "mm"),
+        end_cap = circle(.data$to_cap, "mm")
       ), 
       arrow = arrow, 
       colour = "gray"
     ) +
-    geom_node_point(data = function(df) df %>% filter(!main)) +
-    geom_node_label(aes(label = name), function(df) df %>% filter(main)) +
+    geom_node_point(data = function(df) df %>% filter(!.data$main)) +
+    geom_node_label(aes(label = .data$name), function(df) df %>% filter(.data$main)) +
     theme_graph(base_family = 'Helvetica') +
     coord_equal()
 }
@@ -293,18 +295,19 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes_string(
       )
   }
   
-  plot_df <- plot_df %>% mutate(group = paste0(.data$from_, "_", .data$to_))
+  plot_df <- plot_df %>% mutate(group = paste0(.data$from_, "->", .data$to_))
   
   if (detailed) {
     plot_df <- plot_df %>% mutate(edge = .data$group)
   } else {
-    plot_df <- plot_df %>% mutate(edge = paste0(.data$from, "_", .data$to))
+    plot_df <- plot_df %>% mutate(edge = paste0(.data$from, "->", .data$to))
   }
   
   ggplot(mapping = mapping) +
     geom_path(aes(group = .data$simulation_i), plot_df %>% filter(.data$simulation_i != highlight), colour = "darkgray") +
     geom_path(aes(colour = .data$edge, group = .data$group), plot_df %>% filter(.data$simulation_i == highlight), size = 2) +
-    theme_bw()
+    theme_bw() +
+    labs(colour = "Edge")
 }
 
 #' Visualise the mapping of the simulations to the gold standard
@@ -403,7 +406,8 @@ plot_gold_expression <- function(
     scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~edge) +
-    theme_bw()
+    theme_bw() +
+    labs(colour = "Module id", linetype = "Molecule type")
   
   if (label_changing) {
     g <- g +
@@ -476,7 +480,8 @@ plot_simulation_expression <- function(
     geom_step(aes(linetype = type, size = type, colour = module_id)) +
     scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
-    theme_bw()
+    theme_bw() +
+    labs(colour = "Module id", linetype = "Molecule type")
   
   if (label_nonzero) {
     pts <- seq(0, max(model$simulations$meta$sim_time), by = 5)
