@@ -232,6 +232,18 @@ list_experiment_samplers <- function() {
   )
 }
 
+.sample_decent_realcount <- function() {
+  # satisfy r cmd check
+  realcounts <- NULL
+  
+  data(realcounts, package = "dyngen", envir = environment())
+  
+  realcounts %>% 
+    filter(.data$qc_pass) %>%
+    pull(.data$name) %>% 
+    sample(1)
+}
+
 #' @rdname generate_experiment
 #' @export
 experiment_snapshot <- function(
@@ -239,12 +251,8 @@ experiment_snapshot <- function(
   sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
   weight_bw = 0.1
 ) {
-  # satisfy r cmd check
-  realcounts <- NULL
-  
   if (is.null(realcount)) {
-    data(realcounts, package = "dyngen", envir = environment())
-    realcount <- sample(realcounts$name, 1)
+    realcount <- .sample_decent_realcount()
   }
   lst(
     realcount,
@@ -262,12 +270,8 @@ experiment_synchronised <- function(
   num_timepoints = 8,
   pct_between = .75
 ) {
-  # satisfy r cmd check
-  realcounts <- NULL
-  
   if (is.null(realcount)) {
-    data(realcounts, package = "dyngen", envir = environment())
-    realcount <- sample(realcounts$name, 1)
+    realcount <- .sample_decent_realcount()
   }
   lst(
     realcount,
@@ -382,7 +386,7 @@ experiment_synchronised <- function(
   
   realcount_ <- model$experiment_params$realcount
   
-  # download realcount if needed-
+  # download realcount if needed
   realcount <- 
     if (is.character(realcount_)) {
       data(realcounts, package = "dyngen", envir = environment())
