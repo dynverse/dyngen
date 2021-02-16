@@ -47,6 +47,9 @@ Expected execution time for rerunning the code is about 5 minutes.
 -   [Advanced: Simulating a knockout
     experiment](vignettes/advanced_simulating_knockouts.md)  
     `vignette("advanced_simulating_knockouts", package="dyngen")`
+-   [Advanced: Tweaking
+    parameters](vignettes/advanced_tweaking_parameters.md)  
+    `vignette("advanced_tweaking_parameters", package="dyngen")`
 -   [Getting started](vignettes/getting_started.md)  
     `vignette("getting_started", package="dyngen")`
 -   [Installation instructions](vignettes/installation.md)  
@@ -70,17 +73,28 @@ list of changes.
 -   `as_anndata()`: Added a function for converting the dyngen output to
     an anndata object.
 
+-   `as_sce()`: Added a function for converting the dyngen output to an
+    SingleCellExperiment object.
+
+-   `as_seurat()`: Added a function for converting the dyngen output to
+    a Seurat object.
+
 -   The default number of cores used can be set by adding
     `options(Ncpus = ...)` to your Rprofile.
 
 -   The default cache folder for dyngen can be set by adding
     `options(dyngen_download_cache_dir = ...)` to your Rprofile.
 
--   Combine simular models with different outputs using the
+-   Combine similar models with different outputs using the
     `combine_models()` function.
 
 -   Store the timings throughout the dyngen execution. Extract the
     timings from a model using `get_timings()`.
+
+#### MAJOR CHANGES
+
+-   `generate_experiment()`: Map count density of reference dataset to
+    simulation expression before sampling molecules.
 
 #### MINOR CHANGES
 
@@ -90,12 +104,15 @@ list of changes.
 
 -   `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
 
--   `generate_experiment()`: Drastically speed up sampling of moleciles.
+-   `generate_experiment()`: Drastically speed up sampling of molecules.
 
 #### BUG FIX
 
 -   `as_dyno()`: Fix `drop = FALSE` bug when only one cell is being
     sampled.
+
+-   Removed names from feature ids in feature info
+    (`unname(model$feature_info$feature_id)`). Thanks @milanmlft!
 
 #### DOCUMENTATION
 
@@ -104,3 +121,4 @@ list of changes.
     -   Advanced: Simulating a knockout experiment
     -   Advanced: Running dyngen from a docker container
     -   Advanced: Constructing a custom backbone
+    -   Advanced: Tweaking parameters

@@ -16,6 +16,10 @@
 
 * Store the timings throughout the dyngen execution. Extract the timings from a model using `get_timings()`.
 
+## MAJOR CHANGES
+
+* `generate_experiment()`: Map count density of reference dataset to simulation expression before sampling molecules.
+
 ## MINOR CHANGES
 
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
@@ -38,6 +42,7 @@
   - Advanced: Simulating a knockout experiment
   - Advanced: Running dyngen from a docker container
   - Advanced: Constructing a custom backbone
+  - Advanced: Tweaking parameters
 
 # dyngen 0.4.0 (2020-07-15)
 
