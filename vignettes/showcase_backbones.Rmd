@@ -35,6 +35,8 @@ You can find a full list of backbones using `?list_backbones`. This vignette wil
 # Linear
 
 ```{r linear}
+set.seed(1)
+
 backbone <- backbone_linear()
 
 init <- initialise_model(
@@ -43,7 +45,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -52,6 +55,8 @@ out$plot
 
 # Bifurcating
 ```{r bifurcating}
+set.seed(2)
+
 backbone <- backbone_bifurcating()
 
 init <- initialise_model(
@@ -60,7 +65,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -68,6 +74,8 @@ out$plot
 
 # Bifurcating converging
 ```{r bifurcating_converging}
+set.seed(3)
+
 backbone <- backbone_bifurcating_converging()
 
 init <- initialise_model(
@@ -76,7 +84,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -84,6 +93,8 @@ out$plot
 
 # Bifurcating cycle
 ```{r bifurcating_cycle}
+set.seed(4)
+
 backbone <- backbone_bifurcating_cycle()
 
 init <- initialise_model(
@@ -92,7 +103,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -100,6 +112,8 @@ out$plot
 
 # Bifurcating loop
 ```{r bifurcating_loop}
+set.seed(5)
+
 backbone <- backbone_bifurcating_loop()
 
 init <- initialise_model(
@@ -108,7 +122,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -116,6 +131,8 @@ out$plot
 
 # Binary tree
 ```{r binary_tree}
+set.seed(6)
+
 backbone <- backbone_binary_tree(
   num_modifications = 2
 )
@@ -126,7 +143,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -134,6 +152,8 @@ out$plot
 
 # Branching
 ```{r branching}
+set.seed(7)
+
 backbone <- backbone_branching(
   num_modifications = 2,
   min_degree = 3,
@@ -146,7 +166,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -154,6 +175,8 @@ out$plot
 
 # Consecutive bifurcating
 ```{r consecutive_bifurcating}
+set.seed(8)
+
 backbone <- backbone_consecutive_bifurcating()
 
 init <- initialise_model(
@@ -162,7 +185,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -170,6 +194,8 @@ out$plot
 
 # Trifurcating
 ```{r trifurcating}
+set.seed(9)
+
 backbone <- backbone_trifurcating()
 
 init <- initialise_model(
@@ -177,7 +203,8 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25
+  num_hks = 25,
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -185,6 +212,8 @@ out$plot
 
 # Converging
 ```{r converging}
+set.seed(10)
+
 backbone <- backbone_converging()
 
 init <- initialise_model(
@@ -193,7 +222,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -201,6 +231,8 @@ out$plot
 
 # Cycle
 ```{r cycle}
+set.seed(11)
+
 backbone <- backbone_cycle()
 
 init <- initialise_model(
@@ -209,7 +241,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -217,6 +250,8 @@ out$plot
 
 # Disconnected
 ```{r disconnected}
+set.seed(12)
+
 backbone <- backbone_disconnected()
 
 init <- initialise_model(
@@ -225,7 +260,8 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -233,6 +269,8 @@ out$plot
 
 # Linear simple
 ```{r linear_simple}
+set.seed(13)
+
 backbone <- backbone_linear_simple()
 
 init <- initialise_model(
@@ -240,7 +278,8 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25
+  num_hks = 25,
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot
@@ -248,6 +287,8 @@ out$plot
 
 # Cycle simple
 ```{r cycle_simple}
+set.seed(14)
+
 backbone <- backbone_cycle_simple()
 
 init <- initialise_model(
@@ -255,7 +296,8 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25
+  num_hks = 25,
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
 out$plot

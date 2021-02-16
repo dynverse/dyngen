@@ -19,6 +19,8 @@ vignette will showcase each of them individually.
 # Linear
 
 ``` r
+set.seed(1)
+
 backbone <- backbone_linear()
 
 init <- initialise_model(
@@ -27,24 +29,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=01s, remaining~03s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=02s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -53,6 +41,8 @@ out$plot
 # Bifurcating
 
 ``` r
+set.seed(2)
+
 backbone <- backbone_bifurcating()
 
 init <- initialise_model(
@@ -61,25 +51,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~02s  |===============                                   | 29% elapsed=01s, remaining~02s  |======================                            | 43% elapsed=01s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~01s  |====================================              | 71% elapsed=01s, remaining~01s  |===========================================       | 86% elapsed=02s, remaining~00s  |==================================================| 100% elapsed=02s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -88,6 +63,8 @@ out$plot
 # Bifurcating converging
 
 ``` r
+set.seed(3)
+
 backbone <- backbone_bifurcating_converging()
 
 init <- initialise_model(
@@ -96,24 +73,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -122,6 +85,8 @@ out$plot
 # Bifurcating cycle
 
 ``` r
+set.seed(4)
+
 backbone <- backbone_bifurcating_cycle()
 
 init <- initialise_model(
@@ -130,24 +95,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=======                                           | 12% elapsed=00s, remaining~01s  |=============                                     | 25% elapsed=00s, remaining~01s  |===================                               | 38% elapsed=01s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |================================                  | 62% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |============================================      | 88% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=02s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -156,6 +107,8 @@ out$plot
 # Bifurcating loop
 
 ``` r
+set.seed(5)
+
 backbone <- backbone_bifurcating_loop()
 
 init <- initialise_model(
@@ -164,24 +117,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -190,6 +129,8 @@ out$plot
 # Binary tree
 
 ``` r
+set.seed(6)
+
 backbone <- backbone_binary_tree(
   num_modifications = 2
 )
@@ -200,25 +141,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~03s  |=========                                         | 17% elapsed=01s, remaining~03s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=02s, remaining~00s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -227,6 +153,8 @@ out$plot
 # Branching
 
 ``` r
+set.seed(7)
+
 backbone <- backbone_branching(
   num_modifications = 2,
   min_degree = 3,
@@ -239,25 +167,11 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~03s  |=========                                         | 17% elapsed=01s, remaining~03s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=02s, remaining~00s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
 #> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -266,6 +180,8 @@ out$plot
 # Consecutive bifurcating
 
 ``` r
+set.seed(8)
+
 backbone <- backbone_consecutive_bifurcating()
 
 init <- initialise_model(
@@ -274,26 +190,11 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 8 % elapsed=00s, remaining~03s  |=========                                         | 17% elapsed=01s, remaining~03s  |=============                                     | 25% elapsed=01s, remaining~03s  |=================                                 | 33% elapsed=01s, remaining~02s  |=====================                             | 42% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=02s, remaining~02s  |==============================                    | 58% elapsed=02s, remaining~01s  |==================================                | 67% elapsed=02s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==========================================        | 83% elapsed=02s, remaining~00s  |==============================================    | 92% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation
-#> likely suffers from bad kinetics; choose a different seed and rerun.
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
+#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
 out$plot
 ```
 
@@ -302,6 +203,8 @@ out$plot
 # Trifurcating
 
 ``` r
+set.seed(9)
+
 backbone <- backbone_trifurcating()
 
 init <- initialise_model(
@@ -309,24 +212,10 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25
+  num_hks = 25,
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=====                                             | 10% elapsed=00s, remaining~03s  |==========                                        | 20% elapsed=01s, remaining~03s  |===============                                   | 30% elapsed=01s, remaining~03s  |====================                              | 40% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=01s, remaining~01s  |==============================                    | 60% elapsed=02s, remaining~01s  |===================================               | 70% elapsed=02s, remaining~01s  |========================================          | 80% elapsed=02s, remaining~01s  |=============================================     | 90% elapsed=03s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -335,6 +224,8 @@ out$plot
 # Converging
 
 ``` r
+set.seed(10)
+
 backbone <- backbone_converging()
 
 init <- initialise_model(
@@ -343,24 +234,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=======                                           | 12% elapsed=00s, remaining~02s  |=============                                     | 25% elapsed=00s, remaining~01s  |===================                               | 38% elapsed=01s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |================================                  | 62% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |============================================      | 88% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=02s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -369,6 +246,8 @@ out$plot
 # Cycle
 
 ``` r
+set.seed(11)
+
 backbone <- backbone_cycle()
 
 init <- initialise_model(
@@ -377,24 +256,10 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=01s, remaining~02s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=02s, remaining~01s  |==================================================| 100% elapsed=03s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -403,6 +268,8 @@ out$plot
 # Disconnected
 
 ``` r
+set.seed(12)
+
 backbone <- backbone_disconnected()
 
 init <- initialise_model(
@@ -411,26 +278,11 @@ init <- initialise_model(
   num_tfs = 100,
   num_targets = 50,
   num_hks = 25,
-  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600))
+  simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |====                                              | 8 % elapsed=00s, remaining~03s  |========                                          | 15% elapsed=00s, remaining~02s  |============                                      | 23% elapsed=01s, remaining~02s  |================                                  | 31% elapsed=01s, remaining~02s  |====================                              | 38% elapsed=01s, remaining~02s  |========================                          | 46% elapsed=01s, remaining~01s  |===========================                       | 54% elapsed=01s, remaining~01s  |===============================                   | 62% elapsed=02s, remaining~01s  |===================================               | 69% elapsed=02s, remaining~01s  |=======================================           | 77% elapsed=02s, remaining~01s  |===========================================       | 85% elapsed=02s, remaining~00s  |===============================================   | 92% elapsed=02s, remaining~00s  |==================================================| 100% elapsed=03s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation
-#> likely suffers from bad kinetics; choose a different seed and rerun.
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
+#> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
 out$plot
 ```
 
@@ -439,6 +291,8 @@ out$plot
 # Linear simple
 
 ``` r
+set.seed(13)
+
 backbone <- backbone_linear_simple()
 
 init <- initialise_model(
@@ -446,24 +300,10 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25
+  num_hks = 25,
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=========================                         | 50% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
@@ -472,6 +312,8 @@ out$plot
 # Cycle simple
 
 ``` r
+set.seed(14)
+
 backbone <- backbone_cycle_simple()
 
 init <- initialise_model(
@@ -479,24 +321,10 @@ init <- initialise_model(
   num_cells = 500,
   num_tfs = 100,
   num_targets = 50,
-  num_hks = 25
+  num_hks = 25,
+  verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
-#> Generating TF network
-#> Sampling feature network from real network
-#> Generating kinetics for 175 features
-#> Generating formulae
-#> Generating gold standard mod changes
-#> Precompiling reactions for gold standard
-#> Running gold simulations
-#>   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
-#> Precompiling reactions for simulations
-#> Running 32 simulations
-#> Mapping simulations to gold standard
-#> Performing dimred
-#> Simulating experiment
-#> Wrapping dataset
-#> Making plots
 out$plot
 ```
 
