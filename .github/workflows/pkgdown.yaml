@@ -38,6 +38,7 @@ jobs:
           remotes::install_deps(dependencies = TRUE)
           install.packages("pkgdown", type = "binary")
           install.packages("tidyverse", type = "binary")
+          remotes::install_github('dynverse/dyno')
         shell: Rscript {0}
 
       - name: Install package
