@@ -22,19 +22,47 @@ library(dyngen)
 
 set.seed(1)
 
-model_common <-
+backbone <- backbone_bifurcating()
+config <-
   initialise_model(
-  backbone = backbone_bifurcating(),
-  num_cells = 1000,
-  num_tfs = 50,
-  num_targets = 250,
-  num_hks = 250,
-  simulation_params = simulation_default(
-    census_interval = 10, 
-    ssa_algorithm = ssa_etl(tau = 300 / 3600),
-    experiment_params = simulation_type_wild_type(num_simulations = 100)
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 250,
+    num_hks = 250,
+    simulation_params = simulation_default(
+      census_interval = 10, 
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 100)
+    )
   )
-) %>%
+```
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      census_interval = 5, 
+      ssa_algorithm = ssa_etl(tau = .01),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
+```
+
+``` r
+model_common <-
+  config %>%
   generate_tf_network() %>%
   generate_feature_network()
 ```
@@ -58,18 +86,15 @@ model_a <- model_common %>%
   generate_cells()
 ```
 
-    ## Generating kinetics for 550 features
+    ## Generating kinetics for 135 features
     ## Generating formulae
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=04s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
-    ## Running 100 simulations
+    ## Running 10 simulations
     ## Mapping simulations to gold standard
-
-    ## Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
-
     ## Performing dimred
 
 ``` r
@@ -79,14 +104,14 @@ model_b <- model_common %>%
   generate_cells()
 ```
 
-    ## Generating kinetics for 550 features
+    ## Generating kinetics for 135 features
     ## Generating formulae
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
     ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
-    ## Running 100 simulations
+    ## Running 10 simulations
     ## Mapping simulations to gold standard
     ## Performing dimred
 

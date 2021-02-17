@@ -24,19 +24,46 @@ set.seed(1)
 
 backbone <- backbone_bifurcating()
 
-model_common <-
+config <-
   initialise_model(
-  backbone = backbone,
-  num_cells = 1000,
-  num_tfs = nrow(backbone$module_info),
-  num_targets = 250,
-  num_hks = 250,
-  simulation_params = simulation_default(
-    census_interval = 10, 
-    ssa_algorithm = ssa_etl(tau = 300 / 3600),
-    experiment_params = simulation_type_wild_type(num_simulations = 100)
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 250,
+    num_hks = 250,
+    simulation_params = simulation_default(
+      census_interval = 10, 
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 100)
+    )
   )
-) %>%
+```
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      census_interval = 5, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
+```
+
+``` r
+model_common <-
+  config %>%
   generate_tf_network() %>%
   generate_feature_network() %>% 
   generate_kinetics() %>%
@@ -45,7 +72,7 @@ model_common <-
 
     ## Generating TF network
     ## Sampling feature network from real network
-    ## Generating kinetics for 535 features
+    ## Generating kinetics for 135 features
     ## Generating formulae
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
@@ -63,7 +90,7 @@ model_wt <- model_common %>%
 ```
 
     ## Precompiling reactions for simulations
-    ## Running 100 simulations
+    ## Running 10 simulations
     ## Mapping simulations to gold standard
     ## Performing dimred
 

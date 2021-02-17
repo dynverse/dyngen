@@ -27,7 +27,7 @@ body {
 
 <h1 id="advanced-running-dyngen-from-a-docker-container">Advanced: Running dyngen from a docker container</h1>
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_run_dyngen_from_docker", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/advanced_run_dyngen_from_docker.Rmd", output_format = rmarkdown::github_document())
 -->
 
 <p>To ensure reproducibility, you can run dyngen in a docker container. <a href="https://hub.docker.com/r/dynverse/dyngen">dynverse/dyngen</a> contains all necessary packages to run dyngen from start to finish. Ideally, you would take a look at the latest tag published on <a href="https://hub.docker.com/r/dynverse/dyngen">docker hub</a> and replace any mentions of <code>dynverse/dyngen</code> with <code>dynverse/dyngen:&lt;latest digest&gt;</code>, to make sure you’re always using the exact same version of dyngen.</p>

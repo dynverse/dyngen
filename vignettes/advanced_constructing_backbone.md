@@ -33,24 +33,60 @@ backbone <- bblego(
   bblego_end("D", type = "doublerep1", num_modules = 7)
 )
 
-out <- 
+config <- 
   initialise_model(
     backbone = backbone,
     num_tfs = nrow(backbone$module_info),
     num_targets = 500,
     num_hks = 500,
     verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+  )
 ```
 
-    ## Loading required namespace: dynwrap
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+config <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = interactive(),
+    simulation_params = simulation_default(
+      ssa_algorithm = ssa_etl(tau = .01),
+      census_interval = 5,
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    ),
+    download_cache_dir = tools::R_user_dir("dyngen", "data")
+  )
+```
+
+``` r
+out <- generate_dataset(config, make_plots = TRUE)
+```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 131 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 print(out$plot)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bblego-1.png)<!-- -->
+![](advanced_constructing_backbone_files/figure-gfm/bblego2-1.png)<!-- -->
 
 Check the following predefined backbones for some examples.
 
@@ -187,7 +223,7 @@ backbone <- backbone(
   expression_patterns = expression_patterns
 )
 
-model <- initialise_model(
+config <- initialise_model(
   backbone = backbone,
   num_tfs = nrow(backbone$module_info),
   num_targets = 500,
@@ -199,24 +235,60 @@ model <- initialise_model(
   verbose = FALSE
 )
 
-plot_backbone_modulenet(model)
+plot_backbone_modulenet(config)
 ```
 
 ![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_print-1.png)<!-- -->
 
 ``` r
-plot_backbone_statenet(model)
+plot_backbone_statenet(config)
 ```
 
 ![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_print-2.png)<!-- -->
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+config <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = interactive(),
+    simulation_params = simulation_default(
+      ssa_algorithm = ssa_etl(tau = .01),
+      census_interval = 10,
+      experiment_params = simulation_type_wild_type(num_simulations = 20),
+      total_time = 600
+    ),
+    download_cache_dir = tools::R_user_dir("dyngen", "data")
+  )
+```
 
 ### Simulation
 
 This allows you to simulate the following dataset.
 
 ``` r
-out <- generate_dataset(model, make_plots = TRUE)
+out <- generate_dataset(config, make_plots = TRUE)
 ```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 113 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 20 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 print(out$plot)
@@ -315,7 +387,7 @@ backbone <- bblego(
   part4
 )
 
-model <- initialise_model(
+config <- initialise_model(
   backbone = backbone,
   num_tfs = nrow(backbone$module_info),
   num_targets = 500,
@@ -326,23 +398,62 @@ model <- initialise_model(
   verbose = FALSE
 )
 
-plot_backbone_modulenet(model)
+plot_backbone_modulenet(config)
 ```
 
 ![](advanced_constructing_backbone_files/figure-gfm/bifur_backbone-1.png)<!-- -->
 
 ``` r
-plot_backbone_statenet(model)
+plot_backbone_statenet(config)
 ```
 
 ![](advanced_constructing_backbone_files/figure-gfm/bifur_backbone-2.png)<!-- -->
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+config <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = interactive(),
+    simulation_params = simulation_default(
+      ssa_algorithm = ssa_etl(tau = .01),
+      census_interval = 5,
+      experiment_params = simulation_type_wild_type(num_simulations = 10),
+      total_time = simtime_from_backbone(backbone) * 2
+    ),
+    download_cache_dir = tools::R_user_dir("dyngen", "data")
+  )
+```
 
 Looking at the gene expression over time shows that a simulation can
 indeed switch between C3 and D3 expression.
 
 ``` r
-out <- generate_dataset(model, make_plots = TRUE)
+out <- generate_dataset(config, make_plots = TRUE)
 ```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 114 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+
+    ## Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
+
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 print(out$plot)

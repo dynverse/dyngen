@@ -1,4 +1,4 @@
-Advanced: tweaking parameters
+Advanced: Tweaking parameters
 ================
 
 <!-- github markdown built using 
@@ -32,7 +32,7 @@ num_tfs <- nrow(backbone$module_info)
 num_targets <- round((num_features - num_tfs) / 2)
 num_hks <- num_features - num_targets - num_tfs
 
-run1 <- 
+run1_config <- 
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -40,15 +40,56 @@ run1 <-
     num_hks = num_hks,
     num_cells = num_cells,
     verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+  )
 ```
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+run1_config <-
+  initialise_model(
+    backbone = backbone,
+    num_tfs = num_tfs,
+    num_targets = num_targets,
+    num_hks = num_hks,
+    num_cells = num_cells,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      census_interval = 5, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
+```
+
+``` r
+run1 <- generate_dataset(run1_config, make_plots = TRUE)
+```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 100 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 run1$plot
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/initial_run-1.png)<!-- -->
+![](advanced_tweaking_parameters_files/figure-gfm/run1_model-1.png)<!-- -->
 
 We tweaked some of the parameters by running this particular backbone
 once with `num_cells = 100` and `num_features = 100` and verifying that
@@ -76,7 +117,7 @@ during the simulation. Setting `tau` too large might cause certain
 production and degradation of molecules to fluctuate strangely.
 
 ``` r
-run2 <- 
+run2_config <- 
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -86,15 +127,57 @@ run2 <-
     gold_standard_params = gold_standard_default(tau = 1),
     simulation_params = simulation_default(ssa_algorithm = ssa_etl(tau = 5)),
     verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+  )
 ```
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+run2_config <-
+  initialise_model(
+    backbone = backbone,
+    num_tfs = num_tfs,
+    num_targets = num_targets,
+    num_hks = num_hks,
+    num_cells = num_cells,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    gold_standard_params = gold_standard_default(tau = 1),
+    simulation_params = simulation_default(
+      census_interval = 5, 
+      ssa_algorithm = ssa_etl(tau = 5),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
+```
+
+``` r
+run2 <- generate_dataset(run2_config, make_plots = TRUE)
+```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 100 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 run2$plot
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/run2-1.png)<!-- -->
+![](advanced_tweaking_parameters_files/figure-gfm/run2_model-1.png)<!-- -->
 
 Certainly something strange is happening here. If we compare the
 expression values of the two runs, we can see that the second run
@@ -140,7 +223,7 @@ Controlling the ratio
 be performed by tweaking the `census_interval`.
 
 ``` r
-run3 <- 
+run3_config <- 
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -158,8 +241,7 @@ run3 <-
       )
     ),
     verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+  )
 ```
 
     ## Warning in initialise_model(backbone = backbone, num_tfs = num_tfs, num_targets = num_targets, : Simulations will not generate enough cells to draw num_cells from.
@@ -168,7 +250,8 @@ run3 <-
 
 In the example above, dyngen will sample each of the 10 simulations 10
 times, resulting in only 100 census generated by dyngen. We can’t draw
-1000 cells from 100 census, so dyngen will complain.
+1000 cells from 100 census, so dyngen will complain before even running
+the simulation.
 
 ## Reference datasets: garbage in, garbage out
 
@@ -187,7 +270,7 @@ reference_dataset <- Matrix::rsparsematrix(
   rand.x = function(n) rbinom(n, 20, .1)
 ) %>% Matrix::drop0()
 
-run4 <- 
+run4_config <- 
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -198,15 +281,59 @@ run4 <-
       realcount = reference_dataset
     ),
     verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+  )
 ```
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+run4_config <-
+  initialise_model(
+    backbone = backbone,
+    num_tfs = num_tfs,
+    num_targets = num_targets,
+    num_hks = num_hks,
+    num_cells = num_cells,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      census_interval = 5, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    ),
+    experiment_params = experiment_snapshot(
+      realcount = reference_dataset
+    )
+  )
+```
+
+``` r
+run4 <- generate_dataset(run4_config, make_plots = TRUE)
+```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 100 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 run4$plot
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/run4-1.png)<!-- -->
+![](advanced_tweaking_parameters_files/figure-gfm/run4_model-1.png)<!-- -->
 
 Notice how the last plot in the previous figure looks like total noise?
 This is because the reference dataset had very low library sizes for
