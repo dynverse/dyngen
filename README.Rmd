@@ -25,33 +25,9 @@ dyngen is a novel, multi-modal simulation engine for studying dynamic cellular p
 A preprint is available on [bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
 ## Installation
-dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the installation vignette below for more information!
+dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the installation article for more information!
 
-## Vignettes
-To learn about how dyngen, check out the example vignette below. Expected execution time for rerunning the code is about 5 minutes.
-
-```{r vignettes, results='asis', echo=FALSE}
-walk(
-  list.files("vignettes", pattern = "*.Rmd"),
-  function(file) {
-    title <- 
-      read_lines(paste0("vignettes/", file)) %>% 
-      keep(~grepl("^title: ", .)) %>% 
-      gsub("title: \"(.*)\"", "\\1", .)
-    vignette_name <- gsub("\\.Rmd", "", file)
-    markdown_name <- gsub("\\.Rmd", ".md", file)
-    cat(
-      "* ",
-      ifelse(submission_to_cran, "", "["),
-      title, 
-      ifelse(submission_to_cran, "", paste0("](vignettes/", markdown_name, ")")),
-      "  \n",
-      "`vignette(\"", vignette_name, "\", package=\"dyngen\")`\n",
-      sep = ""
-    )
-  }
-)
-```
+<!-- todo: provide pointers to getting started and installation urls over at dynverse.org/dyngen -->
 
 ## Latest changes
 

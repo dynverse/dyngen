@@ -28,36 +28,9 @@ available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 dyngen should work straight out of the CRAN box by running
 `install.packages("dyngen")`. Having said that, there are a few
 recommended steps that will make dyngen work even better. Check the
-installation vignette below for more information!
+installation article for more information!
 
-## Vignettes
-
-To learn about how dyngen, check out the example vignette below.
-Expected execution time for rerunning the code is about 5 minutes.
-
--   [Advanced: Constructing a custom
-    backbone](vignettes/advanced_constructing_backbone.md)  
-    `vignette("advanced_constructing_backbone", package="dyngen")`
--   [Advanced: Running dyngen from a docker
-    container](vignettes/advanced_run_dyngen_from_docker.md)  
-    `vignette("advanced_run_dyngen_from_docker", package="dyngen")`
--   [Advanced: Simulating batch
-    effects](vignettes/advanced_simulating_batch_effects.md)  
-    `vignette("advanced_simulating_batch_effects", package="dyngen")`
--   [Advanced: Simulating a knockout
-    experiment](vignettes/advanced_simulating_knockouts.md)  
-    `vignette("advanced_simulating_knockouts", package="dyngen")`
--   [Advanced: Tweaking
-    parameters](vignettes/advanced_tweaking_parameters.md)  
-    `vignette("advanced_tweaking_parameters", package="dyngen")`
--   [Getting started](vignettes/getting_started.md)  
-    `vignette("getting_started", package="dyngen")`
--   [Installation instructions](vignettes/installation.md)  
-    `vignette("installation", package="dyngen")`
--   [On runtime and scalability](vignettes/scalability_and_runtime.md)  
-    `vignette("scalability_and_runtime", package="dyngen")`
--   [Showcase different backbones](vignettes/showcase_backbones.md)  
-    `vignette("showcase_backbones", package="dyngen")`
+<!-- todo: provide pointers to getting started and installation urls over at dynverse.org/dyngen -->
 
 ## Latest changes
 
@@ -122,3 +95,5 @@ list of changes.
     -   Advanced: Running dyngen from a docker container
     -   Advanced: Constructing a custom backbone
     -   Advanced: Tweaking parameters
+    -   Comparison of characteristic features between dyngen and
+        reference datasets

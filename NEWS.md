@@ -43,6 +43,7 @@
   - Advanced: Running dyngen from a docker container
   - Advanced: Constructing a custom backbone
   - Advanced: Tweaking parameters
+  - Comparison of characteristic features between dyngen and reference datasets
 
 # dyngen 0.4.0 (2020-07-15)
 

@@ -44,7 +44,7 @@ usethis::edit_r_profile()
 Inside your Rprofile, add the following lines:
 ```r
 options(Ncpus = 8L) # change this to the number of cores in your system
-options(dyngen_download_cache_dir = "~/.cache/dyngen")
+options(dyngen_download_cache_dir = R_user_dir("dyngen", "data"))
 ```
 
 After saving and closing this file, restart your R sesstion.

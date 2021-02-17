@@ -45,7 +45,7 @@ rmarkdown::render("vignettes/installation.Rmd", output_format = rmarkdown::githu
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">edit_r_profile</span>()</span></code></pre></div>
 <p>Inside your Rprofile, add the following lines:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">Ncpus =</span> 8L) <span class="co"># change this to the number of cores in your system</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">dyngen_download_cache_dir =</span> <span class="st">&quot;~/.cache/dyngen&quot;</span>)</span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">dyngen_download_cache_dir =</span> <span class="fu">R_user_dir</span>(<span class="st">&quot;dyngen&quot;</span>, <span class="st">&quot;data&quot;</span>))</span></code></pre></div>
 <p>After saving and closing this file, restart your R sesstion.</p>
 <h2 id="step-3-download-cacheable-files-optional">Step 3: Download cacheable files (Optional)</h2>
 <p>dyngen will sometimes download files from GitHub and cache them for later use (if you executed step 2). After installation, you can already download these files so they will not be downloaded at a later stage.</p>
