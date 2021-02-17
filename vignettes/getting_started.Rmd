@@ -65,7 +65,7 @@ config <-
 ```
 
 
-```{r init, message=FALSE, fig.width = 10, fig.height = 6}
+```{r plotinit, message=FALSE, fig.width = 10, fig.height = 6}
 plot_backbone_statenet(config)
 plot_backbone_modulenet(config)
 ```

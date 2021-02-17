@@ -26,7 +26,7 @@ set.seed(1)
 data("realcounts", package = "dyngen")
 name_realcounts <- "zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca"
 url_realcounts <- realcounts %>% filter(name == name_realcounts) %>% pull(url)
-realcount <- dyngen:::.download_cacheable_file(url_realcounts, getOption("dyngen_download_cache_dir"))
+realcount <- dyngen:::.download_cacheable_file(url_realcounts, getOption("dyngen_download_cache_dir"), verbose = FALSE)
 ```
 
 We run a simple dyngen dataset as follows, where the number of cells and
@@ -41,7 +41,7 @@ num_tfs <- nrow(backbone$module_info)
 num_tar <- round((num_feats - num_tfs) / 2)
 num_hks <- num_feats - num_tfs - num_tar
 
-out <-
+config <-
   initialise_model(
     backbone = backbone,
     num_cells = num_cells,
@@ -57,15 +57,60 @@ out <-
       realcount = realcount
     ),
     verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
+  )
 ```
+
+``` r
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = num_cells,
+    num_tfs = num_tfs,
+    num_targets = num_tar,
+    num_hks = num_hks,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      census_interval = 2, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    ),
+    experiment_params = experiment_snapshot(
+      realcount = realcount
+    )
+  )
+```
+
+``` r
+out <- generate_dataset(config, make_plots = TRUE)
+```
+
+    ## Generating TF network
+    ## Sampling feature network from real network
+    ## Generating kinetics for 3025 features
+    ## Generating formulae
+    ## Generating gold standard mod changes
+    ## Precompiling reactions for gold standard
+    ## Running gold simulations
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ## Precompiling reactions for simulations
+    ## Running 10 simulations
+    ## Mapping simulations to gold standard
+    ## Performing dimred
+    ## Simulating experiment
+    ## Wrapping dataset
+    ## Making plots
 
 ``` r
 out$plot
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/dyngen_sim-1.png)<!-- -->
+![](comparison_characteristics_reference_files/figure-gfm/dyngen_generate-1.png)<!-- -->
 
 Both datasets are stored in a list for easy usage by countsimQC.
 
