@@ -16,13 +16,13 @@
 #' init_config <- initialise_model(
 #'   backbone = backbone_linear(),
 #'   num_cells = 500,
-#'   num_targets = 250,
+#'   num_targets = 100,
 #'   num_hks = 50,
 #'   gold_standard_params = gold_standard_default(census_interval = 5, tau = 0.05),
 #'   simulation_params = simulation_default(
 #'     census_interval = 5,
 #'     ssa_algorithm = ssa_etl(tau = 0.05),
-#'     experiment_params = simulation_type_wild_type(num_simulations = 40)
+#'     experiment_params = simulation_type_wild_type(num_simulations = 10)
 #'   )
 #' )
 #'
