@@ -1,0 +1,16 @@
+pandoc: 2.11.2
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  advanced_constructing_backbone: advanced_constructing_backbone.html
+  advanced_run_dyngen_from_docker: advanced_run_dyngen_from_docker.html
+  advanced_simulating_batch_effects: advanced_simulating_batch_effects.html
+  advanced_simulating_knockouts: advanced_simulating_knockouts.html
+  advanced_tweaking_parameters: advanced_tweaking_parameters.html
+  comparison_characteristics_reference: comparison_characteristics_reference.html
+  getting_started: getting_started.html
+  installation: installation.html
+  scalability_and_runtime: scalability_and_runtime.html
+  showcase_backbones: showcase_backbones.html
+last_built: 2021-02-17T17:48Z
+
