@@ -6,7 +6,6 @@ citEntry(
     person("Louise", "Deconinck"),
     person("Yvan", "Saeys")
   ),
-  author   = "Robrecht Cannoodt and Wouter Saelens and Louise Deconinck and Yvan Saeys",
   title    = "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses",
   journal  = "bioRxiv",
   year     = "2020",
