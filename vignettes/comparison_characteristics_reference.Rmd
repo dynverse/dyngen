@@ -1,6 +1,6 @@
 ---
 title: "Comparison of characteristic features between dyngen and reference datasets"
-output: github_document
+output: html_document
 references:
 - id: Soneson2018
   title: Towards unified quality verification of synthetic count data with countsimQC
@@ -135,6 +135,10 @@ references:
 editor_options: 
   chunk_output_type: console
 ---
+
+<!-- github markdown built using 
+rmarkdown::render("vignettes/comparison_characteristics_reference.Rmd", output_format = rmarkdown::github_document())
+-->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)

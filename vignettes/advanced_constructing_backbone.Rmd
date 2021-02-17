@@ -19,7 +19,7 @@ in dyngen in order to obtain a desired effect. You can do so in one of two ways.
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-lines <- read_lines(rprojroot::find_package_root_file("R/2c_backbones.R"))
+lines <- read_lines(rprojroot::find_package_root_file("R/0d_backbones.R"))
 funs_start <- grep("^[^ ]+ <- function\\(", lines)
 funs_end <- grep("^}[[:space:]]*$", lines)
 
@@ -30,7 +30,7 @@ backbone_type_df <- map2_dfr(funs_start, funs_end, function(sta, end) {
     type = ifelse(grepl("bblego\\(", concat), "bblego", "manual"),
     line_start = sta,
     line_end = end,
-    url = paste0("https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L", sta, "-L", end),
+    url = paste0("https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L", sta, "-L", end),
     markdown = paste0(" * [", name, "](", url, ")\n")
   )
 }) %>% 

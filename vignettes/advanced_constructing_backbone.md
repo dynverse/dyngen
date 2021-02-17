@@ -44,6 +44,8 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
+    ## Loading required namespace: dynwrap
+
 ``` r
 print(out$plot)
 ```
@@ -52,9 +54,9 @@ print(out$plot)
 
 Check the following predefined backbones for some examples.
 
--   [backbone\_bifurcating](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L3-L11)
--   [backbone\_branching](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L195-L273)
--   [backbone\_linear](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L420-L427)
+-   [backbone\_bifurcating](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L3-L11)
+-   [backbone\_branching](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L195-L273)
+-   [backbone\_linear](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L420-L427)
 
 ## Manually constructing backbone data frames
 
@@ -227,17 +229,17 @@ print(out$plot)
 dyngen has a lot of predefined backbones. The following predefined
 backbones construct the backbone manually (as opposed to using bblego).
 
--   [backbone\_bifurcating\_converging](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L16-L61)
--   [backbone\_bifurcating\_cycle](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L66-L127)
--   [backbone\_bifurcating\_loop](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L132-L186)
--   [backbone\_binary\_tree](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L278-L282)
--   [backbone\_consecutive\_bifurcating](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L287-L289)
--   [backbone\_converging](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L299-L349)
--   [backbone\_cycle](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L353-L384)
--   [backbone\_cycle\_simple](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L388-L416)
--   [backbone\_disconnected](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L468-L572)
--   [backbone\_linear\_simple](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L432-L457)
--   [backbone\_trifurcating](https://github.com/dynverse/dyngen/blob/master/R/2c_backbones.R#L293-L295)
+-   [backbone\_bifurcating\_converging](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L16-L61)
+-   [backbone\_bifurcating\_cycle](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L66-L127)
+-   [backbone\_bifurcating\_loop](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L132-L186)
+-   [backbone\_binary\_tree](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L278-L282)
+-   [backbone\_consecutive\_bifurcating](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L287-L289)
+-   [backbone\_converging](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L299-L349)
+-   [backbone\_cycle](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L353-L384)
+-   [backbone\_cycle\_simple](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L388-L416)
+-   [backbone\_disconnected](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L468-L572)
+-   [backbone\_linear\_simple](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L432-L457)
+-   [backbone\_trifurcating](https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L293-L295)
 
 ## Combination of bblego and manual
 
