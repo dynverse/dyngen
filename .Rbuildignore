@@ -19,6 +19,7 @@
 ^vignettes/.*\.md$
 ^vignettes/.*/.*\.png$
 ^vignettes/.*.Rmd$
+^vignettes/.*.R$
 ^cran-comments\.md$
 ^scalability_and_runtime_runs$
 ^pkgdown$
