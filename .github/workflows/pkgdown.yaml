@@ -39,6 +39,7 @@ jobs:
           install.packages("pkgdown", type = "binary")
           install.packages("tidyverse", type = "binary")
           remotes::install_github('dynverse/dyno')
+          remotes::install_bioc('countsimQC')
         shell: Rscript {0}
 
       - name: Install package
