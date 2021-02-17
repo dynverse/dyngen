@@ -21,3 +21,4 @@
 ^vignettes/.*.Rmd$
 ^cran-comments\.md$
 ^scalability_and_runtime_runs$
+^pkgdown$
