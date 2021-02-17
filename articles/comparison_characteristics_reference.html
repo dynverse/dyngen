@@ -119,7 +119,7 @@
 
       
 
-      </header><script src="comparison_characteristics_reference_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="comparison_characteristics_reference_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Comparison of characteristic features between dyngen and reference datasets</h1>
@@ -381,7 +381,7 @@ rmarkdown::render("vignettes/comparison_characteristics_reference.Rmd", output_f
 <div id="effective-library-sizes" class="section level2 tabset tabset-pills">
 <h2 class="hasAnchor">
 <a href="#effective-library-sizes" class="anchor"></a>Effective library sizes</h2>
-<p>This plot shows a histogram of the “effective library sizes,” defined as the total count per sample multiplied by the corresponding TMM normalization factor.</p>
+<p>This plot shows a histogram of the “effective library sizes”, defined as the total count per sample multiplied by the corresponding TMM normalization factor.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">ggplot</span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">EffLibsize</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_histogram</span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span>
@@ -463,33 +463,21 @@ rmarkdown::render("vignettes/comparison_characteristics_reference.Rmd", output_f
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-Chen2014Dispersion" class="csl-entry">
-Chen, Yunshun, Aaron TL Lun, and Gordon K Smyth. 2014. <span>“Differential Expression Analysis of Complex RNA-Seq Experiments Using edgeR.”</span> <em>In Statistical Analysis of Next Generation Sequence Data. Somnath Datta and Daniel S Nettleton (Eds), Springer, New York</em>. <a href="https://doi.org/10.1007/978-3-319-07212-8_3">https://doi.org/10.1007/978-3-319-07212-8_3</a>.
+<div id="refs" class="references">
+<div id="ref-Chen2014Dispersion">
+<p>Chen, Yunshun, Aaron TL Lun, and Gordon K Smyth. 2014. “Differential Expression Analysis of Complex RNA-Seq Experiments Using edgeR.” <em>In Statistical Analysis of Next Generation Sequence Data. Somnath Datta and Daniel S Nettleton (Eds), Springer, New York</em>. <a href="https://doi.org/10.1007/978-3-319-07212-8_3">https://doi.org/10.1007/978-3-319-07212-8_3</a>.</p>
 </div>
-<div id="ref-Kolmogorov1933" class="csl-entry">
-Kolmogorov, Andrey. 1933. <span>“Sulla Determinazione Empirica Di Una Legge Di Distribuzione.”</span> <em>Giornale Dell’Istituto Italiano Degli Attuari</em> 4: 83–91.
+<div id="ref-Love2014DESeq2">
+<p>Love, Michael I, Wolfgang Huber, and Simon Anders. 2014. “Moderated Estimation of Fold Change and Dispersion for RNA-Seq Data with DESeq2.” <em>Genome Biology</em> 15: 550. <a href="https://doi.org/10.1186/s13059-014-0550-8">https://doi.org/10.1186/s13059-014-0550-8</a>.</p>
 </div>
-<div id="ref-Love2014DESeq2" class="csl-entry">
-Love, Michael I, Wolfgang Huber, and Simon Anders. 2014. <span>“Moderated Estimation of Fold Change and Dispersion for RNA-Seq Data with DESeq2.”</span> <em>Genome Biology</em> 15: 550. <a href="https://doi.org/10.1186/s13059-014-0550-8">https://doi.org/10.1186/s13059-014-0550-8</a>.
+<div id="ref-Robinson2010edgeR">
+<p>Robinson, Mark D, Davis J McCarthy, and Gordon K Smyth. 2010. “edgeR: A Bioconductor Package for Differential Expression Analysis of Digital Gene Expression Data.” <em>Bioinformatics</em> 26: 139–40. <a href="https://doi.org/10.1093/bioinformatics/btp616">https://doi.org/10.1093/bioinformatics/btp616</a>.</p>
 </div>
-<div id="ref-Robinson2010edgeR" class="csl-entry">
-Robinson, Mark D, Davis J McCarthy, and Gordon K Smyth. 2010. <span>“edgeR: A Bioconductor Package for Differential Expression Analysis of Digital Gene Expression Data.”</span> <em>Bioinformatics</em> 26: 139–40. <a href="https://doi.org/10.1093/bioinformatics/btp616">https://doi.org/10.1093/bioinformatics/btp616</a>.
+<div id="ref-Robinson2010TMM">
+<p>Robinson, Mark D, and Alicia Oshlack. 2010. “A Scaling Normalization Method for Differential Expression Analysis of RNA-Seq Data.” <em>Genome Biology</em> 11: R25. <a href="https://doi.org/10.1186/gb-2010-11-3-r25">https://doi.org/10.1186/gb-2010-11-3-r25</a>.</p>
 </div>
-<div id="ref-Robinson2010TMM" class="csl-entry">
-Robinson, Mark D, and Alicia Oshlack. 2010. <span>“A Scaling Normalization Method for Differential Expression Analysis of RNA-Seq Data.”</span> <em>Genome Biology</em> 11: R25. <a href="https://doi.org/10.1186/gb-2010-11-3-r25">https://doi.org/10.1186/gb-2010-11-3-r25</a>.
-</div>
-<div id="ref-Rousseeuw1987silhouette" class="csl-entry">
-Rousseeuw, Peter J. 1987. <span>“Silhouettes a Graphical Aid to the Interpretation and Validation of Cluster Analysis.”</span> <em>Journal of Computational and Applied Mathematics</em>, 53–65. <a href="https://doi.org/10.1016/0377-0427(87)90125-7">https://doi.org/10.1016/0377-0427(87)90125-7</a>.
-</div>
-<div id="ref-Smirnov1948" class="csl-entry">
-Smirnov, Nikolai Vasilyevich. 1948. <span>“Table for Estimating the Goodness of Fit of Empirical Distributions.”</span> <em>Annals of Mathematical Statistics</em> 19: 279–81. <a href="https://doi.org/10.1214/aoms/1177730256">https://doi.org/10.1214/aoms/1177730256</a>.
-</div>
-<div id="ref-Soneson2018" class="csl-entry">
-Soneson, CharlotteI, and Mark D Robinson. 2018. <span>“Towards Unified Quality Verification of Synthetic Count Data with countsimQC.”</span> <em>Bioinformatics</em> 34: 691–92. <a href="https://doi.org/10.1093/bioinformatics/btx631">https://doi.org/10.1093/bioinformatics/btx631</a>.
-</div>
-<div id="ref-WaldWolfowitz1940" class="csl-entry">
-Wald, Abraham, and Jacob Wolfowitz. 1940. <span>“On a Test Whether Two Samples Are from the Same Population.”</span> <em>The Annals of Mathematical Statistics</em> 11: 147–62. <a href="https://doi.org/10.1214/aoms/1177731909">https://doi.org/10.1214/aoms/1177731909</a>.
+<div id="ref-Soneson2018">
+<p>Soneson, CharlotteI, and Mark D Robinson. 2018. “Towards Unified Quality Verification of Synthetic Count Data with countsimQC.” <em>Bioinformatics</em> 34: 691–92. <a href="https://doi.org/10.1093/bioinformatics/btx631">https://doi.org/10.1093/bioinformatics/btx631</a>.</p>
 </div>
 </div>
 </div>

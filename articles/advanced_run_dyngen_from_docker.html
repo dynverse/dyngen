@@ -119,7 +119,7 @@
 
       
 
-      </header><script src="advanced_run_dyngen_from_docker_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="advanced_run_dyngen_from_docker_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: Running dyngen from a docker container</h1>
@@ -140,38 +140,38 @@ rmarkdown::render("vignettes/advanced_run_dyngen_from_docker.Rmd", output_format
 <h2 class="hasAnchor">
 <a href="#running-the-container" class="anchor"></a>Running the container</h2>
 <p>To run the container, you can use the following command.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>:/home/rstudio/workdir dynverse/dyngen</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="ex">docker</span> run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>:/home/rstudio/workdir dynverse/dyngen</span></code></pre></div>
 <p>Keep this window open, and open up a browser and go to <a href="127.0.0.1:8787">127.0.0.1:8787</a>. Open up the file <code>getting_started.R</code> for a small example on how to run a dyngen simulation.</p>
 <p>The command can be dissected as follows.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="kw">\</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># remove container after use</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--rm</span> <span class="kw">\</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># specify which port rstudio server uses</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-p</span> 127.0.0.1:8787:8787 <span class="kw">\</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># disable authentication because I'm lazy</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-e</span> DISABLE_AUTH=true <span class="kw">\</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mount the current working directory in the rstudio home folder</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># so you will see it right away when rstudio starts</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-v</span> <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>:/home/rstudio/workdir <span class="kw">\</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># specify which container to run</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">dynverse/dyngen</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">docker</span> run \</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="co"># remove container after use</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="ex">--rm</span> \</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  </span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="co"># specify which port rstudio server uses</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="ex">-p</span> 127.0.0.1:8787:8787 \</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  </span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="co"># disable authentication because I'm lazy</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  <span class="ex">-e</span> DISABLE_AUTH=true \</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  </span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="co"># mount the current working directory in the rstudio home folder</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="co"># so you will see it right away when rstudio starts</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>  <span class="ex">-v</span> <span class="kw">`</span><span class="bu">pwd</span><span class="kw">`</span>:/home/rstudio/workdir \</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  </span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="co"># specify which container to run</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="ex">dynverse/dyngen</span></span></code></pre></div>
 </div>
 <div id="update-the-container" class="section level2">
 <h2 class="hasAnchor">
 <a href="#update-the-container" class="anchor"></a>Update the container</h2>
 <p>If a newer version of the container has been released, you can update it by running the following command.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull dynverse/dyngen</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">docker</span> pull dynverse/dyngen</span></code></pre></div>
 </div>
 <div id="building-the-container" class="section level2">
 <h2 class="hasAnchor">
 <a href="#building-the-container" class="anchor"></a>Building the container</h2>
 <p>To build this docker container from scratch, run the following command.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build -t dynverse/dyngen -f docker/Dockerfile .</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">docker</span> build -t dynverse/dyngen -f docker/Dockerfile .</span></code></pre></div>
 <p>GITHUB_PAT should be an environment variable corresponding to the Personal Access Token created by following <a href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token">this tutorial</a>.</p>
 </div>
   </div>

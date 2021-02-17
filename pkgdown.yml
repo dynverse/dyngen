@@ -1,4 +1,4 @@
-pandoc: 2.11.2
+pandoc: 2.7.3
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
@@ -12,5 +12,5 @@ articles:
   installation: installation.html
   scalability_and_runtime: scalability_and_runtime.html
   showcase_backbones: showcase_backbones.html
-last_built: 2021-02-17T17:48Z
+last_built: 2021-02-17T20:34Z
 
