@@ -23,7 +23,9 @@ dyngen is a novel, multi-modal simulation engine for studying dynamic cellular p
 
 A preprint is available on [bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
-![](man/figures/overview.png)
+```{r out.width = '60%', echo = FALSE}
+knitr::include_graphics("man/figures/overview.png")
+```
 
 ## Installation
 dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the [installation instructions](https://dynverse.org/dyngen/articles/installation.html) for more information!

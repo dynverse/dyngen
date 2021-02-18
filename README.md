@@ -22,7 +22,7 @@ A preprint is available on
 All source code for reproducing the results in this manuscript are
 available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
-![](man/figures/overview.png)
+<img src="man/figures/overview.png" width="60%" />
 
 ## Installation
 
