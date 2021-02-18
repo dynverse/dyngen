@@ -16,10 +16,7 @@
 ^man/figures/dependencies\.png$
 ^\.github$
 ^docker$
-^vignettes/.*\.md$
-^vignettes/.*/.*\.png$
-^vignettes/.*.Rmd$
-^vignettes/.*.R$
+^vignettes/.*$
 ^cran-comments\.md$
 ^scalability_and_runtime_runs$
 ^pkgdown$

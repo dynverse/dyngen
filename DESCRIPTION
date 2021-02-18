@@ -53,16 +53,11 @@ Suggests:
     anndata,
     covr,
     dynwrap (>= 1.2.0),
-    knitr,
-    R.rsp,
     rmarkdown,
     Seurat,
     SingleCellExperiment (>= 1.5.3),
     SummarizedExperiment,
     testthat
-VignetteBuilder: 
-    knitr,
-    R.rsp
 biocViews:
 Encoding: UTF-8
 LazyData: TRUE
