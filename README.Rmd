@@ -28,11 +28,11 @@ knitr::include_graphics("man/figures/overview.png")
 ```
 
 ## Installation
-dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the [installation instructions](https://dynverse.org/dyngen/articles/installation.html) for more information!
+dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the [installation instructions](https://dyngen.dynverse.org/articles/installation.html) for more information!
 
 ## Getting started
 
-Check out [this guide](https://dynverse.org/dyngen/articles/getting_started.html) on how to get started with dyngen. For more information, check out our advanced topics:
+Check out [this guide](https://dyngen.dynverse.org/articles/getting_started.html) on how to get started with dyngen. For more information, check out our advanced topics:
 
 ```{r vignettes, results='asis', echo=FALSE}
 walk(
@@ -45,11 +45,11 @@ walk(
     vignette_name <- gsub("\\.Rmd", "", file)
     html_name <- gsub("\\.Rmd", ".html", file)
     
-    cat("* [", title, "](https://dynverse.org/dyngen/articles/", html_name, ")\n", sep = "")
+    cat("* [", title, "](https://dyngen.dynverse.org/articles/", html_name, ")\n", sep = "")
   }
 )
 ```
 
 ## Latest changes
 
-A full list of changes is available on our [changelog](https://dynverse.org/dyngen/news/index.html).
+A full list of changes is available on our [changelog](https://dyngen.dynverse.org/news/index.html).

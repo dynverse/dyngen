@@ -30,38 +30,38 @@ dyngen should work straight out of the CRAN box by running
 `install.packages("dyngen")`. Having said that, there are a few
 recommended steps that will make dyngen work even better. Check the
 [installation
-instructions](https://dynverse.org/dyngen/articles/installation.html)
+instructions](https://dyngen.dynverse.org/articles/installation.html)
 for more information!
 
 ## Getting started
 
 Check out [this
-guide](https://dynverse.org/dyngen/articles/getting_started.html) on how
+guide](https://dyngen.dynverse.org/articles/getting_started.html) on how
 to get started with dyngen. For more information, check out our advanced
 topics:
 
 -   [Advanced: Constructing a custom
-    backbone](https://dynverse.org/dyngen/articles/advanced_constructing_backbone.html)
+    backbone](https://dyngen.dynverse.org/articles/advanced_constructing_backbone.html)
 -   [Advanced: Running dyngen from a docker
-    container](https://dynverse.org/dyngen/articles/advanced_run_dyngen_from_docker.html)
+    container](https://dyngen.dynverse.org/articles/advanced_run_dyngen_from_docker.html)
 -   [Advanced: Simulating batch
-    effects](https://dynverse.org/dyngen/articles/advanced_simulating_batch_effects.html)
+    effects](https://dyngen.dynverse.org/articles/advanced_simulating_batch_effects.html)
 -   [Advanced: Simulating a knockout
-    experiment](https://dynverse.org/dyngen/articles/advanced_simulating_knockouts.html)
+    experiment](https://dyngen.dynverse.org/articles/advanced_simulating_knockouts.html)
 -   [Advanced: Tweaking
-    parameters](https://dynverse.org/dyngen/articles/advanced_tweaking_parameters.html)
+    parameters](https://dyngen.dynverse.org/articles/advanced_tweaking_parameters.html)
 -   [Comparison of characteristic features between dyngen and reference
-    datasets](https://dynverse.org/dyngen/articles/comparison_characteristics_reference.html)
+    datasets](https://dyngen.dynverse.org/articles/comparison_characteristics_reference.html)
 -   [Getting
-    started](https://dynverse.org/dyngen/articles/getting_started.html)
+    started](https://dyngen.dynverse.org/articles/getting_started.html)
 -   [Installation
-    instructions](https://dynverse.org/dyngen/articles/installation.html)
+    instructions](https://dyngen.dynverse.org/articles/installation.html)
 -   [On runtime and
-    scalability](https://dynverse.org/dyngen/articles/scalability_and_runtime.html)
+    scalability](https://dyngen.dynverse.org/articles/scalability_and_runtime.html)
 -   [Showcase different
-    backbones](https://dynverse.org/dyngen/articles/showcase_backbones.html)
+    backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
 
 ## Latest changes
 
 A full list of changes is available on our
-[changelog](https://dynverse.org/dyngen/news/index.html).
+[changelog](https://dyngen.dynverse.org/news/index.html).
