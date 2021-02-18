@@ -159,14 +159,14 @@ dataset <- as_dyno(model)
 ```
 
 ### Visualise with `dynplot`
-```r
+```{r}
 library(dynplot)
 plot_dimred(dataset)
 plot_graph(dataset)
 ```
 
 ### Infer trajectory on expression data
-```r
+```{r}
 library(dyno)
 pred <- infer_trajectory(dataset, ti_slingshot())
 plot_dimred(pred)
@@ -211,7 +211,7 @@ print(out$plot)
 
 `dataset` and `model` can be used in much the same way as before.
 
-```r
+```{r}
 library(dyno)
 
 plot_dimred(dataset)
