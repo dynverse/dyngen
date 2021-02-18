@@ -16,7 +16,7 @@
 ^man/figures/dependencies\.png$
 ^\.github$
 ^docker$
-^vignettes/.*$
+^vignettes$
 ^cran-comments\.md$
 ^scalability_and_runtime_runs$
 ^pkgdown$
