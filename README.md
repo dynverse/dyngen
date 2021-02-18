@@ -6,7 +6,7 @@ Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org
 [![CRAN
 Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
 [![DOI](https://img.shields.io/badge/doi-10.1101/2020.02.06.936971-green)](https://doi.org/10.1101/2020.02.06.936971)
-![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)
+[![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
 [![Coverage
 Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
 
