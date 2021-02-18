@@ -2,3 +2,10 @@ template:
   params:
     ganalytics: "UA-143597662-2"
 url: https://dyngen.dynverse.org
+home:
+  links:
+    - text: Preprint
+      url: https://www.biorxiv.org/content/10.1101/2020.02.06.936971v3.full
+
+# group reference into categories
+# see https://pkgdown.r-lib.org/articles/pkgdown.html#reference

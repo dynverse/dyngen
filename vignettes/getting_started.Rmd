@@ -159,17 +159,10 @@ dataset <- as_dyno(model)
 ```
 
 ### Visualise with `dynplot`
-```{r}
+```{r dynplot}
 library(dynplot)
 plot_dimred(dataset)
 plot_graph(dataset)
-```
-
-### Infer trajectory on expression data
-```{r}
-library(dyno)
-pred <- infer_trajectory(dataset, ti_slingshot())
-plot_dimred(pred)
 ```
 
 ### Save output to file
@@ -216,6 +209,4 @@ library(dyno)
 
 plot_dimred(dataset)
 plot_graph(dataset)
-pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
-plot_dimred(pred)
 ```

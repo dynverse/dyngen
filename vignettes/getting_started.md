@@ -22,26 +22,53 @@ time in a specific manner.
 library(tidyverse)
 library(dyngen)
 
-set.seed(10)
-model <- 
+set.seed(1)
+
+backbone <- backbone_bifurcating()
+config <- 
   initialise_model(
-    num_tfs = 12,
-    num_targets = 30,
-    num_hks = 15,
-    backbone = backbone_bifurcating(),
-    verbose = TRUE
+    backbone = backbone,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 500,
+    num_hks = 500,
+    verbose = FALSE
   )
-
-plot_backbone_statenet(model)
 ```
-
-![](getting_started_files/figure-gfm/init-1.png)<!-- -->
 
 ``` r
-plot_backbone_modulenet(model)
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = FALSE,
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      census_interval = 2, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
 ```
 
-![](getting_started_files/figure-gfm/init-2.png)<!-- -->
+``` r
+plot_backbone_statenet(config)
+```
+
+![](getting_started_files/figure-gfm/plotinit-1.png)<!-- -->
+
+``` r
+plot_backbone_modulenet(config)
+```
+
+![](getting_started_files/figure-gfm/plotinit-2.png)<!-- -->
 
 For backbones with all different sorts of topologies, check
 `list_backbones()`:
@@ -50,8 +77,8 @@ For backbones with all different sorts of topologies, check
 names(list_backbones())
 ```
 
-    ##  [1] "bifurcating"             "bifurcating_converging"  "bifurcating_cycle"       "bifurcating_loop"        "binary_tree"             "branching"               "consecutive_bifurcating" "converging"              "cycle"                  
-    ## [10] "cycle_simple"            "disconnected"            "linear"                  "linear_simple"           "trifurcating"
+    ##  [1] "bifurcating"             "bifurcating_converging"  "bifurcating_cycle"       "bifurcating_loop"        "binary_tree"             "branching"               "consecutive_bifurcating" "converging"             
+    ##  [9] "cycle"                   "cycle_simple"            "disconnected"            "linear"                  "linear_simple"           "trifurcating"
 
 ## Step 2: Generate transcription factors (TFs)
 
@@ -59,12 +86,7 @@ Each gene module consists of a set of transcription factors. These can
 be generated and visualised as follows.
 
 ``` r
-model <- generate_tf_network(model)
-```
-
-    ## Generating TF network
-
-``` r
+model <- generate_tf_network(config)
 plot_feature_network(model, show_targets = FALSE)
 ```
 
@@ -79,11 +101,6 @@ while HKs are only regulated by themselves.
 
 ``` r
 model <- generate_feature_network(model)
-```
-
-    ## Sampling feature network from real network
-
-``` r
 plot_feature_network(model)
 ```
 
@@ -103,12 +120,6 @@ parameters of the SSA simulation.
 
 ``` r
 model <- generate_kinetics(model)
-```
-
-    ## Generating kinetics for 78 features
-    ## Generating formulae
-
-``` r
 plot_feature_network(model)
 ```
 
@@ -129,11 +140,6 @@ by performing a dimensionality reduction on the mRNA expression values.
 ``` r
 model <- generate_gold_standard(model)
 ```
-
-    ## Generating gold standard mod changes
-    ## Precompiling reactions for gold standard
-    ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ``` r
 plot_gold_simulations(model) + scale_colour_brewer(palette = "Dark2")
@@ -163,14 +169,6 @@ again using dimensionality reduction.
 
 ``` r
 model <- generate_cells(model)
-```
-
-    ## Precompiling reactions for simulations
-    ## Running 32 simulations
-    ## Mapping simulations to gold standard
-    ## Performing dimred
-
-``` r
 plot_simulations(model)
 ```
 
@@ -211,8 +209,6 @@ as follows.
 model <- generate_experiment(model)
 ```
 
-    ## Simulating experiment
-
 ## Step 8: Convert to a dyno object
 
 Converting the dyngen to a dyno object allows you to visualise the
@@ -245,35 +241,6 @@ plot_graph(dataset)
 
 ![](getting_started_files/figure-gfm/dynplot-2.png)<!-- -->
 
-### Infer trajectory on expression data
-
-``` r
-library(dyno)
-pred <- infer_trajectory(dataset, ti_slingshot())
-```
-
-    ## Following packages have to be installed: tislingshot
-    ## Do you want to install these packages? 
-    ## 1: Yes [default]
-    ## 2: No
-
-    ## Using github PAT from envvar GITHUB_PAT
-
-    ## Skipping install of 'tislingshot' from a github remote, the SHA1 (98a7cc7f) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
-
-    ## Using full covariance matrix
-
-``` r
-plot_dimred(pred)
-```
-
-    ## Coloring by milestone
-
-    ## Using milestone_percentages from trajectory
-
-![](getting_started_files/figure-gfm/dyno-1.png)<!-- -->
-
 ### Save output to file
 
 You can save the output of the model and/or dataset to a file as
@@ -284,10 +251,10 @@ write_rds(model, "model.rds", compress = "gz")
 write_rds(dataset, "dataset.rds", compress = "gz")
 ```
 
-## Step 8 alternative: Convert to an anndata object
+## Step 8 alternative: Convert to an anndata/SCE/Seurat object
 
-dyngen (&gt;= 0.4.1) allows converting the output to an `anndata` object
-as well. Check out the [anndata
+dyngen (&gt;= 0.4.1) allows converting the output to an `anndata`, `SCE`
+or `Seurat` object as well. Check out the [anndata
 documentation](https://cran.r-project.org/package=anndata) on how to
 install anndata for R.
 
@@ -295,6 +262,10 @@ install anndata for R.
 library(anndata)
 ad <- as_anndata(model)
 ad$write_h5ad("dataset.h5ad")
+
+sce <- as_sce(model)
+
+seurat <- as_seurat(model) 
 ```
 
 # One-shot function
@@ -303,16 +274,6 @@ ad$write_h5ad("dataset.h5ad")
 all at once and producing plots.
 
 ``` r
-set.seed(1)
-config <- 
-  initialise_model(
-    num_tfs = 12,
-    num_targets = 30,
-    num_hks = 15,
-    backbone = backbone_bifurcating_converging(),
-    verbose = FALSE
-  )
-
 out <- generate_dataset(
   config,
   make_plots = TRUE
@@ -330,6 +291,8 @@ print(out$plot)
 `dataset` and `model` can be used in much the same way as before.
 
 ``` r
+library(dyno)
+
 plot_dimred(dataset)
 ```
 
@@ -337,7 +300,7 @@ plot_dimred(dataset)
 
     ## Using milestone_percentages from trajectory
 
-![](getting_started_files/figure-gfm/oneshot_plot-1.png)<!-- -->
+![](getting_started_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 ``` r
 plot_graph(dataset)
@@ -346,30 +309,4 @@ plot_graph(dataset)
     ## Coloring by milestone
     ## Using milestone_percentages from trajectory
 
-![](getting_started_files/figure-gfm/oneshot_plot-2.png)<!-- -->
-
-``` r
-pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
-```
-
-    ## Following packages have to be installed: tislingshot
-    ## Do you want to install these packages? 
-    ## 1: Yes [default]
-    ## 2: No
-
-    ## Using github PAT from envvar GITHUB_PAT
-
-    ## Skipping install of 'tislingshot' from a github remote, the SHA1 (98a7cc7f) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
-
-    ## Using full covariance matrix
-
-``` r
-plot_dimred(pred)
-```
-
-    ## Coloring by milestone
-
-    ## Using milestone_percentages from trajectory
-
-![](getting_started_files/figure-gfm/oneshot_plot-3.png)<!-- -->
+![](getting_started_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->

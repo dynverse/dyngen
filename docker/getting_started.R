@@ -94,11 +94,6 @@ plot_dimred(dataset)
 plot_graph(dataset)
 plot_heatmap(simplify_trajectory(dataset), features_oi = 30)
 
-### Infer trajectory on expression data
-pred <- infer_trajectory(dataset, ti_slingshot())
-plot_dimred(pred)
-
-
 
 
 ## One-shot function
@@ -137,6 +132,4 @@ ggsave("workdir/plot.pdf", out$plot, width = 20, height = 15)
 # `dataset` and `model` can be used in much the same way as before.
 plot_dimred(dataset)
 plot_graph(dataset)
-pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
-plot_dimred(pred)
 
