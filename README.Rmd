@@ -42,7 +42,7 @@ walk(
     vignette_name <- gsub("\\.Rmd", "", file)
     html_name <- gsub("\\.Rmd", ".html", file)
     
-    cat("* [", title, "](https://dynverse.org/dyngen/articles/", html_name, ")", sep = "")
+    cat("* [", title, "](https://dynverse.org/dyngen/articles/", html_name, ")\n", sep = "")
   }
 )
 ```
