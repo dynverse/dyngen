@@ -28,72 +28,39 @@ available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 dyngen should work straight out of the CRAN box by running
 `install.packages("dyngen")`. Having said that, there are a few
 recommended steps that will make dyngen work even better. Check the
-installation article for more information!
+[installation
+instructions](https://dynverse.org/dyngen/articles/installation.html)
+for more information!
 
-<!-- todo: provide pointers to getting started and installation urls over at dynverse.org/dyngen -->
+## Getting started
+
+Check out [this
+guide](https://dynverse.org/dyngen/articles/getting_started.html) on how
+to get started with dyngen. For more information, check out our advanced
+topics:
+
+-   [Advanced: Constructing a custom
+    backbone](https://dynverse.org/dyngen/articles/advanced_constructing_backbone.html)\*
+    [Advanced: Running dyngen from a docker
+    container](https://dynverse.org/dyngen/articles/advanced_run_dyngen_from_docker.html)\*
+    [Advanced: Simulating batch
+    effects](https://dynverse.org/dyngen/articles/advanced_simulating_batch_effects.html)\*
+    [Advanced: Simulating a knockout
+    experiment](https://dynverse.org/dyngen/articles/advanced_simulating_knockouts.html)\*
+    [Advanced: Tweaking
+    parameters](https://dynverse.org/dyngen/articles/advanced_tweaking_parameters.html)\*
+    [Comparison of characteristic features between dyngen and reference
+    datasets](https://dynverse.org/dyngen/articles/comparison_characteristics_reference.html)\*
+    [Getting
+    started](https://dynverse.org/dyngen/articles/getting_started.html)\*
+    [Installation
+    instructions](https://dynverse.org/dyngen/articles/installation.html)\*
+    [On runtime and
+    scalability](https://dynverse.org/dyngen/articles/scalability_and_runtime.html)\*
+    [Showcase different
+    backbones](https://dynverse.org/dyngen/articles/showcase_backbones.html)
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full
-list of changes.
-
-<!-- This section gets automatically generated from NEWS.md -->
-
-### Recent changes in dyngen 0.4.1
-
-#### NEW FEATURES
-
--   `as_anndata()`: Added a function for converting the dyngen output to
-    an anndata object.
-
--   `as_sce()`: Added a function for converting the dyngen output to an
-    SingleCellExperiment object.
-
--   `as_seurat()`: Added a function for converting the dyngen output to
-    a Seurat object.
-
--   The default number of cores used can be set by adding
-    `options(Ncpus = ...)` to your Rprofile.
-
--   The default cache folder for dyngen can be set by adding
-    `options(dyngen_download_cache_dir = ...)` to your Rprofile.
-
--   Combine similar models with different outputs using the
-    `combine_models()` function.
-
--   Store the timings throughout the dyngen execution. Extract the
-    timings from a model using `get_timings()`.
-
-#### MAJOR CHANGES
-
--   `generate_experiment()`: Map count density of reference dataset to
-    simulation expression before sampling molecules.
-
-#### MINOR CHANGES
-
--   `initialise_model()`: Change defaults of `num_cores` and
-    `download_cache_dir` to `getOption("Ncpus")` and
-    `getOption("dyngen_download_cache_dir")` respectively.
-
--   `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
-
--   `generate_experiment()`: Drastically speed up sampling of molecules.
-
-#### BUG FIX
-
--   `as_dyno()`: Fix `drop = FALSE` bug when only one cell is being
-    sampled.
-
--   Removed names from feature ids in feature info
-    (`unname(model$feature_info$feature_id)`). Thanks @milanmlft!
-
-#### DOCUMENTATION
-
--   Extended vignettes:
-    -   Advanced: Simulating batch effects
-    -   Advanced: Simulating a knockout experiment
-    -   Advanced: Running dyngen from a docker container
-    -   Advanced: Constructing a custom backbone
-    -   Advanced: Tweaking parameters
-    -   Comparison of characteristic features between dyngen and
-        reference datasets
+A full list of changes is available on our
+[changelog](https://dynverse.org/dyngen/news/index.html).

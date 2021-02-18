@@ -25,16 +25,28 @@ dyngen is a novel, multi-modal simulation engine for studying dynamic cellular p
 A preprint is available on [bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
 ## Installation
-dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the installation article for more information!
+dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the [installation instructions](https://dynverse.org/dyngen/articles/installation.html) for more information!
 
-<!-- todo: provide pointers to getting started and installation urls over at dynverse.org/dyngen -->
+## Getting started
+
+Check out [this guide](https://dynverse.org/dyngen/articles/getting_started.html) on how to get started with dyngen. For more information, check out our advanced topics:
+
+```{r vignettes, results='asis', echo=FALSE}
+walk(
+  list.files("vignettes", pattern = "*.Rmd"),
+  function(file) {
+    title <- 
+      read_lines(paste0("vignettes/", file)) %>% 
+      keep(~grepl("^title: ", .)) %>% 
+      gsub("title: \"(.*)\"", "\\1", .)
+    vignette_name <- gsub("\\.Rmd", "", file)
+    html_name <- gsub("\\.Rmd", ".html", file)
+    
+    cat("* [", title, "](https://dynverse.org/dyngen/articles/", html_name, ")", sep = "")
+  }
+)
+```
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full list of changes.
-
-<!-- This section gets automatically generated from NEWS.md -->
-
-```{r news, echo=FALSE, results="asis"}
-cat(dynutils::recent_news(n = 1))
-```
+A full list of changes is available on our [changelog](https://dynverse.org/dyngen/news/index.html).
