@@ -1,129 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dyngen.dynverse.org/index.html</loc>
+    <loc>https://dyngen.dynverse.org"/index.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/backbone.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/backbone.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/backbone_models.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/backbone_models.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/bblego.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/bblego.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/combine_models.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/combine_models.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/convert.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/convert.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/dyngen.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/dyngen.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/example_model.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/example_model.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_cells.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_cells.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_dataset.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_dataset.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_experiment.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_experiment.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_feature_network.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_feature_network.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_gold_standard.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_gold_standard.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_kinetics.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_kinetics.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/generate_tf_network.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/generate_tf_network.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/get_timings.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/get_timings.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/initialise_model.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/initialise_model.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/kinetics_noise.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/kinetics_noise.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_backbone_modulenet.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_backbone_modulenet.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_backbone_statenet.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_backbone_statenet.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_experiment_dimred.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_experiment_dimred.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_feature_network.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_feature_network.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_gold_expression.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_gold_expression.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_gold_mappings.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_gold_mappings.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_gold_simulations.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_gold_simulations.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_simulation_expression.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_simulation_expression.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/plot_simulations.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/plot_simulations.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/realcounts.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/realcounts.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/realnets.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/realnets.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/reexports.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/reexports.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/rnorm_bounded.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/rnorm_bounded.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/reference/simtime_from_backbone.html</loc>
+    <loc>https://dyngen.dynverse.org"/reference/simtime_from_backbone.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_constructing_backbone.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/advanced_constructing_backbone.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_run_dyngen_from_docker.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/advanced_run_dyngen_from_docker.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_simulating_batch_effects.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/advanced_simulating_batch_effects.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_simulating_knockouts.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/advanced_simulating_knockouts.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_tweaking_parameters.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/advanced_tweaking_parameters.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/comparison_characteristics_reference.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/comparison_characteristics_reference.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/getting_started.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/getting_started.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/installation.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/installation.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/scalability_and_runtime.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/scalability_and_runtime.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/showcase_backbones.html</loc>
+    <loc>https://dyngen.dynverse.org"/articles/showcase_backbones.html</loc>
   </url>
 </urlset>
