@@ -10,8 +10,10 @@ library(dyngen)
 ```
 
 This vignette demonstrates the different dynamic processes topologies
-(e.g. bifurcating and cyclic). If you haven’t done so already, first
-check out the installation instructions in the README.
+(e.g. bifurcating and cyclic). Note that, for the sake of reducing
+runtime for generating this vignette, the simulations are ran with
+reduced settings. Check out the vignette on tweaking parameters for
+information on how the different parameters are changed.
 
 You can find a full list of backbones using `?list_backbones`. This
 vignette will showcase each of them individually.
@@ -27,8 +29,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -49,8 +51,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -71,8 +73,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -93,8 +95,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -115,8 +117,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -139,8 +141,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -165,8 +167,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -188,8 +190,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -211,8 +213,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
@@ -232,8 +234,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -254,8 +256,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -276,8 +278,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   simulation_params = simulation_default(census_interval = 10, ssa_algorithm = ssa_etl(tau = 300 / 3600)),
   verbose = FALSE
 )
@@ -299,8 +301,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
@@ -320,8 +322,8 @@ init <- initialise_model(
   backbone = backbone,
   num_cells = 500,
   num_tfs = 100,
-  num_targets = 50,
-  num_hks = 25,
+  num_targets = 0,
+  num_hks = 0,
   verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)

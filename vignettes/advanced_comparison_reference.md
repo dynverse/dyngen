@@ -1,5 +1,4 @@
-Comparison of characteristic features between dyngen and reference
-datasets
+Advanced: Comparison to reference dataset
 ================
 
 <!-- github markdown built using 

@@ -1,6 +1,10 @@
 ---
-title: "Comparison of characteristic features between dyngen and reference datasets"
-output: html_document
+title: "Advanced: Comparison to reference dataset"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced: Comparison to reference dataset}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 references:
 - id: Soneson2018
   title: Towards unified quality verification of synthetic count data with countsimQC
@@ -137,7 +141,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/comparison_characteristics_reference.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/advanced_comparison_reference.Rmd", output_format = rmarkdown::github_document())
 -->
 
 ```{r setup, include = FALSE}

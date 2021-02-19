@@ -1,4 +1,4 @@
-On runtime and scalability
+Advanced: On scalability and runtime
 ================
 
 ``` r
@@ -7,7 +7,7 @@ library(dyngen)
 ```
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/advanced_scalability_and_runtime.Rmd", output_format = rmarkdown::github_document())
 -->
 
 In this vignette, we will take a look at the runtime of dyngen as the
@@ -21,7 +21,7 @@ library(tidyverse)
 
 set.seed(1)
 
-save_dir <- "scalability_and_runtime_runs"
+save_dir <- "advanced_scalability_and_runtime_runs"
 if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
 backbone <- backbone_bifurcating_cycle()
@@ -69,7 +69,7 @@ out <-
 out$plot
 ```
 
-![](scalability_and_runtime_files/figure-gfm/example-1.png)<!-- -->
+![](advanced_scalability_and_runtime_files/figure-gfm/example-1.png)<!-- -->
 
 We tweaked some of the parameters by running this particular backbone
 once with `num_cells = 100` and `num_features = 100` and verifying that
@@ -100,8 +100,8 @@ The simulations are run once with a large `num_features` and
 with varying `num_features`. Every run is repeated three times in order
 to get a bit more stable time measurements. Since some of the
 simulations can take over 10 minutes, the timings results of the
-simulations are cached in the ‘scalability\_and\_runtime\_runs’
-folder.\`
+simulations are cached in the
+‘advanced\_scalability\_and\_runtime\_runs’ folder.\`
 
 ``` r
 settings <- bind_rows(
@@ -193,7 +193,7 @@ ggplot(timings0) +
   labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
 ```
 
-![](scalability_and_runtime_files/figure-gfm/bblego-1.png)<!-- -->
+![](advanced_scalability_and_runtime_files/figure-gfm/bblego-1.png)<!-- -->
 
 ## Increasing the number of cells
 
@@ -215,7 +215,7 @@ ggplot(timings1) +
   labs(x = "Number of cells", y = "Average time (s)", fill = "dyngen step")
 ```
 
-![](scalability_and_runtime_files/figure-gfm/figure1-1.png)<!-- -->
+![](advanced_scalability_and_runtime_files/figure-gfm/figure1-1.png)<!-- -->
 
 It seems the execution time scales linearly w.r.t. the number of cells.
 This makes sense, because as the number of cells are increased, so do we
@@ -233,7 +233,7 @@ ggplot(timings_sum %>% filter(num_features == 100)) +
   labs(x = "Number of cells", y = "Execution time (s)")
 ```
 
-![](scalability_and_runtime_files/figure-gfm/plot_timings_cell-1.png)<!-- -->
+![](advanced_scalability_and_runtime_files/figure-gfm/plot_timings_cell-1.png)<!-- -->
 
 ## Increasing the number of features
 
@@ -255,7 +255,7 @@ ggplot(timings2) +
   labs(x = "Number of features", y = "Average time (s)", fill = "dyngen step")
 ```
 
-![](scalability_and_runtime_files/figure-gfm/figure2-1.png)<!-- -->
+![](advanced_scalability_and_runtime_files/figure-gfm/figure2-1.png)<!-- -->
 
 It seems the execution time also scales linearly w.r.t. the number of
 features. As more genes are added to the underlying gene regulatory
@@ -272,7 +272,7 @@ ggplot(timings_sum %>% filter(num_cells == 100)) +
   labs(x = "Number of features", y = "Execution time (s)")
 ```
 
-![](scalability_and_runtime_files/figure-gfm/plot_timings_feats-1.png)<!-- -->
+![](advanced_scalability_and_runtime_files/figure-gfm/plot_timings_feats-1.png)<!-- -->
 
 ## Execution platform
 
@@ -293,20 +293,31 @@ sessionInfo()
     ## BLAS/LAPACK: /usr/lib64/libflexiblas.so.3.0
     ## 
     ## locale:
-    ##  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C               LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8     LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8    LC_PAPER=en_GB.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
-    ## [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+    ##  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C               LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8     LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8    LC_PAPER=en_GB.UTF-8      
+    ##  [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
     ## 
     ## attached base packages:
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ##  [1] forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2     tibble_3.0.5    ggplot2_3.3.3   tidyverse_1.3.0 dyngen_0.4.1   
+    ##  [1] dyngen_0.4.1    forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2     tibble_3.0.5    ggplot2_3.3.3   tidyverse_1.3.0
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] fs_1.5.0            dynutils_1.0.5.9000 lubridate_1.7.9.2   RColorBrewer_1.1-2  httr_1.4.2          tools_4.0.3         backports_1.2.1     utf8_1.1.4          R6_2.5.0            irlba_2.3.3         DBI_1.1.1           colorspace_2.0-0    withr_2.4.0        
-    ## [14] tidyselect_1.1.0    carrier_0.1.0       gridExtra_2.3       processx_3.4.5      proxyC_0.1.5        compiler_4.0.3      cli_2.2.0           rvest_0.3.6         RcppXPtrUtils_0.1.1 xml2_1.3.2          labeling_0.4.2      scales_1.1.1        pbapply_1.4-3      
-    ## [27] digest_0.6.27       rmarkdown_2.6       pkgconfig_2.0.3     htmltools_0.5.1     dbplyr_2.0.0        rlang_0.4.10        readxl_1.3.1        rstudioapi_0.13     farver_2.0.3        generics_0.1.0      jsonlite_1.7.2      magrittr_2.0.1      GillespieSSA2_0.2.7
-    ## [40] patchwork_1.1.1     Matrix_1.2-18       Rcpp_1.0.6          munsell_0.5.0       fansi_0.4.2         viridis_0.5.1       lifecycle_0.2.0     stringi_1.5.3       yaml_2.2.1          ggraph_2.0.4        MASS_7.3-53         plyr_1.8.6          grid_4.0.3         
-    ## [53] parallel_4.0.3      ggrepel_0.9.0       crayon_1.3.4.9000   lattice_0.20-41     dynwrap_1.2.2       graphlayouts_0.7.1  haven_2.3.1         hms_1.0.0           ps_1.5.0            knitr_1.30          pillar_1.4.7        igraph_1.2.6        babelwhale_1.0.1   
-    ## [66] reshape2_1.4.4      codetools_0.2-16    reprex_0.3.0        glue_1.4.2          evaluate_0.14       remotes_2.2.0       RcppParallel_5.0.2  modelr_0.1.8        vctrs_0.3.6         dynparam_1.0.1      tweenr_1.0.1        cellranger_1.1.0    gtable_0.3.0       
-    ## [79] polyclip_1.10-0     assertthat_0.2.1    xfun_0.20           ggforce_0.3.2       lmds_0.1.0          broom_0.7.2         tidygraph_1.2.0     viridisLite_0.3.0   ellipsis_0.3.1
+    ##   [1] readxl_1.3.1                backports_1.2.1             babelwhale_1.0.1            plyr_1.8.6                  igraph_1.2.6                proxyC_0.1.5                splines_4.0.3              
+    ##   [8] dynwrap_1.2.2               BiocParallel_1.24.1         GenomeInfoDb_1.26.2         digest_0.6.27               htmltools_0.5.1             viridis_0.5.1               fansi_0.4.2                
+    ##  [15] magrittr_2.0.1              memoise_1.1.0               carrier_0.1.0               limma_3.44.3                remotes_2.2.0               annotate_1.68.0             graphlayouts_0.7.1         
+    ##  [22] modelr_0.1.8                RcppParallel_5.0.2          matrixStats_0.57.0          dynutils_1.0.5.9000         colorspace_2.0-0            blob_1.2.1                  rvest_0.3.6                
+    ##  [29] ggrepel_0.9.0               haven_2.3.1                 xfun_0.20                   crayon_1.3.4.9000           RCurl_1.98-1.2              jsonlite_1.7.2              genefilter_1.72.1          
+    ##  [36] survival_3.2-7              glue_1.4.2                  countsimQC_1.8.0            polyclip_1.10-0             gtable_0.3.0                GillespieSSA2_0.2.7         zlibbioc_1.36.0            
+    ##  [43] XVector_0.30.0              DelayedArray_0.16.0         BiocGenerics_0.36.0         dynparam_1.0.1              scales_1.1.1                DBI_1.1.1                   edgeR_3.30.3               
+    ##  [50] Rcpp_1.0.6                  viridisLite_0.3.0           xtable_1.8-4                bit_4.0.4                   RcppXPtrUtils_0.1.1         stats4_4.0.3                randtests_1.0              
+    ##  [57] DT_0.16                     htmlwidgets_1.5.2           httr_1.4.2                  RColorBrewer_1.1-2          ellipsis_0.3.1              pkgconfig_2.0.3             XML_3.99-0.5               
+    ##  [64] farver_2.0.3                dbplyr_2.0.0                locfit_1.5-9.4              labeling_0.4.2              tidyselect_1.1.0            rlang_0.4.10                reshape2_1.4.4             
+    ##  [71] AnnotationDbi_1.50.3        munsell_0.5.0               cellranger_1.1.0            tools_4.0.3                 cli_2.2.0                   generics_0.1.0              RSQLite_2.2.2              
+    ##  [78] broom_0.7.2                 evaluate_0.14               yaml_2.2.1                  processx_3.4.5              knitr_1.30                  bit64_4.0.5                 fs_1.5.0                   
+    ##  [85] tidygraph_1.2.0             lmds_0.1.0                  caTools_1.18.1              ggraph_2.0.4                pbapply_1.4-3               xml2_1.3.2                  compiler_4.0.3             
+    ##  [92] rstudioapi_0.13             reprex_0.3.0                tweenr_1.0.1                geneplotter_1.68.0          stringi_1.5.3               ps_1.5.0                    lattice_0.20-41            
+    ##  [99] Matrix_1.2-18               vctrs_0.3.6                 pillar_1.4.7                lifecycle_0.2.0             bitops_1.0-6                irlba_2.3.3                 patchwork_1.1.1            
+    ## [106] GenomicRanges_1.42.0        R6_2.5.0                    gridExtra_2.3               IRanges_2.24.0              codetools_0.2-16            MASS_7.3-53                 assertthat_0.2.1           
+    ## [113] SummarizedExperiment_1.20.0 DESeq2_1.30.0               rprojroot_2.0.2             withr_2.4.0                 S4Vectors_0.28.0            GenomeInfoDbData_1.2.4      parallel_4.0.3             
+    ## [120] hms_1.0.0                   grid_4.0.3                  rmarkdown_2.6               MatrixGenerics_1.2.0        ggforce_0.3.2               Biobase_2.50.0              lubridate_1.7.9.2

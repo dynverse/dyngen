@@ -1,9 +1,9 @@
 ---
-title: "On runtime and scalability"
+title: "Advanced: On scalability and runtime"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{On runtime and scalability}
   %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Advanced: On scalability and runtime}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
@@ -14,7 +14,7 @@ library(dyngen)
 ```
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/advanced_scalability_and_runtime.Rmd", output_format = rmarkdown::github_document())
 -->
 
 In this vignette, we will take a look at the runtime of dyngen as the number of genes and the number of cells sampled
@@ -26,7 +26,7 @@ library(tidyverse)
 
 set.seed(1)
 
-save_dir <- "scalability_and_runtime_runs"
+save_dir <- "advanced_scalability_and_runtime_runs"
 if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
 backbone <- backbone_bifurcating_cycle()
