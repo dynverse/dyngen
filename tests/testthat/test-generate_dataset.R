@@ -25,6 +25,10 @@ init <- initialise_model(
 
 out <- generate_dataset(init, make_plots = TRUE)
 
+# skip if not rcannood because anndata is probably not installed
+skip_on_cran()
+skip_if_not(Sys.info()[["user"]] == "rcannood")
+
 test_that("generating a dataset with linear backbone", {
   expect_is(out$plot, "ggplot")
   
@@ -37,13 +41,8 @@ test_that("generating a dataset with linear backbone", {
   # test converting to Seurat
   obj <- as_seurat(out$model)
   expect_equal(dim(obj), dim(t(out$dataset$counts)))
-})
-
-# skip if not rcannood because anndata is probably not installed
-skip_on_cran()
-skip_if_not(Sys.info()[["user"]] == "rcannood")
-
-test_that("generating converting to anndata", {
+  
+  # test converting to anndata
   ad <- as_anndata(out$model)
   expect_equal(dim(ad$X), dim(out$dataset$counts))
 })
