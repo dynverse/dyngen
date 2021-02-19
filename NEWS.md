@@ -45,7 +45,7 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
   - Advanced: Running dyngen from a docker container
   - Advanced: Constructing a custom backbone
   - Advanced: Tweaking parameters
-  - Comparison of characteristic features between dyngen and reference datasets
+  - Advanced: Comparison of characteristic features between dyngen and reference datasets
 
 
 # dyngen 0.4.0
