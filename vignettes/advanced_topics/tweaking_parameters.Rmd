@@ -10,7 +10,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_tweaking_parameters.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown::github_document())
 -->
 
 In some of the other vignettes, we tweak the values for `census_interval` and `tau` to speed up dyngen simulations.

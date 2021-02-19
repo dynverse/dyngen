@@ -2,7 +2,7 @@ Advanced: Constructing a custom backbone
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_constructing_backbone.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdown::github_document())
 -->
 
 You may want to construct your own custom backbone as opposed to those
@@ -86,7 +86,7 @@ out <- generate_dataset(config, make_plots = TRUE)
 print(out$plot)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bblego2-1.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bblego2-1.png)<!-- -->
 
 Check the following predefined backbones for some examples.
 
@@ -238,13 +238,13 @@ config <- initialise_model(
 plot_backbone_modulenet(config)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_print-1.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifurcatingloop_print-1.png)<!-- -->
 
 ``` r
 plot_backbone_statenet(config)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_print-2.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifurcatingloop_print-2.png)<!-- -->
 
 ``` r
 # the simulation is being sped up because rendering all vignettes with one core
@@ -294,7 +294,7 @@ out <- generate_dataset(config, make_plots = TRUE)
 print(out$plot)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifurcatingloop_plot-1.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifurcatingloop_plot-1.png)<!-- -->
 
 ### More information
 
@@ -401,13 +401,13 @@ config <- initialise_model(
 plot_backbone_modulenet(config)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifur_backbone-1.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifur_backbone-1.png)<!-- -->
 
 ``` r
 plot_backbone_statenet(config)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifur_backbone-2.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifur_backbone-2.png)<!-- -->
 
 ``` r
 # the simulation is being sped up because rendering all vignettes with one core
@@ -459,10 +459,10 @@ out <- generate_dataset(config, make_plots = TRUE)
 print(out$plot)
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifur_sim-1.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifur_sim-1.png)<!-- -->
 
 ``` r
 plot_simulation_expression(out$model, simulation_i = 1:8, what = "mol_mrna")
 ```
 
-![](advanced_constructing_backbone_files/figure-gfm/bifur_sim-2.png)<!-- -->
+![](constructing_backbone_files/figure-gfm/bifur_sim-2.png)<!-- -->

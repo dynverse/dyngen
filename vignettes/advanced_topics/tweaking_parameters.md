@@ -2,7 +2,7 @@ Advanced: Tweaking parameters
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_tweaking_parameters.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown::github_document())
 -->
 
 In some of the other vignettes, we tweak the values for
@@ -89,7 +89,7 @@ run1 <- generate_dataset(run1_config, make_plots = TRUE)
 run1$plot
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/run1_model-1.png)<!-- -->
+![](tweaking_parameters_files/figure-gfm/run1_model-1.png)<!-- -->
 
 We tweaked some of the parameters by running this particular backbone
 once with `num_cells = 100` and `num_features = 100` and verifying that
@@ -177,7 +177,7 @@ run2 <- generate_dataset(run2_config, make_plots = TRUE)
 run2$plot
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/run2_model-1.png)<!-- -->
+![](tweaking_parameters_files/figure-gfm/run2_model-1.png)<!-- -->
 
 Certainly something strange is happening here. If we compare the
 expression values of the two runs, we can see that the second run
@@ -188,13 +188,13 @@ expression is lowered again.
 plot_simulation_expression(run1$model, what = "mol_mrna", simulation_i = 1, facet = "none") + facet_wrap(~module_id)
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/simexp_run2-1.png)<!-- -->
+![](tweaking_parameters_files/figure-gfm/simexp_run2-1.png)<!-- -->
 
 ``` r
 plot_simulation_expression(run2$model, what = "mol_mrna", simulation_i = 1, facet = "none") + facet_wrap(~module_id)
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/simexp_run2-2.png)<!-- -->
+![](tweaking_parameters_files/figure-gfm/simexp_run2-2.png)<!-- -->
 
 This is caused by setting `tau` too high; when the expression a gene is
 very low but the binding of a TF causes transcription to occur,
@@ -333,7 +333,7 @@ run4 <- generate_dataset(run4_config, make_plots = TRUE)
 run4$plot
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/run4_model-1.png)<!-- -->
+![](tweaking_parameters_files/figure-gfm/run4_model-1.png)<!-- -->
 
 Notice how the last plot in the previous figure looks like total noise?
 This is because the reference dataset had very low library sizes for
@@ -351,4 +351,4 @@ dat <- bind_rows(
 ggplot(dat) + geom_density(aes(library_size, colour = source)) + theme_bw()
 ```
 
-![](advanced_tweaking_parameters_files/figure-gfm/run4_analysis-1.png)<!-- -->
+![](tweaking_parameters_files/figure-gfm/run4_analysis-1.png)<!-- -->

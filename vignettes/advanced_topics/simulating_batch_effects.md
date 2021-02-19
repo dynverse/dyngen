@@ -2,7 +2,7 @@ Advanced: Simulating batch effects
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_simulating_batch_effects.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/simulating_batch_effects.Rmd", output_format = rmarkdown::github_document())
 -->
 
 An easy way of simulating batch effects is by performing multiple dyngen
@@ -135,7 +135,7 @@ ggplot(params_ab) +
   theme_bw()
 ```
 
-![](advanced_simulating_batch_effects_files/figure-gfm/compare_kinetics-1.png)<!-- -->
+![](simulating_batch_effects_files/figure-gfm/compare_kinetics-1.png)<!-- -->
 
 ## Combine outputs and visualise
 
@@ -158,13 +158,13 @@ Show a dimensionality reduction.
 plot_simulations(model_ab)
 ```
 
-![](advanced_simulating_batch_effects_files/figure-gfm/plot-1.png)<!-- -->
+![](simulating_batch_effects_files/figure-gfm/plot-1.png)<!-- -->
 
 ``` r
 plot_gold_mappings(model_ab, do_facet = FALSE)
 ```
 
-![](advanced_simulating_batch_effects_files/figure-gfm/plot-2.png)<!-- -->
+![](simulating_batch_effects_files/figure-gfm/plot-2.png)<!-- -->
 
 Visualise the dataset using dyno.
 
@@ -178,7 +178,7 @@ plot_dimred(dataset)
 
     ## Using milestone_percentages from trajectory
 
-![](advanced_simulating_batch_effects_files/figure-gfm/dyno-1.png)<!-- -->
+![](simulating_batch_effects_files/figure-gfm/dyno-1.png)<!-- -->
 
 ``` r
 plot_heatmap(dataset, features_oi = 50)
@@ -194,7 +194,7 @@ plot_heatmap(dataset, features_oi = 50)
 
     ## Coloring by milestone
 
-![](advanced_simulating_batch_effects_files/figure-gfm/dyno-2.png)<!-- -->
+![](simulating_batch_effects_files/figure-gfm/dyno-2.png)<!-- -->
 
 ## Additional thoughts
 

@@ -10,7 +10,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
 -->
 
 dyngen supports simulating knockout (or knockdown) experiments. In this experiment, dyngen is run twice (similar to the vignette on simulating batch effects), 

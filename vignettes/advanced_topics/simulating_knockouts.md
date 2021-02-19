@@ -2,7 +2,7 @@ Advanced: Simulating a knockout experiment
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
 -->
 
 dyngen supports simulating knockout (or knockdown) experiments. In this
@@ -98,7 +98,7 @@ model_wt <- model_common %>%
 plot_gold_mappings(model_wt, do_facet = FALSE)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/wildtype-1.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/wildtype-1.png)<!-- -->
 
 ## Simulate knockout
 
@@ -123,7 +123,7 @@ one can draw out `model_common$module_network` on paper).
 plot_backbone_modulenet(model_common)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/visnet-1.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/visnet-1.png)<!-- -->
 
 ``` r
 b3_genes <- model_common$feature_info %>% filter(module_id == "B3") %>% pull(feature_id)
@@ -164,7 +164,7 @@ model_ko <- model_ko %>%
 plot_gold_mappings(model_ko, do_facet = FALSE)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/kosim-1.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/kosim-1.png)<!-- -->
 
 ## Combine outputs and visualise
 
@@ -186,13 +186,13 @@ model_comb <-
 plot_simulations(model_comb)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/combine-1.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/combine-1.png)<!-- -->
 
 ``` r
 plot_gold_mappings(model_comb, do_facet = FALSE)
 ```
 
-![](advanced_simulating_knockouts_files/figure-gfm/combine-2.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/combine-2.png)<!-- -->
 
 Visualise the dataset using dyno.
 
@@ -206,7 +206,7 @@ plot_dimred(dataset)
 
     ## Using milestone_percentages from trajectory
 
-![](advanced_simulating_knockouts_files/figure-gfm/dyno-1.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/dyno-1.png)<!-- -->
 
 ``` r
 plot_heatmap(dataset, features_oi = 50)
@@ -222,4 +222,4 @@ plot_heatmap(dataset, features_oi = 50)
 
     ## Coloring by milestone
 
-![](advanced_simulating_knockouts_files/figure-gfm/dyno-2.png)<!-- -->
+![](simulating_knockouts_files/figure-gfm/dyno-2.png)<!-- -->

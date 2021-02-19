@@ -2,7 +2,7 @@ Advanced: Running dyngen from a docker container
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_run_dyngen_from_docker.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/run_dyngen_from_docker.Rmd", output_format = rmarkdown::github_document())
 -->
 
 To ensure reproducibility, you can run dyngen in a docker container.

@@ -10,7 +10,7 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_simulating_batch_effects.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/simulating_batch_effects.Rmd", output_format = rmarkdown::github_document())
 -->
 
 An easy way of simulating batch effects is by performing multiple dyngen runs, but with different kinetics.

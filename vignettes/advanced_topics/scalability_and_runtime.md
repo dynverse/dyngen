@@ -7,7 +7,7 @@ library(dyngen)
 ```
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/advanced_scalability_and_runtime.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmarkdown::github_document())
 -->
 
 In this vignette, we will take a look at the runtime of dyngen as the
@@ -21,7 +21,7 @@ library(tidyverse)
 
 set.seed(1)
 
-save_dir <- "advanced_scalability_and_runtime_runs"
+save_dir <- "scalability_and_runtime_runs"
 if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
 backbone <- backbone_bifurcating_cycle()
@@ -69,7 +69,7 @@ out <-
 out$plot
 ```
 
-![](advanced_scalability_and_runtime_files/figure-gfm/example-1.png)<!-- -->
+![](scalability_and_runtime_files/figure-gfm/example-1.png)<!-- -->
 
 We tweaked some of the parameters by running this particular backbone
 once with `num_cells = 100` and `num_features = 100` and verifying that
@@ -193,7 +193,7 @@ ggplot(timings0) +
   labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
 ```
 
-![](advanced_scalability_and_runtime_files/figure-gfm/bblego-1.png)<!-- -->
+![](scalability_and_runtime_files/figure-gfm/bblego-1.png)<!-- -->
 
 ## Increasing the number of cells
 
@@ -215,7 +215,7 @@ ggplot(timings1) +
   labs(x = "Number of cells", y = "Average time (s)", fill = "dyngen step")
 ```
 
-![](advanced_scalability_and_runtime_files/figure-gfm/figure1-1.png)<!-- -->
+![](scalability_and_runtime_files/figure-gfm/figure1-1.png)<!-- -->
 
 It seems the execution time scales linearly w.r.t. the number of cells.
 This makes sense, because as the number of cells are increased, so do we
@@ -233,7 +233,7 @@ ggplot(timings_sum %>% filter(num_features == 100)) +
   labs(x = "Number of cells", y = "Execution time (s)")
 ```
 
-![](advanced_scalability_and_runtime_files/figure-gfm/plot_timings_cell-1.png)<!-- -->
+![](scalability_and_runtime_files/figure-gfm/plot_timings_cell-1.png)<!-- -->
 
 ## Increasing the number of features
 
@@ -255,7 +255,7 @@ ggplot(timings2) +
   labs(x = "Number of features", y = "Average time (s)", fill = "dyngen step")
 ```
 
-![](advanced_scalability_and_runtime_files/figure-gfm/figure2-1.png)<!-- -->
+![](scalability_and_runtime_files/figure-gfm/figure2-1.png)<!-- -->
 
 It seems the execution time also scales linearly w.r.t. the number of
 features. As more genes are added to the underlying gene regulatory
@@ -272,7 +272,7 @@ ggplot(timings_sum %>% filter(num_cells == 100)) +
   labs(x = "Number of features", y = "Execution time (s)")
 ```
 
-![](advanced_scalability_and_runtime_files/figure-gfm/plot_timings_feats-1.png)<!-- -->
+![](scalability_and_runtime_files/figure-gfm/plot_timings_feats-1.png)<!-- -->
 
 ## Execution platform
 
