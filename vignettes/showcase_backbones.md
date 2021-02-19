@@ -196,6 +196,7 @@ init <- initialise_model(
   verbose = FALSE
 )
 out <- generate_dataset(init, make_plots = TRUE)
+#> Warning in selectChildren(ac[!fin], -1): error 'No child processes' in select
 #> Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
 out$plot
 ```

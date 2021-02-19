@@ -219,6 +219,8 @@ dataset using the `dynplot` functions, or infer trajectories using
 dataset <- as_dyno(model)
 ```
 
+    ## Loading required namespace: dynwrap
+
 ### Visualise with `dynplot`
 
 ``` r
@@ -292,7 +294,17 @@ print(out$plot)
 
 ``` r
 library(dyno)
+```
 
+    ## Loading required package: dynfeature
+
+    ## Loading required package: dynguidelines
+
+    ## Loading required package: dynmethods
+
+    ## Loading required package: dynwrap
+
+``` r
 plot_dimred(dataset)
 ```
 
