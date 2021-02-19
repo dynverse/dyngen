@@ -10,7 +10,8 @@ generate_dataset(
   make_plots = FALSE,
   store_dimred = model$simulation_params$compute_dimred,
   store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
-  store_rna_velocity = model$simulation_params$compute_rna_velocity
+  store_rna_velocity = model$simulation_params$compute_rna_velocity,
+  dataset_format = c("dyno", "sce", "seurat", "anndata", "none")
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ dataset will be written to files in this directory.}
 \item{store_cellwise_grn}{Whether or not to also store cellwise GRN information.}
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
+
+\item{dataset_format}{Which format to store the output dataset in.
+Must be one of "dyno", "sce", "seurat", "anndata" or "none".}
 }
 \value{
 A list containing a dyngen model (\code{li$model}) and a dynwrap dataset (\code{li$dataset}).
