@@ -109,7 +109,7 @@ out <- generate_dataset(config, make_plots = TRUE)
 out$plot
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/dyngen_generate-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/dyngen_generate-1.png)<!-- -->
 
 Both datasets are stored in a list for easy usage by countsimQC.
 
@@ -227,7 +227,7 @@ ggplot(datasetDF, aes(x = dataset, y = nSamples, fill = dataset)) +
   thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/nSamples-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/nSamples-1.png)<!-- -->
 
 Number of features (rows)
 
@@ -238,7 +238,7 @@ ggplot(datasetDF, aes(x = dataset, y = nVars, fill = dataset)) +
   thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/nVariables-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/nVariables-1.png)<!-- -->
 
 ## Dispersion/BCV plots
 
@@ -270,7 +270,7 @@ ggplot(featureDF %>% dplyr::arrange(AveLogCPMDisp),
   thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/BCVedgeR-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/BCVedgeR-1.png)<!-- -->
 
 ### DESeq2
 
@@ -290,7 +290,7 @@ ggplot(featureDF %>% dplyr::arrange(baseMeanDisp),
   thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/dispersionDESeq2-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/dispersionDESeq2-1.png)<!-- -->
 
 ## Mean-variance plots
 
@@ -312,7 +312,7 @@ ggplot(featureDF, aes(x = average_log2_cpm, y = variance_log2_cpm)) +
   thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/meanVarSepScatter-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/meanVarSepScatter-1.png)<!-- -->
 
 ## Library sizes
 
@@ -325,7 +325,7 @@ ggplot(sampleDF, aes(x = Libsize)) + geom_histogram(bins = 30) +
   xlab("Library size") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/libsizeSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/libsizeSepHist-1.png)<!-- -->
 
 ## TMM normalization factors
 
@@ -341,7 +341,7 @@ ggplot(sampleDF, aes(x = TMM)) + geom_histogram(bins = 30) +
   xlab("TMM normalization factor") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/tmmSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/tmmSepHist-1.png)<!-- -->
 
 ## Effective library sizes
 
@@ -355,7 +355,7 @@ ggplot(sampleDF, aes(x = EffLibsize)) + geom_histogram(bins = 30) +
   xlab("Effective library size") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/effLibsizeSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/effLibsizeSepHist-1.png)<!-- -->
 
 ## Expression distributions (average log CPM)
 
@@ -368,7 +368,7 @@ ggplot(featureDF, aes(x = AveLogCPM)) + geom_histogram(bins = 30) +
   xlab("Average log CPM") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/logCPMSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/logCPMSepHist-1.png)<!-- -->
 
 ## Fraction zeros per sample
 
@@ -381,7 +381,7 @@ ggplot(sampleDF, aes(x = Fraczero)) + geom_histogram(bins = 30) +
   xlab("Fraction zeros per sample") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/fraczeroSampleSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/fraczeroSampleSepHist-1.png)<!-- -->
 
 ## Fraction zeros per feature
 
@@ -394,7 +394,7 @@ ggplot(featureDF, aes(x = Fraczero)) + geom_histogram(bins = 30) +
   xlab("Fraction zeros per feature") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/fraczeroFeatureSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/fraczeroFeatureSepHist-1.png)<!-- -->
 
 ## Sample-sample correlations
 
@@ -408,7 +408,7 @@ ggplot(sampleCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) +
   xlab("Sample-sample correlation") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/sampleCorrSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/sampleCorrSepHist-1.png)<!-- -->
 
 ## Feature-feature correlations
 
@@ -423,7 +423,7 @@ ggplot(featureCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) +
   xlab("Feature-feature correlation") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/featureCorrSepHist-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/featureCorrSepHist-1.png)<!-- -->
 
 ## Library size vs fraction zeros
 
@@ -437,7 +437,7 @@ ggplot(sampleDF, aes(x = Libsize, y = Fraczero)) +
   xlab("Library size") + ylab("Fraction zeros") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/libsizeFraczeroSepScatter-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/libsizeFraczeroSepScatter-1.png)<!-- -->
 
 ## Mean expression vs fraction zeros
 
@@ -452,7 +452,7 @@ ggplot(featureDF, aes(x = AveLogCPM, y = Fraczero)) +
   xlab("Average log CPM") + ylab("Fraction zeros") + thm
 ```
 
-![](comparison_characteristics_reference_files/figure-gfm/logCPMFraczeroSepScatter-1.png)<!-- -->
+![](comparison_reference_files/figure-gfm/logCPMFraczeroSepScatter-1.png)<!-- -->
 
 ## References
 
