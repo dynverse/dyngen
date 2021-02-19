@@ -1,4 +1,6 @@
-# dyngen 0.4.1 
+# dyngen 1.0.0
+
+This version mostly upgrades dyngen's ease-of-use, such as better vignettes, conversion functions for working with dyngen datasets in other packages, and more useful ways of specifying platform-specific parameters (i.e. number of cores and cache location). Perhaps more excitingly, the dyngen documentation is more readable online at [https://dyngen.dynverse.org](https://dyngen.dynverse.org)!
 
 ## NEW FEATURES
 
@@ -45,7 +47,8 @@
   - Advanced: Tweaking parameters
   - Comparison of characteristic features between dyngen and reference datasets
 
-# dyngen 0.4.0 (2020-07-15)
+
+# dyngen 0.4.0
 
 ## MAJOR CHANGES
 
