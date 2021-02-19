@@ -97,31 +97,31 @@
     <loc>https://dyngen.dynverse.org/reference/simtime_from_backbone.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_constructing_backbone.html</loc>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_run_dyngen_from_docker.html</loc>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_simulating_batch_effects.html</loc>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_simulating_knockouts.html</loc>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_tweaking_parameters.html</loc>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html</loc>
   </url>
   <url>
-    <loc>https://dyngen.dynverse.org/articles/comparison_characteristics_reference.html</loc>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html</loc>
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/articles/getting_started.html</loc>
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/articles/installation.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/scalability_and_runtime.html</loc>
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/articles/showcase_backbones.html</loc>
