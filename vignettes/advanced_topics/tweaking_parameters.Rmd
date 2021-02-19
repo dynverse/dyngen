@@ -20,7 +20,7 @@ In this vignette, we demonstrate what happens when some of the commonly tweaked 
 ## Initial run
 
 Let's start off with a simple bifurcating cycle run and default parameters.
-```{r initial_run, fig.width = 10, height = 6}
+```{r initial_run, fig.width = 10, fig.height = 6}
 library(dyngen)
 library(tidyverse)
 
@@ -70,7 +70,7 @@ run1_config <-
   )
 ```
 
-```{r run1_model, fig.width = 10, height = 6}
+```{r run1_model, fig.width = 10, fig.height = 6}
 run1 <- generate_dataset(run1_config, make_plots = TRUE)
 
 run1$plot
@@ -86,7 +86,7 @@ We tweaked some of the parameters by running this particular backbone once with 
 ## Increasing time step `tau`
 The `tau` parameter changes the size of the time steps made by dyngen during the simulation. Setting `tau` too large might cause certain production and degradation of molecules to fluctuate strangely.
 
-```{r run2, fig.width = 10, height = 6}
+```{r run2, fig.width = 10, fig.height = 6}
 run2_config <- 
   initialise_model(
     backbone = backbone,
@@ -123,7 +123,7 @@ run2_config <-
   )
 ```
 
-```{r run2_model, fig.width = 10, height = 6}
+```{r run2_model, fig.width = 10, fig.height = 6}
 run2 <- generate_dataset(run2_config, make_plots = TRUE)
 
 run2$plot
@@ -132,7 +132,7 @@ run2$plot
 
 Certainly something strange is happening here. If we compare the expression values of the two runs, we can see that the second run produces much higher expression counts, but also at every step the high expression is lowered again. 
 
-```{r simexp_run2, fig.width = 10, height = 6}
+```{r simexp_run2, fig.width = 10, fig.height = 6}
 plot_simulation_expression(run1$model, what = "mol_mrna", simulation_i = 1, facet = "none") + facet_wrap(~module_id)
 plot_simulation_expression(run2$model, what = "mol_mrna", simulation_i = 1, facet = "none") + facet_wrap(~module_id)
 ```
@@ -148,7 +148,7 @@ During a simulation of length `total_time`, dyngen will draw a census every with
 
 Controlling the ratio `num_simulations * floor(total_time / census_interval) / num_cells` can be performed by tweaking the `census_interval`.
 
-```{r run3, fig.width = 10, height = 6}
+```{r run3, fig.width = 10, fig.height = 6}
 run3_config <- 
   initialise_model(
     backbone = backbone,
@@ -178,7 +178,7 @@ In the example above, dyngen will sample each of the 10 simulations 10 times, re
 Reference expression datasets are used to modify the gene expression counts. If you want to mimic the expression characteristics of a specific single-cell platform you can provide your own reference datasets.
 Be aware that the Garbage In, Garbage Out applies -- low quality reference datasets will negatively impact the final dataset created.
 
-```{r run4, fig.width = 10, height = 6}
+```{r run4, fig.width = 10, fig.height = 6}
 reference_dataset <- Matrix::rsparsematrix(
   nrow = 1000, 
   ncol = 1000, 
@@ -226,7 +226,7 @@ run4_config <-
   )
 ```
 
-```{r run4_model, fig.width = 10, height = 6}
+```{r run4_model, fig.width = 10, fig.height = 6}
 run4 <- generate_dataset(run4_config, make_plots = TRUE)
 
 run4$plot
