@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -211,7 +211,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>independence (numeric): the independence factor between regulators of this module, must be between [0, 1]</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">module_info</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">module_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,
   <span class="st">"A1"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
   <span class="st">"A2"</span>, <span class="fl">0</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
@@ -240,7 +240,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>hill (numeric): hill coefficient, larger than 1 for positive cooperativity, between 0 and 1 for negative cooperativity</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">module_network</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">module_network</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,
   <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
   <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
@@ -279,7 +279,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>time (numeric): The duration of an transition.</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">expression_patterns</span> <span class="op">&lt;-</span> <span class="fu">tribble</span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">expression_patterns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,
   <span class="st">"sBurn"</span>, <span class="st">"sA"</span>, <span class="st">"+A1,+A2,+A3,+B2,+D3"</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="fl">60</span>,
   <span class="st">"sA"</span>, <span class="st">"sB"</span>, <span class="st">"+B1"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">60</span>,
@@ -399,13 +399,13 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <p>You can combine these components with a custom bifurcation component which can switch back and forth between end states.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">part2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
-  module_info <span class="op">=</span> <span class="fu">tribble</span><span class="op">(</span>
+  module_info <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
     <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,
     <span class="st">"B1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
     <span class="st">"B2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
     <span class="st">"B3"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>
   <span class="op">)</span>,
-  module_network <span class="op">=</span> <span class="fu">tribble</span><span class="op">(</span>
+  module_network <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
     <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,
     <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
     <span class="st">"B1"</span>, <span class="st">"B3"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
@@ -414,7 +414,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
     <span class="st">"B2"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
     <span class="st">"B3"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>
   <span class="op">)</span>,
-  expression_patterns <span class="op">=</span> <span class="fu">tribble</span><span class="op">(</span>
+  expression_patterns <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
     <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,
     <span class="st">"sB"</span>, <span class="st">"sBmid"</span>, <span class="st">"+B1"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">40</span>,
     <span class="st">"sBmid"</span>, <span class="st">"sC"</span>, <span class="st">"+B2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">40</span>,

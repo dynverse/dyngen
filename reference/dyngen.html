@@ -48,7 +48,7 @@
 
 <meta property="og:title" content="dyngen: A multi-modal simulator for spearheading single-cell omics analyses — dyngen" />
 <meta property="og:description" content="A toolkit for generating synthetic single cell data." />
-<meta property="og:image" content="/logo.svg" />
+<meta property="og:image" content="https://dyngen.dynverse.org/logo.svg" />
 
 
 
@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -113,34 +113,36 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/advanced_constructing_backbone.html">Advanced: Constructing a custom backbone</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_run_dyngen_from_docker.html">Advanced: Running dyngen from a docker container</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_simulating_batch_effects.html">Advanced: Simulating batch effects</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_simulating_knockouts.html">Advanced: Simulating a knockout experiment</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_tweaking_parameters.html">Advanced: Tweaking parameters</a>
-    </li>
-    <li>
-      <a href="../articles/comparison_characteristics_reference.html">Comparison of characteristic features between dyngen and reference datasets</a>
+      <a href="../articles/installation.html">Installation instructions</a>
     </li>
     <li>
       <a href="../articles/getting_started.html">Getting started</a>
     </li>
     <li>
-      <a href="../articles/installation.html">Installation instructions</a>
-    </li>
-    <li>
-      <a href="../articles/scalability_and_runtime.html">On runtime and scalability</a>
-    </li>
-    <li>
       <a href="../articles/showcase_backbones.html">Showcase different backbones</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/constructing_backbone.html">Advanced: Constructing a custom backbone</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/run_dyngen_from_docker.html">Advanced: Running dyngen from a docker container</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/scalability_and_runtime.html">Advanced: On scalability and runtime</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/simulating_batch_effects.html">Advanced: Simulating batch effects</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/simulating_knockouts.html">Advanced: Simulating a knockout experiment</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/tweaking_parameters.html">Advanced: Tweaking parameters</a>
     </li>
   </ul>
 </li>
@@ -178,6 +180,147 @@
     </div>
 
 
+
+    <h2 class="hasAnchor" id="step-initialise-dyngen-model"><a class="anchor" href="#step-initialise-dyngen-model"></a>Step 1, initialise dyngen model</h2>
+
+    
+
+<ul>
+<li><p><code><a href='initialise_model.html'>initialise_model()</a></code>: Define and store settings for all following steps. See each of the sections below for more information.</p></li>
+<li><p>Use a predefined backbone:</p><ul>
+<li><p><code><a href='list_backbones.html'>list_backbones()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_bifurcating()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_bifurcating_converging()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_bifurcating_cycle()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_bifurcating_loop()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_branching()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_binary_tree()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_consecutive_bifurcating()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_trifurcating()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_converging()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_cycle()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_cycle_simple()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_linear()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_linear_simple()</a></code></p></li>
+<li><p><code><a href='list_backbones.html'>backbone_disconnected()</a></code></p></li>
+</ul></li>
+<li><p>Create a custom backbone:</p><ul>
+<li><p><code><a href='backbone.html'>backbone()</a></code></p></li>
+<li><p><code><a href='bblego.html'>bblego()</a></code></p></li>
+<li><p><code><a href='bblego.html'>bblego_linear()</a></code></p></li>
+<li><p><code><a href='bblego.html'>bblego_branching()</a></code></p></li>
+<li><p><code><a href='bblego.html'>bblego_start()</a></code></p></li>
+<li><p><code><a href='bblego.html'>bblego_end()</a></code></p></li>
+</ul></li>
+<li><p>Visualise the backbone:</p><ul>
+<li><p><code><a href='plot_backbone_modulenet.html'>plot_backbone_modulenet()</a></code></p></li>
+<li><p><code><a href='plot_backbone_statenet.html'>plot_backbone_statenet()</a></code></p></li>
+</ul></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-generate-tf-network"><a class="anchor" href="#step-generate-tf-network"></a>Step 2, generate TF network</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_tf_network.html'>generate_tf_network()</a></code>: Generate a transcription factor network from the backbone</p></li>
+<li><p><code><a href='generate_tf_network.html'>tf_network_default()</a></code>: Parameters for configuring this step</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-add-more-genes-to-the-gene-network"><a class="anchor" href="#step-add-more-genes-to-the-gene-network"></a>Step 3, add more genes to the gene network</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_feature_network.html'>generate_feature_network()</a></code>: Generate a target network</p></li>
+<li><p><code><a href='generate_feature_network.html'>feature_network_default()</a></code>: Parameters for configuring this step</p></li>
+<li><p><code><a href='plot_feature_network.html'>plot_feature_network()</a></code>: Visualise the gene network</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-generate-gene-kinetics"><a class="anchor" href="#step-generate-gene-kinetics"></a>Step 4, generate gene kinetics</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_kinetics.html'>generate_kinetics()</a></code>: Generate the gene kinetics</p></li>
+<li><p><code><a href='generate_kinetics.html'>kinetics_default()</a></code>: Parameters for configuring this step</p></li>
+<li><p><code><a href='kinetics_noise_none.html'>kinetics_noise_none()</a></code>, <code><a href='kinetics_noise_none.html'>kinetics_noise_simple()</a></code>: Different kinetics distributions to sample from</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-simulate-the-gold-standard"><a class="anchor" href="#step-simulate-the-gold-standard"></a>Step 5, simulate the gold standard</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_gold_standard.html'>generate_gold_standard()</a></code>: Simulate the gold standard backbone, used for mapping to cell states afterwards</p></li>
+<li><p><code><a href='generate_gold_standard.html'>gold_standard_default()</a></code>: Parameters for configuring this step</p></li>
+<li><p><code><a href='plot_gold_mappings.html'>plot_gold_mappings()</a></code>: Visualise the mapping of the simulations to the gold standard</p></li>
+<li><p><code><a href='plot_gold_simulations.html'>plot_gold_simulations()</a></code>: Visualise the gold standard simulations using the dimred</p></li>
+<li><p><code><a href='plot_gold_expression.html'>plot_gold_expression()</a></code>: Visualise the expression of the gold standard over simulation time</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-simulate-the-cells"><a class="anchor" href="#step-simulate-the-cells"></a>Step 6, simulate the cells</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_cells.html'>generate_cells()</a></code>: Simulate the cells based on its GRN</p></li>
+<li><p><code><a href='generate_cells.html'>simulation_default()</a></code>: Parameters for configuring this step</p></li>
+<li><p><code><a href='generate_cells.html'>simulation_type_wild_type()</a></code>, <code><a href='generate_cells.html'>simulation_type_knockdown()</a></code>: Used for configuring the type of simulation</p></li>
+<li><p><code><a href='plot_simulations.html'>plot_simulations()</a></code>: Visualise the simulations using the dimred</p></li>
+<li><p><code><a href='plot_simulation_expression.html'>plot_simulation_expression()</a></code>: Visualise the expression of the simulations over simulation time</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-simulate-cell-and-transcripting-sampling"><a class="anchor" href="#step-simulate-cell-and-transcripting-sampling"></a>Step 7, simulate cell and transcripting sampling</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_experiment.html'>generate_experiment()</a></code>: Sample cells and transcripts from experiment</p></li>
+<li><p><code><a href='generate_experiment.html'>list_experiment_samplers()</a></code>, <code><a href='generate_experiment.html'>experiment_snapshot()</a></code>, <code><a href='generate_experiment.html'>experiment_synchronised()</a></code>: Parameters for configuring this step</p></li>
+<li><p><code><a href='simtime_from_backbone.html'>simtime_from_backbone()</a></code>: Determine the simulation time from the backbone</p></li>
+<li><p><code><a href='plot_experiment_dimred.html'>plot_experiment_dimred()</a></code>: Plot a dimensionality reduction of the final dataset</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="step-convert-to-dataset"><a class="anchor" href="#step-convert-to-dataset"></a>Step 8, convert to dataset</h2>
+
+    
+
+<ul>
+<li><p><code><a href='as_dyno.html'>as_dyno()</a></code>, <code><a href='as_dyno.html'>wrap_dataset()</a></code>: Convert a dyngen model to a dyno dataset</p></li>
+<li><p><code><a href='as_dyno.html'>as_anndata()</a></code>: Convert da yngen model to an anndata dataset</p></li>
+<li><p><code><a href='as_dyno.html'>as_sce()</a></code>: Convert a dyngen model to a SingleCellExperiment dataset</p></li>
+<li><p><code><a href='as_dyno.html'>as_seurat()</a></code>: Convert a dyngen model to a Seurat dataset</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="one-shot-function"><a class="anchor" href="#one-shot-function"></a>One-shot function</h2>
+
+    
+
+<ul>
+<li><p><code><a href='generate_dataset.html'>generate_dataset()</a></code>: Run through steps 2 to 8 with a single function</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="data-objects"><a class="anchor" href="#data-objects"></a>Data objects</h2>
+
+    
+
+<ul>
+<li><p><a href='example_model.html'>example_model</a>: A (very) small toy dyngen model, used for documentation and testing purposes</p></li>
+<li><p><a href='realcounts.html'>realcounts</a>: A set of real single-cell expression datasets, to be used as reference datasets</p></li>
+<li><p><a href='realnets.html'>realnets</a>: A set of real gene regulatory networks, to be sampled in step 3</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="varia-functions"><a class="anchor" href="#varia-functions"></a>Varia functions</h2>
+
+    
+
+<ul>
+<li><p>dyngen: This help page</p></li>
+<li><p><code><a href='get_timings.html'>get_timings()</a></code>: Extract execution timings for each of the dyngen steps</p></li>
+<li><p><code><a href='combine_models.html'>combine_models()</a></code>: Combine multiple dyngen models</p></li>
+<li><p><code><a href='rnorm_bounded.html'>rnorm_bounded()</a></code>: A bounded version of <code><a href='https://rdrr.io/r/stats/Normal.html'>rnorm()</a></code></p></li>
+</ul>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -227,6 +370,7 @@
 
 <span class='co'># dynplot::plot_dimred(dataset)</span>
 <span class='co'># }</span>
+
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

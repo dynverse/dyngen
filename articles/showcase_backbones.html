@@ -19,7 +19,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Showcase different backbones">
 <meta property="og:description" content="dyngen">
-<meta property="og:image" content="/logo.svg">
+<meta property="og:image" content="https://dyngen.dynverse.org/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -67,34 +67,36 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/advanced_constructing_backbone.html">Advanced: Constructing a custom backbone</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_run_dyngen_from_docker.html">Advanced: Running dyngen from a docker container</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_simulating_batch_effects.html">Advanced: Simulating batch effects</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_simulating_knockouts.html">Advanced: Simulating a knockout experiment</a>
-    </li>
-    <li>
-      <a href="../articles/advanced_tweaking_parameters.html">Advanced: Tweaking parameters</a>
-    </li>
-    <li>
-      <a href="../articles/comparison_characteristics_reference.html">Comparison of characteristic features between dyngen and reference datasets</a>
+      <a href="../articles/installation.html">Installation instructions</a>
     </li>
     <li>
       <a href="../articles/getting_started.html">Getting started</a>
     </li>
     <li>
-      <a href="../articles/installation.html">Installation instructions</a>
-    </li>
-    <li>
-      <a href="../articles/scalability_and_runtime.html">On runtime and scalability</a>
-    </li>
-    <li>
       <a href="../articles/showcase_backbones.html">Showcase different backbones</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/constructing_backbone.html">Advanced: Constructing a custom backbone</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/run_dyngen_from_docker.html">Advanced: Running dyngen from a docker container</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/scalability_and_runtime.html">Advanced: On scalability and runtime</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/simulating_batch_effects.html">Advanced: Simulating batch effects</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/simulating_knockouts.html">Advanced: Simulating a knockout experiment</a>
+    </li>
+    <li>
+      <a href="../articles/advanced_topics/tweaking_parameters.html">Advanced: Tweaking parameters</a>
     </li>
   </ul>
 </li>
@@ -119,7 +121,7 @@
 
       
 
-      </header><script src="showcase_backbones_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="showcase_backbones_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Showcase different backbones</h1>
@@ -136,7 +138,7 @@
 rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown::github_document())
 -->
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyngen">dyngen</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></code></pre></div>
 <p>This vignette demonstrates the different dynamic processes topologies (e.g. bifurcating and cyclic). Note that, for the sake of reducing runtime for generating this vignette, the simulations are ran with reduced settings. Check out the vignette on tweaking parameters for information on how the different parameters are changed.</p>
 <p>You can find a full list of backbones using <code><a href="../reference/list_backbones.html">?list_backbones</a></code>. This vignette will showcase each of them individually.</p>
 <div id="linear" class="section level1">
