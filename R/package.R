@@ -57,18 +57,22 @@
 #'   * [simulation_default()]: Parameters for configuring this step
 #'   * [simulation_type_wild_type()], [simulation_type_knockdown()]: Used for configuring the type of simulation
 #'   * [plot_simulations()]: Visualise the simulations using the dimred
-#'   * [plot_simulation_expression()]: Visualise the expression of the simlations over simulation time
+#'   * [plot_simulation_expression()]: Visualise the expression of the simulations over simulation time
 #' 
 #' @section Step 7, simulate cell and transcripting sampling:
 #'   * [generate_experiment()]: Sample cells and transcripts from experiment
 #'   * [list_experiment_samplers()], [experiment_snapshot()], [experiment_synchronised()]: Parameters for configuring this step
 #'   * [simtime_from_backbone()]: Determine the simulation time from the backbone
+#'   * [plot_experiment_dimred()]: Plot a dimensionality reduction of the final dataset
 #' 
 #' @section Step 8, convert to dataset:
 #'   * [as_dyno()], [wrap_dataset()]: Convert a dyngen model to a dyno dataset
 #'   * [as_anndata()]: Convert da yngen model to an anndata dataset
 #'   * [as_sce()]: Convert a dyngen model to a SingleCellExperiment dataset
 #'   * [as_seurat()]: Convert a dyngen model to a Seurat dataset
+#'   
+#' @section One-shot function:
+#'   * [generate_dataset()]: Run through steps 2 to 8 with a single function
 #' 
 #' @section Data objects:
 #'   * [example_model]: A (very) small toy dyngen model, used for documentation and testing purposes
@@ -76,7 +80,7 @@
 #'   * [realnets]: A set of real gene regulatory networks, to be sampled in step 3
 #' 
 #' @section Varia functions:
-#'   * [dyngen]: This help page.
+#'   * [dyngen]: This help page
 #'   * [get_timings()]: Extract execution timings for each of the dyngen steps
 #'   * [combine_models()]: Combine multiple dyngen models
 #'   * [rnorm_bounded()]: A bounded version of [rnorm()]

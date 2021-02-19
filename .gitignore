@@ -6,5 +6,4 @@
 .httr-oauth
 inst/doc
 scripts_tmp
-scalability_and_runtime_runs
 docs

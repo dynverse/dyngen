@@ -28,11 +28,11 @@ knitr::include_graphics("man/figures/overview.png")
 ```
 
 ## Installation
-dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, there are a few recommended steps that will make dyngen work even better. Check the [installation instructions](https://dyngen.dynverse.org/articles/installation.html) for more information!
+dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, you should definitely configure a few system variables for optimal speed. Check the [installation guide](https://dyngen.dynverse.org/articles/installation.html) for more information!
 
 ## Getting started
 
-Check out [this guide](https://dyngen.dynverse.org/articles/getting_started.html) on how to get started with dyngen. For more information, check out our advanced topics:
+Check out [this guide](https://dyngen.dynverse.org/articles/getting_started.html) on how to get started with dyngen. You can find more guides by clicking any of the links below:
 
 ```{r vignettes, results='asis', echo=FALSE}
 walk(
