@@ -6,16 +6,18 @@
 \usage{
 generate_dataset(
   model,
+  format = c("dyno", "sce", "seurat", "anndata", "list", "none"),
   output_dir = NULL,
   make_plots = FALSE,
   store_dimred = model$simulation_params$compute_dimred,
   store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
-  store_rna_velocity = model$simulation_params$compute_rna_velocity,
-  dataset_format = c("dyno", "sce", "seurat", "anndata", "none")
+  store_rna_velocity = model$simulation_params$compute_rna_velocity
 )
 }
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}
+
+\item{format}{Which output format to use, must be one of 'dyno', 'sce', 'seurat', 'anndata', 'list' or 'none'.}
 
 \item{output_dir}{If not \code{NULL}, then the generated model and dynwrap
 dataset will be written to files in this directory.}
@@ -27,9 +29,6 @@ dataset will be written to files in this directory.}
 \item{store_cellwise_grn}{Whether or not to also store cellwise GRN information.}
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
-
-\item{dataset_format}{Which format to store the output dataset in.
-Must be one of "dyno", "sce", "seurat", "anndata" or "none".}
 }
 \value{
 A list containing a dyngen model (\code{li$model}) and a dynwrap dataset (\code{li$dataset}).

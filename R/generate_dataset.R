@@ -8,10 +8,8 @@
 #' @param output_dir If not `NULL`, then the generated model and dynwrap 
 #'   dataset will be written to files in this directory.
 #' @param make_plots Whether or not to generate an overview of the dataset.
-#' @param dataset_format Which format to store the output dataset in.
-#'   Must be one of "dyno", "sce", "seurat", "anndata" or "none".
 #' 
-#' @inheritParams as_dyno
+#' @inheritParams wrap_dataset
 #' 
 #' @importFrom patchwork wrap_plots plot_annotation plot_layout
 #' @importFrom ggplot2 ggsave
@@ -54,16 +52,16 @@
 #' # dynplot::plot_dimred(dataset)
 #' }
 generate_dataset <- function(
-  model, 
+  model,
+  format = c("dyno", "sce", "seurat", "anndata", "list", "none"), 
   output_dir = NULL,
   make_plots = FALSE, 
   store_dimred = model$simulation_params$compute_dimred,
   store_cellwise_grn = model$simulation_params$compute_cellwise_grn,
-  store_rna_velocity = model$simulation_params$compute_rna_velocity,
-  dataset_format = c("dyno", "sce", "seurat", "anndata", "none")
+  store_rna_velocity = model$simulation_params$compute_rna_velocity
 ) {
   assert_that(is(model, "dyngen::init"))
-  dataset_format <- match.arg(dataset_format)
+  format <- match.arg(format, choices = c("dyno", "sce", "seurat", "anndata", "list", "none"))
   
   model <- model %>% 
     generate_tf_network() %>% 
@@ -73,23 +71,14 @@ generate_dataset <- function(
     generate_cells() %>% 
     generate_experiment()
   
-  dataset_function <- 
-    case_when(
-      dataset_format == "dyno" ~ as_dyno,
-      dataset_format == "sce" ~ as_sce,
-      dataset_format == "seurat" ~ as_seurat,
-      dataset_format == "anndata" ~ as_anndata,
-      dataset_format == "none" ~ NULL,
-      TRUE ~ stop("invalid dataset format, must be one of 'dyno', 'sce', 'seurat', 'anndata' or 'none'.")
-    )
-  
-  if (dataset_format != "none") {
-    if (model$verbose) cat("Wrapping dataset as ", dataset_format, "\n", sep = "")
-    dataset <- dataset_function(
+  if (format != "none") {
+    if (model$verbose) cat("Wrapping dataset as ", format, "\n", sep = "")
+    dataset <- wrap_dataset(
       model, 
       store_dimred = store_dimred, 
       store_cellwise_grn = store_cellwise_grn,
-      store_rna_velocity = store_rna_velocity
+      store_rna_velocity = store_rna_velocity,
+      format = format
     )
   }
   
@@ -98,9 +87,9 @@ generate_dataset <- function(
     if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
     
-    if (dataset_format == "anndata") {
+    if (format == "anndata") {
       dataset$write_h5ad(paste0(output_dir, "dataset.h5ad"))
-    } else if (dataset_format != "none") {
+    } else if (format != "none") {
       saveRDS(dataset, paste0(output_dir, "dataset.rds"))
     }
     
@@ -139,10 +128,7 @@ generate_dataset <- function(
   }
   
   if (is.null(output_dir)) {
-    out <- list(model = model)
-    if (dataset_format != "none") {
-      out$dataset <- dataset
-    }
+    out <- list(model = model, dataset = dataset)
     if (make_plots) {
       out$plot <- g
     }
