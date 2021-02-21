@@ -251,7 +251,7 @@ sampling (by rank) or not.</p></td>
   <span class='fu'><a href='generate_experiment.html'>generate_experiment</a></span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Generating TF network
 #&gt; Sampling feature network from real network
-#&gt; Generating kinetics for 36 features
+#&gt; Generating kinetics for 33 features
 #&gt; Generating formulae
 #&gt; Generating gold standard mod changes
 #&gt; Precompiling reactions for gold standard
@@ -260,11 +260,11 @@ sampling (by rank) or not.</p></td>
 #&gt; Precompiling reactions for simulations
 #&gt; Running 1 simulations
 #&gt; Mapping simulations to gold standard</div><div class='output co'>#&gt; <span class='warning'>Warning: Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.</span></div><div class='output co'>#&gt; Performing dimred
-#&gt; Simulating experiment</div><div class='input'>  
+#&gt; Simulating experiment</div><div class='output co'>#&gt; <span class='error'>Error in rmultinom(1, lib_size, gene_vals): invalid second argument 'size'</span></div><div class='input'>  
 <span class='fu'><a href='plot_feature_network.html'>plot_feature_network</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
-</div><div class='img'><img src='generate_tf_network-1.png' alt='' width='700' height='433' /></div><div class='input'>  
+</div><div class='output co'>#&gt; <span class='error'>Error in UseMethod("mutate_"): no applicable method for 'mutate_' applied to an object of class "NULL"</span></div><div class='input'>  
 <span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='as_dyno.html'>as_dyno</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
-<span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in as(log2(counts + 1), "dgCMatrix"): no method or default for coercing “numeric” to “dgCMatrix”</span></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

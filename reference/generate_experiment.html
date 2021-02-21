@@ -193,13 +193,15 @@ are sampled at different timepoints.</p>
 
 <span class='fu'>experiment_snapshot</span><span class='op'>(</span>
   realcount <span class='op'>=</span> <span class='cn'>NULL</span>,
-  sample_capture_rate <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='va'>n</span>, <span class='fl'>1</span>, <span class='fl'>0.05</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>pmax</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>)</span>,
+  map_reference_cpm <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  map_reference_ls <span class='op'>=</span> <span class='cn'>TRUE</span>,
   weight_bw <span class='op'>=</span> <span class='fl'>0.1</span>
 <span class='op'>)</span>
 
 <span class='fu'>experiment_synchronised</span><span class='op'>(</span>
   realcount <span class='op'>=</span> <span class='cn'>NULL</span>,
-  sample_capture_rate <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='va'>n</span>, <span class='fl'>1</span>, <span class='fl'>0.05</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>pmax</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>)</span>,
+  map_reference_cpm <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  map_reference_ls <span class='op'>=</span> <span class='cn'>TRUE</span>,
   num_timepoints <span class='op'>=</span> <span class='fl'>8</span>,
   pct_between <span class='op'>=</span> <span class='fl'>0.75</span>
 <span class='op'>)</span></pre>
@@ -217,8 +219,12 @@ are sampled at different timepoints.</p>
 dataset will be sampled from <a href='realcounts.html'>realcounts</a>.</p></td>
     </tr>
     <tr>
-      <th>sample_capture_rate</th>
-      <td><p>A function that samples values for the simulated capture rates of genes.</p></td>
+      <th>map_reference_cpm</th>
+      <td><p>Whether or not to try to match the CPM distribution to that of a reference dataset.</p></td>
+    </tr>
+    <tr>
+      <th>map_reference_ls</th>
+      <td><p>Whether or not to try to match the distribution of the library sizes to that of the reference dataset.</p></td>
     </tr>
     <tr>
       <th>weight_bw</th>
@@ -286,9 +292,9 @@ cells along each edge in order to perform weighted sampling.</p></td>
 #&gt; Precompiling reactions for simulations
 #&gt; Running 1 simulations
 #&gt; Mapping simulations to gold standard</div><div class='output co'>#&gt; <span class='warning'>Warning: Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.</span></div><div class='output co'>#&gt; Performing dimred
-#&gt; Simulating experiment</div><div class='input'>  
+#&gt; Simulating experiment</div><div class='output co'>#&gt; <span class='error'>Error in rmultinom(1, lib_size, gene_vals): invalid second argument 'size'</span></div><div class='input'>  
 <span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='as_dyno.html'>as_dyno</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
-<span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in as(log2(counts + 1), "dgCMatrix"): no method or default for coercing “numeric” to “dgCMatrix”</span></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
