@@ -76,7 +76,7 @@ run1 <- generate_dataset(run1_config, make_plots = TRUE)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
@@ -320,7 +320,7 @@ run4 <- generate_dataset(run4_config, make_plots = TRUE)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard

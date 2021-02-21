@@ -73,7 +73,7 @@ out <- generate_dataset(config, make_plots = TRUE)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=01s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
@@ -447,9 +447,6 @@ out <- generate_dataset(config, make_plots = TRUE)
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
-
-    ## Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
-
     ## Performing dimred
     ## Simulating experiment
     ## Wrapping dataset

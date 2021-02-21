@@ -2,7 +2,7 @@ Advanced: Comparison to reference dataset
 ================
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/comparison_characteristics_reference.Rmd", output_format = rmarkdown::github_document())
+rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
 -->
 
 In this vignette, we will take a look at characteristic features of
@@ -96,7 +96,7 @@ out <- generate_dataset(config, make_plots = TRUE)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard

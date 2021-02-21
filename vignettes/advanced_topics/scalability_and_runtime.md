@@ -63,8 +63,6 @@ out <-
   generate_dataset(make_plots = TRUE)
 ```
 
-    ## Loading required namespace: dynwrap
-
 ``` r
 out$plot
 ```
@@ -100,8 +98,8 @@ The simulations are run once with a large `num_features` and
 with varying `num_features`. Every run is repeated three times in order
 to get a bit more stable time measurements. Since some of the
 simulations can take over 10 minutes, the timings results of the
-simulations are cached in the
-‘advanced\_scalability\_and\_runtime\_runs’ folder.\`
+simulations are cached in the ‘scalability\_and\_runtime\_runs’
+folder.\`
 
 ``` r
 settings <- bind_rows(
@@ -300,7 +298,7 @@ sessionInfo()
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ##  [1] dyngen_0.4.1    forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2     tibble_3.0.5    ggplot2_3.3.3   tidyverse_1.3.0
+    ##  [1] countsimQC_1.8.0 forcats_0.5.0    stringr_1.4.0    dplyr_1.0.2      purrr_0.3.4      readr_1.4.0      tidyr_1.1.2      tibble_3.0.5     ggplot2_3.3.3    tidyverse_1.3.0  dyngen_1.0.0    
     ## 
     ## loaded via a namespace (and not attached):
     ##   [1] readxl_1.3.1                backports_1.2.1             babelwhale_1.0.1            plyr_1.8.6                  igraph_1.2.6                proxyC_0.1.5                splines_4.0.3              
@@ -308,16 +306,16 @@ sessionInfo()
     ##  [15] magrittr_2.0.1              memoise_1.1.0               carrier_0.1.0               limma_3.44.3                remotes_2.2.0               annotate_1.68.0             graphlayouts_0.7.1         
     ##  [22] modelr_0.1.8                RcppParallel_5.0.2          matrixStats_0.57.0          dynutils_1.0.5.9000         colorspace_2.0-0            blob_1.2.1                  rvest_0.3.6                
     ##  [29] ggrepel_0.9.0               haven_2.3.1                 xfun_0.20                   crayon_1.3.4.9000           RCurl_1.98-1.2              jsonlite_1.7.2              genefilter_1.72.1          
-    ##  [36] survival_3.2-7              glue_1.4.2                  countsimQC_1.8.0            polyclip_1.10-0             gtable_0.3.0                GillespieSSA2_0.2.7         zlibbioc_1.36.0            
-    ##  [43] XVector_0.30.0              DelayedArray_0.16.0         BiocGenerics_0.36.0         dynparam_1.0.1              scales_1.1.1                DBI_1.1.1                   edgeR_3.30.3               
-    ##  [50] Rcpp_1.0.6                  viridisLite_0.3.0           xtable_1.8-4                bit_4.0.4                   RcppXPtrUtils_0.1.1         stats4_4.0.3                randtests_1.0              
-    ##  [57] DT_0.16                     htmlwidgets_1.5.2           httr_1.4.2                  RColorBrewer_1.1-2          ellipsis_0.3.1              pkgconfig_2.0.3             XML_3.99-0.5               
-    ##  [64] farver_2.0.3                dbplyr_2.0.0                locfit_1.5-9.4              labeling_0.4.2              tidyselect_1.1.0            rlang_0.4.10                reshape2_1.4.4             
+    ##  [36] survival_3.2-7              glue_1.4.2                  polyclip_1.10-0             gtable_0.3.0                GillespieSSA2_0.2.7         zlibbioc_1.36.0             XVector_0.30.0             
+    ##  [43] DelayedArray_0.16.0         BiocGenerics_0.36.0         dynparam_1.0.1              scales_1.1.1                DBI_1.1.1                   edgeR_3.30.3                Rcpp_1.0.6                 
+    ##  [50] viridisLite_0.3.0           xtable_1.8-4                bit_4.0.4                   RcppXPtrUtils_0.1.1         randtests_1.0               stats4_4.0.3                DT_0.16                    
+    ##  [57] htmlwidgets_1.5.2           httr_1.4.2                  RColorBrewer_1.1-2          ellipsis_0.3.1              pkgconfig_2.0.3             XML_3.99-0.5                farver_2.0.3               
+    ##  [64] dbplyr_2.0.0                utf8_1.1.4                  locfit_1.5-9.4              tidyselect_1.1.0            labeling_0.4.2              rlang_0.4.10                reshape2_1.4.4             
     ##  [71] AnnotationDbi_1.50.3        munsell_0.5.0               cellranger_1.1.0            tools_4.0.3                 cli_2.2.0                   generics_0.1.0              RSQLite_2.2.2              
     ##  [78] broom_0.7.2                 evaluate_0.14               yaml_2.2.1                  processx_3.4.5              knitr_1.30                  bit64_4.0.5                 fs_1.5.0                   
-    ##  [85] tidygraph_1.2.0             lmds_0.1.0                  caTools_1.18.1              ggraph_2.0.4                pbapply_1.4-3               xml2_1.3.2                  compiler_4.0.3             
+    ##  [85] tidygraph_1.2.0             caTools_1.18.1              lmds_0.1.0                  ggraph_2.0.4                pbapply_1.4-3               xml2_1.3.2                  compiler_4.0.3             
     ##  [92] rstudioapi_0.13             reprex_0.3.0                tweenr_1.0.1                geneplotter_1.68.0          stringi_1.5.3               ps_1.5.0                    lattice_0.20-41            
     ##  [99] Matrix_1.2-18               vctrs_0.3.6                 pillar_1.4.7                lifecycle_0.2.0             bitops_1.0-6                irlba_2.3.3                 patchwork_1.1.1            
     ## [106] GenomicRanges_1.42.0        R6_2.5.0                    gridExtra_2.3               IRanges_2.24.0              codetools_0.2-16            MASS_7.3-53                 assertthat_0.2.1           
-    ## [113] SummarizedExperiment_1.20.0 DESeq2_1.30.0               rprojroot_2.0.2             withr_2.4.0                 S4Vectors_0.28.0            GenomeInfoDbData_1.2.4      parallel_4.0.3             
+    ## [113] SummarizedExperiment_1.20.0 rprojroot_2.0.2             DESeq2_1.30.0               withr_2.4.0                 S4Vectors_0.28.0            GenomeInfoDbData_1.2.4      parallel_4.0.3             
     ## [120] hms_1.0.0                   grid_4.0.3                  rmarkdown_2.6               MatrixGenerics_1.2.0        ggforce_0.3.2               Biobase_2.50.0              lubridate_1.7.9.2
