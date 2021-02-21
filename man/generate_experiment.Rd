@@ -13,13 +13,15 @@ list_experiment_samplers()
 
 experiment_snapshot(
   realcount = NULL,
-  sample_capture_rate = function(n) rnorm(n, 1, 0.05) \%>\% pmax(0),
+  map_reference_cpm = TRUE,
+  map_reference_ls = TRUE,
   weight_bw = 0.1
 )
 
 experiment_synchronised(
   realcount = NULL,
-  sample_capture_rate = function(n) rnorm(n, 1, 0.05) \%>\% pmax(0),
+  map_reference_cpm = TRUE,
+  map_reference_ls = TRUE,
   num_timepoints = 8,
   pct_between = 0.75
 )
@@ -30,7 +32,9 @@ experiment_synchronised(
 \item{realcount}{The name of a dataset in \link{realcounts}. If \code{NULL}, a random
 dataset will be sampled from \link{realcounts}.}
 
-\item{sample_capture_rate}{A function that samples values for the simulated capture rates of genes.}
+\item{map_reference_cpm}{Whether or not to try to match the CPM distribution to that of a reference dataset.}
+
+\item{map_reference_ls}{Whether or not to try to match the distribution of the library sizes to that of the reference dataset.}
 
 \item{weight_bw}{[snapshot] A bandwidth parameter for determining the distribution of
 cells along each edge in order to perform weighted sampling.}

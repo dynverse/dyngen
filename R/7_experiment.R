@@ -13,7 +13,8 @@
 #' @param pct_between \[synchronised\] The percentage of 'unused' simulation time.
 #' @param realcount The name of a dataset in [realcounts]. If `NULL`, a random
 #'   dataset will be sampled from [realcounts].
-#' @param sample_capture_rate A function that samples values for the simulated capture rates of genes.
+#' @param map_reference_cpm Whether or not to try to match the CPM distribution to that of a reference dataset.
+#' @param map_reference_ls Whether or not to try to match the distribution of the library sizes to that of the reference dataset.
 #' 
 #' @return A dyngen model.
 #' 
@@ -116,19 +117,24 @@ generate_experiment <- function(model) {
   # process mrna (both premrna and mature)
   mrna_ids <- mol_info %>% filter(.data$mol != "mol_protein") %>% pull(.data$val)
   tsim_counts_mrna <- tsim_counts[, mrna_ids, drop = FALSE]
-  count_mrna_simulation <- .simulate_counts_from_realcounts(tsim_counts_mrna, realcount, sample_capture_rate = model$experiment_params$sample_capture_rate)
+  count_mrna_simulation <- .simulate_counts_from_realcounts(
+    tsim_counts_mrna, 
+    realcount, 
+    map_reference_cpm = model$experiment_params$map_reference_cpm,
+    map_reference_ls = model$experiment_params$map_reference_ls
+  )
   
   # process proteins
   # TODO: should use real protein dataset for this
   prot_ids <- mol_info %>% filter(.data$mol == "mol_protein") %>% pull(.data$val)
-  # count_prot_simulation <- .simulate_counts_from_realcounts(tsim_counts[, prot_ids, drop = FALSE], realcount, sample_capture_rate = model$experiment_params$sample_capture_rate) 
-  count_prot_simulation <- list(sim_counts = tsim_counts[, prot_ids, drop = FALSE])
+  # count_prot_simulation <- .simulate_counts_from_realcounts(tsim_counts[, prot_ids, drop = FALSE], realcount, ...)
+  count_prot_simulation <- tsim_counts[, prot_ids, drop = FALSE]
   
   # split up molecules
   model <- .add_timing(model, "7_experiment", "create output")
-  sim_wcounts <- count_mrna_simulation$sim_counts[, model$feature_info$mol_premrna, drop = FALSE]
-  sim_xcounts <- count_mrna_simulation$sim_counts[, model$feature_info$mol_mrna, drop = FALSE]
-  sim_ycounts <- count_prot_simulation$sim_counts[, model$feature_info$mol_protein, drop = FALSE]
+  sim_wcounts <- count_mrna_simulation[, model$feature_info$mol_premrna, drop = FALSE]
+  sim_xcounts <- count_mrna_simulation[, model$feature_info$mol_mrna, drop = FALSE]
+  sim_ycounts <- count_prot_simulation[, model$feature_info$mol_protein, drop = FALSE]
   dimnames(sim_wcounts) <- 
     dimnames(sim_xcounts) <-
     dimnames(sim_ycounts) <- 
@@ -166,8 +172,9 @@ generate_experiment <- function(model) {
 .simulate_counts_from_realcounts <- function(
   tsim_counts, 
   realcount, 
-  cell_info = tibble(cell_id = rownames(tsim_counts)), 
-  sample_capture_rate = function(n) rnorm(n, 1, 0.05) %>% pmax(0)
+  cell_info = tibble(cell_id = rownames(tsim_counts)),
+  map_reference_cpm = FALSE,
+  map_reference_ls = TRUE
 ) {
   # calculate lib sizes and cpms
   realcount_ls <- Matrix::rowSums(realcount)
@@ -180,22 +187,17 @@ generate_experiment <- function(model) {
   
   # map real density on tsim counts
   tsim_counts_cpm_new <- tsim_counts_cpm
-  tsim_counts_cpm_new@x <- stats::quantile(realcount_cpm@x, dplyr::percent_rank(tsim_counts_cpm@x))
+  
+  if (map_reference_cpm) {
+    tsim_counts_cpm_new@x <- stats::quantile(realcount_cpm@x, dplyr::percent_rank(tsim_counts_cpm@x))
+  }
   
   # simulate library size variation from real data
-  cell_info <-
-    cell_info %>% 
-    mutate(
-      order_orig_size = order(order(tsim_counts_ls)),
-      lib_size = sort(round(stats::quantile(realcount_ls, runif(n()))))[.data$order_orig_size]
-    )
-  
-  # simulate gene capture variation
-  mol_info <- 
-    tibble(
-      id = colnames(tsim_counts),
-      capture_rate = sample_capture_rate(ncol(tsim_counts))
-    )
+  if (map_reference_ls) {
+    cell_info$lib_size <- round(stats::quantile(realcount_ls, dplyr::percent_rank(tsim_counts_ls)))
+  } else {
+    cell_info$lib_size <- tsim_counts_ls
+  }
   
   # simulate sampling of molecules
   tsim_counts_t <- Matrix::t(tsim_counts_cpm_new)
@@ -204,23 +206,16 @@ generate_experiment <- function(model) {
     pj <- tsim_counts_t@p[[cell_i + 1]]
     gene_is <- tsim_counts_t@i[pi:pj] + 1
     gene_vals <- tsim_counts_t@x[pi:pj]
-    
     lib_size <- cell_info$lib_size[[cell_i]]
-    cap_rates <- mol_info$capture_rate[gene_is]
     
-    probs <- cap_rates * gene_vals
-    probs[probs < 0] <- 0 # sometimes these can become zero due to rounding errors
-    
-    rmultinom(1, lib_size, probs)
+    # sample 'lib_size' molecules for each of the genes, weighted by 'gene_vals'
+    rmultinom(1, lib_size, gene_vals)
   })) %>% as.numeric
+  
   tsim_counts_t@x <- new_vals
   sim_counts <- Matrix::drop0(Matrix::t(tsim_counts_t))
   
-  lst(
-    sim_counts,
-    cell_info,
-    mol_info
-  )
+  sim_counts
 }
 
 #' @export
@@ -248,7 +243,8 @@ list_experiment_samplers <- function() {
 #' @export
 experiment_snapshot <- function(
   realcount = NULL,
-  sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
+  map_reference_cpm = TRUE,
+  map_reference_ls = TRUE,
   weight_bw = 0.1
 ) {
   if (is.null(realcount)) {
@@ -256,7 +252,8 @@ experiment_snapshot <- function(
   }
   lst(
     realcount,
-    sample_capture_rate,
+    map_reference_cpm,
+    map_reference_ls,
     fun = .generate_experiment_snapshot,
     weight_bw
   )
@@ -266,7 +263,8 @@ experiment_snapshot <- function(
 #' @export
 experiment_synchronised <- function(
   realcount = NULL,
-  sample_capture_rate = function(n) rnorm(n, 1, .05) %>% pmax(0),
+  map_reference_cpm = TRUE,
+  map_reference_ls = TRUE,
   num_timepoints = 8,
   pct_between = .75
 ) {
@@ -275,7 +273,8 @@ experiment_synchronised <- function(
   }
   lst(
     realcount,
-    sample_capture_rate,
+    map_reference_cpm,
+    map_reference_ls,
     fun = .generate_experiment_synchronised,
     num_timepoints,
     pct_between

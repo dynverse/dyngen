@@ -1,3 +1,9 @@
+# dyngen 1.0.1
+
+## NEW FEATURES
+
+* `generate_experiment()`: Allow toggling on or off the mapping of the reference library size & CPM distribution.
+
 # dyngen 1.0.0
 
 This version mostly upgrades dyngen's ease-of-use, such as better vignettes, conversion functions for working with dyngen datasets in other packages, and more useful ways of specifying platform-specific parameters (i.e. number of cores and cache location). Perhaps more excitingly, the dyngen documentation is more readable online at [https://dyngen.dynverse.org](https://dyngen.dynverse.org)!
