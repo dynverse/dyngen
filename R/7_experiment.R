@@ -209,7 +209,12 @@ generate_experiment <- function(model) {
     lib_size <- cell_info$lib_size[[cell_i]]
     
     # sample 'lib_size' molecules for each of the genes, weighted by 'gene_vals'
-    rmultinom(1, lib_size, gene_vals)
+    tryCatch({
+      rmultinom(1, lib_size, gene_vals)
+    }, error = function(e) {
+      print(e$msg)
+      cat("lib_size: ", lib_size, "\n", sep = "")
+    })
   })) %>% as.numeric
   
   tsim_counts_t@x <- new_vals
