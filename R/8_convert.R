@@ -371,6 +371,20 @@ as_seurat <- function(
   seurat_obj
 }
 
+convert_progressions_to_milestone_percentages <- function (progressions) {
+  selfs <- progressions %>% filter(.data$from == .data$to) %>% select(.data$cell_id, milestone_id = .data$from) %>% mutate(percentage = 1)
+  progressions <- progressions %>% filter(.data$from != .data$to)
+  from_mls <- tapply(progressions$from, progressions$cell_id, first, default = NA_character_)
+  from_pct <- 1 - tapply(progressions$percentage, progressions$cell_id, sum, default = NA_real_)
+  froms <- tibble(
+    cell_id = names(from_mls) %||% character(), 
+    milestone_id = from_mls[.data$cell_id] %>% unname() %>% as.character(), 
+    percentage = from_pct[.data$cell_id] %>% unname() %>% as.numeric()
+  )
+  tos <- progressions %>% select(.data$cell_id, milestone_id = .data$to, .data$percentage)
+  bind_rows(selfs, froms, tos)
+}
+
 #' @rdname convert
 #' @export
 as_list <- function(
@@ -385,6 +399,8 @@ as_list <- function(
   )
   
   counts <- model$experiment$counts_mrna + model$experiment$counts_premrna
+  progressions <- model$experiment$cell_info %>%
+    select(.data$cell_id, .data$from, .data$to, percentage = .data$time)
   dataset <- list(
     id = model$id,
     cell_ids = rownames(counts),
@@ -398,8 +414,8 @@ as_list <- function(
     feature_info = model$experiment$feature_info,
     milestone_ids = unique(c(model$gold_standard$network$from, model$gold_standard$network$to)),
     milestone_network = model$gold_standard$network,
-    progressions = model$experiment$cell_info %>%
-      select(.data$cell_id, .data$from, .data$to, percentage = .data$time)
+    progressions = progressions,
+    milestone_percentages = convert_progressions_to_milestone_percentages(progressions)
   )
   
   if (store_dimred) {
