@@ -2,20 +2,14 @@
 % Please edit documentation in R/8_convert.R
 \name{as_dyno}
 \alias{as_dyno}
-\alias{wrap_dataset}
 \alias{as_anndata}
 \alias{as_sce}
 \alias{as_seurat}
+\alias{as_list}
+\alias{wrap_dataset}
 \title{Convert simulation output to different formats.}
 \usage{
 as_dyno(
-  model,
-  store_dimred = !is.null(model$simulations$dimred),
-  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
-  store_rna_velocity = !is.null(model$experiment$rna_velocity)
-)
-
-wrap_dataset(
   model,
   store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
@@ -42,6 +36,21 @@ as_seurat(
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 )
+
+as_list(
+  model,
+  store_dimred = !is.null(model$simulations$dimred),
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
+)
+
+wrap_dataset(
+  model,
+  format = c("dyno", "sce", "seurat", "anndata", "list", "none"),
+  store_dimred = !is.null(model$simulations$dimred),
+  store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
+  store_rna_velocity = !is.null(model$experiment$rna_velocity)
+)
 }
 \arguments{
 \item{model}{A dyngen output model for which the experiment has been emulated with \code{\link[=generate_experiment]{generate_experiment()}}.}
@@ -51,12 +60,14 @@ as_seurat(
 \item{store_cellwise_grn}{Whether or not to also store cellwise GRN information.}
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
+
+\item{format}{Which output format to use, must be one of 'dyno', 'sce', 'seurat', 'anndata', 'list' or 'none'.}
 }
 \value{
 A dyno/anndata object
 }
 \description{
-For use with other packages compatible with dyno / anndata.
+For use with other packages compatible with dyno, anndata, SingleCellExperiment, or Seurat.
 }
 \examples{
 model <- initialise_model(

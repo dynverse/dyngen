@@ -9,7 +9,7 @@
 #'   dataset will be written to files in this directory.
 #' @param make_plots Whether or not to generate an overview of the dataset.
 #' 
-#' @inheritParams as_dyno
+#' @inheritParams wrap_dataset
 #' 
 #' @importFrom patchwork wrap_plots plot_annotation plot_layout
 #' @importFrom ggplot2 ggsave
@@ -52,7 +52,8 @@
 #' # dynplot::plot_dimred(dataset)
 #' }
 generate_dataset <- function(
-  model, 
+  model,
+  format = c("dyno", "sce", "seurat", "anndata", "list", "none"), 
   output_dir = NULL,
   make_plots = FALSE, 
   store_dimred = model$simulation_params$compute_dimred,
@@ -60,6 +61,7 @@ generate_dataset <- function(
   store_rna_velocity = model$simulation_params$compute_rna_velocity
 ) {
   assert_that(is(model, "dyngen::init"))
+  format <- match.arg(format, choices = c("dyno", "sce", "seurat", "anndata", "list", "none"))
   
   model <- model %>% 
     generate_tf_network() %>% 
@@ -69,20 +71,28 @@ generate_dataset <- function(
     generate_cells() %>% 
     generate_experiment()
   
-  if (model$verbose) cat("Wrapping dataset\n")
-  dataset <-
-    as_dyno(
+  if (format != "none") {
+    if (model$verbose) cat("Wrapping dataset as ", format, "\n", sep = "")
+    dataset <- wrap_dataset(
       model, 
       store_dimred = store_dimred, 
       store_cellwise_grn = store_cellwise_grn,
-      store_rna_velocity = store_rna_velocity
+      store_rna_velocity = store_rna_velocity,
+      format = format
     )
+  }
   
   # write to file
   if (!is.null(output_dir)) {
     if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
-    saveRDS(dataset, paste0(output_dir, "dataset.rds"))
+    
+    if (format == "anndata") {
+      dataset$write_h5ad(paste0(output_dir, "dataset.h5ad"))
+    } else if (format != "none") {
+      saveRDS(dataset, paste0(output_dir, "dataset.rds"))
+    }
+    
     saveRDS(model, paste0(output_dir, "model.rds"))
   }
   
@@ -118,7 +128,7 @@ generate_dataset <- function(
   }
   
   if (is.null(output_dir)) {
-    out <- list(dataset = dataset, model = model)
+    out <- list(model = model, dataset = dataset)
     if (make_plots) {
       out$plot <- g
     }

@@ -6,6 +6,7 @@
 \usage{
 generate_dataset(
   model,
+  format = c("dyno", "sce", "seurat", "anndata", "list", "none"),
   output_dir = NULL,
   make_plots = FALSE,
   store_dimred = model$simulation_params$compute_dimred,
@@ -15,6 +16,8 @@ generate_dataset(
 }
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}
+
+\item{format}{Which output format to use, must be one of 'dyno', 'sce', 'seurat', 'anndata', 'list' or 'none'.}
 
 \item{output_dir}{If not \code{NULL}, then the generated model and dynwrap
 dataset will be written to files in this directory.}
