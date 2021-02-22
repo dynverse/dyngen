@@ -477,7 +477,7 @@ wrap_dataset <- function(
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
-  format <- match.arg(format, choices = names(conversion_funs))
+  format <- match.arg(format)
   fun <- conversion_funs[[format]]
   
   fun(

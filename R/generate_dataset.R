@@ -65,7 +65,7 @@ generate_dataset <- function(
   store_rna_velocity = model$simulation_params$compute_rna_velocity
 ) {
   assert_that(is(model, "dyngen::init"))
-  format <- match.arg(format, choices = names(conversion_funs))
+  format <- match.arg(format)
   
   model <- model %>% 
     generate_tf_network() %>% 
@@ -75,18 +75,16 @@ generate_dataset <- function(
     generate_cells() %>% 
     generate_experiment()
   
-  if (format != "none") {
-    if (model$verbose) cat("Wrapping dataset as ", format, "\n", sep = "")
-    dataset <- wrap_dataset(
-      model, 
-      store_dimred = store_dimred, 
-      store_cellwise_grn = store_cellwise_grn,
-      store_rna_velocity = store_rna_velocity,
-      format = format
-    )
-  }
-  
-  # write to file
+  if (model$verbose && format != "none") cat("Wrapping dataset as ", format, "\n", sep = "")
+  dataset <- wrap_dataset(
+    model, 
+    store_dimred = store_dimred, 
+    store_cellwise_grn = store_cellwise_grn,
+    store_rna_velocity = store_rna_velocity,
+    format = format
+  )
+
+    # write to file
   if (!is.null(output_dir)) {
     if (model$verbose) cat("Writing model to file\n")
     dir.create(dirname(output_dir), showWarnings = FALSE, recursive = FALSE)
