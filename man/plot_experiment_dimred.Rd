@@ -18,6 +18,8 @@ A ggplot2 object.
 Plot a dimensionality reduction of the final dataset
 }
 \examples{
+\donttest{
 data("example_model")
 plot_experiment_dimred(example_model)
+}
 }

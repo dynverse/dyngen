@@ -27,6 +27,8 @@ A ggplot2 object.
 Visualise the feature network of a model
 }
 \examples{
+\donttest{
 data("example_model")
 plot_feature_network(example_model)
+}
 }

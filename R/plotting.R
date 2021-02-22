@@ -26,8 +26,10 @@ effect_colour <- function(effect) {
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_backbone_statenet(example_model)
+#' }
 plot_backbone_statenet <- function(model, detailed = FALSE) {
   edges <- model$backbone$expression_patterns
   
@@ -92,8 +94,10 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_backbone_modulenet(example_model)
+#' }
 plot_backbone_modulenet <- function(model) {
   # satisfy r cmd check
   module_id <- color <- from <- to <- strength <- effect <- name <- NULL
@@ -144,8 +148,10 @@ plot_backbone_modulenet <- function(model) {
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_feature_network(example_model)
+#' }
 plot_feature_network <- function(
   model,
   show_tfs = TRUE,
@@ -249,8 +255,10 @@ plot_feature_network <- function(
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_simulations(example_model)
+#' }
 plot_simulations <- function(model, mapping = aes_string("comp_1", "comp_2")) {
   plot_df <- 
     bind_cols(
@@ -322,8 +330,10 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes_string(
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_gold_mappings(example_model)
+#' }
 plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes_string("comp_1", "comp_2")) {
   plot_df <- 
     bind_rows(
@@ -440,8 +450,10 @@ plot_gold_expression <- function(
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_simulation_expression(example_model)
+#' }
 plot_simulation_expression <- function(
   model, 
   simulation_i = 1:4,
@@ -524,8 +536,10 @@ plot_simulation_expression <- function(
 #' @export
 #' 
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' plot_experiment_dimred(example_model)
+#' }
 plot_experiment_dimred <- function(model, mapping = aes_string("comp_1", "comp_2")) {
   # construct data object
   counts <- model$experiment$counts_mrna + model$experiment$counts_premrna

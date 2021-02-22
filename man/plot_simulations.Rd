@@ -18,6 +18,8 @@ A ggplot2 object.
 Visualise the simulations using the dimred
 }
 \examples{
+\donttest{
 data("example_model")
 plot_simulations(example_model)
+}
 }

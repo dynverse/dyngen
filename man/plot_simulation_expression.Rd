@@ -30,6 +30,8 @@ A ggplot2 object.
 Visualise the expression of the simulations over simulation time
 }
 \examples{
+\donttest{
 data("example_model")
 plot_simulation_expression(example_model)
+}
 }

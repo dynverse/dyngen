@@ -16,6 +16,8 @@ A ggplot2 object.
 Visualise the backbone of a model
 }
 \examples{
+\donttest{
 data("example_model")
 plot_backbone_modulenet(example_model)
+}
 }

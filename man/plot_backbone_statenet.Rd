@@ -18,6 +18,8 @@ A ggplot2 object.
 Visualise the backbone state network of a model
 }
 \examples{
+\donttest{
 data("example_model")
 plot_backbone_statenet(example_model)
+}
 }
