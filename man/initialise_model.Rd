@@ -113,6 +113,6 @@ model <-
   generate_cells() \%>\%
   generate_experiment() 
   
-dataset <- as_dyno(model)
+dataset <- wrap_dataset(model)
 }
 }

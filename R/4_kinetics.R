@@ -73,7 +73,7 @@
 #'   generate_cells() %>%
 #'   generate_experiment()
 #'   
-#' dataset <- as_dyno(model)
+#' dataset <- wrap_dataset(model)
 #' }
 generate_kinetics <- function(model) {
   model <- .add_timing(model, "4_kinetics", "checks")

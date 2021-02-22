@@ -120,14 +120,9 @@
 #'   generate_cells() %>%
 #'   generate_experiment()
 #'   
-#' dataset <- as_dyno(model)
-#' 
+#' # dataset <- wrap_dataset(model, format = "dyno")
 #' # dynplot::plot_dimred(dataset)
-#' 
-#' # dataset <- as_sce(model)
-#' # dataset <- as_seurat(model)
-#' # dataset <- as_anndata(model)
-#' # dataset <- as_list(model)
+#' # format can also be set to "sce", "seurat", "anndata" or "list"
 #' }
 #'
 #' @importFrom dplyr bind_rows filter group_by mutate mutate_all n pull sample_n select transmute ungroup do left_join last .data

@@ -86,7 +86,7 @@ plot_simulation_expression(model, 1:4, what = "mol_mrna")
 model <- generate_experiment(model)
 
 ### Step 8: Convert to a dynwrap object (optional)
-dataset <- as_dyno(model)
+dataset <- wrap_dataset(model, format = "dyno")
 
 ### Visualise with `dyno`
 library(dyno)

@@ -66,6 +66,6 @@ model <- model \%>\%
   
 plot_feature_network(model)
   
-dataset <- as_dyno(model)
+dataset <- wrap_dataset(model)
 }
 }

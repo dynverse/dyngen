@@ -46,9 +46,7 @@
 #'   generate_cells() %>%
 #'   generate_experiment()
 #'   
-#' dataset <- as_dyno(model)
-#' 
-#' # dynplot::plot_dimred(dataset)
+#' dataset <- wrap_dataset(model)
 #' }
 as_dyno <- function(
   model,

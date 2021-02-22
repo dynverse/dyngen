@@ -60,7 +60,7 @@
 #'   generate_cells() %>%
 #'   generate_experiment() 
 #'   
-#' dataset <- as_dyno(model)
+#' dataset <- wrap_dataset(model)
 #' }
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
