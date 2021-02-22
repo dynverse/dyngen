@@ -3,6 +3,9 @@
 
 This version mostly upgrades dyngen's ease-of-use, such as better vignettes, conversion functions for working with dyngen datasets in other packages, and more useful ways of specifying platform-specific parameters (i.e. number of cores and cache location). Perhaps more excitingly, the dyngen documentation is more readable online at [https://dyngen.dynverse.org](https://dyngen.dynverse.org)!
 
+## BREAKING CHANGES
+* `wrap_dataset()`: Now returns a list instead of a dyno object. Use `as_dyno(model)` or `wrap_dataset(model, format = "dyno")` to replicate previous behaviour.
+
 ## NEW FEATURES
 
 * Added functions for converting the dyngen output to various data formats: `as_anndata()` for anndata, `as_sce()` for SingleCellExperiment, `as_seurat()` for Seurat, `as_dyno()` for dyno, `as_list()` for a simple list object.
