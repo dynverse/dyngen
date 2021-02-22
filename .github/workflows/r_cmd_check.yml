@@ -64,6 +64,8 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
+          reticulate::install_miniconda()
+          anndata::install_anndata()
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 

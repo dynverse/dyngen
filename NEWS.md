@@ -47,6 +47,8 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
 
 * Created a website at [https://dyngen.dynverse.org](https://dyngen.dynverse.org) using pkgdown.
 
+* Shortened examples to reduce r cmd check time.
+
 # dyngen 0.4.0
 
 ## MAJOR CHANGES

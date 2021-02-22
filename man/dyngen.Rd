@@ -108,7 +108,7 @@ A toolkit for generating synthetic single cell data.
 
 \itemize{
 \item \code{\link[=as_dyno]{as_dyno()}}, \code{\link[=wrap_dataset]{wrap_dataset()}}: Convert a dyngen model to a dyno dataset
-\item \code{\link[=as_anndata]{as_anndata()}}: Convert da yngen model to an anndata dataset
+\item \code{\link[=as_anndata]{as_anndata()}}: Convert a dyngen model to an anndata dataset
 \item \code{\link[=as_sce]{as_sce()}}: Convert a dyngen model to a SingleCellExperiment dataset
 \item \code{\link[=as_seurat]{as_seurat()}}: Convert a dyngen model to a Seurat dataset
 }

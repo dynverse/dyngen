@@ -67,7 +67,7 @@
 #' 
 #' @section Step 8, convert to dataset:
 #'   * [as_dyno()], [wrap_dataset()]: Convert a dyngen model to a dyno dataset
-#'   * [as_anndata()]: Convert da yngen model to an anndata dataset
+#'   * [as_anndata()]: Convert a dyngen model to an anndata dataset
 #'   * [as_sce()]: Convert a dyngen model to a SingleCellExperiment dataset
 #'   * [as_seurat()]: Convert a dyngen model to a Seurat dataset
 #'   
