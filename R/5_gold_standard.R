@@ -21,11 +21,10 @@
 #'     backbone = backbone_bifurcating(),
 #'     gold_standard = gold_standard_default(tau = .01, census_interval = 1)
 #'   )
-#'   
-#' data("example_model")
-#' model <- example_model
+#' 
 #' \donttest{
-#' model <- model %>% generate_gold_standard()
+#' data("example_model")
+#' model <- example_model %>% generate_gold_standard()
 #'   
 #' plot_gold_simulations(model)
 #' plot_gold_mappings(model)

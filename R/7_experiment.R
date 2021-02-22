@@ -31,9 +31,13 @@
 #'     backbone = backbone_bifurcating(),
 #'     experiment = experiment_synchronised()
 #'   )
-#'   
+#' 
+#' \dontrun{
 #' data("example_model")
 #' model <- example_model %>% generate_experiment() 
+#' 
+#' plot_experiment_dimred(model)
+#' }
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   model <- .add_timing(model, "7_experiment", "sample cells")

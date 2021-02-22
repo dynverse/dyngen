@@ -61,7 +61,11 @@ model <-
     backbone = backbone_bifurcating(),
     experiment = experiment_synchronised()
   )
-  
+
+\dontrun{
 data("example_model")
 model <- example_model \%>\% generate_experiment() 
+
+plot_experiment_dimred(model)
+}
 }

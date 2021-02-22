@@ -61,9 +61,11 @@ model <-
     kinetics_params = kinetics_default()
   )
 
+\donttest{
 data("example_model")
 model <- example_model \%>\%
   generate_kinetics()
+}
 }
 \seealso{
 \link{dyngen} on how to run a complete dyngen simulation

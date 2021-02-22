@@ -42,11 +42,11 @@ model <-
     feature_network = feature_network_default(damping = 0.1)
   )
   
-model <- model \%>\%
-  generate_tf_network() \%>\%
-  generate_feature_network()
-  
 \donttest{
+data("example_model")
+model <- example_model \%>\%
+  generate_feature_network()
+
 plot_feature_network(model)
 }
 }

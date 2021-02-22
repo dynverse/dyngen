@@ -85,51 +85,6 @@ A dyngen model.
 of the simulations.
 \code{\link[=simulation_default]{simulation_default()}} is used to configure parameters pertaining this process.
 }
-\examples{
-library(dplyr)
-model <- 
-  initialise_model(
-    backbone = backbone_bifurcating(),
-    simulation = simulation_default(
-      ssa_algorithm = ssa_etl(tau = .1),
-      experiment_params = bind_rows(
-        simulation_type_wild_type(num_simulations = 4),
-        simulation_type_knockdown(num_simulations = 4)
-      )
-    )
-  )
-\dontshow{
-# actually use a smaller example 
-# to reduce execution time during
-# testing of the examples
-model <- initialise_model(
-  backbone = model$backbone,
-  num_cells = 5,
-  num_targets = 0,
-  num_hks = 0,
-  gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
-  simulation_params = simulation_default(
-    burn_time = 10,
-    total_time = 10,
-    census_interval = 1,
-    ssa_algorithm = ssa_etl(tau = 0.1),
-    experiment_params = simulation_type_wild_type(num_simulations = 1)
-  )
-)
-}
-\donttest{
-model <- model \%>\%
-  generate_tf_network() \%>\%
-  generate_feature_network() \%>\%
-  generate_kinetics() \%>\%
-  generate_gold_standard() \%>\%
-  generate_cells()
-  
-plot_simulations(model)
-plot_gold_mappings(model)
-plot_simulation_expression(model)
-}
-}
 \seealso{
 \link{dyngen} on how to run a complete dyngen simulation
 }

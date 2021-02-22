@@ -47,10 +47,12 @@
 #'     backbone = backbone_bifurcating(),
 #'     kinetics_params = kinetics_default()
 #'   )
-#'
+#' 
+#' \donttest{
 #' data("example_model")
 #' model <- example_model %>%
 #'   generate_kinetics()
+#' }
 generate_kinetics <- function(model) {
   model <- .add_timing(model, "4_kinetics", "checks")
   
