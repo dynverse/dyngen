@@ -61,10 +61,10 @@ wrap_dataset(
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 
-\item{format}{Which output format to use, must be one of 'dyno', 'sce', 'seurat', 'anndata', 'list' or 'none'.}
+\item{format}{Which output format to use, must be one of 'dyno' (requires \code{dynwrap}), 'sce' (requires \code{SingleCellExperiment}), 'seurat' (requires \code{Seurat}), 'anndata' (requires \code{anndata}), 'list' or 'none'.}
 }
 \value{
-A dyno/anndata object
+A dataset object.
 }
 \description{
 For use with other packages compatible with dyno, anndata, SingleCellExperiment, or Seurat.

@@ -17,7 +17,7 @@ generate_dataset(
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}
 
-\item{format}{Which output format to use, must be one of 'dyno', 'sce', 'seurat', 'anndata', 'list' or 'none'.}
+\item{format}{Which output format to use, must be one of 'dyno' (requires \code{dynwrap}), 'sce' (requires \code{SingleCellExperiment}), 'seurat' (requires \code{Seurat}), 'anndata' (requires \code{anndata}), 'list' or 'none'.}
 
 \item{output_dir}{If not \code{NULL}, then the generated model and dynwrap
 dataset will be written to files in this directory.}

@@ -7,7 +7,7 @@
 #' @param store_dimred Whether or not to store the dimensionality reduction constructed on the true counts.
 #' @param store_rna_velocity WHether or not to store the log propensity ratios.
 #' 
-#' @return A dyno/anndata object
+#' @return A dataset object.
 #' 
 #' @export
 #' @rdname convert
@@ -470,7 +470,7 @@ conversion_funs <- list(
 )
 
 #' @rdname convert
-#' @param format Which output format to use, must be one of 'dyno', 'sce', 'seurat', 'anndata', 'list' or 'none'.
+#' @param format Which output format to use, must be one of 'dyno' (requires `dynwrap`), 'sce' (requires `SingleCellExperiment`), 'seurat' (requires `Seurat`), 'anndata' (requires `anndata`), 'list' or 'none'.
 #' @export
 wrap_dataset <- function(
   model,
@@ -479,7 +479,7 @@ wrap_dataset <- function(
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
-  format <- match.arg(format, choices = c("dyno", "sce", "seurat", "anndata", "list", "none"))
+  format <- match.arg(format, choices = names(conversion_funs))
   fun <- conversion_funs[[format]]
   
   fun(
