@@ -1,12 +1,3 @@
-# dyngen 1.0.1
-
-## NEW FEATURES
-
-* `generate_experiment()`: Allow toggling on or off the mapping of the reference library size & CPM distribution.
-
-* `wrap_dataset()`: Repurpose function to be able to choose the output format using a parameter (#28).
-
-* `as_list()`: Added a function for converting the dyngen output to a simple list object.
 
 # dyngen 1.0.0
 
@@ -14,11 +5,9 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
 
 ## NEW FEATURES
 
-* `as_anndata()`: Added a function for converting the dyngen output to an anndata object.
+* Added functions for converting the dyngen output to various data formats: `as_anndata()` for anndata, `as_sce()` for SingleCellExperiment, `as_seurat()` for Seurat, `as_dyno()` for dyno, `as_list()` for a simple list object.
 
-* `as_sce()`: Added a function for converting the dyngen output to an SingleCellExperiment object.
-
-* `as_seurat()`: Added a function for converting the dyngen output to a Seurat object.
+* `wrap_dataset()`: Added 'format' argument which allows choosing the output format (#28).
 
 * The default number of cores used can be set by adding `options(Ncpus = ...)` to your Rprofile.
 
@@ -30,15 +19,14 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
 
 ## MAJOR CHANGES
 
-* `generate_experiment()`: Map count density of reference dataset to simulation expression before sampling molecules.
+* `generate_experiment()`: Map count density of reference dataset to simulation expression before sampling molecules. 
+  Parameters are available for toggling off or on the mapping of the reference library size & CPM distribution.
 
 ## MINOR CHANGES
 
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
   to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively.
   
-* `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
-
 * `generate_experiment()`: Drastically speed up sampling of molecules.
 
 ## BUG FIX
@@ -49,7 +37,7 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
 
 ## DOCUMENTATION
 
-* Extended vignettes:
+* Added and extended vignettes:
   - Advanced: Simulating batch effects
   - Advanced: Simulating a knockout experiment
   - Advanced: Running dyngen from a docker container
@@ -57,12 +45,13 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
   - Advanced: Tweaking parameters
   - Advanced: Comparison of characteristic features between dyngen and reference datasets
 
+* Created a website at [https://dyngen.dynverse.org](https://dyngen.dynverse.org) using pkgdown.
 
 # dyngen 0.4.0
 
 ## MAJOR CHANGES
 
-* `as_dyno()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
+* `wrap_dataset()`: Outputted `$counts` now contains counts of both spliced and unspliced reads, whereas
   `$counts_unspliced` and `$counts_spliced` contains separated counts.
   
 * Added a docker container containing the necessary code to run a dyngen simulation.
