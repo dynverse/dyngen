@@ -85,6 +85,28 @@ A dyngen model.
 of the simulations.
 \code{\link[=simulation_default]{simulation_default()}} is used to configure parameters pertaining this process.
 }
+\examples{
+library(dplyr)
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating(),
+    simulation = simulation_default(
+      ssa_algorithm = ssa_etl(tau = .1),
+      experiment_params = bind_rows(
+        simulation_type_wild_type(num_simulations = 4),
+        simulation_type_knockdown(num_simulations = 4)
+      )
+    )
+  )
+\donttest{
+data("example_model")
+model <- example_model \%>\% generate_cells()
+  
+plot_simulations(model)
+plot_gold_mappings(model)
+plot_simulation_expression(model)
+}
+}
 \seealso{
 \link{dyngen} on how to run a complete dyngen simulation
 }

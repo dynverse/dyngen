@@ -45,6 +45,7 @@ model <-
 \donttest{
 data("example_model")
 model <- example_model \%>\%
+  generate_tf_network() \%>\% 
   generate_feature_network()
 
 plot_feature_network(model)

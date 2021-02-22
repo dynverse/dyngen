@@ -39,7 +39,7 @@
 #'       )
 #'     )
 #'   )
-#' \donttest
+#' \donttest{
 #' data("example_model")
 #' model <- example_model %>% generate_cells()
 #'   

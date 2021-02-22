@@ -13,10 +13,10 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' data("example_model")
 #' model_ab <- combine_models(list("left" = example_model, "right" = example_model))
 #'
-#' \donttest{
 #' # show a dimensionality reduction
 #' plot_simulations(model_ab)
 #' plot_gold_mappings(model_ab, do_facet = FALSE)
