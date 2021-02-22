@@ -175,6 +175,11 @@ model <- model \%>\%
 dataset <- as_dyno(model)
 
 # dynplot::plot_dimred(dataset)
+
+# dataset <- as_sce(model)
+# dataset <- as_seurat(model)
+# dataset <- as_anndata(model)
+# dataset <- as_list(model)
 }
 
 }

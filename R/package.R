@@ -123,6 +123,11 @@
 #' dataset <- as_dyno(model)
 #' 
 #' # dynplot::plot_dimred(dataset)
+#' 
+#' # dataset <- as_sce(model)
+#' # dataset <- as_seurat(model)
+#' # dataset <- as_anndata(model)
+#' # dataset <- as_list(model)
 #' }
 #'
 #' @importFrom dplyr bind_rows filter group_by mutate mutate_all n pull sample_n select transmute ungroup do left_join last .data

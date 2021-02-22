@@ -474,7 +474,7 @@ conversion_funs <- list(
 #' @export
 wrap_dataset <- function(
   model,
-  format = c("dyno", "sce", "seurat", "anndata", "list", "none"),
+  format = c("list", "dyno", "sce", "seurat", "anndata", "none"),
   store_dimred = !is.null(model$simulations$dimred),
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)

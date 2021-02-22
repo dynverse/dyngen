@@ -44,16 +44,20 @@
 #' )
 #' }
 #' \donttest{
-#' out <- generate_dataset(model)
+#' out <- generate_dataset(model, format = "list")
 #'   
 #' model <- out$model
 #' dataset <- out$dataset
 #' 
-#' # dynplot::plot_dimred(dataset)
+#' # can also generate other dataset formats:
+#' # out <- generate_dataset(model, format = "dyno")
+#' # out <- generate_dataset(model, format = "sce")
+#' # out <- generate_dataset(model, format = "seurat")
+#' # out <- generate_dataset(model, format = "anndata")
 #' }
 generate_dataset <- function(
   model,
-  format = c("dyno", "sce", "seurat", "anndata", "list", "none"), 
+  format = c("list", "dyno", "sce", "seurat", "anndata", "none"),
   output_dir = NULL,
   make_plots = FALSE, 
   store_dimred = model$simulation_params$compute_dimred,
@@ -61,7 +65,7 @@ generate_dataset <- function(
   store_rna_velocity = model$simulation_params$compute_rna_velocity
 ) {
   assert_that(is(model, "dyngen::init"))
-  format <- match.arg(format, choices = c("dyno", "sce", "seurat", "anndata", "list", "none"))
+  format <- match.arg(format, choices = names(conversion_funs))
   
   model <- model %>% 
     generate_tf_network() %>% 
