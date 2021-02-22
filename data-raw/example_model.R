@@ -25,6 +25,8 @@ out <-
   generate_dataset(format = "none")
 
 example_model <- out$model
+example_model$num_cores <- NULL
+example_model$download_cache_dir <- NULL
 
 map_df(
   names(example_model),
