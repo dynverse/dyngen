@@ -31,37 +31,9 @@
 #'     backbone = backbone_bifurcating(),
 #'     experiment = experiment_synchronised()
 #'   )
-#' \dontshow{
-#' # actually use a smaller example 
-#' # to reduce execution time during
-#' # testing of the examples
-#' model <- initialise_model(
-#'   backbone = model$backbone,
-#'   num_cells = 5,
-#'   num_targets = 0,
-#'   num_hks = 0,
-#'   gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
-#'   simulation_params = simulation_default(
-#'     burn_time = 10,
-#'     total_time = 10,
-#'     census_interval = 1,
-#'     ssa_algorithm = ssa_etl(tau = 0.1),
-#'     experiment_params = simulation_type_wild_type(num_simulations = 1)
-#'   )
-#' )
-#' }
-#' \donttest{
-#' model <- 
-#'   model %>%
-#'   generate_tf_network() %>%
-#'   generate_feature_network() %>%
-#'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
-#'   generate_cells() %>%
-#'   generate_experiment() 
 #'   
-#' dataset <- wrap_dataset(model)
-#' }
+#' data("example_model")
+#' model <- example_model %>% generate_experiment() 
 generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   model <- .add_timing(model, "7_experiment", "sample cells")
@@ -118,8 +90,8 @@ generate_experiment <- function(model) {
   mrna_ids <- mol_info %>% filter(.data$mol != "mol_protein") %>% pull(.data$val)
   tsim_counts_mrna <- tsim_counts[, mrna_ids, drop = FALSE]
   count_mrna_simulation <- .simulate_counts_from_realcounts(
-    tsim_counts_mrna, 
-    realcount, 
+    tsim_counts = tsim_counts_mrna,
+    realcount = realcount,
     map_reference_cpm = model$experiment_params$map_reference_cpm,
     map_reference_ls = model$experiment_params$map_reference_ls
   )
@@ -172,8 +144,7 @@ generate_experiment <- function(model) {
 .simulate_counts_from_realcounts <- function(
   tsim_counts, 
   realcount, 
-  cell_info = tibble(cell_id = rownames(tsim_counts)),
-  map_reference_cpm = FALSE,
+  map_reference_cpm = TRUE,
   map_reference_ls = TRUE
 ) {
   # calculate lib sizes and cpms
@@ -189,32 +160,40 @@ generate_experiment <- function(model) {
   tsim_counts_cpm_new <- tsim_counts_cpm
   
   if (map_reference_cpm) {
-    tsim_counts_cpm_new@x <- stats::quantile(realcount_cpm@x, dplyr::percent_rank(tsim_counts_cpm@x))
+    # tsim_counts_cpm_new@x <- stats::quantile(realcount_cpm@x, dplyr::percent_rank(tsim_counts_cpm@x))
+    tsim_counts_cpm_new@x <- stats::quantile(realcount_cpm@x, sort(stats::runif(length(tsim_counts_cpm@x)))[order(order(tsim_counts_cpm@x))]) %>% unname
   }
   
   # simulate library size variation from real data
   if (map_reference_ls) {
-    cell_info$lib_size <- round(stats::quantile(realcount_ls, dplyr::percent_rank(tsim_counts_ls)))
+    # lib_size_new <- round(stats::quantile(realcount_ls, dplyr::percent_rank(tsim_counts_ls)))
+    lib_size_new <- round(stats::quantile(realcount_ls, sort(stats::runif(length(tsim_counts_ls)))[order(order(tsim_counts_ls))])) %>% unname
   } else {
-    cell_info$lib_size <- tsim_counts_ls
+    lib_size_new <- tsim_counts_ls
   }
   
   # simulate sampling of molecules
   tsim_counts_t <- Matrix::t(tsim_counts_cpm_new)
-  new_vals <- unlist(map(seq_len(nrow(cell_info)), function(cell_i) {
-    pi <- tsim_counts_t@p[[cell_i]] + 1
+  new_vals <- unlist(map(seq_along(lib_size_new), function(cell_i) {
+    pi <- tsim_counts_t@p[[cell_i]]
     pj <- tsim_counts_t@p[[cell_i + 1]]
-    gene_is <- tsim_counts_t@i[pi:pj] + 1
-    gene_vals <- tsim_counts_t@x[pi:pj]
-    lib_size <- cell_info$lib_size[[cell_i]]
-    
-    # sample 'lib_size' molecules for each of the genes, weighted by 'gene_vals'
-    tryCatch({
+    if (pi != pj) {
+      pix <- seq(pi + 1, pj, 1)
+      gene_is <- tsim_counts_t@i[pix] + 1
+      gene_vals <- tsim_counts_t@x[pix]
+      lib_size <- lib_size_new[[cell_i]]
+      
+      # sample 'lib_size' molecules for each of the genes, weighted by 'gene_vals'
+      tryCatch({
       rmultinom(1, lib_size, gene_vals)
-    }, error = function(e) {
-      print(e$msg)
-      cat("lib_size: ", lib_size, "\n", sep = "")
-    })
+      }, error = function(e) {
+        cat("cell_i: ", cell_i, ", lib_size: ", lib_size, "\n", sep = "")
+        print(gene_vals)
+        print(e)
+      })
+    } else {
+      integer(0)
+    }
   })) %>% as.numeric
   
   tsim_counts_t@x <- new_vals

@@ -33,47 +33,18 @@
 #' @param id An identifier for the model.
 #' 
 #' @return A dyngen model.
+#' 
+#' @seealso [dyngen] on how to run a complete dyngen simulation
 #'   
 #' @export
 #' 
 #' @examples
 #' model <- initialise_model(
-#'   backbone = backbone_bifurcating()
+#'   backbone = backbone_bifurcating(),
+#'   num_cells = 555,
+#'   verbose = FALSE,
+#'   download_cache_dir = "~/.cache/dyngen"
 #' )
-#' \dontshow{
-#' # actually use a smaller example 
-#' # to reduce execution time during
-#' # testing of the examples
-#' model <- initialise_model(
-#'   backbone = model$backbone,
-#'   num_cells = 5,
-#'   num_targets = 0,
-#'   num_hks = 0,
-#'   gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
-#'   simulation_params = simulation_default(
-#'     burn_time = 10,
-#'     total_time = 10,
-#'     census_interval = 1,
-#'     ssa_algorithm = ssa_etl(tau = 0.1),
-#'     experiment_params = simulation_type_wild_type(num_simulations = 1)
-#'   )
-#' )
-#' }
-#' plot_backbone_modulenet(model)
-#' plot_backbone_statenet(model)
-#' 
-#' \donttest{
-#' model <- 
-#'   model %>%
-#'   generate_tf_network() %>%
-#'   generate_feature_network() %>%
-#'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
-#'   generate_cells() %>%
-#'   generate_experiment() 
-#'   
-#' dataset <- wrap_dataset(model)
-#' }
 initialise_model <- function(
   backbone,
   num_cells = 1000,

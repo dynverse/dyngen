@@ -13,9 +13,6 @@ get_timings(model)
 Return the timings of each of the dyngen steps
 }
 \examples{
-model <- 
-  initialise_model(backbone = backbone_linear()) \%>\% 
-  generate_tf_network()
-
-timings <- get_timings(model)
+data("example_model")
+timings <- get_timings(example_model)
 }

@@ -120,9 +120,11 @@
 #'   generate_cells() %>%
 #'   generate_experiment()
 #'   
-#' # dataset <- wrap_dataset(model, format = "dyno")
-#' # dynplot::plot_dimred(dataset)
+#' dataset <- wrap_dataset(model, format = "dyno")
 #' # format can also be set to "sce", "seurat", "anndata" or "list"
+#' 
+#' # library(dynplot)
+#' # plot_dimred(dataset)
 #' }
 #'
 #' @importFrom dplyr bind_rows filter group_by mutate mutate_all n pull sample_n select transmute ungroup do left_join last .data

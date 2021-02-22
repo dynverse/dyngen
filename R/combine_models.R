@@ -2,6 +2,8 @@
 #'
 #' Assume the given models have the exact same feature ids and ran up until the `generate_cells()` step.
 #' In addition, the user is expected to run `generate_experiment()` on the combined models.
+#' 
+#' See the [vignette on simulating batch effects](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html) on how to use this function.
 #'
 #' @param models A named list of models. The names of the list will be used to 
 #'   prefix the different cellular states in the combined model.
@@ -11,44 +13,10 @@
 #' @export
 #'
 #' @examples
+#' data("example_model")
+#' model_ab <- combine_models(list("left" = example_model, "right" = example_model))
+#'
 #' \donttest{
-#' # create the config object
-#' init_config <- initialise_model(
-#'   backbone = backbone_linear(),
-#'   num_cells = 500,
-#'   num_targets = 100,
-#'   num_hks = 50,
-#'   gold_standard_params = gold_standard_default(census_interval = 5, tau = 0.05),
-#'   simulation_params = simulation_default(
-#'     census_interval = 5,
-#'     ssa_algorithm = ssa_etl(tau = 0.05),
-#'     experiment_params = simulation_type_wild_type(num_simulations = 10)
-#'   )
-#' )
-#'
-#' # generate the genes and their kinetics
-#' model_common <-
-#'   init_config %>%
-#'   generate_tf_network() %>%
-#'   generate_feature_network()
-#' plot_feature_network(model_common)
-#'
-#' # run the simulation once
-#' model_a <- model_common %>%
-#'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
-#'   generate_cells()
-#'
-#' # run the simulation once more
-#' model_b <- model_common %>%
-#'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
-#'   generate_cells()
-#'
-#' # combine models, do experiment afterwards
-#' model_ab <- combine_models(list("left" = model_a, "right" = model_b)) %>%
-#'   generate_experiment()
-#'
 #' # show a dimensionality reduction
 #' plot_simulations(model_ab)
 #' plot_gold_mappings(model_ab, do_facet = FALSE)

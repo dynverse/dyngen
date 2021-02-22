@@ -43,7 +43,7 @@
 #' 
 #' @return A dyngen backbone.
 #' 
-#' @seealso [list_backbones()] for a list of all backbone methods.
+#' @seealso [dyngen] on how to run a dyngen simulation
 #' 
 #' @examples
 #' library(tibble)
@@ -65,47 +65,11 @@
 #'     "s1",  "s2", "+M2,+M3",           FALSE,  FALSE, 80
 #'   )
 #' )
-#' model <- initialise_model(
-#'   backbone = backbone
-#' )
-#' \dontshow{
-#' # actually use a smaller example 
-#' # to reduce execution time during
-#' # testing of the examples
-#' model <- initialise_model(
-#'   backbone = model$backbone,
-#'   num_cells = 5,
-#'   num_targets = 0,
-#'   num_hks = 0,
-#'   gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
-#'   simulation_params = simulation_default(
-#'     burn_time = 10,
-#'     total_time = 10,
-#'     census_interval = 1,
-#'     ssa_algorithm = ssa_etl(tau = 0.1),
-#'     experiment_params = simulation_type_wild_type(num_simulations = 1)
-#'   )
-#' )
-#' }
-#' \donttest{
-#' model <- model %>%
-#'   generate_tf_network() %>%
-#'   generate_feature_network() %>%
-#'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
-#'   generate_cells() %>%
-#'   generate_experiment() 
-#'   
-#' dataset <- wrap_dataset(model)
-#' }
 backbone <- function(
   module_info,
   module_network,
   expression_patterns
 ) {
-  # satisfy r cmd check
-  `.` <- module_id <- group <- group_colour <- basal <- NULL
-  
   assert_that(
     is.data.frame(module_info),
     module_info %has_names% c("module_id", "basal", "burn", "independence"),
@@ -141,9 +105,11 @@ backbone <- function(
     expression_patterns$module_progression %>%
     strsplit("[,|]") %>%
     unlist() %>%
-    unique() %>% 
-    gsub("[+-]", "", .)
-  assert_that(tmp_modules %all_in% module_info$module_id)
+    unique()
+  assert_that(
+    gsub("[+-]", "", tmp_modules) %all_in% module_info$module_id,
+    msg = "Not all modules listed under `expression_Patterns$module_progression` are in `module_info$module_id`."
+  )
   
   if (! module_info %has_name% "color") {
     if (all(grepl("^[a-zA-Z]*[0-9]*$", module_info$module_id))) {
@@ -157,7 +123,7 @@ backbone <- function(
       group_colours <- grDevices::rainbow(length(group_names))
       
       module_info <- module_info %>% 
-        group_by(group) %>% 
+        group_by(.data$group) %>% 
         mutate(
           group_colour = group_colours[match(.data$group, group_names)],
           color = colour_brighten(.data$group_colour, rev(seq(1, .4, length.out = n())))
@@ -206,9 +172,9 @@ backbone <- function(
 #' @export
 #' @rdname backbone_models
 #' 
-#' @seealso [backbone()] for more information on the data structures that define the backbone.
-#' 
 #' @return A list of all the available backbone generators.
+#' 
+#' @seealso [dyngen] on how to run a dyngen simulation
 #' 
 #' @examples
 #' names(list_backbones())
@@ -231,36 +197,6 @@ backbone <- function(
 #' model <- initialise_model(
 #'   backbone = bb
 #' )
-#' \dontshow{
-#' # actually use a smaller example 
-#' # to reduce execution time during
-#' # testing of the examples
-#' model <- initialise_model(
-#'   backbone = model$backbone,
-#'   num_cells = 5,
-#'   num_targets = 0,
-#'   num_hks = 0,
-#'   gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
-#'   simulation_params = simulation_default(
-#'     burn_time = 10,
-#'     total_time = 10,
-#'     census_interval = 1,
-#'     ssa_algorithm = ssa_etl(tau = 0.1),
-#'     experiment_params = simulation_type_wild_type(num_simulations = 1)
-#'   )
-#' )
-#' }
-#' \donttest{
-#' model <- model %>%
-#'   generate_tf_network() %>%
-#'   generate_feature_network() %>%
-#'   generate_kinetics() %>%
-#'   generate_gold_standard() %>%
-#'   generate_cells() %>%
-#'   generate_experiment() 
-#'   
-#' dataset <- wrap_dataset(model)
-#' }
 list_backbones <- function() {
   list(
     bifurcating = backbone_bifurcating,

@@ -546,3 +546,20 @@ plot_experiment_dimred <- function(model, mapping = aes_string("comp_1", "comp_2
     theme_bw() +
     labs(colour = "Edge")
 }
+
+#' @importFrom ggplot2 geom_bar scale_fill_brewer theme_classic coord_flip theme
+plot_timings <- function(model) {
+  timings <- 
+    get_timings(model) %>% 
+    mutate(
+      name = paste0(.data$group, ": ", .data$task),
+      name = factor(.data$name, levels = rev(.data$name))
+    )
+  ggplot(timings) + 
+    geom_bar(aes(x = .data$name, y = .data$time_elapsed, fill = .data$group), stat = "identity") +
+    scale_fill_brewer(palette = "Dark2") + 
+    theme_classic() +
+    theme(legend.position = "none") +
+    coord_flip() + 
+    labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
+}

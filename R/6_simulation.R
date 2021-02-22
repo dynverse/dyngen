@@ -21,6 +21,8 @@
 #' 
 #' @return A dyngen model.
 #' 
+#' @seealso [dyngen] on how to run a complete dyngen simulation
+#' 
 #' @importFrom GillespieSSA2 ssa
 #' @export
 #' 
@@ -62,14 +64,11 @@
 #'   generate_feature_network() %>%
 #'   generate_kinetics() %>%
 #'   generate_gold_standard() %>%
-#'   generate_cells() %>%
-#'   generate_experiment()
+#'   generate_cells()
 #'   
 #' plot_simulations(model)
 #' plot_gold_mappings(model)
 #' plot_simulation_expression(model)
-#' 
-#' dataset <- wrap_dataset(model)
 #' }
 generate_cells <- function(model) {
   # satisfy r cmd check
