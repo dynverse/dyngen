@@ -6,6 +6,7 @@
 \usage{
 generate_dataset(
   model,
+  format = c("list", "dyno", "sce", "seurat", "anndata", "none"),
   output_dir = NULL,
   make_plots = FALSE,
   store_dimred = model$simulation_params$compute_dimred,
@@ -15,6 +16,8 @@ generate_dataset(
 }
 \arguments{
 \item{model}{A dyngen initial model created with \code{\link[=initialise_model]{initialise_model()}}.}
+
+\item{format}{Which output format to use, must be one of 'dyno' (requires \code{dynwrap}), 'sce' (requires \code{SingleCellExperiment}), 'seurat' (requires \code{Seurat}), 'anndata' (requires \code{anndata}), 'list' or 'none'.}
 
 \item{output_dir}{If not \code{NULL}, then the generated model and dynwrap
 dataset will be written to files in this directory.}
@@ -27,8 +30,48 @@ dataset will be written to files in this directory.}
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 }
+\value{
+A list containing a dyngen model (\code{li$model}) and a dynwrap dataset (\code{li$dataset}).
+}
 \description{
 This function contains the complete pipeline for generating a dataset
 with \pkg{dyngen}. In order to have more control over how the dataset
 is generated, run each of the steps in this function separately.
+}
+\examples{
+model <- 
+  initialise_model(
+    backbone = backbone_bifurcating()
+  )
+\dontshow{
+# actually use a smaller example 
+# to reduce execution time during
+# testing of the examples
+model <- initialise_model(
+  backbone = model$backbone,
+  num_cells = 5,
+  num_targets = 0,
+  num_hks = 0,
+  gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
+  simulation_params = simulation_default(
+    burn_time = 10,
+    total_time = 10,
+    census_interval = 1,
+    ssa_algorithm = ssa_etl(tau = 0.1),
+    experiment_params = simulation_type_wild_type(num_simulations = 1)
+  )
+)
+}
+\donttest{
+out <- generate_dataset(model, format = "list")
+  
+model <- out$model
+dataset <- out$dataset
+
+# can also generate other dataset formats:
+# out <- generate_dataset(model, format = "dyno")
+# out <- generate_dataset(model, format = "sce")
+# out <- generate_dataset(model, format = "seurat")
+# out <- generate_dataset(model, format = "anndata")
+}
 }

@@ -7,3 +7,176 @@
 \description{
 A toolkit for generating synthetic single cell data.
 }
+\section{Step 1, initialise dyngen model}{
+
+\itemize{
+\item \code{\link[=initialise_model]{initialise_model()}}: Define and store settings for all following steps. See each of the sections below for more information.
+\item Use a predefined backbone:
+\itemize{
+\item \code{\link[=list_backbones]{list_backbones()}}
+\item \code{\link[=backbone_bifurcating]{backbone_bifurcating()}}
+\item \code{\link[=backbone_bifurcating_converging]{backbone_bifurcating_converging()}}
+\item \code{\link[=backbone_bifurcating_cycle]{backbone_bifurcating_cycle()}}
+\item \code{\link[=backbone_bifurcating_loop]{backbone_bifurcating_loop()}}
+\item \code{\link[=backbone_branching]{backbone_branching()}}
+\item \code{\link[=backbone_binary_tree]{backbone_binary_tree()}}
+\item \code{\link[=backbone_consecutive_bifurcating]{backbone_consecutive_bifurcating()}}
+\item \code{\link[=backbone_trifurcating]{backbone_trifurcating()}}
+\item \code{\link[=backbone_converging]{backbone_converging()}}
+\item \code{\link[=backbone_cycle]{backbone_cycle()}}
+\item \code{\link[=backbone_cycle_simple]{backbone_cycle_simple()}}
+\item \code{\link[=backbone_linear]{backbone_linear()}}
+\item \code{\link[=backbone_linear_simple]{backbone_linear_simple()}}
+\item \code{\link[=backbone_disconnected]{backbone_disconnected()}}
+}
+\item Create a custom backbone:
+\itemize{
+\item \code{\link[=backbone]{backbone()}}
+\item \code{\link[=bblego]{bblego()}}
+\item \code{\link[=bblego_linear]{bblego_linear()}}
+\item \code{\link[=bblego_branching]{bblego_branching()}}
+\item \code{\link[=bblego_start]{bblego_start()}}
+\item \code{\link[=bblego_end]{bblego_end()}}
+}
+\item Visualise the backbone:
+\itemize{
+\item \code{\link[=plot_backbone_modulenet]{plot_backbone_modulenet()}}
+\item \code{\link[=plot_backbone_statenet]{plot_backbone_statenet()}}
+}
+}
+}
+
+\section{Step 2, generate TF network}{
+
+\itemize{
+\item \code{\link[=generate_tf_network]{generate_tf_network()}}: Generate a transcription factor network from the backbone
+\item \code{\link[=tf_network_default]{tf_network_default()}}: Parameters for configuring this step
+}
+}
+
+\section{Step 3, add more genes to the gene network}{
+
+\itemize{
+\item \code{\link[=generate_feature_network]{generate_feature_network()}}: Generate a target network
+\item \code{\link[=feature_network_default]{feature_network_default()}}: Parameters for configuring this step
+\item \code{\link[=plot_feature_network]{plot_feature_network()}}: Visualise the gene network
+}
+}
+
+\section{Step 4, generate gene kinetics}{
+
+\itemize{
+\item \code{\link[=generate_kinetics]{generate_kinetics()}}: Generate the gene kinetics
+\item \code{\link[=kinetics_default]{kinetics_default()}}: Parameters for configuring this step
+\item \code{\link[=kinetics_noise_none]{kinetics_noise_none()}}, \code{\link[=kinetics_noise_simple]{kinetics_noise_simple()}}: Different kinetics distributions to sample from
+}
+}
+
+\section{Step 5, simulate the gold standard}{
+
+\itemize{
+\item \code{\link[=generate_gold_standard]{generate_gold_standard()}}: Simulate the gold standard backbone, used for mapping to cell states afterwards
+\item \code{\link[=gold_standard_default]{gold_standard_default()}}: Parameters for configuring this step
+\item \code{\link[=plot_gold_mappings]{plot_gold_mappings()}}: Visualise the mapping of the simulations to the gold standard
+\item \code{\link[=plot_gold_simulations]{plot_gold_simulations()}}: Visualise the gold standard simulations using the dimred
+\item \code{\link[=plot_gold_expression]{plot_gold_expression()}}: Visualise the expression of the gold standard over simulation time
+}
+}
+
+\section{Step 6, simulate the cells}{
+
+\itemize{
+\item \code{\link[=generate_cells]{generate_cells()}}: Simulate the cells based on its GRN
+\item \code{\link[=simulation_default]{simulation_default()}}: Parameters for configuring this step
+\item \code{\link[=simulation_type_wild_type]{simulation_type_wild_type()}}, \code{\link[=simulation_type_knockdown]{simulation_type_knockdown()}}: Used for configuring the type of simulation
+\item \code{\link[=plot_simulations]{plot_simulations()}}: Visualise the simulations using the dimred
+\item \code{\link[=plot_simulation_expression]{plot_simulation_expression()}}: Visualise the expression of the simulations over simulation time
+}
+}
+
+\section{Step 7, simulate cell and transcripting sampling}{
+
+\itemize{
+\item \code{\link[=generate_experiment]{generate_experiment()}}: Sample cells and transcripts from experiment
+\item \code{\link[=list_experiment_samplers]{list_experiment_samplers()}}, \code{\link[=experiment_snapshot]{experiment_snapshot()}}, \code{\link[=experiment_synchronised]{experiment_synchronised()}}: Parameters for configuring this step
+\item \code{\link[=simtime_from_backbone]{simtime_from_backbone()}}: Determine the simulation time from the backbone
+\item \code{\link[=plot_experiment_dimred]{plot_experiment_dimred()}}: Plot a dimensionality reduction of the final dataset
+}
+}
+
+\section{Step 8, convert to dataset}{
+
+\itemize{
+\item \code{\link[=as_dyno]{as_dyno()}}, \code{\link[=wrap_dataset]{wrap_dataset()}}: Convert a dyngen model to a dyno dataset
+\item \code{\link[=as_anndata]{as_anndata()}}: Convert a dyngen model to an anndata dataset
+\item \code{\link[=as_sce]{as_sce()}}: Convert a dyngen model to a SingleCellExperiment dataset
+\item \code{\link[=as_seurat]{as_seurat()}}: Convert a dyngen model to a Seurat dataset
+}
+}
+
+\section{One-shot function}{
+
+\itemize{
+\item \code{\link[=generate_dataset]{generate_dataset()}}: Run through steps 2 to 8 with a single function
+}
+}
+
+\section{Data objects}{
+
+\itemize{
+\item \link{example_model}: A (very) small toy dyngen model, used for documentation and testing purposes
+\item \link{realcounts}: A set of real single-cell expression datasets, to be used as reference datasets
+\item \link{realnets}: A set of real gene regulatory networks, to be sampled in step 3
+}
+}
+
+\section{Varia functions}{
+
+\itemize{
+\item \link{dyngen}: This help page
+\item \code{\link[=get_timings]{get_timings()}}: Extract execution timings for each of the dyngen steps
+\item \code{\link[=combine_models]{combine_models()}}: Combine multiple dyngen models
+\item \code{\link[=rnorm_bounded]{rnorm_bounded()}}: A bounded version of \code{\link[=rnorm]{rnorm()}}
+}
+}
+
+\examples{
+model <- initialise_model(
+  backbone = backbone_bifurcating()
+)
+\dontshow{
+# actually use a smaller example 
+# to reduce execution time during
+# testing of the examples
+model <- initialise_model(
+  backbone = model$backbone,
+  num_cells = 5,
+  num_targets = 0,
+  num_hks = 0,
+  gold_standard_params = gold_standard_default(census_interval = 1, tau = 0.1),
+  simulation_params = simulation_default(
+    burn_time = 10,
+    total_time = 10,
+    census_interval = 1,
+    ssa_algorithm = ssa_etl(tau = 0.1),
+    experiment_params = simulation_type_wild_type(num_simulations = 1)
+  )
+)
+}
+\donttest{
+model <- model \%>\%
+  generate_tf_network() \%>\%
+  generate_feature_network() \%>\%
+  generate_kinetics() \%>\%
+  generate_gold_standard() \%>\%
+  generate_cells() \%>\%
+  generate_experiment()
+  
+dataset <- wrap_dataset(model, format = "dyno")
+# format can also be set to "sce", "seurat", "anndata" or "list"
+
+# library(dynplot)
+# plot_dimred(dataset)
+}
+
+}

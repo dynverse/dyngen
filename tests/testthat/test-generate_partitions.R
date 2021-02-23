@@ -5,7 +5,7 @@ test_that("num_tfs_sampler works as expected", {
   num_modules <- 8
   
   samples <- map(
-    seq_len(10000),
+    seq_len(1000),
     ~ .generate_partitions(num_tfs, num_modules, min_elements_per_group = 1)
   )
   
@@ -24,7 +24,7 @@ test_that("num_tfs_sampler works as expected", {
   num_modules <- 13
   
   samples <- map(
-    seq_len(10000),
+    seq_len(1000),
     ~ .generate_partitions(num_tfs, num_modules, min_elements_per_group = 1)
   )
   
@@ -41,11 +41,11 @@ test_that("num_tfs_sampler works as expected", {
 
 
 test_that("num_tfs_sampler works as expected", {
-  num_tfs <- 10000
+  num_tfs <- 1000
   num_modules <- 8
   
   samples <- map(
-    seq_len(10000),
+    seq_len(1000),
     ~ .generate_partitions(num_tfs, num_modules, min_elements_per_group = 1)
   )
   

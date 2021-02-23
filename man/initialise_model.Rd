@@ -18,8 +18,8 @@ initialise_model(
   simulation_params = simulation_default(),
   experiment_params = experiment_snapshot(),
   verbose = TRUE,
-  download_cache_dir = NULL,
-  num_cores = 1,
+  download_cache_dir = getOption("dyngen_download_cache_dir"),
+  num_cores = getOption("Ncpus") \%||\% 1L,
   id = NULL
 )
 }
@@ -71,6 +71,20 @@ cached in this directory.}
 
 \item{id}{An identifier for the model.}
 }
+\value{
+A dyngen model.
+}
 \description{
 Initial settings for simulating a dyngen dataset
+}
+\examples{
+model <- initialise_model(
+  backbone = backbone_bifurcating(),
+  num_cells = 555,
+  verbose = FALSE,
+  download_cache_dir = "~/.cache/dyngen"
+)
+}
+\seealso{
+\link{dyngen} on how to run a complete dyngen simulation
 }

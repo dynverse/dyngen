@@ -11,6 +11,15 @@ plot_backbone_statenet(model, detailed = FALSE)
 
 \item{detailed}{Whether or not to also plot the substates of transitions.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the backbone state network of a model
+}
+\examples{
+\donttest{
+data("example_model")
+plot_backbone_statenet(example_model)
+}
 }

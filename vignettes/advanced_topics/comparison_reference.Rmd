@@ -1,0 +1,545 @@
+---
+title: "Advanced: Comparison to reference dataset"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced: Comparison to reference dataset}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+references:
+- id: Soneson2018
+  title: Towards unified quality verification of synthetic count data with countsimQC
+  author:
+  - family: Soneson
+    given: CharlotteI
+  - family: Robinson
+    given: Mark D
+  container-title: Bioinformatics
+  volume: 34
+  page: 691-692
+  type: article-journal
+  URL: https://academic.oup.com/bioinformatics/article/34/4/691/4345646
+  DOI: "10.1093/bioinformatics/btx631"
+  issued:
+    year: 2018
+- id: Love2014DESeq2
+  title: Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2
+  author:
+  - family: Love
+    given: Michael I
+  - family: Huber
+    given: Wolfgang
+  - family: Anders
+    given: Simon
+  container-title: Genome Biology
+  volume: 15
+  page: 550
+  type: article-journal
+  URL: https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8
+  DOI: "10.1186/s13059-014-0550-8"
+  issued:
+    year: 2014
+- id: Robinson2010edgeR
+  title: "edgeR: a Bioconductor package for differential expression analysis of digital gene expression data"
+  author:
+  - family: Robinson
+    given: Mark D
+  - family: McCarthy
+    given: Davis J
+  - family: Smyth
+    given: Gordon K
+  container-title: Bioinformatics
+  volume: 26
+  page: 139-140
+  type: article-journal
+  URL: https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/btp616
+  DOI: "10.1093/bioinformatics/btp616"
+  issued:
+    year: 2010
+- id: Robinson2010TMM
+  title: A scaling normalization method for differential expression analysis of RNA-seq data
+  author:
+  - family: Robinson
+    given: Mark D
+  - family: Oshlack
+    given: Alicia
+  container-title: Genome Biology
+  volume: 11
+  page: R25
+  type: article-journal
+  URL: https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25
+  DOI: "10.1186/gb-2010-11-3-r25"
+  issued:
+    year: 2010
+- id: WaldWolfowitz1940
+  title: On a test whether two samples are from the same population
+  author:
+  - family: Wald
+    given: Abraham
+  - family: Wolfowitz
+    given: Jacob
+  container-title: The Annals of Mathematical Statistics
+  volume: 11
+  page: 147-162
+  type: article-journal
+  URL: https://projecteuclid.org/euclid.aoms/1177731909
+  DOI: "10.1214/aoms/1177731909"
+  issued:
+    year: 1940
+- id: Kolmogorov1933
+  title: Sulla determinazione empirica di una legge di distribuzione
+  author:
+  - family: Kolmogorov
+    given: Andrey
+  container-title: Giornale dell'Istituto Italiano degli Attuari
+  volume: 4
+  page: 83-91
+  type: article-journal
+  issued:
+    year: 1933
+- id: Smirnov1948
+  title: Table for estimating the goodness of fit of empirical distributions
+  author:
+  - family: Smirnov
+    given: Nikolai Vasilyevich
+  container-title: Annals of Mathematical Statistics
+  volume: 19
+  page: 279-281
+  type: article-journal
+  URL: https://projecteuclid.org/euclid.aoms/1177730256
+  DOI: "10.1214/aoms/1177730256"
+  issued:
+    year: 1948
+- id: Rousseeuw1987silhouette
+  title: Silhouettes a graphical aid to the interpretation and validation of cluster analysis
+  author:
+  - family: Rousseeuw
+    given: Peter J
+  container-title: Journal of Computational and Applied Mathematics
+  volumn: 20
+  page: 53-65
+  type: article-journal
+  URL: http://www.sciencedirect.com/science/article/pii/0377042787901257
+  DOI: "10.1016/0377-0427(87)90125-7"
+  issued:
+    year: 1987
+- id: Chen2014Dispersion
+  title: Differential expression analysis of complex RNA-seq experiments using edgeR
+  author:
+  - family: Chen
+    given: Yunshun
+  - family: Lun
+    given: Aaron TL
+  - family: Smyth
+    given: Gordon K
+  container-title: In Statistical Analysis of Next Generation Sequence Data. Somnath Datta and Daniel S Nettleton (eds), Springer, New York
+  URL: https://link.springer.com/chapter/10.1007%2F978-3-319-07212-8_3
+  DOI: "10.1007/978-3-319-07212-8_3"
+  issued:
+    year: 2014
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- github markdown built using 
+rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
+-->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(progress = FALSE, verbose = FALSE)
+```
+
+In this vignette, we will take a look at characteristic features of dyngen versus the reference dataset it uses.
+To this end, we'll be using [`countsimQC`](https://www.bioconductor.org/packages/release/bioc/html/countsimQC.html) [@Soneson2018] 
+to calculate key statistics of both datasets and create comparative visualisations.
+
+## Run dyngen simulation
+
+We use an internal function from the dyngen package to download and cache one of the reference datasets.
+```{r}
+library(tidyverse)
+library(dyngen)
+
+set.seed(1)
+
+data("realcounts", package = "dyngen")
+name_realcounts <- "zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca"
+url_realcounts <- realcounts %>% filter(name == name_realcounts) %>% pull(url)
+realcount <- dyngen:::.download_cacheable_file(url_realcounts, getOption("dyngen_download_cache_dir"), verbose = FALSE)
+```
+
+We run a simple dyngen dataset as follows, where the number of cells and genes are determined by the size of the reference dataset.
+```{r dyngen_sim, fig.width=12, fig.height=8}
+backbone <- backbone_bifurcating_loop()
+
+num_cells <- nrow(realcount)
+num_feats <- ncol(realcount)
+num_tfs <- nrow(backbone$module_info)
+num_tar <- round((num_feats - num_tfs) / 2)
+num_hks <- num_feats - num_tfs - num_tar
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = num_cells,
+    num_tfs = num_tfs,
+    num_targets = num_tar,
+    num_hks = num_hks,
+    gold_standard_params = gold_standard_default(),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      experiment_params = simulation_type_wild_type(num_simulations = 100)
+    ),
+    experiment_params = experiment_snapshot(
+      realcount = realcount
+    ),
+    verbose = FALSE
+  )
+```
+
+
+```{r quick_config, include=TRUE}
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = num_cells,
+    num_tfs = num_tfs,
+    num_targets = num_tar,
+    num_hks = num_hks,
+    verbose = interactive(),
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      census_interval = 2, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    ),
+    experiment_params = experiment_snapshot(
+      realcount = realcount
+    )
+  )
+```
+
+
+```{r dyngen_generate, fig.width=12, fig.height=8}
+out <- generate_dataset(config, make_plots = TRUE)
+
+out$plot
+```
+
+
+
+Both datasets are stored in a list for easy usage by countsimQC.
+```{r}
+datasets <- list(
+  real = t(as.matrix(realcount)),
+  dyngen = t(as.matrix(out$dataset$counts))
+)
+
+ddsList <- lapply(datasets, function(ds) {
+  DESeq2::DESeqDataSetFromMatrix(
+    countData = round(as.matrix(ds)), 
+    colData = data.frame(sample = seq_len(ncol(ds))), 
+    design = ~1
+  )
+})
+```
+
+## Run countsimQC computations
+Below are some computations countsimQC makes. Normally these are not visible to the user, but
+for the sake of transparency these are included in the vignette.
+
+```{r preparation, message = FALSE}
+library(countsimQC)
+
+## Define helper objects
+nDatasets <- length(ddsList)
+colRow <- c(2, 1)
+panelSize <- 4
+thm <- 
+  theme_bw() + 
+  theme(
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 14),
+    strip.text = element_text(size = 15)
+  )
+```
+
+Compute key characteristics
+```{r}
+obj <- countsimQC:::calculateDispersionsddsList(ddsList = ddsList, maxNForDisp = Inf)
+
+sampleCorrDF <- countsimQC:::calculateSampleCorrs(ddsList = obj, maxNForCorr = 500)
+
+featureCorrDF <- countsimQC:::calculateFeatureCorrs(ddsList = obj, maxNForCorr = 500)
+```
+
+Summarize sample characteristics
+```{r}
+sampleDF <- map2_df(obj, names(obj), function(x, dataset_name) {
+  tibble(
+    dataset = dataset_name,
+    Libsize = colSums(x$dge$counts),
+    Fraczero = colMeans(x$dge$counts == 0),
+    TMM = x$dge$samples$norm.factors,
+    EffLibsize = Libsize * TMM
+  )
+})
+```
+
+Summarize feature characteristics
+```{r}
+featureDF <- map2_df(obj, names(obj), function(x, dataset_name) {
+  rd <- SummarizedExperiment::rowData(x$dds)
+  tibble(
+    dataset = dataset_name,
+    Tagwise = sqrt(x$dge$tagwise.dispersion),
+    Common = sqrt(x$dge$common.dispersion),
+    Trend = sqrt(x$dge$trended.dispersion),
+    AveLogCPM = x$dge$AveLogCPM,
+    AveLogCPMDisp = x$dge$AveLogCPMDisp, 
+    average_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, mean), 
+    variance_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, var),
+    Fraczero = rowMeans(x$dge$counts == 0),
+    dispGeneEst = rd$dispGeneEst,
+    dispFit = rd$dispFit,
+    dispFinal = rd$dispersion,
+    baseMeanDisp = rd$baseMeanDisp,
+    baseMean = rd$baseMean
+  )
+})
+```
+
+Summarize data set characteristics
+```{r}
+datasetDF <- map2_df(obj, names(obj), function(x, dataset_name) {
+  tibble(
+    dataset = dataset_name,
+    prior_df = paste0("prior.df = ", round(x$dge$prior.df, 2)),
+    nVars = nrow(x$dge$counts),
+    nSamples = ncol(x$dge$counts),
+    AveLogCPMDisp = 0.8 * max(featureDF$AveLogCPMDisp),
+    Tagwise = 0.9 * max(featureDF$Tagwise)
+  )
+})
+```
+
+
+## Data set dimensions {.tabset .tabset-pills}
+
+These bar plots show the number of samples (columns) and features (rows) in
+each data set.
+
+Number of samples (columns)
+
+```{r nSamples, fig.width = 10, fig.height = 7}
+ggplot(datasetDF, aes(x = dataset, y = nSamples, fill = dataset)) + 
+  geom_bar(stat = "identity", alpha = 0.5) + 
+  xlab("") + ylab("Number of samples (columns)") + 
+  thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+Number of features (rows)
+
+```{r nVariables, fig.width = 10, fig.height = 7}
+ggplot(datasetDF, aes(x = dataset, y = nVars, fill = dataset)) + 
+  geom_bar(stat = "identity", alpha = 0.5) + 
+  xlab("") + ylab("Number of features (rows)") + 
+  thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+## Dispersion/BCV plots {.tabset .tabset-pills}
+
+
+Disperson/BCV plots show the association between the average abundance and the
+dispersion or "biological coefficient of variation" (sqrt(dispersion)), as
+calculated by 
+[`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html) 
+[@Robinson2010edgeR] and 
+[`DESeq2`](http://bioconductor.org/packages/release/bioc/html/DESeq2.html) 
+[@Love2014DESeq2]. In the `edgeR` plot, the estimate of the prior degrees of 
+freedom is indicated.
+
+### edgeR
+
+The black dots represent the tagwise dispersion estimates, the red line the 
+common dispersion and the blue curve represents the trended dispersion 
+estimates. For further information about the dispersion estimation in `edgeR`,
+see @Chen2014Dispersion.
+
+```{r BCVedgeR, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureDF %>% dplyr::arrange(AveLogCPMDisp), 
+       aes(x = AveLogCPMDisp, y = Tagwise)) + 
+  geom_point(size = 0.25, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  geom_line(aes(y = Trend), color = "blue", size = 1.5) + 
+  geom_line(aes(y = Common), color = "red", size = 1.5) +
+  geom_text(data = datasetDF, aes(label = prior_df)) + 
+  xlab("Average log CPM") + ylab("Biological coefficient of variation") + 
+  thm
+```
+
+
+### DESeq2
+
+The black dots are the gene-wise dispersion estimates, the red curve the fitted 
+mean-dispersion relationship and the blue circles represent the final dispersion
+estimates.For further information about the dispersion estimation in `DESeq2`,
+see @Love2014DESeq2.
+
+```{r dispersionDESeq2, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureDF %>% dplyr::arrange(baseMeanDisp), 
+       aes(x = baseMeanDisp, y = dispGeneEst)) + 
+  geom_point(size = 0.25, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + scale_x_log10() + scale_y_log10() +  
+  geom_point(aes(y = dispFinal), color = "lightblue", shape = 21) + 
+  geom_line(aes(y = dispFit), color = "red", size = 1.5) + 
+  xlab("Base mean") + ylab("Dispersion") + 
+  thm
+```
+
+## Mean-variance plots {.tabset .tabset-pills}
+
+This scatter plot shows the relation between the empirical mean and variance of
+the features. The difference between these mean-variance plots and the 
+mean-dispersion plots above is that the plots in this section do not take the 
+information about the experimental design and sample grouping into account, but 
+simply display the mean and variance of log2(CPM) estimates across all samples, 
+calculated using the `cpm` function from 
+[`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html) 
+[@Robinson2010edgeR], with a prior count of 2.
+
+```{r meanVarSepScatter, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureDF, aes(x = average_log2_cpm, y = variance_log2_cpm)) + 
+  geom_point(size = 0.75, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  xlab("Mean of log2(CPM)") + ylab("Variance of log2(CPM)") + 
+  thm
+```
+
+## Library sizes {.tabset .tabset-pills}
+
+This plot shows a histogram of the total read count per sample,
+i.e., the column sums of the respective data matrices.
+
+```{r libsizeSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(sampleDF, aes(x = Libsize)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Library size") + thm
+```
+
+## TMM normalization factors {.tabset .tabset-pills}
+
+This plot shows a histogram of the TMM normalization factors
+[@Robinson2010TMM], intended to adjust for differences in RNA composition, as
+calculated by 
+[`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html) 
+[@Robinson2010edgeR].
+
+```{r tmmSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(sampleDF, aes(x = TMM)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("TMM normalization factor") + thm
+```
+
+## Effective library sizes {.tabset .tabset-pills}
+
+This plot shows a histogram of the "effective library sizes", defined as
+the total count per sample multiplied by the corresponding TMM normalization
+factor.
+
+```{r effLibsizeSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(sampleDF, aes(x = EffLibsize)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Effective library size") + thm
+```
+
+## Expression distributions (average log CPM) {.tabset .tabset-pills}
+
+This plot shows the distribution of average abundance values for
+the features. The abundances are log CPM values calculated by `edgeR`.
+
+```{r logCPMSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureDF, aes(x = AveLogCPM)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Average log CPM") + thm
+```
+
+## Fraction zeros per sample {.tabset .tabset-pills}
+
+This plot shows the distribution of the fraction of zeros observed per sample
+(column) in the count matrices.
+
+```{r fraczeroSampleSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(sampleDF, aes(x = Fraczero)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Fraction zeros per sample") + thm
+```
+
+## Fraction zeros per feature {.tabset .tabset-pills}
+
+This plot illustrates the distribution of the fraction of zeros observed per
+feature (row) in the count matrices.
+
+```{r fraczeroFeatureSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureDF, aes(x = Fraczero)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Fraction zeros per feature") + thm
+```
+
+## Sample-sample correlations {.tabset .tabset-pills}
+
+The plot below shows the distribution of Spearman correlation coefficients for
+pairs of samples, calculated from the log(CPM) values obtained via the `cpm`
+function from `edgeR`, with a prior.count of 2. 
+
+```{r sampleCorrSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(sampleCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Sample-sample correlation") + thm
+```
+
+## Feature-feature correlations {.tabset .tabset-pills}
+
+This plot illustrates the distribution of Spearman correlation coefficients for
+pairs of features, calculated from the log(CPM) values obtained via the `cpm`
+function from `edgeR`, with a prior.count of 2. Only non-constant features are
+considered.
+
+```{r featureCorrSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) + 
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Feature-feature correlation") + thm
+```
+
+## Library size vs fraction zeros {.tabset .tabset-pills}
+
+This scatter plot shows the association between the total count (column sums)
+and the fraction of zeros observed per sample.
+
+```{r libsizeFraczeroSepScatter, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(sampleDF, aes(x = Libsize, y = Fraczero)) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  xlab("Library size") + ylab("Fraction zeros") + thm
+```
+
+## Mean expression vs fraction zeros {.tabset .tabset-pills}
+
+This scatter plot shows the association between the average abundance and the 
+fraction of zeros observed per feature. The abundance is defined as the
+log(CPM) values as calculated by `edgeR`.
+
+```{r logCPMFraczeroSepScatter, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
+ggplot(featureDF, aes(x = AveLogCPM, y = Fraczero)) + 
+  geom_point(size = 0.75, alpha = 0.5) + 
+  facet_wrap(~dataset, nrow = colRow[2]) + 
+  xlab("Average log CPM") + ylab("Fraction zeros") + thm
+```
+
+## References
+

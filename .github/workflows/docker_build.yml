@@ -1,0 +1,38 @@
+on:
+  push:
+    branches:
+      - master
+      - devel
+  schedule:
+    - cron: "0 0 * * 1"
+
+name: docker_build
+
+jobs:
+  build_containers:
+    runs-on: 'ubuntu-latest'
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    name: build container
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          VERSION=`cat DESCRIPTION | grep Version | sed 's#.*: ##'`
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          docker build -t $GITHUB_REPOSITORY:$BRANCH -f docker/Dockerfile .
+          if [[ $BRANCH == "master" ]] ; then
+            docker tag $GITHUB_REPOSITORY:$BRANCH $GITHUB_REPOSITORY:$VERSION
+            docker tag $GITHUB_REPOSITORY:$BRANCH $GITHUB_REPOSITORY:latest
+          fi
+
+      - name: Push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          docker push $GITHUB_REPOSITORY:$BRANCH
+          if [[ $BRANCH == "master" ]] ; then
+            docker push $GITHUB_REPOSITORY:$VERSION
+            docker push $GITHUB_REPOSITORY:latest
+          fi

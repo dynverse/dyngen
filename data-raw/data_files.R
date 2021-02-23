@@ -108,7 +108,89 @@ pbapply::pblapply(
   }
 )
 
-realcounts <- files %>% select(name, url)
+## Add one more dataset
+new_file <- tibble(
+  name = "GSE100866_CBMC_8K_13AB_10X-RNA_umi",
+  url = paste0("https://github.com/dynverse/dyngen/raw/data_files/", name, ".rds"),
+  local_out = paste0(output_dir, "/", name, ".rds")
+)
+
+if (!file.exists(new_file$local_out)) {
+  tmp <- tempfile()
+  download.file("ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE100nnn/GSE100866/suppl/GSE100866_CBMC_8K_13AB_10X-RNA_umi.csv.gz", tmp, quiet = TRUE)
+  cbmc.rna <- read.csv(file = tmp, sep = ",", header = TRUE, row.names = 1)
+  cbmc_counts <- Matrix::Matrix(as.matrix(cbmc.rna), sparse = TRUE) %>% Matrix::t()
+  cells_expressed <- Matrix::colMeans(cbmc_counts > 0)
+  cbmc_counts <- cbmc_counts[, cells_expressed > .05]
+  
+  write_rds(cbmc_counts, new_file$local_out, compress = "xz")
+}
+files <- bind_rows(files, new_file)
+
+
+
+# perform checks and filtering
+# files %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
+realcounts <- pmap_df(files, function(name, url, local_out, ...) {
+  cou <- readr::read_rds(local_out)
+  
+  library_size <- Matrix::rowSums(cou)
+  
+  cpm <- sweep(cou, 1, 1e6 / library_size, "*")
+  
+  num_cells <- nrow(cou)
+  num_features <- ncol(cou)
+  
+  dropout_rate <- mean(as.matrix(cou) == 0)
+  average_log2_cpm <- apply(cpm, 2, mean)
+  variance_log2_cpm <- apply(cpm, 2, var)
+  
+  tibble(
+    name, 
+    url,
+    num_cells,
+    num_features,
+    median_library_size = median(library_size),
+    dropout_rate,
+    median_average_log2_cpm = median(average_log2_cpm),
+    median_variance_log2_cpm = median(variance_log2_cpm)
+  )
+})
+
+ggplot(realcounts) + 
+  geom_point(aes(num_cells, median_library_size, alpha = num_cells > 300 & median_library_size > 1000, colour = dropout_rate)) + 
+  scale_y_log10() + scale_x_log10() + viridis::scale_color_viridis() + theme_bw()
+
+qc_pass_names <- c(
+  "zenodo_1443566_real_gold_cellbench-SC1_luyitian",
+  "zenodo_1443566_real_gold_cellbench-SC2_luyitian",
+  "zenodo_1443566_real_gold_cellbench-SC3_luyitian",
+  "zenodo_1443566_real_gold_developing-dendritic-cells_schlitzer",
+  "zenodo_1443566_real_gold_psc-astrocyte-maturation-neuron_sloan",
+  "zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca",
+  "zenodo_1443566_real_silver_cell-cycle_leng",
+  "zenodo_1443566_real_silver_embronic-mesenchyme-neuron-differentiation_mca",
+  "zenodo_1443566_real_silver_embryonic-mesenchyme-stromal-cell-cxcl14-cxcl12-axis_mca",
+  "zenodo_1443566_real_silver_mammary-gland-involution-endothelial-cell-aqp1-gradient_mca",
+  "zenodo_1443566_real_silver_mouse-cell-atlas-combination-10",
+  "zenodo_1443566_real_silver_mouse-cell-atlas-combination-4",
+  "zenodo_1443566_real_silver_mouse-cell-atlas-combination-5",
+  "zenodo_1443566_real_silver_mouse-cell-atlas-combination-8",
+  "zenodo_1443566_real_silver_olfactory-projection-neurons-DA1_horns",
+  "zenodo_1443566_real_silver_placenta-trophoblast-differentiation_mca",
+  "zenodo_1443566_real_silver_thymus-t-cell-differentiation_mca",
+  "zenodo_1443566_real_silver_trophoblast-stem-cell-trophoblast-differentiation_mca"
+)
+realcounts <- realcounts %>% mutate(qc_pass = name %in% qc_pass_names)
+
+# ggplot(realcounts %>% mutate(qc_pass = row_number() %in% c(3, 4, 5, 6, 8, 24, 29, 30, 31, 34, 35, 51, 52, 56, 57, 60, 66, 72, 108, 110, 111))) + 
+#   geom_point(aes(num_cells, median_library_size, alpha = qc_pass, colour = dropout_rate)) + 
+#   scale_y_log10() + scale_x_log10() + viridis::scale_color_viridis() + theme_bw()
+# 
+# ggplot(realcounts %>% mutate(qc_pass = row_number() %in% c(3, 4, 5, 6, 8, 24, 29, 30, 31, 34, 35, 51, 52, 56, 57, 60, 66, 72, 108, 110, 111))) + 
+#   geom_point(aes(median_average_log2_cpm, median_variance_log2_cpm, alpha = qc_pass, colour = dropout_rate)) + 
+#   scale_y_log10() + scale_x_log10() + viridis::scale_color_viridis() + theme_bw()
+
 usethis::use_data(realcounts, compress = "xz", overwrite = TRUE)
 
 

@@ -1,7 +1,14 @@
 
-# dyngen
+# dyngen <img src="man/figures/logo.png" align="right" />
 
-![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)<br><img src="man/figures/logo.png" align="right" />
+[![CRAN
+Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org/package=dyngen)
+[![CRAN
+Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
+[![DOI](https://img.shields.io/badge/doi-10.1101/2020.02.06.936971-green)](https://doi.org/10.1101/2020.02.06.936971)
+[![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
+[![Coverage
+Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic
 cellular processes at single-cell resolution. dyngen is more flexible
@@ -10,136 +17,51 @@ development and benchmarking, thereby stimulating development and
 testing of novel computational methods.
 
 A preprint is available on
-[bioRxiv](https://www.biorxiv.org/content/10.1101/2020.02.06.936971v2).
-Run `citation("dyngen")` to obtain the corresponding citation
-information. All source code for reproducing the results in this
-manuscript are available on
-[GitHub](https://github.com/dynverse/dyngen_manuscript).
+[bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run
+`citation("dyngen")` to obtain the corresponding citation information.
+All source code for reproducing the results in this manuscript are
+available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
-## System requirements
-
-This package is supported for Linux, but should also work on Mac OS X
-and Windows. It has been tested with [Github
-Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
-for R 3.5, 3.6 and 4.0 on the following systems:
-
-  - Mac OS X: Catalina (10.15.5)
-  - Linux: Ubuntu Xenial (16.04.6)
-  - Windows: Windows Server 2019 (10.0.17763)
+<img src="man/figures/overview.png" width="60%" />
 
 ## Installation
 
-You can install dyngen by running the following command. This should
-take no more than 10 minutes to install.
+dyngen should work straight out of the CRAN box by running
+`install.packages("dyngen")`. Having said that, you should definitely
+configure a few system variables for optimal speed. Check the
+[installation
+guide](https://dyngen.dynverse.org/articles/installation.html) for more
+information!
 
-``` r
-install.packages("remotes")
-remotes::install_github("dynverse/dyngen", dependencies = TRUE)
-```
+## Getting started
 
-To build the vignettes upon installation, run the following command
-instead. This might take a while depending on on the computer this is
-run on (30 \~ 60 min).
+Check out [this
+guide](https://dyngen.dynverse.org/articles/getting_started.html) on how
+to get started with dyngen. You can find more guides by clicking any of
+the links below:
 
-``` r
-remotes::install_github("dynverse/dyngen", dependencies = TRUE, build_vignettes = TRUE)
-```
-
-## Vignettes
-
-To learn about how dyngen, check out the example vignette below.
-Expected execution time for rerunning the code is about 5 minutes.
-
-  - [Getting started](vignettes/getting_started.md):  
-    `vignette("getting_started", package="dyngen")`
-  - [Showcase different backbones](vignettes/showcase_backbones.md):  
-    `vignette("showcase_backbones", package="dyngen")`
-
-## Getting started with Docker
-
-To run dyngen in a docker container, run the following command.
-
-``` sh
-docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstudio/workdir dynverse/dyngen
-```
-
-More information on running and building the docker container is
-available [here](https://github.com/dynverse/dyngen/tree/master/docker).
+-   [Advanced: Comparison to reference
+    dataset](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)
+-   [Advanced: Constructing a custom
+    backbone](https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html)
+-   [Advanced: Running dyngen from a docker
+    container](https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html)
+-   [Advanced: On scalability and
+    runtime](https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html)
+-   [Advanced: Simulating batch
+    effects](https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html)
+-   [Advanced: Simulating a knockout
+    experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
+-   [Advanced: Tweaking
+    parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
+-   [Getting
+    started](https://dyngen.dynverse.org/articles/getting_started.html)
+-   [Installation
+    instructions](https://dyngen.dynverse.org/articles/installation.html)
+-   [Showcase different
+    backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
 
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full
-list of changes.
-
-<!-- This section gets automatically generated from NEWS.md -->
-
-### Recent changes in dyngen 0.4.0 (2020-07-15)
-
-#### MAJOR CHANGES:
-
-  - `wrap_dataset()`: Outputted `$counts` now contains counts of both
-    spliced and unspliced reads, whereas `$counts_unspliced` and
-    `$counts_spliced` contains separated counts.
-
-  - Added a docker container containing the necessary code to run a
-    dyngen simulation.
-
-#### MINOR CHANGES:
-
-  - Added logo to package.
-
-  - Clean up internal code, mostly to satisfy R CMD check.
-
-#### DOCUMENTATION:
-
-  - Added two vignettes.
-
-  - Expanded the README.
-
-### Recent changes in dyngen 0.3.0 (2020-04-06)
-
-#### NEW FEATURES:
-
-  - Implement knockdown / knockouts / overexpression experiments.
-
-  - Implement better single-cell regulatory activity by determining the
-    effect on propensity values after knocking out a transcription
-    factor.
-
-  - Implement adding noise to the kinetic params of individual
-    simulations.
-
-  - Kinetics (transcription rate, translation rate, decay rate, …) are
-    based on Schwannhausser et al. 2011.
-
-  - Changed many parameter names to better explain its purpose.
-
-#### MINOR CHANGES:
-
-  - Fix module naming of backbones derived from `backbone_branching()`.
-
-  - Allow to plot labels in `plot_simulation_expression()`.
-
-  - Improve `backbone_disconnected()` and `backbone_converging()`.
-
-  - Rename required columns in `backbone()` input data.
-
-  - Use `backbone_linear()` to make `backbone_cyclic()` randomised.
-
-  - Added a decay rate for pre-mRNAs as well.
-
-  - Kinetics: redefine the decay rates in terms of the half-life of
-    these molecules.
-
-  - Only compute dimred if desired.
-
-  - Allow computing the propensity ratios as ground-truth for rna
-    velocity.
-
-#### BUG FIXES:
-
-  - Implement fix for double positives in `bblego` backbones.
-
-  - Fix graph plotting mixup of interaction effects (up/down).
-
-  - Made a fix to the computation of `feature_info$max_protein`.
+A full list of changes is available on our
+[changelog](https://dyngen.dynverse.org/news/index.html).

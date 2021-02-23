@@ -20,7 +20,7 @@ backbone <- backbone(
     module_progression = c("+A", "+B"),
     start = c(TRUE, FALSE),
     burn = c(TRUE, FALSE),
-    time = c(1, 1)
+    time = c(10, 10)
   )
 )
 
@@ -50,8 +50,8 @@ test_that("Testing normal use case of initialisation", {
     num_cores = 2
   )
   
-  simulation_params$burn_time <- 1.2
-  simulation_params$total_time <- 2.4
+  simulation_params$burn_time <- 12
+  simulation_params$total_time <- 24
   
   expect_equal(model$backbone, backbone)
   expect_equal(model$numbers, list(num_cells = 100, num_tfs = 10, num_targets = 50, num_hks = 40, num_features = 100, num_modules = 2))

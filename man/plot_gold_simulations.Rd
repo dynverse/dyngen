@@ -7,7 +7,7 @@
 plot_gold_simulations(
   model,
   detailed = FALSE,
-  mapping = aes(comp_1, comp_2),
+  mapping = aes_string("comp_1", "comp_2"),
   highlight = 0
 )
 }
@@ -20,6 +20,13 @@ plot_gold_simulations(
 
 \item{highlight}{Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the simulations using the dimred
+}
+\examples{
+data("example_model")
+plot_gold_simulations(example_model)
 }

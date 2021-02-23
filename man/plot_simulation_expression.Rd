@@ -23,6 +23,15 @@ plot_simulation_expression(
 
 \item{label_nonzero}{Plot labels for non-zero molecules.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the expression of the simulations over simulation time
+}
+\examples{
+\donttest{
+data("example_model")
+plot_simulation_expression(example_model)
+}
 }

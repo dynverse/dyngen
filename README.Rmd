@@ -12,77 +12,44 @@ library(tidyverse)
 submission_to_cran <- FALSE
 ```
 
-# dyngen
-
-![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)<br><img src="man/figures/logo.png" align="right" />
+# dyngen <img src="man/figures/logo.png" align="right" />
+[![CRAN Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org/package=dyngen)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
+[![DOI](https://img.shields.io/badge/doi-10.1101/2020.02.06.936971-green)](https://doi.org/10.1101/2020.02.06.936971)
+[![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
+[![Coverage Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods.
 
-A preprint is available on [bioRxiv](https://www.biorxiv.org/content/10.1101/2020.02.06.936971v2). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
+A preprint is available on [bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run `citation("dyngen")` to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
-## System requirements
-This package is supported for Linux, but should also work on Mac OS X and Windows. It has been tested with [Github Actions](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check) for R 3.5, 3.6 and 4.0 on the following systems:
-
-* Mac OS X: Catalina (10.15.5)
-* Linux: Ubuntu Xenial (16.04.6)
-* Windows: Windows Server 2019 (10.0.17763)
+```{r out.width = '60%', echo = FALSE}
+knitr::include_graphics("man/figures/overview.png")
+```
 
 ## Installation
-You can install dyngen by running the following command. This should take no more than 10 minutes to install.
+dyngen should work straight out of the CRAN box by running `install.packages("dyngen")`. Having said that, you should definitely configure a few system variables for optimal speed. Check the [installation guide](https://dyngen.dynverse.org/articles/installation.html) for more information!
 
-```r
-install.packages("remotes")
-remotes::install_github("dynverse/dyngen", dependencies = TRUE)
-```
+## Getting started
 
-To build the vignettes upon installation, run the following command instead. This might take a while depending on on the computer this is
-run on (30 ~ 60 min).
-
-```r
-remotes::install_github("dynverse/dyngen", dependencies = TRUE, build_vignettes = TRUE)
-```
-
-## Vignettes
-To learn about how dyngen, check out the example vignette below. Expected execution time for rerunning the code is about 5 minutes.
+Check out [this guide](https://dyngen.dynverse.org/articles/getting_started.html) on how to get started with dyngen. You can find more guides by clicking any of the links below:
 
 ```{r vignettes, results='asis', echo=FALSE}
 walk(
-  list.files("vignettes", pattern = "*.Rmd"),
+  list.files("vignettes", pattern = "*.Rmd", recursive = TRUE),
   function(file) {
     title <- 
       read_lines(paste0("vignettes/", file)) %>% 
       keep(~grepl("^title: ", .)) %>% 
       gsub("title: \"(.*)\"", "\\1", .)
     vignette_name <- gsub("\\.Rmd", "", file)
-    markdown_name <- gsub("\\.Rmd", ".md", file)
-    cat(
-      "* ",
-      ifelse(submission_to_cran, "", "["),
-      title, 
-      ifelse(submission_to_cran, "", paste0("](vignettes/", markdown_name, ")")),
-      ":  \n",
-      "`vignette(\"", vignette_name, "\", package=\"dyngen\")`\n",
-      sep = ""
-    )
+    html_name <- gsub("\\.Rmd", ".html", file)
+    
+    cat("* [", title, "](https://dyngen.dynverse.org/articles/", html_name, ")\n", sep = "")
   }
 )
 ```
 
-## Getting started with Docker
-To run dyngen in a docker container, run the following command.
-
-```sh
-docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true -v `pwd`:/home/rstudio/workdir dynverse/dyngen
-```
-
-More information on running and building the docker container is available [here](https://github.com/dynverse/dyngen/tree/master/docker).
-
 ## Latest changes
 
-Check out `news(package = "dyngen")` or [NEWS.md](NEWS.md) for a full list of changes.
-
-<!-- This section gets automatically generated from NEWS.md -->
-
-```{r news, echo=FALSE, results="asis"}
-cat(dynutils::recent_news())
-```
+A full list of changes is available on our [changelog](https://dyngen.dynverse.org/news/index.html).

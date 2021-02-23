@@ -45,6 +45,8 @@ jobs:
         run: |
           install.packages(c("remotes"))
           remotes::install_deps(dependencies = TRUE)
+          reticulate::install_miniconda()
+          anndata::install_anndata()
           remotes::install_cran("covr")
         shell: Rscript {0}
 

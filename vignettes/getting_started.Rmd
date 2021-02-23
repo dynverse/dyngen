@@ -10,8 +10,12 @@ editor_options:
 ---
 
 <!-- github markdown built using 
-rmarkdown::render("vignettes/getting_started.Rmd", output_format = "github_document")
+rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document())
 -->
+
+This vignette demonstrates the basics of running a dyngen simulation. 
+If you haven't done so already, first check out the installation instructions 
+in the README.
 
 ## Step 1: Define backbone and other parameters
 A dyngen simulation can be started by providing a backbone to the `initialise_model()` function.
@@ -23,21 +27,49 @@ eachother in such a way that expression of certain genes change over time in a s
 library(tidyverse)
 library(dyngen)
 
-set.seed(10)
-model <- 
-  initialise_model(
-    num_tfs = 12,
-    num_targets = 30,
-    num_hks = 15,
-    backbone = backbone_bifurcating(),
-    verbose = TRUE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
-  )
+set.seed(1)
 
-plot_backbone_statenet(model)
-plot_backbone_modulenet(model)
+backbone <- backbone_bifurcating()
+config <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 500,
+    num_hks = 500,
+    verbose = FALSE
+  )
 ```
+
+
+```{r quick_config, include=TRUE}
+# the simulation is being sped up because rendering all vignettes with one core
+# for pkgdown can otherwise take a very long time
+set.seed(1)
+
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = FALSE,
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      census_interval = 2, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
+```
+
+
+```{r plotinit, message=FALSE, fig.width = 10, fig.height = 6}
+plot_backbone_statenet(config)
+plot_backbone_modulenet(config)
+```
+
 
 For backbones with all different sorts of topologies, check `list_backbones()`:
 ```{r list_backbones}
@@ -48,7 +80,7 @@ names(list_backbones())
 Each gene module consists of a set of transcription factors.
 These can be generated and visualised as follows.
 ```{r tf_network}
-model <- generate_tf_network(model)
+model <- generate_tf_network(config)
 plot_feature_network(model, show_targets = FALSE)
 ```
 
@@ -119,23 +151,44 @@ Effects from performing a single-cell RNA-seq experiment can be emulated as foll
 model <- generate_experiment(model)
 ```
 
-## Step 8: Convert to a dynwrap object
+## Step 8: Convert to a dyno object
+Converting the dyngen to a dyno object allows you to visualise the dataset
+using the `dynplot` functions, or infer trajectories using `dynmethods`.
 ```{r wrap}
-dataset <- wrap_dataset(model)
+dataset <- as_dyno(model)
 ```
 
-## Visualise with `dynplot`
+### Visualise with `dynplot`
 ```{r dynplot}
 library(dynplot)
 plot_dimred(dataset)
 plot_graph(dataset)
 ```
 
-## Infer trajectory on expression data
-```{r dyno}
-library(dyno)
-pred <- infer_trajectory(dataset, ti_slingshot())
-plot_dimred(pred)
+### Save output to file
+You can save the output of the model and/or dataset to a file as follows.
+```r
+write_rds(model, "model.rds", compress = "gz")
+write_rds(dataset, "dataset.rds", compress = "gz")
+```
+
+## Step 8 alternative: Convert to an anndata/SCE/Seurat object
+dyngen 1.0.0 allows converting the output to an `anndata`, `SCE` or `Seurat` object as well.
+Check out the [anndata documentation](https://cran.r-project.org/package=anndata) 
+on how to install anndata for R.
+
+```r
+library(anndata)
+ad <- as_anndata(model)
+ad$write_h5ad("dataset.h5ad")
+
+library(SingleCellExperiment)
+sce <- as_sce(model)
+write_rds(sce, "dataset_sce.rds")
+
+library(Seurat)
+seurat <- as_seurat(model)
+write_rds(seurat, "dataset_seurat.rds")
 ```
 
 # One-shot function
@@ -143,20 +196,9 @@ plot_dimred(pred)
 `dyngen` also provides a one-shot function for running 
 all of the steps all at once and producing plots.
 ```{r oneshot_run, message=FALSE, fig.width=20, fig.height=20}
-set.seed(1)
-config <- 
-  initialise_model(
-    num_tfs = 12,
-    num_targets = 30,
-    num_hks = 15,
-    backbone = backbone_bifurcating_converging(),
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 8
-  )
-
 out <- generate_dataset(
   config,
+  format = "dyno",
   make_plots = TRUE
 )
 
@@ -167,76 +209,9 @@ print(out$plot)
 
 `dataset` and `model` can be used in much the same way as before.
 
-```{r oneshot_plot}
+```{r}
+library(dyno)
+
 plot_dimred(dataset)
 plot_graph(dataset)
-pred <- infer_trajectory(dataset, ti_slingshot(), verbose = FALSE)
-plot_dimred(pred)
-```
-
-## Construct your own backbone
-
-In addition to the backbones already defined by `dyngen`, you can
-define your own custom backbone by using one of two ways.
-
-### Manually
-The first approach is to study the `?backbone` documentation. This will allow 
-you to create any sort of backbone you like (disconnected, cyclic, converging, ...),
-but also requires you to understand the backbone in detail and will typically 
-involve experimenting with the different parameters a little bit.
-
-This is an example of what data structures a backbone consists of.
-```{r bifurcatingloop_print}
-backbone <- backbone_bifurcating_loop()
-
-print(backbone$module_info)
-print(backbone$module_network)
-print(backbone$expression_patterns)
-```
-
-This allows you to simulate the following dataset.
-```{r bifurcatingloop_plot, fig.width = 20, fig.height = 20}
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE,
-    download_cache_dir = "~/.cache/dyngen",
-    num_cores = 
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
-
-print(out$plot)
-```
-
-### Backbone lego
-Alternatively, you can use the `bblego` functions in order to create 
-custom backbones using various components. Please note that the `bblego` 
-functions currently only allow you to create tree-like backbones. 
-See `?bblego` for more details.
-
-Here is an example of a bifurcating trajectory.
-
-```{r bblego, fig.width = 20, fig.height = 20}
-backbone <- bblego(
-  bblego_start("A", type = "simple", num_modules = 2),
-  bblego_linear("A", "B", type = "flipflop", num_modules = 4),
-  bblego_branching("B", c("C", "D"), type = "simple"),
-  bblego_end("C", type = "doublerep2", num_modules = 4),
-  bblego_end("D", type = "doublerep1", num_modules = 7)
-)
-
-out <- 
-  initialise_model(
-    backbone = backbone,
-    num_tfs = 40,
-    num_targets = 0,
-    num_hks = 0,
-    verbose = FALSE
-  ) %>% 
-  generate_dataset(make_plots = TRUE)
-
-print(out$plot)
 ```

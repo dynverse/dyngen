@@ -6,7 +6,12 @@
 #'
 #' @importFrom stats pnorm qnorm
 #' 
+#' @return Generates values with rnorm, bounded by \[min, max\]
+#' 
 #' @export 
+#' 
+#' @examples
+#' rnorm_bounded(10)
 rnorm_bounded <- function(n, mean = 0, sd = 1, min = -Inf, max = Inf) {
   unif_min <- pnorm(min, mean = mean, sd = sd)
   unif_max <- pnorm(max, mean = mean, sd = sd)

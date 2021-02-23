@@ -31,8 +31,20 @@
 #'   cached in this directory.
 #' @param num_cores Parallellisation parameter for various steps in the pipeline. 
 #' @param id An identifier for the model.
+#' 
+#' @return A dyngen model.
+#' 
+#' @seealso [dyngen] on how to run a complete dyngen simulation
 #'   
 #' @export
+#' 
+#' @examples
+#' model <- initialise_model(
+#'   backbone = backbone_bifurcating(),
+#'   num_cells = 555,
+#'   verbose = FALSE,
+#'   download_cache_dir = "~/.cache/dyngen"
+#' )
 initialise_model <- function(
   backbone,
   num_cells = 1000,
@@ -47,10 +59,12 @@ initialise_model <- function(
   simulation_params = simulation_default(),
   experiment_params = experiment_snapshot(),
   verbose = TRUE,
-  download_cache_dir = NULL,
-  num_cores = 1,
+  download_cache_dir = getOption("dyngen_download_cache_dir"),
+  num_cores = getOption("Ncpus") %||% 1L,
   id = NULL
 ) {
+  timer_init <- .add_timing(list(), "1_initialisation", "initialisation")
+  
   distance_metric <- match.arg(distance_metric)
   
   if (is.null(simulation_params$burn_time)) {
@@ -61,8 +75,21 @@ initialise_model <- function(
     simulation_params$total_time <- 
       simtime_from_backbone(backbone, burn = FALSE)
   }
-    
-  l <- lst(
+  
+  # perform check
+  total_time <- simulation_params$total_time
+  census_interval <- simulation_params$census_interval
+  num_simulations <- nrow(simulation_params$experiment_params)
+  if (floor(total_time / census_interval) * num_simulations < num_cells) {
+    warning(
+      "Simulations will not generate enough cells to draw num_cells from.\n", 
+      "Ideally, `floor(total_time / census_interval) * num_simulations / num_cells` should be larger than 10\n", 
+      "Lower the census interval or increase the number of simulations (with simulation_params$experiment_params)."
+    )
+  }
+  
+  # create output
+  out <- lst(
     backbone,
     numbers = lst(
       num_cells,
@@ -82,9 +109,13 @@ initialise_model <- function(
     verbose,
     download_cache_dir,
     num_cores,
-    id
+    id,
+    timings = timer_init$timings
   )
   
-  class(l) <- c(class(l), "dyngen::init")
-  l
+  class(out) <- c(class(out), "dyngen::init")
+  
+  out <- .add_timing(out, "1_initialisation", "end")
+  
+  out
 }

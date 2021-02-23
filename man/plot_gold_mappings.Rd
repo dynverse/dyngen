@@ -8,7 +8,7 @@ plot_gold_mappings(
   model,
   selected_simulations = NULL,
   do_facet = TRUE,
-  mapping = aes(comp_1, comp_2)
+  mapping = aes_string("comp_1", "comp_2")
 )
 }
 \arguments{
@@ -20,6 +20,15 @@ plot_gold_mappings(
 
 \item{mapping}{Which components to plot.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the mapping of the simulations to the gold standard
+}
+\examples{
+\donttest{
+data("example_model")
+plot_gold_mappings(example_model)
+}
 }

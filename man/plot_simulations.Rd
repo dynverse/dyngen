@@ -4,13 +4,22 @@
 \alias{plot_simulations}
 \title{Visualise the simulations using the dimred}
 \usage{
-plot_simulations(model, mapping = aes(comp_1, comp_2))
+plot_simulations(model, mapping = aes_string("comp_1", "comp_2"))
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_cells]{generate_cells()}}.}
 
 \item{mapping}{Which components to plot.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the simulations using the dimred
+}
+\examples{
+\donttest{
+data("example_model")
+plot_simulations(example_model)
+}
 }

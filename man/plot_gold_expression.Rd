@@ -17,6 +17,13 @@ plot_gold_expression(
 
 \item{label_changing}{Whether or not to add a label next to changing molecules.}
 }
+\value{
+A ggplot2 object.
+}
 \description{
 Visualise the expression of the gold standard over simulation time
+}
+\examples{
+data("example_model")
+plot_gold_expression(example_model, what = "mol_mrna", label_changing = FALSE)
 }

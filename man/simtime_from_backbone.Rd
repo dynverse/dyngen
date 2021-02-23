@@ -11,6 +11,22 @@ simtime_from_backbone(backbone, burn = FALSE)
 
 \item{burn}{Whether or not to compute the simtime for only the burn phase}
 }
+\value{
+An estimation of the required simulation time
+}
 \description{
 Determine simulation time from backbone
+}
+\examples{
+backbone <- backbone_linear()
+
+simtime_from_backbone(backbone)
+
+model <- initialise_model(
+  backbone = backbone,
+  simulation_params = simulation_default(
+    burn_time = simtime_from_backbone(backbone, burn = TRUE),
+    total_time = simtime_from_backbone(backbone, burn = FALSE)
+  )
+)
 }

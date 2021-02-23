@@ -1,5 +1,5 @@
 #' @importFrom tidygraph tbl_graph activate
-#' @importFrom ggplot2 ggsave labs aes coord_equal scale_colour_manual scale_size_manual facet_wrap geom_line geom_text ggplot theme_bw geom_path geom_point geom_step
+#' @importFrom ggplot2 ggsave labs aes coord_equal scale_colour_manual scale_size_manual facet_wrap geom_line geom_text ggplot theme_bw geom_path geom_point geom_step aes_string scale_linetype_manual
 #' @importFrom ggraph circle geom_edge_fan geom_edge_loop geom_node_circle geom_node_text ggraph scale_edge_width_continuous theme_graph geom_node_label geom_node_point
 #' @importFrom viridis scale_color_viridis
 #' @importFrom grid arrow unit
@@ -21,26 +21,36 @@ effect_colour <- function(effect) {
 #' @param model A dyngen initial model created with [initialise_model()].
 #' @param detailed Whether or not to also plot the substates of transitions.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_backbone_statenet(example_model)
+#' }
 plot_backbone_statenet <- function(model, detailed = FALSE) {
-  # satisfy r cmd check 
-  from_ <- to_ <- from <- to <- mod_diff <- name <- time <- module_progression <- 
-    from_cap <- to_cap <- main <- NULL
-  
   edges <- model$backbone$expression_patterns
   
   large_cap <- 4
   small_cap <- 1
   if (detailed) {
     edges <- .generate_gold_standard_mod_changes(edges) %>% 
-      rename(from = from_, to = to_, from_ = from, to_ = to, module_progression = mod_diff) %>% 
+      rename(
+        from = .data$from_, 
+        to = .data$to_, 
+        from_ = .data$from, 
+        to_ = .data$to, 
+        module_progression = .data$mod_diff
+      ) %>% 
       mutate(
-        from_cap = ifelse(from == from_, large_cap, small_cap),
-        to_cap = ifelse(to == to_, large_cap, small_cap)
+        from_cap = ifelse(.data$from == .data$from_, large_cap, small_cap),
+        to_cap = ifelse(.data$to == .data$to_, large_cap, small_cap)
       )
     nodes <- tibble(
       name = unique(c(edges$from, edges$to)),
-      main = name %in% c(edges$from_, edges$to_)
+      main = .data$name %in% c(edges$from_, edges$to_)
     )
   } else {
     nodes <- tibble(
@@ -53,7 +63,7 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
     )
   }
   
-  gr <- tbl_graph(edges = edges %>% rename(weight = time), nodes = nodes)
+  gr <- tbl_graph(edges = edges %>% rename(weight = .data$time), nodes = nodes)
   
   r <- .05
   arrow <- grid::arrow(type = "closed", length = grid::unit(3, "mm"))
@@ -61,15 +71,15 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
   ggraph(gr, layout = "igraph", algorithm = "kk") +
     geom_edge_fan(
       aes(
-        label = module_progression,
-        start_cap = circle(from_cap, "mm"),
-        end_cap = circle(to_cap, "mm")
+        label = .data$module_progression,
+        start_cap = circle(.data$from_cap, "mm"),
+        end_cap = circle(.data$to_cap, "mm")
       ), 
       arrow = arrow, 
       colour = "gray"
     ) +
-    geom_node_point(data = function(df) df %>% filter(!main)) +
-    geom_node_label(aes(label = name), function(df) df %>% filter(main)) +
+    geom_node_point(data = function(df) df %>% filter(!.data$main)) +
+    geom_node_label(aes(label = .data$name), function(df) df %>% filter(.data$main)) +
     theme_graph(base_family = 'Helvetica') +
     coord_equal()
 }
@@ -78,8 +88,16 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
 #' 
 #' @param model A dyngen initial model created with [initialise_model()].
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @importFrom igraph layout.graphopt V E
 #' @export
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_backbone_modulenet(example_model)
+#' }
 plot_backbone_modulenet <- function(model) {
   # satisfy r cmd check
   module_id <- color <- from <- to <- strength <- effect <- name <- NULL
@@ -124,8 +142,16 @@ plot_backbone_modulenet <- function(model) {
 #' @param show_targets Whether or not to show the targets.
 #' @param show_hks Whether or not to show the housekeeping genes.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @importFrom igraph layout_with_fr V E
 #' @export
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_feature_network(example_model)
+#' }
 plot_feature_network <- function(
   model,
   show_tfs = TRUE,
@@ -224,19 +250,24 @@ plot_feature_network <- function(
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
 #' @param mapping Which components to plot.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
-plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
-  # satisfy r cmd check
-  comp_1 <- comp_2 <- sim_time <- simulation_i <- NULL
-  
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_simulations(example_model)
+#' }
+plot_simulations <- function(model, mapping = aes_string("comp_1", "comp_2")) {
   plot_df <- 
     bind_cols(
       model$simulations$meta,
       model$simulations$dimred %>% as.data.frame
     )
   
-  ggplot(plot_df %>% filter(sim_time >= 0), mapping) +
-    geom_path(aes(colour = sim_time, group = simulation_i)) +
+  ggplot(plot_df %>% filter(.data$sim_time >= 0), mapping) +
+    geom_path(aes(colour = .data$sim_time, group = .data$simulation_i)) +
     viridis::scale_color_viridis() +
     theme_bw()
 }
@@ -248,16 +279,19 @@ plot_simulations <- function(model, mapping = aes(comp_1, comp_2)) {
 #' @param mapping Which components to plot.
 #' @param highlight Which simulation to highlight. If highlight == 0 then the gold simulation will be highlighted.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
-plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1, comp_2), highlight = 0) {
-  # satisfy r cmd check
-  comp_1 <- comp_2 <- burn <- sim_time <- from_ <- to_ <- from <- to <- simulation_i <- edge <- NULL
-  
+#' 
+#' @examples
+#' data("example_model")
+#' plot_gold_simulations(example_model)
+plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes_string("comp_1", "comp_2"), highlight = 0) {
   plot_df <- 
     bind_cols(
       model$gold_standard$meta,
       model$gold_standard$dimred %>% as.data.frame
-    ) %>% filter(!burn)
+    ) %>% filter(!.data$burn)
   
   if (!detailed && model %has_names% "simulations" && model$simulations %has_names% "dimred") {
     plot_df <- plot_df %>% 
@@ -265,20 +299,23 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
         bind_cols(
           model$simulations$meta,
           model$simulations$dimred %>% as.data.frame
-        ) %>% filter(sim_time >= 0)
+        ) %>% filter(.data$sim_time >= 0)
       )
   }
   
+  plot_df <- plot_df %>% mutate(group = paste0(.data$from_, "->", .data$to_))
+  
   if (detailed) {
-    plot_df <- plot_df %>% mutate(edge = paste0(from_, "_", to_))
+    plot_df <- plot_df %>% mutate(edge = .data$group)
   } else {
-    plot_df <- plot_df %>% mutate(edge = paste0(from, "_", to))
+    plot_df <- plot_df %>% mutate(edge = paste0(.data$from, "->", .data$to))
   }
   
   ggplot(mapping = mapping) +
-    geom_path(aes(group = simulation_i), plot_df %>% filter(simulation_i != highlight), colour = "darkgray") +
-    geom_path(aes(colour = edge, group = paste0(from_, "_", to_)), plot_df %>% filter(simulation_i == highlight), size = 2) +
-    theme_bw()
+    geom_path(aes(group = .data$simulation_i), plot_df %>% filter(.data$simulation_i != highlight), colour = "darkgray") +
+    geom_path(aes(colour = .data$edge, group = .data$group), plot_df %>% filter(.data$simulation_i == highlight), size = 2) +
+    theme_bw() +
+    labs(colour = "Edge")
 }
 
 #' Visualise the mapping of the simulations to the gold standard
@@ -288,33 +325,40 @@ plot_gold_simulations <- function(model, detailed = FALSE, mapping = aes(comp_1,
 #' @param do_facet Whether or not to facet according to simulation index.
 #' @param mapping Which components to plot.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
-plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes(comp_1, comp_2)) {
-  # satisfy r cmd check
-  comp_1 <- comp_2 <- sim_time <- burn <- simulation_i <- from <- to <- edge <- NULL
-  
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_gold_mappings(example_model)
+#' }
+plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TRUE, mapping = aes_string("comp_1", "comp_2")) {
   plot_df <- 
     bind_rows(
       bind_cols(
         model$simulations$meta,
         model$simulations$dimred %>% as.data.frame
-      ) %>% filter(sim_time >= 0),
+      ) %>% filter(.data$sim_time >= 0),
       bind_cols(
         model$gold_standard$meta,
         model$gold_standard$dimred %>% as.data.frame
-      ) %>% filter(!burn)
+      ) %>% filter(!.data$burn)
     )
   
   if (!is.null(selected_simulations)) {
-    plot_df <- plot_df %>% filter(simulation_i %in% selected_simulations)
+    plot_df <- plot_df %>% filter(.data$simulation_i %in% selected_simulations)
   }
   
-  plot_df <- plot_df %>% mutate(edge = paste0(from, "->", to))
+  plot_df <- plot_df %>% mutate(edge = paste0(.data$from, "->", .data$to))
   
   g <- ggplot(mapping = mapping) +
-    geom_path(aes(colour = edge), plot_df %>% filter(simulation_i == 0)) +
-    geom_path(aes(colour = edge, group = simulation_i), plot_df %>% filter(simulation_i != 0)) +
-    theme_bw() 
+    geom_path(aes(colour = .data$edge, linetype = "Gold standard"), plot_df %>% filter(.data$simulation_i == 0)) +
+    geom_path(aes(colour = .data$edge, group = .data$simulation_i, linetype = "Simulation"), plot_df %>% filter(.data$simulation_i != 0)) +
+    theme_bw() +
+    scale_linetype_manual(values = c("Gold standard" = "dotted", "Simulation" = "solid")) + 
+    labs(linetype = "Sim. type", colour = "Edge")
   
   if (do_facet) {
     g <- g +
@@ -331,7 +375,13 @@ plot_gold_mappings <- function(model, selected_simulations = NULL, do_facet = TR
 #' @param what Which molecule types to visualise.
 #' @param label_changing Whether or not to add a label next to changing molecules.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @export
+#' 
+#' @examples
+#' data("example_model")
+#' plot_gold_expression(example_model, what = "mol_mrna", label_changing = FALSE)
 plot_gold_expression <- function(
   model, 
   what = c("mol_premrna", "mol_mrna", "mol_protein"),
@@ -366,7 +416,8 @@ plot_gold_expression <- function(
     scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
     facet_wrap(~edge) +
-    theme_bw()
+    theme_bw() +
+    labs(colour = "Module id", linetype = "Molecule type")
   
   if (label_changing) {
     g <- g +
@@ -391,10 +442,18 @@ plot_gold_expression <- function(
 #' @param facet What to facet on.
 #' @param label_nonzero Plot labels for non-zero molecules.
 #' 
+#' @return A ggplot2 object.
+#' 
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom stats approx
 #' 
 #' @export
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_simulation_expression(example_model)
+#' }
 plot_simulation_expression <- function(
   model, 
   simulation_i = 1:4,
@@ -433,7 +492,8 @@ plot_simulation_expression <- function(
     geom_step(aes(linetype = type, size = type, colour = module_id)) +
     scale_size_manual(values = c(mol_premrna = .5, mol_mrna = 1, mol_protein = .5)) +
     scale_colour_manual(values = model$backbone$module_info %>% select(module_id, color) %>% deframe) +
-    theme_bw()
+    theme_bw() +
+    labs(colour = "Module id", linetype = "Molecule type")
   
   if (label_nonzero) {
     pts <- seq(0, max(model$simulations$meta$sim_time), by = 5)
@@ -464,4 +524,56 @@ plot_simulation_expression <- function(
   }
   
   g
+}
+
+#' Plot a dimensionality reduction of the final dataset
+#' 
+#' @param model A dyngen intermediary model for which the simulations have been run with [generate_experiment()].
+#' @param mapping Which components to plot.
+#' 
+#' @return A ggplot2 object.
+#' 
+#' @export
+#' 
+#' @examples
+#' \donttest{
+#' data("example_model")
+#' plot_experiment_dimred(example_model)
+#' }
+plot_experiment_dimred <- function(model, mapping = aes_string("comp_1", "comp_2")) {
+  # construct data object
+  counts <- model$experiment$counts_mrna + model$experiment$counts_premrna
+  dimred <- lmds::lmds(counts, distance_method = model$distance_metric)
+  
+  progressions <-
+    model$simulations$meta[model$experiment$cell_info$step_ix, ] %>%
+    mutate(
+      milestone_id = ifelse(.data$time < .5, .data$from, .data$to),
+      edge = paste0(.data$from, "->", .data$to)
+    )
+  
+  plot_df <- bind_cols(progressions, as.data.frame(dimred))
+  
+  # create plot
+  ggplot(plot_df, mapping) +
+    geom_point(aes(colour = .data$edge)) +
+    theme_bw() +
+    labs(colour = "Edge")
+}
+
+#' @importFrom ggplot2 geom_bar scale_fill_brewer theme_classic coord_flip theme
+plot_timings <- function(model) {
+  timings <- 
+    get_timings(model) %>% 
+    mutate(
+      name = paste0(.data$group, ": ", .data$task),
+      name = factor(.data$name, levels = rev(.data$name))
+    )
+  ggplot(timings) + 
+    geom_bar(aes(x = .data$name, y = .data$time_elapsed, fill = .data$group), stat = "identity") +
+    scale_fill_brewer(palette = "Dark2") + 
+    theme_classic() +
+    theme(legend.position = "none") +
+    coord_flip() + 
+    labs(x = NULL, y = "Time (s)", fill = "dyngen stage")
 }

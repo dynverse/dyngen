@@ -1,0 +1,99 @@
+url: https://dyngen.dynverse.org
+
+home:
+  links:
+    - text: Preprint
+      href: "https://www.biorxiv.org/content/10.1101/2020.02.06.936971v3.full"
+
+template:
+  params:
+    ganalytics: "UA-143597662-2"
+
+articles:
+ - title: Getting started with dyngen
+   navbar: ~
+   contents:
+     - installation
+     - getting_started
+     - showcase_backbones
+ - title: Advanced topics
+   navbar: Advanced
+   contents:
+    - starts_with("advanced")
+
+reference:
+ - title: Step 1, initialise dyngen model
+   desc: Define and store settings for all following steps. See each of the sections below for more information.
+ - contents: 
+   - initialise_model
+   - list_backbones
+   - starts_with("backbone")
+   - starts_with("bblego")
+   - plot_backbone_modulenet
+   - plot_backbone_statenet
+ - title: Step 2, generate TF network
+   desc: Generate a transcription factor network from the backbone
+ - contents:
+   - generate_tf_network
+   - tf_network_default
+ - title: Step 3, add more genes to the gene network
+   desc: Generate a target network
+ - contents:
+   - generate_feature_network
+   - feature_network_default
+   - plot_feature_network
+ - title: Step 4, generate gene kinetics
+   desc: Generate kinetics from each gene in the network
+ - contents:
+   - generate_kinetics
+   - kinetics_default
+   - kinetics_noise_none
+   - kinetics_noise_simple
+ - title: Step 5, simulate the gold standard
+   desc: Simulate the gold standard backbone, used for mapping to cell states afterwards
+ - contents:
+   - generate_gold_standard
+   - gold_standard_default
+   - plot_gold_mappings
+   - plot_gold_simulations
+   - plot_gold_expression
+ - title: Step 6, simulate the cells
+   desc: Simulate the cells based on its GRN
+ - contents:
+   - generate_cells
+   - simulation_default
+   - starts_with("simulation_type_")
+   - plot_simulations
+   - plot_simulation_expression
+ - title: Step 7, simulate cell and transcripting sampling
+   desc: Simulate cell and transcripting sampling
+ - contents:
+   - generate_experiment
+   - list_experiment_samplers
+   - experiment_snapshot
+   - experiment_synchronised
+   - simtime_from_backbone
+   - plot_experiment_dimred
+ - title: Step 8, convert to dataset
+   desc: Convert to a dataset object for ease of use
+ - contents:
+   - as_dyno
+   - wrap_dataset
+   - as_anndata
+   - as_sce
+   - as_seurat
+ - title: One-shot function
+   desc: Run through steps 2 to 8 with a single function
+ - contents:
+   - generate_dataset
+ - title: Data objects
+ - contents:
+   - example_model
+   - realcounts
+   - realnets
+ - title: Varia functions
+ - contents:
+   - dyngen
+   - get_timings
+   - combine_models
+   - rnorm_bounded
