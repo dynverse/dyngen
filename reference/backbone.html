@@ -237,7 +237,7 @@ not get sampled from these cell states.</p></li>
     <p>A dyngen backbone.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='list_backbones.html'>list_backbones()</a></code> for a list of all backbone methods.</p></div>
+    <div class='dont-index'><p><a href='dyngen.html'>dyngen</a> on how to run a dyngen simulation</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tibble.tidyverse.org/'>tibble</a></span><span class='op'>)</span>
@@ -259,51 +259,6 @@ not get sampled from these cell states.</p></li>
     <span class='st'>"s1"</span>,  <span class='st'>"s2"</span>, <span class='st'>"+M2,+M3"</span>,           <span class='cn'>FALSE</span>,  <span class='cn'>FALSE</span>, <span class='fl'>80</span>
   <span class='op'>)</span>
 <span class='op'>)</span>
-<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='initialise_model.html'>initialise_model</a></span><span class='op'>(</span>
-  backbone <span class='op'>=</span> <span class='va'>backbone</span>
-<span class='op'>)</span>
-<span class='co'># \dontshow{</span>
-<span class='co'># actually use a smaller example </span>
-<span class='co'># to reduce execution time during</span>
-<span class='co'># testing of the examples</span>
-<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='initialise_model.html'>initialise_model</a></span><span class='op'>(</span>
-  backbone <span class='op'>=</span> <span class='va'>model</span><span class='op'>$</span><span class='va'>backbone</span>,
-  num_cells <span class='op'>=</span> <span class='fl'>5</span>,
-  num_targets <span class='op'>=</span> <span class='fl'>0</span>,
-  num_hks <span class='op'>=</span> <span class='fl'>0</span>,
-  gold_standard_params <span class='op'>=</span> <span class='fu'><a href='generate_gold_standard.html'>gold_standard_default</a></span><span class='op'>(</span>census_interval <span class='op'>=</span> <span class='fl'>1</span>, tau <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span>,
-  simulation_params <span class='op'>=</span> <span class='fu'><a href='generate_cells.html'>simulation_default</a></span><span class='op'>(</span>
-    burn_time <span class='op'>=</span> <span class='fl'>10</span>,
-    total_time <span class='op'>=</span> <span class='fl'>10</span>,
-    census_interval <span class='op'>=</span> <span class='fl'>1</span>,
-    ssa_algorithm <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html'>ssa_etl</a></span><span class='op'>(</span>tau <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span>,
-    experiment_params <span class='op'>=</span> <span class='fu'><a href='generate_cells.html'>simulation_type_wild_type</a></span><span class='op'>(</span>num_simulations <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
-  <span class='op'>)</span>
-<span class='op'>)</span>
-<span class='co'># }</span>
-<span class='co'># \donttest{</span>
-<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='va'>model</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_tf_network.html'>generate_tf_network</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_feature_network.html'>generate_feature_network</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_kinetics.html'>generate_kinetics</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_gold_standard.html'>generate_gold_standard</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_cells.html'>generate_cells</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_experiment.html'>generate_experiment</a></span><span class='op'>(</span><span class='op'>)</span> 
-</div><div class='output co'>#&gt; Generating TF network
-#&gt; Sampling feature network from real network
-#&gt; Generating kinetics for 3 features
-#&gt; Generating formulae
-#&gt; Generating gold standard mod changes
-#&gt; Precompiling reactions for gold standard
-#&gt; Running gold simulations
-#&gt;   |                                                  | 0 % elapsed=00s     |=========================                         | 50% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
-#&gt; Precompiling reactions for simulations
-#&gt; Running 1 simulations
-#&gt; Mapping simulations to gold standard
-#&gt; Performing dimred
-#&gt; Simulating experiment</div><div class='input'>  
-<span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='as_dyno.html'>as_dyno</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Loading required namespace: dynwrap</span></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

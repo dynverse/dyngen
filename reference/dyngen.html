@@ -288,7 +288,7 @@
 
 <ul>
 <li><p><code><a href='as_dyno.html'>as_dyno()</a></code>, <code><a href='as_dyno.html'>wrap_dataset()</a></code>: Convert a dyngen model to a dyno dataset</p></li>
-<li><p><code><a href='as_dyno.html'>as_anndata()</a></code>: Convert da yngen model to an anndata dataset</p></li>
+<li><p><code><a href='as_dyno.html'>as_anndata()</a></code>: Convert a dyngen model to an anndata dataset</p></li>
 <li><p><code><a href='as_dyno.html'>as_sce()</a></code>: Convert a dyngen model to a SingleCellExperiment dataset</p></li>
 <li><p><code><a href='as_dyno.html'>as_seurat()</a></code>: Convert a dyngen model to a Seurat dataset</p></li>
 </ul>
@@ -356,7 +356,7 @@
   <span class='fu'><a href='generate_experiment.html'>generate_experiment</a></span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Generating TF network
 #&gt; Sampling feature network from real network
-#&gt; Generating kinetics for 37 features
+#&gt; Generating kinetics for 35 features
 #&gt; Generating formulae
 #&gt; Generating gold standard mod changes
 #&gt; Precompiling reactions for gold standard
@@ -365,10 +365,12 @@
 #&gt; Precompiling reactions for simulations
 #&gt; Running 1 simulations
 #&gt; Mapping simulations to gold standard</div><div class='output co'>#&gt; <span class='warning'>Warning: Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.</span></div><div class='output co'>#&gt; Performing dimred
-#&gt; Simulating experiment</div><div class='output co'>#&gt; <span class='error'>Error in rmultinom(1, lib_size, gene_vals): invalid second argument 'size'</span></div><div class='input'>  
-<span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='as_dyno.html'>as_dyno</a></span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in as(log2(counts + 1), "dgCMatrix"): no method or default for coercing “numeric” to “dgCMatrix”</span></div><div class='input'>
-<span class='co'># dynplot::plot_dimred(dataset)</span>
+#&gt; Simulating experiment</div><div class='input'>  
+<span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='as_dyno.html'>wrap_dataset</a></span><span class='op'>(</span><span class='va'>model</span>, format <span class='op'>=</span> <span class='st'>"dyno"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Loading required namespace: dynwrap</span></div><div class='input'><span class='co'># format can also be set to "sce", "seurat", "anndata" or "list"</span>
+
+<span class='co'># library(dynplot)</span>
+<span class='co'># plot_dimred(dataset)</span>
 <span class='co'># }</span>
 
 </div></pre>

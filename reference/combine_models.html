@@ -198,72 +198,19 @@ different and should be duplicated and prefixed.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>See the <a href='https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html'>vignette on simulating batch effects</a> on how to use this function.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='co'># create the config object</span>
-<span class='va'>init_config</span> <span class='op'>&lt;-</span> <span class='fu'><a href='initialise_model.html'>initialise_model</a></span><span class='op'>(</span>
-  backbone <span class='op'>=</span> <span class='fu'><a href='list_backbones.html'>backbone_linear</a></span><span class='op'>(</span><span class='op'>)</span>,
-  num_cells <span class='op'>=</span> <span class='fl'>500</span>,
-  num_targets <span class='op'>=</span> <span class='fl'>100</span>,
-  num_hks <span class='op'>=</span> <span class='fl'>50</span>,
-  gold_standard_params <span class='op'>=</span> <span class='fu'><a href='generate_gold_standard.html'>gold_standard_default</a></span><span class='op'>(</span>census_interval <span class='op'>=</span> <span class='fl'>5</span>, tau <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>,
-  simulation_params <span class='op'>=</span> <span class='fu'><a href='generate_cells.html'>simulation_default</a></span><span class='op'>(</span>
-    census_interval <span class='op'>=</span> <span class='fl'>5</span>,
-    ssa_algorithm <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html'>ssa_etl</a></span><span class='op'>(</span>tau <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>,
-    experiment_params <span class='op'>=</span> <span class='fu'><a href='generate_cells.html'>simulation_type_wild_type</a></span><span class='op'>(</span>num_simulations <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span>
-  <span class='op'>)</span>
-<span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"example_model"</span><span class='op'>)</span>
+<span class='va'>model_ab</span> <span class='op'>&lt;-</span> <span class='fu'>combine_models</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='st'>"left"</span> <span class='op'>=</span> <span class='va'>example_model</span>, <span class='st'>"right"</span> <span class='op'>=</span> <span class='va'>example_model</span><span class='op'>)</span><span class='op'>)</span>
 
-<span class='co'># generate the genes and their kinetics</span>
-<span class='va'>model_common</span> <span class='op'>&lt;-</span>
-  <span class='va'>init_config</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_tf_network.html'>generate_tf_network</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_feature_network.html'>generate_feature_network</a></span><span class='op'>(</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Generating TF network
-#&gt; Sampling feature network from real network</div><div class='input'><span class='fu'><a href='plot_feature_network.html'>plot_feature_network</a></span><span class='op'>(</span><span class='va'>model_common</span><span class='op'>)</span>
-</div><div class='img'><img src='combine_models-1.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'># run the simulation once</span>
-<span class='va'>model_a</span> <span class='op'>&lt;-</span> <span class='va'>model_common</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_kinetics.html'>generate_kinetics</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_gold_standard.html'>generate_gold_standard</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_cells.html'>generate_cells</a></span><span class='op'>(</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Generating kinetics for 169 features
-#&gt; Generating formulae
-#&gt; Generating gold standard mod changes
-#&gt; Precompiling reactions for gold standard
-#&gt; Running gold simulations
-#&gt;   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
-#&gt; Precompiling reactions for simulations
-#&gt; Running 10 simulations
-#&gt; Mapping simulations to gold standard
-#&gt; Performing dimred</div><div class='input'>
-<span class='co'># run the simulation once more</span>
-<span class='va'>model_b</span> <span class='op'>&lt;-</span> <span class='va'>model_common</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_kinetics.html'>generate_kinetics</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_gold_standard.html'>generate_gold_standard</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_cells.html'>generate_cells</a></span><span class='op'>(</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Generating kinetics for 169 features
-#&gt; Generating formulae
-#&gt; Generating gold standard mod changes
-#&gt; Precompiling reactions for gold standard
-#&gt; Running gold simulations
-#&gt;   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~00s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
-#&gt; Precompiling reactions for simulations
-#&gt; Running 10 simulations
-#&gt; Mapping simulations to gold standard
-#&gt; Performing dimred</div><div class='input'>
-<span class='co'># combine models, do experiment afterwards</span>
-<span class='va'>model_ab</span> <span class='op'>&lt;-</span> <span class='fu'>combine_models</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='st'>"left"</span> <span class='op'>=</span> <span class='va'>model_a</span>, <span class='st'>"right"</span> <span class='op'>=</span> <span class='va'>model_b</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='generate_experiment.html'>generate_experiment</a></span><span class='op'>(</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Merging model 1/2 left
-#&gt; Merging model 2/2 right
-#&gt; Recomputing dimred
-#&gt; Simulating experiment</div><div class='input'>
 <span class='co'># show a dimensionality reduction</span>
 <span class='fu'><a href='plot_simulations.html'>plot_simulations</a></span><span class='op'>(</span><span class='va'>model_ab</span><span class='op'>)</span>
-</div><div class='img'><img src='combine_models-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_gold_mappings.html'>plot_gold_mappings</a></span><span class='op'>(</span><span class='va'>model_ab</span>, do_facet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-</div><div class='img'><img src='combine_models-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
+</div><div class='img'><img src='combine_models-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='plot_gold_mappings.html'>plot_gold_mappings</a></span><span class='op'>(</span><span class='va'>model_ab</span>, do_facet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</div><div class='img'><img src='combine_models-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

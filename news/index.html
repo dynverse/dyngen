@@ -173,31 +173,25 @@
       <small>Source: <a href='https://github.com/dynverse/dyngen/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="dyngen-101" class="section level1">
-<h1 class="page-header" data-toc-text="1.0.1">
-<a href="#dyngen-101" class="anchor"></a>dyngen 1.0.1<small> Unreleased </small>
-</h1>
-<div id="new-features" class="section level2">
-<h2 class="hasAnchor">
-<a href="#new-features" class="anchor"></a>NEW FEATURES</h2>
-<ul>
-<li>
-<code><a href="../reference/generate_experiment.html">generate_experiment()</a></code>: Allow toggling on or off the mapping of the reference library size &amp; CPM distribution.</li>
-</ul>
-</div>
-</div>
     <div id="dyngen-100" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.0">
 <a href="#dyngen-100" class="anchor"></a>dyngen 1.0.0<small> Unreleased </small>
 </h1>
 <p>This version mostly upgrades dyngen’s ease-of-use, such as better vignettes, conversion functions for working with dyngen datasets in other packages, and more useful ways of specifying platform-specific parameters (i.e. number of cores and cache location). Perhaps more excitingly, the dyngen documentation is more readable online at <a href="https://dyngen.dynverse.org">https://dyngen.dynverse.org</a>!</p>
-<div id="new-features-1" class="section level2">
+<div id="breaking-changes" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-features-1" class="anchor"></a>NEW FEATURES</h2>
+<a href="#breaking-changes" class="anchor"></a>BREAKING CHANGES</h2>
 <ul>
-<li><p><code><a href="../reference/as_dyno.html">as_anndata()</a></code>: Added a function for converting the dyngen output to an anndata object.</p></li>
-<li><p><code><a href="../reference/as_dyno.html">as_sce()</a></code>: Added a function for converting the dyngen output to an SingleCellExperiment object.</p></li>
-<li><p><code><a href="../reference/as_dyno.html">as_seurat()</a></code>: Added a function for converting the dyngen output to a Seurat object.</p></li>
+<li>
+<code><a href="../reference/as_dyno.html">wrap_dataset()</a></code>: Now returns a list instead of a dyno object. Use <code><a href="../reference/as_dyno.html">as_dyno(model)</a></code> or <code><a href="../reference/as_dyno.html">wrap_dataset(model, format = "dyno")</a></code> to replicate previous behaviour.</li>
+</ul>
+</div>
+<div id="new-features" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-features" class="anchor"></a>NEW FEATURES</h2>
+<ul>
+<li><p>Added functions for converting the dyngen output to various data formats: <code><a href="../reference/as_dyno.html">as_anndata()</a></code> for anndata, <code><a href="../reference/as_dyno.html">as_sce()</a></code> for SingleCellExperiment, <code><a href="../reference/as_dyno.html">as_seurat()</a></code> for Seurat, <code><a href="../reference/as_dyno.html">as_dyno()</a></code> for dyno, <code><a href="../reference/as_dyno.html">as_list()</a></code> for a simple list object.</p></li>
+<li><p><code><a href="../reference/as_dyno.html">wrap_dataset()</a></code>: Added ‘format’ argument which allows choosing the output format (<a href='https://github.com/dynverse/dyngen/issues/28'>#28</a>).</p></li>
 <li><p>The default number of cores used can be set by adding <code><a href="https://rdrr.io/r/base/options.html">options(Ncpus = ...)</a></code> to your Rprofile.</p></li>
 <li><p>The default cache folder for dyngen can be set by adding <code><a href="https://rdrr.io/r/base/options.html">options(dyngen_download_cache_dir = ...)</a></code> to your Rprofile.</p></li>
 <li><p>Combine similar models with different outputs using the <code><a href="../reference/combine_models.html">combine_models()</a></code> function.</p></li>
@@ -209,7 +203,7 @@
 <a href="#major-changes" class="anchor"></a>MAJOR CHANGES</h2>
 <ul>
 <li>
-<code><a href="../reference/generate_experiment.html">generate_experiment()</a></code>: Map count density of reference dataset to simulation expression before sampling molecules.</li>
+<code><a href="../reference/generate_experiment.html">generate_experiment()</a></code>: Map count density of reference dataset to simulation expression before sampling molecules. Parameters are available for toggling off or on the mapping of the reference library size &amp; CPM distribution.</li>
 </ul>
 </div>
 <div id="minor-changes" class="section level2">
@@ -217,7 +211,6 @@
 <a href="#minor-changes" class="anchor"></a>MINOR CHANGES</h2>
 <ul>
 <li><p><code><a href="../reference/initialise_model.html">initialise_model()</a></code>: Change defaults of <code>num_cores</code> and <code>download_cache_dir</code> to <code><a href="https://rdrr.io/r/base/options.html">getOption("Ncpus")</a></code> and <code><a href="https://rdrr.io/r/base/options.html">getOption("dyngen_download_cache_dir")</a></code> respectively.</p></li>
-<li><p><code><a href="../reference/as_dyno.html">as_dyno()</a></code>: Rename <code><a href="../reference/as_dyno.html">wrap_dataset()</a></code> to <code><a href="../reference/as_dyno.html">as_dyno()</a></code>.</p></li>
 <li><p><code><a href="../reference/generate_experiment.html">generate_experiment()</a></code>: Drastically speed up sampling of molecules.</p></li>
 </ul>
 </div>
@@ -233,7 +226,8 @@
 <h2 class="hasAnchor">
 <a href="#documentation" class="anchor"></a>DOCUMENTATION</h2>
 <ul>
-<li>Extended vignettes:
+<li>
+<p>Added and extended vignettes:</p>
 <ul>
 <li>Advanced: Simulating batch effects</li>
 <li>Advanced: Simulating a knockout experiment</li>
@@ -243,6 +237,8 @@
 <li>Advanced: Comparison of characteristic features between dyngen and reference datasets</li>
 </ul>
 </li>
+<li><p>Created a website at <a href="https://dyngen.dynverse.org">https://dyngen.dynverse.org</a> using pkgdown.</p></li>
+<li><p>Shortened examples to reduce r cmd check time.</p></li>
 </ul>
 </div>
 </div>
@@ -254,7 +250,7 @@
 <h2 class="hasAnchor">
 <a href="#major-changes-1" class="anchor"></a>MAJOR CHANGES</h2>
 <ul>
-<li><p><code><a href="../reference/as_dyno.html">as_dyno()</a></code>: Outputted <code>$counts</code> now contains counts of both spliced and unspliced reads, whereas <code>$counts_unspliced</code> and <code>$counts_spliced</code> contains separated counts.</p></li>
+<li><p><code><a href="../reference/as_dyno.html">wrap_dataset()</a></code>: Outputted <code>$counts</code> now contains counts of both spliced and unspliced reads, whereas <code>$counts_unspliced</code> and <code>$counts_spliced</code> contains separated counts.</p></li>
 <li><p>Added a docker container containing the necessary code to run a dyngen simulation.</p></li>
 </ul>
 </div>
@@ -279,9 +275,9 @@
 <h1 class="page-header" data-toc-text="0.3.0">
 <a href="#dyngen-030-2020-04-06" class="anchor"></a>dyngen 0.3.0 (2020-04-06)<small> Unreleased </small>
 </h1>
-<div id="new-features-2" class="section level2">
+<div id="new-features-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-features-2" class="anchor"></a>NEW FEATURES</h2>
+<a href="#new-features-1" class="anchor"></a>NEW FEATURES</h2>
 <ul>
 <li><p>Implement knockdown / knockouts / overexpression experiments.</p></li>
 <li><p>Implement better single-cell regulatory activity by determining the effect on propensity values after knocking out a transcription factor.</p></li>

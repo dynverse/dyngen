@@ -185,6 +185,7 @@ is generated, run each of the steps in this function separately.</p>
 
     <pre class="usage"><span class='fu'>generate_dataset</span><span class='op'>(</span>
   <span class='va'>model</span>,
+  format <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"list"</span>, <span class='st'>"dyno"</span>, <span class='st'>"sce"</span>, <span class='st'>"seurat"</span>, <span class='st'>"anndata"</span>, <span class='st'>"none"</span><span class='op'>)</span>,
   output_dir <span class='op'>=</span> <span class='cn'>NULL</span>,
   make_plots <span class='op'>=</span> <span class='cn'>FALSE</span>,
   store_dimred <span class='op'>=</span> <span class='va'>model</span><span class='op'>$</span><span class='va'>simulation_params</span><span class='op'>$</span><span class='va'>compute_dimred</span>,
@@ -198,6 +199,10 @@ is generated, run each of the steps in this function separately.</p>
     <tr>
       <th>model</th>
       <td><p>A dyngen initial model created with <code><a href='initialise_model.html'>initialise_model()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>format</th>
+      <td><p>Which output format to use, must be one of 'dyno' (requires <code>dynwrap</code>), 'sce' (requires <code>SingleCellExperiment</code>), 'seurat' (requires <code>Seurat</code>), 'anndata' (requires <code>anndata</code>), 'list' or 'none'.</p></td>
     </tr>
     <tr>
       <th>output_dir</th>
@@ -251,10 +256,10 @@ dataset will be written to files in this directory.</p></td>
 <span class='op'>)</span>
 <span class='co'># }</span>
 <span class='co'># \donttest{</span>
-<span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>generate_dataset</span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
+<span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>generate_dataset</span><span class='op'>(</span><span class='va'>model</span>, format <span class='op'>=</span> <span class='st'>"list"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Generating TF network
 #&gt; Sampling feature network from real network
-#&gt; Generating kinetics for 32 features
+#&gt; Generating kinetics for 31 features
 #&gt; Generating formulae
 #&gt; Generating gold standard mod changes
 #&gt; Precompiling reactions for gold standard
@@ -263,11 +268,16 @@ dataset will be written to files in this directory.</p></td>
 #&gt; Precompiling reactions for simulations
 #&gt; Running 1 simulations
 #&gt; Mapping simulations to gold standard</div><div class='output co'>#&gt; <span class='warning'>Warning: Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.</span></div><div class='output co'>#&gt; Performing dimred
-#&gt; Simulating experiment</div><div class='output co'>#&gt; <span class='error'>Error in rmultinom(1, lib_size, gene_vals): invalid second argument 'size'</span></div><div class='input'>  
+#&gt; Simulating experiment
+#&gt; Wrapping dataset as list</div><div class='input'>  
 <span class='va'>model</span> <span class='op'>&lt;-</span> <span class='va'>out</span><span class='op'>$</span><span class='va'>model</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'out' not found</span></div><div class='input'><span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='va'>out</span><span class='op'>$</span><span class='va'>dataset</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'out' not found</span></div><div class='input'>
-<span class='co'># dynplot::plot_dimred(dataset)</span>
+<span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='va'>out</span><span class='op'>$</span><span class='va'>dataset</span>
+
+<span class='co'># can also generate other dataset formats:</span>
+<span class='co'># out &lt;- generate_dataset(model, format = "dyno")</span>
+<span class='co'># out &lt;- generate_dataset(model, format = "sce")</span>
+<span class='co'># out &lt;- generate_dataset(model, format = "seurat")</span>
+<span class='co'># out &lt;- generate_dataset(model, format = "anndata")</span>
 <span class='co'># }</span>
 </div></pre>
   </div>

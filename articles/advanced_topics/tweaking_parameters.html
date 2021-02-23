@@ -198,8 +198,7 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
   <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">run1_config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Loading required namespace: dynwrap</code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run1</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
 <p><img src="tweaking_parameters_files/figure-html/run1_model-1.png" width="960"></p>
 <p>We tweaked some of the parameters by running this particular backbone once with <code>num_cells = 100</code> and <code>num_features = 100</code> and verifying that the new parameters still yield the desired outcome. The parameters we tweaked are:</p>
@@ -215,7 +214,7 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
 <a href="#increasing-time-step-tau" class="anchor"></a>Increasing time step <code>tau</code>
 </h2>
 <p>The <code>tau</code> parameter changes the size of the time steps made by dyngen during the simulation. Setting <code>tau</code> too large might cause certain production and degradation of molecules to fluctuate strangely.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run2_config</span> <span class="op">&lt;-</span> 
   <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
     backbone <span class="op">=</span> <span class="va">backbone</span>,
@@ -227,7 +226,7 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
     simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,
     verbose <span class="op">=</span> <span class="cn">FALSE</span>
   <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
 <span class="co"># for pkgdown can otherwise take a very long time</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
@@ -248,16 +247,16 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
       experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
     <span class="op">)</span>
   <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">run2_config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run2</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
 <p><img src="tweaking_parameters_files/figure-html/run2_model-1.png" width="960"></p>
 <p>Certainly something strange is happening here. If we compare the expression values of the two runs, we can see that the second run produces much higher expression counts, but also at every step the high expression is lowered again.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">run1</span><span class="op">$</span><span class="va">model</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span>, simulation_i <span class="op">=</span> <span class="fl">1</span>, facet <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">module_id</span><span class="op">)</span></code></pre></div>
 <p><img src="tweaking_parameters_files/figure-html/simexp_run2-1.png" width="960"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">run2</span><span class="op">$</span><span class="va">model</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span>, simulation_i <span class="op">=</span> <span class="fl">1</span>, facet <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">module_id</span><span class="op">)</span></code></pre></div>
 <p><img src="tweaking_parameters_files/figure-html/simexp_run2-2.png" width="960"></p>
 <p>This is caused by setting <code>tau</code> too high; when the expression a gene is very low but the binding of a TF causes transcription to occur, transcripts will be created. However, at the start of a time step the gene is not expressed, so throughout the whole time step no degradation happen. In the next time step, however, there is a large number of transcripts, so these will quickly be degraded.</p>
@@ -268,7 +267,7 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
 <a href="#controlling-number-of-census-generated" class="anchor"></a>Controlling number of census generated</h2>
 <p>During a simulation of length <code>total_time</code>, dyngen will draw a census every with time steps of <code>census_interval</code>. The total number of census generated will thus be <code>num_simulations * floor(total_time / census_interval)</code>. Ideally, the ratio between the number of census and the number of cells sampled from the census will be around 10. If this ratio is too high, dyngen will spend a lot of time comparing the census to the gold standard. If the ratio is too low, not enough census will be available for dyngen to draw cells from and a warning will be produced.</p>
 <p>Controlling the ratio <code>num_simulations * floor(total_time / census_interval) / num_cells</code> can be performed by tweaking the <code>census_interval</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run3_config</span> <span class="op">&lt;-</span> 
   <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
     backbone <span class="op">=</span> <span class="va">backbone</span>,
@@ -297,7 +296,7 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
 <h2 class="hasAnchor">
 <a href="#reference-datasets-garbage-in-garbage-out" class="anchor"></a>Reference datasets: garbage in, garbage out</h2>
 <p>Reference expression datasets are used to modify the gene expression counts. If you want to mimic the expression characteristics of a specific single-cell platform you can provide your own reference datasets. Be aware that the Garbage In, Garbage Out applies – low quality reference datasets will negatively impact the final dataset created.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">reference_dataset</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/rsparsematrix.html">rsparsematrix</a></span><span class="op">(</span>
   nrow <span class="op">=</span> <span class="fl">1000</span>, 
   ncol <span class="op">=</span> <span class="fl">1000</span>, 
@@ -317,7 +316,7 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
     <span class="op">)</span>,
     verbose <span class="op">=</span> <span class="cn">FALSE</span>
   <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
 <span class="co"># for pkgdown can otherwise take a very long time</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
@@ -340,13 +339,13 @@ rmarkdown::render("vignettes/tweaking_parameters.Rmd", output_format = rmarkdown
       realcount <span class="op">=</span> <span class="va">reference_dataset</span>
     <span class="op">)</span>
   <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">run4_config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">run4</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
 <p><img src="tweaking_parameters_files/figure-html/run4_model-1.png" width="960"></p>
 <p>Notice how the last plot in the previous figure looks like total noise? This is because the reference dataset had very low library sizes for each of the ‘cells’ and dyngen attempts to match this as close as possible.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">library_size_reference</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html">rowSums</a></span><span class="op">(</span><span class="va">reference_dataset</span><span class="op">)</span>
 <span class="va">library_size_dyngen</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html">rowSums</a></span><span class="op">(</span><span class="va">run4</span><span class="op">$</span><span class="va">dataset</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span>
 
