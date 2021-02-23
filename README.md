@@ -27,37 +27,37 @@ available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
 ## Installation
 
 dyngen should work straight out of the CRAN box by running
-`install.packages("dyngen")`. Having said that, there are a few
-recommended steps that will make dyngen work even better. Check the
+`install.packages("dyngen")`. Having said that, you should definitely
+configure a few system variables for optimal speed. Check the
 [installation
-instructions](https://dyngen.dynverse.org/articles/installation.html)
-for more information!
+guide](https://dyngen.dynverse.org/articles/installation.html) for more
+information!
 
 ## Getting started
 
 Check out [this
 guide](https://dyngen.dynverse.org/articles/getting_started.html) on how
-to get started with dyngen. For more information, check out our advanced
-topics:
+to get started with dyngen. You can find more guides by clicking any of
+the links below:
 
+-   [Advanced: Comparison to reference
+    dataset](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)
 -   [Advanced: Constructing a custom
-    backbone](https://dyngen.dynverse.org/articles/advanced_constructing_backbone.html)
+    backbone](https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html)
 -   [Advanced: Running dyngen from a docker
-    container](https://dyngen.dynverse.org/articles/advanced_run_dyngen_from_docker.html)
+    container](https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html)
+-   [Advanced: On scalability and
+    runtime](https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html)
 -   [Advanced: Simulating batch
-    effects](https://dyngen.dynverse.org/articles/advanced_simulating_batch_effects.html)
+    effects](https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html)
 -   [Advanced: Simulating a knockout
-    experiment](https://dyngen.dynverse.org/articles/advanced_simulating_knockouts.html)
+    experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
 -   [Advanced: Tweaking
-    parameters](https://dyngen.dynverse.org/articles/advanced_tweaking_parameters.html)
--   [Comparison of characteristic features between dyngen and reference
-    datasets](https://dyngen.dynverse.org/articles/comparison_characteristics_reference.html)
+    parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
 -   [Getting
     started](https://dyngen.dynverse.org/articles/getting_started.html)
 -   [Installation
     instructions](https://dyngen.dynverse.org/articles/installation.html)
--   [On runtime and
-    scalability](https://dyngen.dynverse.org/articles/scalability_and_runtime.html)
 -   [Showcase different
     backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
 

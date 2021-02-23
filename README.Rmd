@@ -36,7 +36,7 @@ Check out [this guide](https://dyngen.dynverse.org/articles/getting_started.html
 
 ```{r vignettes, results='asis', echo=FALSE}
 walk(
-  list.files("vignettes", pattern = "*.Rmd"),
+  list.files("vignettes", pattern = "*.Rmd", recursive = TRUE),
   function(file) {
     title <- 
       read_lines(paste0("vignettes/", file)) %>% 
