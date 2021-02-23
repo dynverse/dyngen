@@ -253,8 +253,8 @@ write_rds(dataset, "dataset.rds", compress = "gz")
 
 ## Step 8 alternative: Convert to an anndata/SCE/Seurat object
 
-dyngen (&gt;= 0.4.1) allows converting the output to an `anndata`, `SCE`
-or `Seurat` object as well. Check out the [anndata
+dyngen 1.0.0 allows converting the output to an `anndata`, `SCE` or
+`Seurat` object as well. Check out the [anndata
 documentation](https://cran.r-project.org/package=anndata) on how to
 install anndata for R.
 
@@ -263,9 +263,13 @@ library(anndata)
 ad <- as_anndata(model)
 ad$write_h5ad("dataset.h5ad")
 
+library(SingleCellExperiment)
 sce <- as_sce(model)
+write_rds(sce, "dataset_sce.rds")
 
-seurat <- as_seurat(model) 
+library(Seurat)
+seurat <- as_seurat(model)
+write_rds(seurat, "dataset_seurat.rds")
 ```
 
 # One-shot function
@@ -276,6 +280,7 @@ all at once and producing plots.
 ``` r
 out <- generate_dataset(
   config,
+  format = "dyno",
   make_plots = TRUE
 )
 ```
@@ -292,7 +297,17 @@ print(out$plot)
 
 ``` r
 library(dyno)
+```
 
+    ## Loading required package: dynfeature
+
+    ## Loading required package: dynguidelines
+
+    ## Loading required package: dynmethods
+
+    ## Loading required package: dynwrap
+
+``` r
 plot_dimred(dataset)
 ```
 

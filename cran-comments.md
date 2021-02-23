@@ -1,14 +1,17 @@
+Resubmission: moved some examples to `\donttest{}` to reduce checking time.
+
 # dyngen 1.0.0
 
 This version mostly upgrades dyngen's ease-of-use, such as better vignettes, conversion functions for working with dyngen datasets in other packages, and more useful ways of specifying platform-specific parameters (i.e. number of cores and cache location). Perhaps more excitingly, the dyngen documentation is more readable online at [https://dyngen.dynverse.org](https://dyngen.dynverse.org)!
 
+## BREAKING CHANGES
+* `wrap_dataset()`: Now returns a list instead of a dyno object. Use `as_dyno(model)` or `wrap_dataset(model, format = "dyno")` to replicate previous behaviour.
+
 ## NEW FEATURES
 
-* `as_anndata()`: Added a function for converting the dyngen output to an anndata object.
+* Added functions for converting the dyngen output to various data formats: `as_anndata()` for anndata, `as_sce()` for SingleCellExperiment, `as_seurat()` for Seurat, `as_dyno()` for dyno, `as_list()` for a simple list object.
 
-* `as_sce()`: Added a function for converting the dyngen output to an SingleCellExperiment object.
-
-* `as_seurat()`: Added a function for converting the dyngen output to a Seurat object.
+* `wrap_dataset()`: Added 'format' argument which allows choosing the output format (#28).
 
 * The default number of cores used can be set by adding `options(Ncpus = ...)` to your Rprofile.
 
@@ -20,15 +23,14 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
 
 ## MAJOR CHANGES
 
-* `generate_experiment()`: Map count density of reference dataset to simulation expression before sampling molecules.
+* `generate_experiment()`: Map count density of reference dataset to simulation expression before sampling molecules. 
+  Parameters are available for toggling off or on the mapping of the reference library size & CPM distribution.
 
 ## MINOR CHANGES
 
 * `initialise_model()`: Change defaults of `num_cores` and `download_cache_dir`
   to `getOption("Ncpus")` and `getOption("dyngen_download_cache_dir")` respectively.
   
-* `as_dyno()`: Rename `wrap_dataset()` to `as_dyno()`.
-
 * `generate_experiment()`: Drastically speed up sampling of molecules.
 
 ## BUG FIX
@@ -39,7 +41,7 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
 
 ## DOCUMENTATION
 
-* Extended vignettes:
+* Added and extended vignettes:
   - Advanced: Simulating batch effects
   - Advanced: Simulating a knockout experiment
   - Advanced: Running dyngen from a docker container
@@ -47,6 +49,9 @@ This version mostly upgrades dyngen's ease-of-use, such as better vignettes, con
   - Advanced: Tweaking parameters
   - Advanced: Comparison of characteristic features between dyngen and reference datasets
 
+* Created a website at [https://dyngen.dynverse.org](https://dyngen.dynverse.org) using pkgdown.
+
+* Shortened examples to reduce r cmd check time.
 
 ## Test environments
 * local Fedora 32 install (R 4.0)
