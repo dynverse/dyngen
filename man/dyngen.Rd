@@ -137,6 +137,7 @@ A toolkit for generating synthetic single cell data.
 \item \code{\link[=get_timings]{get_timings()}}: Extract execution timings for each of the dyngen steps
 \item \code{\link[=combine_models]{combine_models()}}: Combine multiple dyngen models
 \item \code{\link[=rnorm_bounded]{rnorm_bounded()}}: A bounded version of \code{\link[=rnorm]{rnorm()}}
+\item \code{\link[=runif_subrange]{runif_subrange()}}: A subrange version of \code{\link[=runif]{runif()}}
 }
 }
 

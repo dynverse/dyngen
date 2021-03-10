@@ -98,3 +98,4 @@ reference:
    - get_timings
    - combine_models
    - rnorm_bounded
+   - runif_subrange

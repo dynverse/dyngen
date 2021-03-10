@@ -84,6 +84,7 @@
 #'   * [get_timings()]: Extract execution timings for each of the dyngen steps
 #'   * [combine_models()]: Combine multiple dyngen models
 #'   * [rnorm_bounded()]: A bounded version of [rnorm()]
+#'   * [runif_subrange()]: A subrange version of [runif()]
 #'
 #' @docType package
 #' @name dyngen
