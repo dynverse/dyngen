@@ -47,8 +47,7 @@ reference:
  - contents:
    - generate_kinetics
    - kinetics_default
-   - kinetics_noise_none
-   - kinetics_noise_simple
+   - kinetics_random_distribution
  - title: Step 5, simulate the gold standard
    desc: Simulate the gold standard backbone, used for mapping to cell states afterwards
  - contents:
@@ -72,13 +71,15 @@ reference:
    - list_experiment_samplers
    - experiment_snapshot
    - experiment_synchronised
+   - kinetics_noise_none
+   - kinetics_noise_simple
    - simtime_from_backbone
    - plot_experiment_dimred
  - title: Step 8, convert to dataset
    desc: Convert to a dataset object for ease of use
  - contents:
-   - as_dyno
    - wrap_dataset
+   - as_dyno
    - as_anndata
    - as_sce
    - as_seurat

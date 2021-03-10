@@ -67,8 +67,7 @@ A toolkit for generating synthetic single cell data.
 
 \itemize{
 \item \code{\link[=generate_kinetics]{generate_kinetics()}}: Generate the gene kinetics
-\item \code{\link[=kinetics_default]{kinetics_default()}}: Parameters for configuring this step
-\item \code{\link[=kinetics_noise_none]{kinetics_noise_none()}}, \code{\link[=kinetics_noise_simple]{kinetics_noise_simple()}}: Different kinetics distributions to sample from
+\item \code{\link[=kinetics_default]{kinetics_default()}}, \code{\link[=kinetics_random_distributions]{kinetics_random_distributions()}}: Parameters for configuring this step
 }
 }
 
@@ -89,6 +88,7 @@ A toolkit for generating synthetic single cell data.
 \item \code{\link[=generate_cells]{generate_cells()}}: Simulate the cells based on its GRN
 \item \code{\link[=simulation_default]{simulation_default()}}: Parameters for configuring this step
 \item \code{\link[=simulation_type_wild_type]{simulation_type_wild_type()}}, \code{\link[=simulation_type_knockdown]{simulation_type_knockdown()}}: Used for configuring the type of simulation
+\item \code{\link[=kinetics_noise_none]{kinetics_noise_none()}}, \code{\link[=kinetics_noise_simple]{kinetics_noise_simple()}}: Different kinetics randomisers to apply to each simulation
 \item \code{\link[=plot_simulations]{plot_simulations()}}: Visualise the simulations using the dimred
 \item \code{\link[=plot_simulation_expression]{plot_simulation_expression()}}: Visualise the expression of the simulations over simulation time
 }
