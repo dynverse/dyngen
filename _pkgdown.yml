@@ -7,7 +7,7 @@ home:
 
 template:
   params:
-    ganalytics: "UA-143597662-2"
+    ganalytics: "G-XSL8ZZLBFK"
 
 articles:
  - title: Getting started with dyngen
