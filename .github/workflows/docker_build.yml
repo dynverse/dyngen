@@ -16,11 +16,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Build
+      
+      - name: Configure environment variables
         run: |
           VERSION=`cat DESCRIPTION | grep Version | sed 's#.*: ##'`
           BRANCH="${GITHUB_REF#refs/heads/}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
           docker build -t $GITHUB_REPOSITORY:$BRANCH -f docker/Dockerfile .
           if [[ $BRANCH == "master" ]] ; then
             docker tag $GITHUB_REPOSITORY:$BRANCH $GITHUB_REPOSITORY:$VERSION
@@ -30,7 +35,6 @@ jobs:
       - name: Push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          BRANCH="${GITHUB_REF#refs/heads/}"
           docker push $GITHUB_REPOSITORY:$BRANCH
           if [[ $BRANCH == "master" ]] ; then
             docker push $GITHUB_REPOSITORY:$VERSION
