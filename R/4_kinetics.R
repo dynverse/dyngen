@@ -101,8 +101,8 @@ generate_kinetics <- function(model) {
     model$feature_info %>% 
     filter(.data$burn) %>% 
     select(.data$mol_premrna, .data$mol_mrna, .data$mol_protein) %>% 
-    gather(col, val) %>% 
-    pull(val)
+    gather("col", "val") %>% 
+    pull(.data$val)
     
   # return system
   model <- .add_timing(model, "4_kinetics", "create output")
@@ -381,14 +381,14 @@ kinetics_random_distributions <- function() {
       .data$feature_id, .data$transcription_rate, .data$splicing_rate, .data$translation_rate,
       .data$mrna_decay_rate, .data$protein_decay_rate, bas = .data$basal, ind = .data$independence
     ) %>% 
-    gather(param, value, -.data$feature_id) %>% 
+    gather("param", "value", -.data$feature_id) %>% 
     mutate(id = paste0(.data$param, "_", .data$feature_id), type = "feature_info")
   
   # extract dis, hill, str
   edge_params <- 
     feature_network %>% 
     select(.data$from, .data$to, dis = .data$dissociation, .data$hill, str = .data$strength) %>% 
-    gather(param, value, -.data$from, -.data$to) %>% 
+    gather("param", "value", -.data$from, -.data$to) %>% 
     mutate(id = paste0(.data$param, "_", .data$from, "_", .data$to), type = "feature_network")
   
   bind_rows(feature_params, edge_params)
