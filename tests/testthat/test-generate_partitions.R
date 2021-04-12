@@ -5,7 +5,7 @@ test_that("num_tfs_sampler works as expected", {
   num_modules <- 8
   
   samples <- map(
-    seq_len(1000),
+    seq_len(5000),
     ~ .generate_partitions(num_tfs, num_modules, min_elements_per_group = 1)
   )
   
