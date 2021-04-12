@@ -16,7 +16,13 @@
     if (!dir.exists(dirname(file))) {
       dir.create(dirname(file), recursive = TRUE)
     }
-    download.file(url, destfile = file, quiet = !verbose)
+    
+    
+    status <- suppressWarnings(
+      utils::download.file(url, destfile = file, quiet = !verbose)
+    )
+    
+    if (status != 0) stop("Cannot download file from ", url, call. = FALSE)
   }
   
   readRDS(file)

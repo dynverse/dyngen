@@ -1,3 +1,7 @@
+# dyngen 1.0.1
+
+* MINOR CHANGE `.download_cacheable_file()`: Check the return value of `utils::download.file()`, since it is possible that the download will fail with a non-zero status but not an R error. 
+
 
 # dyngen 1.0.0
 
