@@ -6,6 +6,13 @@
 \usage{
 runif_subrange(n, min, max)
 }
+\arguments{
+\item{n}{Number of observations}
+
+\item{min}{Lower limits of the distribution.}
+
+\item{max}{Upper limits of the distribution.}
+}
 \value{
 Generates values with runif, bounded by a range drawn from \code{sort(runif(2, min, max))}.
 }

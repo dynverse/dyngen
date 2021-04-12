@@ -25,6 +25,10 @@ rnorm_bounded <- function(n, mean = 0, sd = 1, min = -Inf, max = Inf) {
 #' For example, if \[min, max\]` is set to \[0, 10\], this function
 #' could decide to generate `n` numbers between 2 and 6.
 #' 
+#' @param n Number of observations
+#' @param min Lower limits of the distribution.
+#' @param max Upper limits of the distribution.
+#' 
 #' @importFrom stats runif
 #' 
 #' @return Generates values with runif, bounded by a range drawn from `sort(runif(2, min, max))`.

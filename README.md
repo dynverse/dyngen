@@ -1,6 +1,8 @@
 
 # dyngen <img src="man/figures/logo.png" align="right" />
 
+<!-- badges: start -->
+
 [![CRAN
 Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org/package=dyngen)
 [![CRAN
@@ -9,6 +11,7 @@ Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org
 [![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
 [![Coverage
 Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
+<!-- badges: end -->
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic
 cellular processes at single-cell resolution. dyngen is more flexible
