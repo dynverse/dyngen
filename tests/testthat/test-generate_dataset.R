@@ -47,22 +47,42 @@ test_that("output contains the desired objects", {
 # skip on cran because some dependencies might be missing
 skip_on_cran()
 
-test_that("generating a dataset with linear backbone", {
+test_that("check plot", {
   expect_is(out$plot, "ggplot")
+})
   
-  # test converting to SCE
+
+test_that("test converting to SCE", {
+  skip_if(!requireNamespace("SingleCellExperiment", quietly = TRUE))
   sce <- as_sce(out$model)
   expect_equal(dim(sce), dim(t(out$dataset$counts)))
-  
-  # test converting to Seurat
+})
+
+test_that("test converting to Seurat", {
+  skip_if(!requireNamespace("Seurat", quietly = TRUE))
   obj <- as_seurat(out$model)
   expect_equal(dim(obj), dim(t(out$dataset$counts)))
+})
+
+test_that("test converting to anndata", {
+  skip_if(!requireNamespace("anndata", quietly = TRUE))
   
-  # test converting to anndata
+  # check if python anndata is installed
+  py_anndata_available <-
+    tryCatch({
+      anndata::AnnData()
+      TRUE
+    }, error = function(e) {
+      FALSE
+    })
+  skip_if(!py_anndata_available)
+  
   ad <- as_anndata(out$model)
   expect_equal(dim(ad$X), dim(out$dataset$counts))
+})
   
-  # test converting to dyno
+test_that("test converting to dyno", {
+  skip_if(!requireNamespace("dynwrap", quietly = TRUE))
   dataset <- as_dyno(out$model)
   expect_equal(dim(dataset$counts), dim(out$dataset$counts))
 })

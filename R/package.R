@@ -42,8 +42,7 @@
 #' 
 #' @section Step 4, generate gene kinetics:
 #'   * [generate_kinetics()]: Generate the gene kinetics
-#'   * [kinetics_default()]: Parameters for configuring this step
-#'   * [kinetics_noise_none()], [kinetics_noise_simple()]: Different kinetics distributions to sample from
+#'   * [kinetics_default()], [kinetics_random_distributions()]: Parameters for configuring this step
 #' 
 #' @section Step 5, simulate the gold standard:
 #'   * [generate_gold_standard()]: Simulate the gold standard backbone, used for mapping to cell states afterwards
@@ -56,6 +55,7 @@
 #'   * [generate_cells()]: Simulate the cells based on its GRN
 #'   * [simulation_default()]: Parameters for configuring this step
 #'   * [simulation_type_wild_type()], [simulation_type_knockdown()]: Used for configuring the type of simulation
+#'   * [kinetics_noise_none()], [kinetics_noise_simple()]: Different kinetics randomisers to apply to each simulation
 #'   * [plot_simulations()]: Visualise the simulations using the dimred
 #'   * [plot_simulation_expression()]: Visualise the expression of the simulations over simulation time
 #' 
@@ -84,6 +84,7 @@
 #'   * [get_timings()]: Extract execution timings for each of the dyngen steps
 #'   * [combine_models()]: Combine multiple dyngen models
 #'   * [rnorm_bounded()]: A bounded version of [rnorm()]
+#'   * [runif_subrange()]: A subrange version of [runif()]
 #'
 #' @docType package
 #' @name dyngen

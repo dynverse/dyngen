@@ -188,13 +188,7 @@ generate_experiment <- function(model) {
       lib_size <- lib_size_new[[cell_i]]
       
       # sample 'lib_size' molecules for each of the genes, weighted by 'gene_vals'
-      tryCatch({
       rmultinom(1, lib_size, gene_vals)
-      }, error = function(e) {
-        cat("cell_i: ", cell_i, ", lib_size: ", lib_size, "\n", sep = "")
-        print(gene_vals)
-        print(e)
-      })
     } else {
       integer(0)
     }

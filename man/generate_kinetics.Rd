@@ -3,11 +3,14 @@
 \name{generate_kinetics}
 \alias{generate_kinetics}
 \alias{kinetics_default}
+\alias{kinetics_random_distributions}
 \title{Determine the kinetics of the feature network}
 \usage{
 generate_kinetics(model)
 
 kinetics_default()
+
+kinetics_random_distributions()
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the feature network has been generated with \code{\link[=generate_feature_network]{generate_feature_network()}}.}
@@ -19,6 +22,8 @@ A dyngen model.
 \code{\link[=generate_kinetics]{generate_kinetics()}} samples the kinetics of genes in the feature network for which
 the kinetics have not yet been defined.
 \code{\link[=kinetics_default]{kinetics_default()}} is used to configure parameters pertaining this process.
+\code{\link[=kinetics_random_distributions]{kinetics_random_distributions()}} will do the same, but the distributions are also
+randomised.
 }
 \details{
 To write different kinetics settings, you need to write three functions
