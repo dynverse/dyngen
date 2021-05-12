@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Return the timings of each of the dyngen steps — get_timings • dyngen</title>
+<title>A subrange version of runif — runif_subrange • dyngen</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Return the timings of each of the dyngen steps — get_timings" />
-<meta property="og:description" content="Return the timings of each of the dyngen steps" />
+<meta property="og:title" content="A subrange version of runif — runif_subrange" />
+<meta property="og:description" content="Will generate numbers from a random subrange within the given range.
+For example, if [min, max]is set to \[0, 10\], this function could decide to generaten` numbers between 2 and 6." />
 <meta property="og:image" content="https://dyngen.dynverse.org/logo.svg" />
 
 
@@ -170,31 +171,44 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Return the timings of each of the dyngen steps</h1>
-    <small class="dont-index">Source: <a href='https://github.com/dynverse/dyngen/blob/master/R/timings.R'><code>R/timings.R</code></a></small>
-    <div class="hidden name"><code>get_timings.Rd</code></div>
+    <h1>A subrange version of runif</h1>
+    <small class="dont-index">Source: <a href='https://github.com/dynverse/dyngen/blob/master/R/random_generators.R'><code>R/random_generators.R</code></a></small>
+    <div class="hidden name"><code>runif_subrange.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Return the timings of each of the dyngen steps</p>
+    <p>Will generate numbers from a random subrange within the given range.
+For example, if [min, max]<code>is set to \[0, 10\], this function could decide to generate</code>n` numbers between 2 and 6.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_timings</span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>runif_subrange</span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>min</span>, <span class='va'>max</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>model</th>
-      <td><p>A dyngen object</p></td>
+      <th>n</th>
+      <td><p>Number of observations</p></td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td><p>Lower limits of the distribution.</p></td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td><p>Upper limits of the distribution.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Generates values with runif, bounded by a range drawn from <code><a href='https://rdrr.io/r/base/sort.html'>sort(runif(2, min, max))</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"example_model"</span><span class='op'>)</span>
-<span class='va'>timings</span> <span class='op'>&lt;-</span> <span class='fu'>get_timings</span><span class='op'>(</span><span class='va'>example_model</span><span class='op'>)</span>
-</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>runif_subrange</span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>0</span>, <span class='fl'>10</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 8.928677 9.218828 8.596605 9.088927 9.221875 8.878813 8.491093 8.887848
+#&gt;  [9] 8.632771 9.528490 9.343999 9.265636 8.791238 8.592299 8.985922 9.501343
+#&gt; [17] 8.629301 9.371101 8.803490 8.813048</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

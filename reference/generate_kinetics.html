@@ -49,7 +49,9 @@
 <meta property="og:title" content="Determine the kinetics of the feature network — generate_kinetics" />
 <meta property="og:description" content="generate_kinetics() samples the kinetics of genes in the feature network for which
 the kinetics have not yet been defined.
-kinetics_default() is used to configure parameters pertaining this process." />
+kinetics_default() is used to configure parameters pertaining this process.
+kinetics_random_distributions() will do the same, but the distributions are also
+randomised." />
 <meta property="og:image" content="https://dyngen.dynverse.org/logo.svg" />
 
 
@@ -92,7 +94,7 @@ kinetics_default() is used to configure parameters pertaining this process." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -180,12 +182,16 @@ kinetics_default() is used to configure parameters pertaining this process." />
     <div class="ref-description">
     <p><code>generate_kinetics()</code> samples the kinetics of genes in the feature network for which
 the kinetics have not yet been defined.
-<code>kinetics_default()</code> is used to configure parameters pertaining this process.</p>
+<code>kinetics_default()</code> is used to configure parameters pertaining this process.
+<code>kinetics_random_distributions()</code> will do the same, but the distributions are also
+randomised.</p>
     </div>
 
     <pre class="usage"><span class='fu'>generate_kinetics</span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span>
 
-<span class='fu'>kinetics_default</span><span class='op'>(</span><span class='op'>)</span></pre>
+<span class='fu'>kinetics_default</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'>kinetics_random_distributions</span><span class='op'>(</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

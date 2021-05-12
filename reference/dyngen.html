@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -243,8 +243,7 @@
 
 <ul>
 <li><p><code><a href='generate_kinetics.html'>generate_kinetics()</a></code>: Generate the gene kinetics</p></li>
-<li><p><code><a href='generate_kinetics.html'>kinetics_default()</a></code>: Parameters for configuring this step</p></li>
-<li><p><code><a href='kinetics_noise_none.html'>kinetics_noise_none()</a></code>, <code><a href='kinetics_noise_none.html'>kinetics_noise_simple()</a></code>: Different kinetics distributions to sample from</p></li>
+<li><p><code><a href='generate_kinetics.html'>kinetics_default()</a></code>, <code><a href='generate_kinetics.html'>kinetics_random_distributions()</a></code>: Parameters for configuring this step</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="step-simulate-the-gold-standard"><a class="anchor" href="#step-simulate-the-gold-standard"></a>Step 5, simulate the gold standard</h2>
@@ -267,6 +266,7 @@
 <li><p><code><a href='generate_cells.html'>generate_cells()</a></code>: Simulate the cells based on its GRN</p></li>
 <li><p><code><a href='generate_cells.html'>simulation_default()</a></code>: Parameters for configuring this step</p></li>
 <li><p><code><a href='generate_cells.html'>simulation_type_wild_type()</a></code>, <code><a href='generate_cells.html'>simulation_type_knockdown()</a></code>: Used for configuring the type of simulation</p></li>
+<li><p><code><a href='kinetics_noise_none.html'>kinetics_noise_none()</a></code>, <code><a href='kinetics_noise_none.html'>kinetics_noise_simple()</a></code>: Different kinetics randomisers to apply to each simulation</p></li>
 <li><p><code><a href='plot_simulations.html'>plot_simulations()</a></code>: Visualise the simulations using the dimred</p></li>
 <li><p><code><a href='plot_simulation_expression.html'>plot_simulation_expression()</a></code>: Visualise the expression of the simulations over simulation time</p></li>
 </ul>
@@ -320,6 +320,7 @@
 <li><p><code><a href='get_timings.html'>get_timings()</a></code>: Extract execution timings for each of the dyngen steps</p></li>
 <li><p><code><a href='combine_models.html'>combine_models()</a></code>: Combine multiple dyngen models</p></li>
 <li><p><code><a href='rnorm_bounded.html'>rnorm_bounded()</a></code>: A bounded version of <code><a href='https://rdrr.io/r/stats/Normal.html'>rnorm()</a></code></p></li>
+<li><p><code><a href='runif_subrange.html'>runif_subrange()</a></code>: A subrange version of <code><a href='https://rdrr.io/r/stats/Uniform.html'>runif()</a></code></p></li>
 </ul>
 
 

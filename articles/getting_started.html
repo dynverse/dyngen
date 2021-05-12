@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
       </span>
     </div>
 
@@ -143,7 +143,7 @@ rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::gi
 <a href="#step-1-define-backbone-and-other-parameters" class="anchor"></a>Step 1: Define backbone and other parameters</h2>
 <p>A dyngen simulation can be started by providing a backbone to the <code><a href="../reference/initialise_model.html">initialise_model()</a></code> function. The backbone of a <code>dyngen</code> model is what determines the overall dynamic process that a cell will undergo during a simulation. It consists of a set of gene modules, which regulate eachother in such a way that expression of certain genes change over time in a specific manner.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
