@@ -4,6 +4,8 @@
 
 * NEW FEATURE `plot_summary()`: Create a dedicated function for plotting a dyngen summary.
 
+* BUG FIX `generate_cells()`: Fix incorrect cell count when one of the backbone segments does not have any simulations steps (#26).
+
 # dyngen 1.0.1
 
 * MINOR CHANGE `.download_cacheable_file()`: Check the return value of `utils::download.file()`, since it is possible that the download will fail with a non-zero status but not an R error. 
