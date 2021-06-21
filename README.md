@@ -19,9 +19,8 @@ than current single-cell simulation engines, and allows better method
 development and benchmarking, thereby stimulating development and
 testing of novel computational methods.
 
-An accompanying manuscript is freely available under the CC-BY license
-at
-[doi:10.1038/s41467-021-24152-2](https://doi.org/10.1038/s41467-021-24152-2).
+dyngen is now published (CC-BY,
+[doi:10.1038/s41467-021-24152-2](https://doi.org/10.1038/s41467-021-24152-2)).
 Run `citation("dyngen")` to obtain the corresponding citation
 information. All source code for reproducing the results in this
 manuscript are available on
