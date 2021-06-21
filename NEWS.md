@@ -1,8 +1,14 @@
+# dyngen 1.0.2
+
+* MINOR CHANGE `generate_dataset()`: Fix subplot title.
+
+* NEW FEATURE `plot_summary()`: Create a dedicated function for plotting a dyngen summary.
+
 # dyngen 1.0.1
 
 * MINOR CHANGE `.download_cacheable_file()`: Check the return value of `utils::download.file()`, since it is possible that the download will fail with a non-zero status but not an R error. 
 
-* MINOR CHANGE: `kinetics_random_distributions()`: Add function for providing randomised distributions.
+* MINOR CHANGE `kinetics_random_distributions()`: Add function for providing randomised distributions.
 
 # dyngen 1.0.0
 

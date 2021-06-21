@@ -100,29 +100,7 @@ generate_dataset <- function(
   
   if (make_plots) {
     if (model$verbose) cat("Making plots\n")
-    # make plots :scream:
-    g1 <- plot_backbone_statenet(model) + labs(title = "Backbone state network")
-    g2 <- plot_backbone_modulenet(model) + labs(title = "Backbone module reg. net.")
-    g3 <- plot_feature_network(model) + labs(title = "TF + target reg. net.")
-    g4 <- plot_gold_simulations(model) + labs(title = "Gold + simulations")
-    g5 <- plot_gold_mappings(model, do_facet = FALSE) + labs(title = "Simulations to gold mapping")
-    g6 <- plot_simulations(model) + labs(title = "Simulation time")
-    g7 <- plot_gold_expression(model, what = "mol_mrna") + labs(title = "Gold mRNA expression over time")
-    g8 <- plot_simulation_expression(model, what = "mol_mrna") + labs(title = "Simulation 1 mRNA expression over time")
-    g9 <- plot_experiment_dimred(model) + labs(title = "Dim. Red. of final dataset")
-    
-    
-    g <- patchwork::wrap_plots(
-      g1, g2, g3, 
-      g4, g5, g6,
-      g7, g8, g9,
-      byrow = TRUE,
-      ncol = 3,
-      widths = rep(1, 3),
-      heights = rep(1, 3)
-    ) +
-      patchwork::plot_annotation(tag_levels = "A") +
-      patchwork::plot_layout(guides = "collect")
+    g <- plot_summary(model)
     
     if (!is.null(output_dir)) {
       ggsave(paste0(output_dir, "plot.pdf"), g, width = 30, height = 25)
