@@ -1,8 +1,12 @@
-# dyngen 1.0.1
+# dyngen 1.0.2
 
-* MINOR CHANGE `.download_cacheable_file()`: Check the return value of `utils::download.file()`, since it is possible that the download will fail with a non-zero status but not an R error. 
+* MINOR CHANGE `generate_dataset()`: Fix subplot title.
 
-* MINOR CHANGE: `kinetics_random_distributions()`: Add function for providing randomised distributions.
+* NEW FEATURE `plot_summary()`: Create a dedicated function for plotting a dyngen summary.
+
+* BUG FIX `generate_cells()`: Fix incorrect cell count when one of the backbone segments does not have any simulations steps (#26).
+
+* DOCUMENTATION: Update citation to NCOMMS publication.
 
 ## Test environments
 * local Fedora install (R release)
@@ -13,8 +17,8 @@
 
 ## R CMD check results
 
-── R CMD check results ─────────────────────────────────────── dyngen 1.0.1 ────
-Duration: 3m 39.5s
+── R CMD check results ─────────────────────────────────────── dyngen 1.0.2 ────
+Duration: 5m 3.1s
 
 0 errors ✓ | 0 warnings ✓ | 0 notes ✓
 
