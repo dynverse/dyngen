@@ -6,11 +6,11 @@ citEntry(
     person("Louise", "Deconinck"),
     person("Yvan", "Saeys")
   ),
-  title    = "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses",
-  journal  = "bioRxiv",
-  year     = "2020",
-  month    = "2",
-  doi      = "10.1101/2020.02.06.936971 ",
-  url      = "https://www.biorxiv.org/content/10.1101/2020.02.06.936971v2",
-  textVersion = "dyngen: a multi-modal simulator for spearheading new single-cell omics analyses. Robrecht Cannoodt, Wouter Saelens, Louise Deconinck, Yvan Saeys. bioRxiv 2020.02.06.936971; doi: https://doi.org/10.1101/2020.02.06.936971."
+  title    = "Spearheading future omics analyses using dyngen, a multi-modal simulator of single cells",
+  journal  = "Nature Communications",
+  year     = "2021",
+  month    = "7",
+  doi      = "10.1038/s41467-021-24152-2",
+  url      = "https://doi.org/10.1038/s41467-021-24152-2",
+  textVersion = "Spearheading future omics analyses using dyngen, a multi-modal simulator of single cells. Robrecht Cannoodt, Wouter Saelens, Louise Deconinck, Yvan Saeys. Nature Communications; doi: 10.1038/s41467-021-24152-2"
 )

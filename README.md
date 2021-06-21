@@ -7,7 +7,7 @@
 Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org/package=dyngen)
 [![CRAN
 Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
-[![DOI](https://img.shields.io/badge/doi-10.1101/2020.02.06.936971-green)](https://doi.org/10.1101/2020.02.06.936971)
+[![DOI](https://img.shields.io/badge/doi-10.1038/s41467-021-24152-2-green)](https://doi.org/10.1038/s41467-021-24152-2)
 [![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
 [![Coverage
 Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
@@ -19,11 +19,13 @@ than current single-cell simulation engines, and allows better method
 development and benchmarking, thereby stimulating development and
 testing of novel computational methods.
 
-A preprint is available on
-[bioRxiv](https://doi.org/10.1101/2020.02.06.936971). Run
-`citation("dyngen")` to obtain the corresponding citation information.
-All source code for reproducing the results in this manuscript are
-available on [GitHub](https://github.com/dynverse/dyngen_manuscript).
+An accompanying manuscript is freely available under the CC-BY license
+at
+[doi:10.1038/s41467-021-24152-2](https://doi.org/10.1038/s41467-021-24152-2).
+Run `citation("dyngen")` to obtain the corresponding citation
+information. All source code for reproducing the results in this
+manuscript are available on
+[GitHub](https://github.com/dynverse/dyngen_manuscript).
 
 <img src="man/figures/overview.png" width="60%" />
 

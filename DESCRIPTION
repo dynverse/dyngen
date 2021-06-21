@@ -19,7 +19,7 @@ Description: A novel, multi-modal simulation engine for
     is more flexible than current single-cell simulation engines. It
     allows better method development and benchmarking, thereby stimulating
     development and testing of novel computational methods. Cannoodt et
-    al. (2020) <doi:10.1101/2020.02.06.936971>.
+    al. (2021) <doi:10.1038/s41467-021-24152-2>.
 License: MIT + file LICENSE
 URL: https://dyngen.dynverse.org, https://github.com/dynverse/dyngen
 BugReports: https://github.com/dynverse/dyngen/issues
