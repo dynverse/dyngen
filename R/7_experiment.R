@@ -291,19 +291,47 @@ experiment_synchronised <- function(
   params,
   num_cells
 ) {
-  network <- 
-    network %>%
+  steps_summ <- sim_meta %>% group_by(.data$from, .data$to) %>% summarise(num_steps = n(), .groups = "drop")
+  
+  if (num_cells > sum(steps_summ$num_steps)) {
+    stop(
+      "Simulations only generated ", sum(steps_summ$num_steps), " different datapoints, whereas ", num_cells, " cells were requested.\n",
+      "Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`)."
+    )
+  }
+  if (network %>% anti_join(steps_summ, by = c("from", "to")) %>% nrow() > 0) {
+    warning(
+      "Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.\n",
+      "  Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`)."
+    )
+    steps_summ <- steps_summ %>% filter(.data$num_steps > 0)
+  } 
+  
+  numbers_per_edge <- 
+    inner_join(
+      network,
+      steps_summ, 
+      by = c("from", "to")
+    ) %>% 
     mutate(
       pct = .data$length / sum(.data$length), 
       cum_pct = cumsum(.data$pct),
-      num_cells = diff(c(0, round(.data$cum_pct * num_cells)))
+      num_cells = diff(c(0, round(.data$cum_pct * !!num_cells)))
     ) %>% 
+    mutate(num_steps = ifelse(is.na(.data$num_steps), 0, .data$num_steps)) %>% 
     select(-.data$pct, -.data$cum_pct)
   
+  if (any(numbers_per_edge$num_cells > numbers_per_edge$num_steps)) {
+    warning(
+      "One of the branches did not obtain enough simulation steps.\n",
+      "  Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`)."
+    )
+  }
+  
   map(
-    seq_len(nrow(network)),
+    seq_len(nrow(numbers_per_edge)),
     function(i) {
-      edge <- network %>% slice(i)
+      edge <- numbers_per_edge %>% slice(i)
       meta <- 
         inner_join(sim_meta, edge %>% select(.data$from, .data$to), c("from", "to"))
       

@@ -4,6 +4,8 @@ home:
   links:
     - text: Preprint
       href: "https://www.biorxiv.org/content/10.1101/2020.02.06.936971v3.full"
+    - text: Publication
+      href: "https://doi.org/10.1038/s41467-021-24152-2"
 
 template:
   params:
