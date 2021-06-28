@@ -7,7 +7,7 @@
 Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org/package=dyngen)
 [![CRAN
 Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
-[![DOI](https://img.shields.io/badge/doi-10.1038/s41467-021-24152-2-green)](https://doi.org/10.1038/s41467-021-24152-2)
+[![DOI](https://img.shields.io/badge/doi-10.1038%2Fs41467--021--24152--2-green)](https://doi.org/10.1038/s41467-021-24152-2)
 [![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
 [![Coverage
 Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://codecov.io/gh/dynverse/dyngen?branch=master)
@@ -58,6 +58,7 @@ the links below:
     experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
 -   [Advanced: Tweaking
     parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
+-   [Getting started](https://dyngen.dynverse.org/articles/demo.html)
 -   [Getting
     started](https://dyngen.dynverse.org/articles/getting_started.html)
 -   [Installation
