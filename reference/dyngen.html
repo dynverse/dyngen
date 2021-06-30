@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -299,6 +299,7 @@
 
 <ul>
 <li><p><code><a href='generate_dataset.html'>generate_dataset()</a></code>: Run through steps 2 to 8 with a single function</p></li>
+<li><p><code><a href='plot_summary.html'>plot_summary()</a></code>: Plot a summary of all dyngen simulation steps</p></li>
 </ul>
 
     <h2 class="hasAnchor" id="data-objects"><a class="anchor" href="#data-objects"></a>Data objects</h2>
@@ -359,16 +360,19 @@
 #&gt; Sampling feature network from real network
 #&gt; Generating kinetics for 35 features
 #&gt; Generating formulae
+#&gt;   |                                                  | 0 % ~calculating    |+++++++++++++++++++++++++                         | 50% ~01s            |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  
 #&gt; Generating gold standard mod changes
 #&gt; Precompiling reactions for gold standard
 #&gt; Running gold simulations
 #&gt;   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~00s  |===============                                   | 29% elapsed=00s, remaining~00s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=00s, remaining~00s  |===========================================       | 86% elapsed=00s, remaining~00s  |==================================================| 100% elapsed=00s, remaining~00s
 #&gt; Precompiling reactions for simulations
 #&gt; Running 1 simulations
+#&gt;   |                                                  | 0 % ~calculating    |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #&gt; Mapping simulations to gold standard</div><div class='output co'>#&gt; <span class='warning'>Warning: Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.</span></div><div class='output co'>#&gt; Performing dimred
-#&gt; Simulating experiment</div><div class='input'>  
+#&gt; Simulating experiment</div><div class='output co'>#&gt; <span class='warning'>Warning: Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span>
+#&gt; <span class='warning'>  Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></div><div class='input'>  
 <span class='va'>dataset</span> <span class='op'>&lt;-</span> <span class='fu'><a href='as_dyno.html'>wrap_dataset</a></span><span class='op'>(</span><span class='va'>model</span>, format <span class='op'>=</span> <span class='st'>"dyno"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Loading required namespace: dynwrap</span></div><div class='input'><span class='co'># format can also be set to "sce", "seurat", "anndata" or "list"</span>
+<span class='co'># format can also be set to "sce", "seurat", "anndata" or "list"</span>
 
 <span class='co'># library(dynplot)</span>
 <span class='co'># plot_dimred(dataset)</span>

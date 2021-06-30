@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
 
       
 
-      </header><script src="getting_started_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="getting_started_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting started</h1>
@@ -285,7 +285,7 @@ rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::gi
 <a href="#visualise-with-dynplot" class="anchor"></a>Visualise with <code>dynplot</code>
 </h3>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">dynplot</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dynplot">dynplot</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
 <pre><code>## Coloring by milestone</code></pre>
 <pre><code>## Using milestone_percentages from trajectory</code></pre>
@@ -340,16 +340,22 @@ rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::gi
 <p><code>dataset</code> and <code>model</code> can be used in much the same way as before.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno">dyno</a></span><span class="op">)</span></code></pre></div>
+<pre><code>## Loading required package: babelwhale</code></pre>
+<pre><code>## 
+## Attaching package: 'babelwhale'</code></pre>
+<pre><code>## The following object is masked from 'package:readr':
+## 
+##     read_file</code></pre>
 <pre><code>## Loading required package: dynfeature</code></pre>
 <pre><code>## Loading required package: dynguidelines</code></pre>
 <pre><code>## Loading required package: dynmethods</code></pre>
 <pre><code>## Loading required package: dynwrap</code></pre>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
 <pre><code>## Coloring by milestone</code></pre>
 <pre><code>## Using milestone_percentages from trajectory</code></pre>
 <p><img src="getting_started_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_graph.html">plot_graph</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
 <pre><code>## Coloring by milestone
 ## Using milestone_percentages from trajectory</code></pre>

@@ -1,4 +1,4 @@
-pandoc: 2.7.3
+pandoc: 2.11.4
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
@@ -12,7 +12,7 @@ articles:
   getting_started: getting_started.html
   installation: installation.html
   showcase_backbones: showcase_backbones.html
-last_built: 2021-05-12T13:07Z
+last_built: 2021-06-30T03:32Z
 urls:
   reference: https://dyngen.dynverse.org/reference
   article: https://dyngen.dynverse.org/articles

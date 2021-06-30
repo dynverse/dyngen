@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
 
       
 
-      </header><script src="scalability_and_runtime_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="scalability_and_runtime_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: On scalability and runtime</h1>
@@ -349,56 +349,60 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.0.5 (2021-03-31)
-## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
+## Platform: x86_64-redhat-linux-gnu (64-bit)
+## Running under: Fedora 33 (Workstation Edition)
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## BLAS/LAPACK: /usr/lib64/libflexiblas.so.3.0
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
+##  [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+##  [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] dyngen_1.0.1    forcats_0.5.1   stringr_1.4.0   dplyr_1.0.6    
-##  [5] purrr_0.3.4     readr_1.4.0     tidyr_1.1.3     tibble_3.1.1   
+##  [1] dyngen_1.0.2    forcats_0.5.1   stringr_1.4.0   dplyr_1.0.6    
+##  [5] purrr_0.3.4     readr_1.4.0     tidyr_1.1.3     tibble_3.1.2   
 ##  [9] ggplot2_3.3.3   tidyverse_1.3.1
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] fs_1.5.0             dynutils_1.0.7       lubridate_1.7.10    
-##  [4] RColorBrewer_1.1-2   httr_1.4.2           rprojroot_2.0.2     
-##  [7] tools_4.0.5          backports_1.2.1      bslib_0.2.4         
-## [10] irlba_2.3.3          utf8_1.2.1           R6_2.5.0            
-## [13] DBI_1.1.1            colorspace_2.0-1     withr_2.4.2         
-## [16] gridExtra_2.3        tidyselect_1.1.1     proxyC_0.2.0        
-## [19] compiler_4.0.5       textshaping_0.3.3    cli_2.5.0           
-## [22] rvest_1.0.0          RcppXPtrUtils_0.1.1  xml2_1.3.2          
-## [25] desc_1.3.0           labeling_0.4.2       sass_0.4.0          
-## [28] scales_1.1.1         pbapply_1.4-3        pkgdown_1.6.1       
-## [31] systemfonts_1.0.1    digest_0.6.27        rmarkdown_2.8       
-## [34] pkgconfig_2.0.3      htmltools_0.5.1.1    highr_0.9           
-## [37] dbplyr_2.1.1         fastmap_1.1.0        rlang_0.4.11        
-## [40] readxl_1.3.1         rstudioapi_0.13      jquerylib_0.1.4     
-## [43] generics_0.1.0       farver_2.1.0         jsonlite_1.7.2      
-## [46] magrittr_2.0.1       GillespieSSA2_0.2.7  patchwork_1.1.0.9000
-## [49] Matrix_1.3-3         Rcpp_1.0.6           munsell_0.5.0       
-## [52] fansi_0.4.2          viridis_0.6.1        lifecycle_1.0.0     
-## [55] stringi_1.6.1        yaml_2.2.1           ggraph_2.0.5        
-## [58] MASS_7.3-53.1        grid_4.0.5           parallel_4.0.5      
-## [61] ggrepel_0.9.1        crayon_1.4.1         lattice_0.20-41     
-## [64] graphlayouts_0.7.1   haven_2.4.1          hms_1.0.0           
-## [67] knitr_1.33           ps_1.6.0             pillar_1.6.0        
-## [70] igraph_1.2.6         codetools_0.2-18     reprex_2.0.0        
-## [73] glue_1.4.2           evaluate_0.14        remotes_2.3.0       
-## [76] RcppParallel_5.1.4   modelr_0.1.8         vctrs_0.3.8         
-## [79] tweenr_1.0.2         cellranger_1.1.0     gtable_0.3.0        
-## [82] polyclip_1.10-0      assertthat_0.2.1     cachem_1.0.4        
-## [85] lmds_0.1.0           xfun_0.22            ggforce_0.3.3       
-## [88] broom_0.7.6          tidygraph_1.2.0      viridisLite_0.4.0   
-## [91] ragg_1.1.2           memoise_2.0.0        ellipsis_0.3.2</code></pre>
+##  [1] fs_1.5.0            dynutils_1.0.7      lubridate_1.7.10   
+##  [4] RColorBrewer_1.1-2  httr_1.4.2          rprojroot_2.0.2    
+##  [7] tools_4.0.5         backports_1.2.1     bslib_0.2.5.1      
+## [10] irlba_2.3.3         utf8_1.2.1          R6_2.5.0           
+## [13] DBI_1.1.1           colorspace_2.0-1    withr_2.4.2        
+## [16] gridExtra_2.3       tidyselect_1.1.1    proxyC_0.2.0       
+## [19] compiler_4.0.5      textshaping_0.3.4   cli_2.5.0          
+## [22] rvest_1.0.0         RcppXPtrUtils_0.1.1 xml2_1.3.2         
+## [25] desc_1.3.0          labeling_0.4.2      sass_0.4.0         
+## [28] scales_1.1.1        pbapply_1.4-3       pkgdown_1.6.1      
+## [31] systemfonts_1.0.2   digest_0.6.27       rmarkdown_2.8      
+## [34] pkgconfig_2.0.3     htmltools_0.5.1.1   highr_0.9          
+## [37] dbplyr_2.1.1        fastmap_1.1.0       rlang_0.4.11       
+## [40] readxl_1.3.1        rstudioapi_0.13     jquerylib_0.1.4    
+## [43] generics_0.1.0      farver_2.1.0        jsonlite_1.7.2     
+## [46] magrittr_2.0.1      GillespieSSA2_0.2.8 patchwork_1.1.1    
+## [49] Matrix_1.3-4        Rcpp_1.0.6          munsell_0.5.0      
+## [52] fansi_0.5.0         viridis_0.6.1       lifecycle_1.0.0    
+## [55] stringi_1.6.2       yaml_2.2.1          ggraph_2.0.5       
+## [58] MASS_7.3-53.1       grid_4.0.5          parallel_4.0.5     
+## [61] ggrepel_0.9.1       crayon_1.4.1        lattice_0.20-41    
+## [64] graphlayouts_0.7.1  haven_2.4.1         hms_1.1.0          
+## [67] knitr_1.33          pillar_1.6.1        igraph_1.2.6       
+## [70] codetools_0.2-18    reprex_2.0.0        glue_1.4.2         
+## [73] evaluate_0.14       remotes_2.4.0       RcppParallel_5.1.4 
+## [76] modelr_0.1.8        vctrs_0.3.8         tweenr_1.0.2       
+## [79] cellranger_1.1.0    gtable_0.3.0        polyclip_1.10-0    
+## [82] assertthat_0.2.1    cachem_1.0.5        lmds_0.1.0         
+## [85] xfun_0.23           ggforce_0.3.3       broom_0.7.6        
+## [88] tidygraph_1.2.0     viridisLite_0.4.0   ragg_1.1.2         
+## [91] memoise_2.0.0       ellipsis_0.3.2</code></pre>
 </div>
   </div>
 

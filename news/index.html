@@ -89,7 +89,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -173,13 +173,24 @@
       <small>Source: <a href='https://github.com/dynverse/dyngen/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="dyngen-102" class="section level1">
+<h1 class="page-header" data-toc-text="1.0.2">
+<a href="#dyngen-102" class="anchor"></a>dyngen 1.0.2<small> 2021-06-24 </small>
+</h1>
+<ul>
+<li><p>MINOR CHANGE <code><a href="../reference/generate_dataset.html">generate_dataset()</a></code>: Fix subplot title.</p></li>
+<li><p>NEW FEATURE <code><a href="../reference/plot_summary.html">plot_summary()</a></code>: Create a dedicated function for plotting a dyngen summary.</p></li>
+<li><p>BUG FIX <code><a href="../reference/generate_cells.html">generate_cells()</a></code>: Fix incorrect cell count when one of the backbone segments does not have any simulations steps (<a href='https://github.com/dynverse/dyngen/issues/26'>#26</a>).</p></li>
+<li><p>DOCUMENTATION: Update citation to NCOMMS publication.</p></li>
+</ul>
+</div>
     <div id="dyngen-101" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.1">
 <a href="#dyngen-101" class="anchor"></a>dyngen 1.0.1<small> 2021-04-12 </small>
 </h1>
 <ul>
 <li><p>MINOR CHANGE <code>.download_cacheable_file()</code>: Check the return value of <code><a href="https://rdrr.io/r/utils/download.file.html">utils::download.file()</a></code>, since it is possible that the download will fail with a non-zero status but not an R error.</p></li>
-<li><p>MINOR CHANGE: <code><a href="../reference/generate_kinetics.html">kinetics_random_distributions()</a></code>: Add function for providing randomised distributions.</p></li>
+<li><p>MINOR CHANGE <code><a href="../reference/generate_kinetics.html">kinetics_random_distributions()</a></code>: Add function for providing randomised distributions.</p></li>
 </ul>
 </div>
     <div id="dyngen-100" class="section level1">

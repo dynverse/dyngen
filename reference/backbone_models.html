@@ -94,7 +94,7 @@ regulation can be created." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -221,9 +221,9 @@ regulation can be created.</p>
 
 <span class='fu'>backbone_disconnected</span><span class='op'>(</span>
   left_backbone <span class='op'>=</span> <span class='fu'>list_backbones</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'>keep</span><span class='op'>(</span><span class='va'>.</span>, <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span> <span class='op'>!=</span> <span class='st'>"disconnected"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-    <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'>first</span><span class='op'>(</span><span class='op'>)</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/nth.html'>first</a></span><span class='op'>(</span><span class='op'>)</span>,
   right_backbone <span class='op'>=</span> <span class='fu'>list_backbones</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'>keep</span><span class='op'>(</span><span class='va'>.</span>, <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span> <span class='op'>!=</span> <span class='st'>"disconnected"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-    <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'>first</span><span class='op'>(</span><span class='op'>)</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/nth.html'>first</a></span><span class='op'>(</span><span class='op'>)</span>,
   num_common_modules <span class='op'>=</span> <span class='fl'>10</span>
 <span class='op'>)</span></pre>
 

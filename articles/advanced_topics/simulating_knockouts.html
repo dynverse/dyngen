@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
 
       
 
-      </header><script src="simulating_knockouts_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="simulating_knockouts_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: Simulating a knockout experiment</h1>
@@ -248,39 +248,41 @@ rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdow
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model_comb</span> <span class="op">&lt;-</span>
   <span class="fu"><a href="../../reference/combine_models.html">combine_models</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>WT <span class="op">=</span> <span class="va">model_wt</span>, KO <span class="op">=</span> <span class="va">model_ko</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="../../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="../../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></code></pre></div>
+  <span class="fu"><a href="../../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.
+##   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</code></pre>
+<pre><code>## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.
+##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</code></pre>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/combine-1.png" width="768"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_comb</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/combine-2.png" width="768"></p>
 <p>Visualise the dataset using dyno.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno">dyno</a></span><span class="op">)</span></code></pre></div>
+<pre><code>## Loading required package: babelwhale</code></pre>
+<pre><code>## 
+## Attaching package: 'babelwhale'</code></pre>
+<pre><code>## The following object is masked from 'package:readr':
+## 
+##     read_file</code></pre>
 <pre><code>## Loading required package: dynfeature</code></pre>
 <pre><code>## Loading required package: dynguidelines</code></pre>
 <pre><code>## Loading required package: dynmethods</code></pre>
 <pre><code>## Loading required package: dynplot</code></pre>
 <pre><code>## Loading required package: dynwrap</code></pre>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/as_dyno.html">as_dyno</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span>
 <span class="fu">plot_dimred</span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
 <pre><code>## Coloring by milestone</code></pre>
 <pre><code>## Using milestone_percentages from trajectory</code></pre>
 <p><img src="simulating_knockouts_files/figure-html/dyno-1.png" width="960"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">plot_heatmap</span><span class="op">(</span><span class="va">dataset</span>, features_oi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></code></pre></div>
 <pre><code>## No features of interest provided, selecting the top 50 features automatically</code></pre>
 <pre><code>## Using dynfeature for selecting the top 50 features</code></pre>
-<pre><code>## Warning: `as_data_frame()` was deprecated in tibble 2.0.0.
-## Please use `as_tibble()` instead.
-## The signature and semantics have changed, see `?as_tibble`.</code></pre>
-<pre><code>## Warning: `data_frame()` was deprecated in tibble 1.1.0.
-## Please use `tibble()` instead.</code></pre>
-<pre><code>## Warning: 'correlation_distance' is deprecated.
-## Use 'calculate_distance' instead.
-## See help("Deprecated")</code></pre>
 <pre><code>## root cell or milestone not provided, trying first outgoing milestone_id</code></pre>
 <pre><code>## Using 'WT_sA' as root</code></pre>
 <pre><code>## Coloring by milestone</code></pre>

@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
 
       
 
-      </header><script src="constructing_backbone_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="constructing_backbone_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: Constructing a custom backbone</h1>
@@ -177,14 +177,16 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
     verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
     simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
       ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,
-      census_interval <span class="op">=</span> <span class="fl">5</span>,
+      census_interval <span class="op">=</span> <span class="fl">1</span>,
       experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
     <span class="op">)</span>,
     download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>
   <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<pre><code>## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.
+##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bblego2-1.png" width="1536"></p>
 <p>Check the following predefined backbones for some examples.</p>
@@ -209,7 +211,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>burn (logical): whether or not outgoing edges of this module will be active during the burn in phase</li>
 <li>independence (numeric): the independence factor between regulators of this module, must be between [0, 1]</li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">module_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,
   <span class="st">"A1"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
@@ -238,7 +240,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>strength (numeric): the strength of the interaction</li>
 <li>hill (numeric): hill coefficient, larger than 1 for positive cooperativity, between 0 and 1 for negative cooperativity</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">module_network</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,
   <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
@@ -277,7 +279,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>burn (logical): Whether these cell states are part of the burn in phase. Cells will not get sampled from these cell states.</li>
 <li>time (numeric): The duration of an transition.</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">expression_patterns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
   <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,
   <span class="st">"sBurn"</span>, <span class="st">"sA"</span>, <span class="st">"+A1,+A2,+A3,+B2,+D3"</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="fl">60</span>,
@@ -291,7 +293,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <h3 class="hasAnchor">
 <a href="#visualising-the-backbone" class="anchor"></a>Visualising the backbone</h3>
 <p>By wrapping these data structures as a backbone object, we can now visualise the topology of the backbone. Drawing the backbone module network by hand on a piece of paper can help you understand how the gene regulatory network works.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/backbone.html">backbone</a></span><span class="op">(</span>
   module_info <span class="op">=</span> <span class="va">module_info</span>,
   module_network <span class="op">=</span> <span class="va">module_network</span>,
@@ -312,10 +314,10 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 
 <span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifurcatingloop_print-1.png" width="768"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifurcatingloop_print-2.png" width="768"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
 <span class="co"># for pkgdown can otherwise take a very long time</span>
 <span class="va">config</span> <span class="op">&lt;-</span> 
@@ -327,7 +329,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
     verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
     simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
       ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,
-      census_interval <span class="op">=</span> <span class="fl">10</span>,
+      census_interval <span class="op">=</span> <span class="fl">2</span>,
       experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,
       total_time <span class="op">=</span> <span class="fl">600</span>
     <span class="op">)</span>,
@@ -338,9 +340,9 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <h3 class="hasAnchor">
 <a href="#simulation" class="anchor"></a>Simulation</h3>
 <p>This allows you to simulate the following dataset.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifurcatingloop_plot-1.png" width="1536"></p>
 </div>
@@ -367,7 +369,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <h2 class="hasAnchor">
 <a href="#combination-of-bblego-and-manual" class="anchor"></a>Combination of bblego and manual</h2>
 <p>You can also use parts of the ‘bblego’ framework to construct a backbone manually. That’s because the bblego functions simply generate the three data frames (<code>module_info</code>, <code>module_network</code> and <code>expression_patterns</code>) required to construct a backbone manually. For example:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">part0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_start</a></span><span class="op">(</span><span class="st">"A"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="va">part1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_linear</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
 <span class="va">part3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"C"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
@@ -396,7 +398,7 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 ##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;              &lt;lgl&gt; &lt;lgl&gt; &lt;dbl&gt;
 ## 1 sA    sB    +A1,+A2,+A3        FALSE FALSE    90</code></pre>
 <p>You can combine these components with a custom bifurcation component which can switch back and forth between end states.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">part2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
   module_info <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
     <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,
@@ -442,10 +444,10 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 
 <span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_backbone-1.png" width="700"></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_backbone-2.png" width="700"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
 <span class="co"># for pkgdown can otherwise take a very long time</span>
 <span class="va">config</span> <span class="op">&lt;-</span> 
@@ -457,19 +459,19 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
     verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
     simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
       ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,
-      census_interval <span class="op">=</span> <span class="fl">5</span>,
+      census_interval <span class="op">=</span> <span class="fl">1</span>,
       experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,
       total_time <span class="op">=</span> <span class="fu"><a href="../../reference/simtime_from_backbone.html">simtime_from_backbone</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span>
     <span class="op">)</span>,
     download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>
   <span class="op">)</span></code></pre></div>
 <p>Looking at the gene expression over time shows that a simulation can indeed switch between C3 and D3 expression.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_sim-1.png" width="1536"></p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">model</span>, simulation_i <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_sim-2.png" width="1536"></p>
 </div>
