@@ -58,7 +58,6 @@ the links below:
     experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
 -   [Advanced: Tweaking
     parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
--   [Getting started](https://dyngen.dynverse.org/articles/demo.html)
 -   [Getting
     started](https://dyngen.dynverse.org/articles/getting_started.html)
 -   [Installation
