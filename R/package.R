@@ -73,6 +73,7 @@
 #'   
 #' @section One-shot function:
 #'   * [generate_dataset()]: Run through steps 2 to 8 with a single function
+#'   * [plot_summary()]: Plot a summary of all dyngen simulation steps
 #' 
 #' @section Data objects:
 #'   * [example_model]: A (very) small toy dyngen model, used for documentation and testing purposes

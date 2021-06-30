@@ -2,8 +2,6 @@ url: https://dyngen.dynverse.org
 
 home:
   links:
-    - text: Preprint
-      href: "https://www.biorxiv.org/content/10.1101/2020.02.06.936971v3.full"
     - text: Publication
       href: "https://doi.org/10.1038/s41467-021-24152-2"
 
@@ -49,7 +47,7 @@ reference:
  - contents:
    - generate_kinetics
    - kinetics_default
-   - kinetics_random_distribution
+   - kinetics_random_distributions
  - title: Step 5, simulate the gold standard
    desc: Simulate the gold standard backbone, used for mapping to cell states afterwards
  - contents:
@@ -89,6 +87,7 @@ reference:
    desc: Run through steps 2 to 8 with a single function
  - contents:
    - generate_dataset
+   - plot_summary
  - title: Data objects
  - contents:
    - example_model

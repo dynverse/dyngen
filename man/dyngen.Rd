@@ -118,6 +118,7 @@ A toolkit for generating synthetic single cell data.
 
 \itemize{
 \item \code{\link[=generate_dataset]{generate_dataset()}}: Run through steps 2 to 8 with a single function
+\item \code{\link[=plot_summary]{plot_summary()}}: Plot a summary of all dyngen simulation steps
 }
 }
 
