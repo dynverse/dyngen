@@ -1,3 +1,7 @@
+# dyngen 1.0.3
+
+* BUG FIX `generate_experiment()`: Return timepoint groups for `experiment_synchronised()`.
+
 # dyngen 1.0.2
 
 * MINOR CHANGE `generate_dataset()`: Fix subplot title.

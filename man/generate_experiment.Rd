@@ -47,11 +47,17 @@ cells along each edge in order to perform weighted sampling.}
 A dyngen model.
 }
 \description{
-\code{\link[=generate_experiment]{generate_experiment()}} runs samples cells along the different simulations.
-\code{\link[=experiment_snapshot]{experiment_snapshot()}} assumes that cells are sampled from a heterogeneous pool of cells.
-Cells will thus be sampled uniformily from the trajectory.
-\code{\link[=experiment_synchronised]{experiment_synchronised()}} assumes that all the cells are synchronised and
-are sampled at different timepoints.
+\code{\link[=generate_experiment]{generate_experiment()}} samples cells along the different simulations.
+Two approaches are implemented: sampling from an unsynchronised population of single cells (snapshot) or
+sampling at multiple time points in a synchronised population (time series).
+}
+\details{
+\code{\link[=experiment_snapshot]{experiment_snapshot()}} samples the cells using the length of each edge in the milestone network as weights.
+See Supplementary Figure 7A from the dyngen paper for an illustration of how these weights are computed.
+
+\code{\link[=experiment_synchronised]{experiment_synchronised()}} samples the cells along the simulation timeline by binning it into \code{num_timepoints}
+groups separated by \code{num_timepoints-1} gaps.
+See Supplementary Figure 7B from the dyngen paper for an illustration of how the timepoint groups are computed.
 }
 \examples{
 names(list_experiment_samplers())
