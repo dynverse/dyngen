@@ -1,12 +1,8 @@
-# dyngen 1.0.2
+# dyngen 1.0.3
 
-* MINOR CHANGE `generate_dataset()`: Fix subplot title.
+* BUG FIX `generate_experiment()`: Return timepoint groups for `experiment_synchronised()`.
 
-* NEW FEATURE `plot_summary()`: Create a dedicated function for plotting a dyngen summary.
-
-* BUG FIX `generate_cells()`: Fix incorrect cell count when one of the backbone segments does not have any simulations steps (#26).
-
-* DOCUMENTATION: Update citation to NCOMMS publication.
+* BUG FIX unit tests: loosen generate partitions constraints.
 
 ## Test environments
 * local Fedora install (R release)
@@ -17,8 +13,8 @@
 
 ## R CMD check results
 
-── R CMD check results ─────────────────────────────────────── dyngen 1.0.2 ────
-Duration: 5m 3.1s
+── R CMD check results ─────────────────────────────────────── dyngen 1.0.3 ────
+Duration: 3m 34.7s
 
 0 errors ✓ | 0 warnings ✓ | 0 notes ✓
 

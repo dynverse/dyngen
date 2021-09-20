@@ -44,6 +44,12 @@ guide](https://dyngen.dynverse.org/articles/getting_started.html) on how
 to get started with dyngen. You can find more guides by clicking any of
 the links below:
 
+-   [Getting
+    started](https://dyngen.dynverse.org/articles/getting_started.html)
+-   [Installation
+    instructions](https://dyngen.dynverse.org/articles/installation.html)
+-   [Showcase different
+    backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
 -   [Advanced: Comparison to reference
     dataset](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)
 -   [Advanced: Constructing a custom
@@ -58,13 +64,6 @@ the links below:
     experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
 -   [Advanced: Tweaking
     parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
--   [Getting started](https://dyngen.dynverse.org/articles/demo.html)
--   [Getting
-    started](https://dyngen.dynverse.org/articles/getting_started.html)
--   [Installation
-    instructions](https://dyngen.dynverse.org/articles/installation.html)
--   [Showcase different
-    backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
 
 ## Latest changes
 

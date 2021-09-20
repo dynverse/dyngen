@@ -39,8 +39,9 @@ dyngen should work straight out of the CRAN box by running `install.packages("dy
 Check out [this guide](https://dyngen.dynverse.org/articles/getting_started.html) on how to get started with dyngen. You can find more guides by clicking any of the links below:
 
 ```{r vignettes, results='asis', echo=FALSE}
+vign <- list.files("vignettes", pattern = "*.Rmd", recursive = TRUE)
 walk(
-  list.files("vignettes", pattern = "*.Rmd", recursive = TRUE),
+  c(vign[!grepl("^advan", vign)], vign[grepl("^advan", vign)]),
   function(file) {
     title <- 
       read_lines(paste0("vignettes/", file)) %>% 
