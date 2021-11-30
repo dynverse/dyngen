@@ -2,7 +2,7 @@ Type: Package
 Package: dyngen
 Title: A Multi-Modal Simulator for Spearheading Single-Cell
     Omics Analyses
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: 
     c(person(given = "Robrecht",
              family = "Cannoodt",
@@ -12,7 +12,7 @@ Authors@R:
       person(given = "Wouter",
              family = "Saelens",
              role = "aut",
-             email = "wouter.saelens@ugent.be",
+             email = "wouter.saelens@gmail.com",
              comment = c(ORCID = "0000-0002-7114-6248")))
 Description: A novel, multi-modal simulation engine for
     studying dynamic cellular processes at single-cell resolution. 'dyngen'

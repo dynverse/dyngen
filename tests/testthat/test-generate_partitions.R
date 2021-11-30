@@ -16,7 +16,8 @@ test_that("num_tfs_sampler works as expected", {
   avg <- Reduce("+", samples) / length(samples)
   
   exp <- num_tfs / num_modules
-  expect_true(all(abs(avg - exp) / exp < 0.1))
+  expect_equal(mean(avg), exp, tolerance = 0.1)
+  # expect_true((max(avg) - min(avg)) < 0.25 * exp)
 })
 
 test_that("num_tfs_sampler works as expected", {
@@ -35,7 +36,8 @@ test_that("num_tfs_sampler works as expected", {
   avg <- Reduce("+", samples) / length(samples)
   
   exp <- num_tfs / num_modules
-  expect_true(all(abs(avg - exp) / exp < 0.1))
+  expect_equal(mean(avg), exp, tolerance = 0.1)
+  # expect_true((max(avg) - min(avg)) < 0.25 * exp)
 })
 
 
@@ -56,7 +58,8 @@ test_that("num_tfs_sampler works as expected", {
   avg <- Reduce("+", samples) / length(samples)
   
   exp <- num_tfs / num_modules
-  expect_true(all(abs(avg - exp) / exp < 0.1))
+  expect_equal(mean(avg), exp, tolerance = 0.1)
+  # expect_true((max(avg) - min(avg)) < 0.25 * exp)
 })
 
 

@@ -1,10 +1,15 @@
 #' Sample cells from the simulations
 #' 
-#' [generate_experiment()] runs samples cells along the different simulations.
-#' [experiment_snapshot()] assumes that cells are sampled from a heterogeneous pool of cells.
-#' Cells will thus be sampled uniformily from the trajectory.
-#' [experiment_synchronised()] assumes that all the cells are synchronised and 
-#' are sampled at different timepoints.
+#' [generate_experiment()] samples cells along the different simulations. 
+#' Two approaches are implemented: sampling from an unsynchronised population of single cells (snapshot) or 
+#' sampling at multiple time points in a synchronised population (time series).
+#' 
+#' [experiment_snapshot()] samples the cells using the length of each edge in the milestone network as weights.
+#' See Supplementary Figure 7A from the dyngen paper for an illustration of how these weights are computed.
+#' 
+#' [experiment_synchronised()] samples the cells along the simulation timeline by binning it into `num_timepoints` 
+#' groups separated by `num_timepoints-1` gaps.
+#' See Supplementary Figure 7B from the dyngen paper for an illustration of how the timepoint groups are computed. 
 #' 
 #' @param model A dyngen intermediary model for which the simulations have been run with [generate_cells()].
 #' @param weight_bw \[snapshot\] A bandwidth parameter for determining the distribution of 
@@ -42,23 +47,19 @@ generate_experiment <- function(model) {
   if (model$verbose) cat("Simulating experiment\n")
   model <- .add_timing(model, "7_experiment", "sample cells")
   # first sample the cells from the sample, using the desired number of cells
-  step_ixs <- .generate_experiment_sample_cells(model)
+  sample_df <- .generate_experiment_sample_cells(model)
   
-  cell_info <-
-    model$simulations$meta[step_ixs, , drop = FALSE] %>% 
-    mutate(
-      step_ix = step_ixs
-    )
-    
-  if ("group" %in% names(attributes(step_ixs))) {
-    cell_info$cell_group <- attr(step_ixs, "group")
-  } else {
-    # only shuffle if step sampling is not used
-    cell_info <- cell_info %>% sample_n(n())
+  # check for backwards compatibility with older dyngen models
+  if (!is.data.frame(sample_df)) {
+    sample_df <- tibble(step_ix = sample_df)
   }
   
-  cell_info <-
-    cell_info %>% 
+  cell_info <- 
+    bind_cols(
+      model$simulations$meta[sample_df$step_ix, , drop = FALSE],
+      sample_df
+    ) %>% 
+    sample_n(n(), replace = FALSE) %>% 
     mutate(
       cell_id = paste0("cell", row_number())
     ) %>% 
@@ -328,7 +329,7 @@ experiment_synchronised <- function(
     )
   }
   
-  map(
+  ix <- map(
     seq_len(nrow(numbers_per_edge)),
     function(i) {
       edge <- numbers_per_edge %>% slice(i)
@@ -349,6 +350,7 @@ experiment_synchronised <- function(
     }
   ) %>% 
     unlist()
+  tibble(step_ix = ix)
 }
 
 .generate_experiment_synchronised <- function(
@@ -376,17 +378,19 @@ experiment_synchronised <- function(
       num_cells = diff(c(0, round(.data$cum_pct * num_cells)))
     )
   
-  map2(
+  i <- map2(
     numbers$timepoint_group,
     numbers$num_cells,
     function(gr, num) {
-      sim_meta2 %>% 
-        filter(.data$timepoint_group == gr) %>%
-        pull(.data$orig_ix) %>% 
-        sample(size = num, replace = TRUE)
+      candi <- which(sim_meta2$timepoint_group == gr)
+      sample(candi, size = num, replace = TRUE)
     }
   ) %>% 
     unlist()
+  
+  sim_meta2 %>% 
+    slice(i) %>% 
+    select(step_ix = .data$orig_ix, .data$timepoint_group)
 }
 
 .generate_experiment_fetch_realcount <- function(model) {
