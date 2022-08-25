@@ -3,19 +3,17 @@
 #' @importFrom ggplot2 geom_blank
 #' @importFrom rlang eval_tidy new_data_mask
 geom_edge_loop_workaround <- function(edges, mapping, ...) {
-  filter_result <- eval_tidy(mapping$filter, new_data_mask(list2env(edges)))
-  if (any(filter_result)) {
-    geom_edge_loop(mapping, ...)
-  } else {
+  if (is.null(edges) || !any(eval_tidy(mapping$filter, new_data_mask(list2env(edges))))) {
     geom_blank()
+  } else {
+    geom_edge_loop(mapping, ...)
   }
 }
 
 geom_edge_fan_workaround <- function(edges, mapping, ...) {
-  filter_result <- eval_tidy(mapping$filter, new_data_mask(list2env(edges)))
-  if (any(filter_result)) {
-    geom_edge_fan(mapping, ...)
-  } else {
+  if (is.null(edges) || !any(eval_tidy(mapping$filter, new_data_mask(list2env(edges))))) {
     geom_blank()
+  } else {
+    geom_edge_fan(mapping, ...)
   }
 }
