@@ -1,7 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://dyngen.dynverse.org/404.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/getting_started.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/installation.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/articles/showcase_backbones.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/authors.html</loc>
+  </url>
+  <url>
     <loc>https://dyngen.dynverse.org/index.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/news/index.html</loc>
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/reference/backbone.html</loc>
@@ -47,6 +95,9 @@
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/reference/get_timings.html</loc>
+  </url>
+  <url>
+    <loc>https://dyngen.dynverse.org/reference/index.html</loc>
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/reference/initialise_model.html</loc>
@@ -101,35 +152,5 @@
   </url>
   <url>
     <loc>https://dyngen.dynverse.org/reference/simtime_from_backbone.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/getting_started.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/installation.html</loc>
-  </url>
-  <url>
-    <loc>https://dyngen.dynverse.org/articles/showcase_backbones.html</loc>
   </url>
 </urlset>

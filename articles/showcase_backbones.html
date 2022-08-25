@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +72,8 @@
       <a href="../articles/showcase_backbones.html">Showcase different backbones</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Advanced</li>
+    </li>
+<li class="dropdown-header">Advanced</li>
     <li>
       <a href="../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
     </li>
@@ -106,7 +103,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/dynverse/dyngen/">
+  <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -121,13 +118,13 @@
 
       
 
-      </header><script src="showcase_backbones_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="showcase_backbones_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Showcase different backbones</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/vignettes/showcase_backbones.Rmd"><code>vignettes/showcase_backbones.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/HEAD/vignettes/showcase_backbones.Rmd" class="external-link"><code>vignettes/showcase_backbones.Rmd</code></a></small>
       <div class="hidden name"><code>showcase_backbones.Rmd</code></div>
 
     </div>
@@ -138,333 +135,333 @@
 rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
 -->
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></span></code></pre></div>
 <p>This vignette demonstrates the different dynamic processes topologies (e.g. bifurcating and cyclic). Note that, for the sake of reducing runtime for generating this vignette, the simulations are ran with reduced settings. Check out the vignette on tweaking parameters for information on how the different parameters are changed.</p>
-<p>You can find a full list of backbones using <code><a href="../reference/list_backbones.html">?list_backbones</a></code>. This vignette will showcase each of them individually.</p>
-<div id="linear" class="section level1">
-<h1 class="hasAnchor">
-<a href="#linear" class="anchor"></a>Linear</h1>
+<p>You can find a full list of backbones using <code><a href="../reference/backbone_models.html">?list_backbones</a></code>. This vignette will showcase each of them individually.</p>
+<div class="section level2">
+<h2 id="linear">Linear<a class="anchor" aria-label="anchor" href="#linear"></a>
+</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_linear</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_linear</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/linear-1.png" width="1920"></p>
 </div>
-<div id="bifurcating" class="section level1">
-<h1 class="hasAnchor">
-<a href="#bifurcating" class="anchor"></a>Bifurcating</h1>
+<div class="section level2">
+<h2 id="bifurcating">Bifurcating<a class="anchor" aria-label="anchor" href="#bifurcating"></a>
+</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_bifurcating</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_bifurcating</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/bifurcating-1.png" width="1920"></p>
 </div>
-<div id="bifurcating-converging" class="section level1">
-<h1 class="hasAnchor">
-<a href="#bifurcating-converging" class="anchor"></a>Bifurcating converging</h1>
+<div class="section level2">
+<h2 id="bifurcating-converging">Bifurcating converging<a class="anchor" aria-label="anchor" href="#bifurcating-converging"></a>
+</h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_bifurcating_converging</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_bifurcating_converging</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/bifurcating_converging-1.png" width="1920"></p>
 </div>
-<div id="bifurcating-cycle" class="section level1">
-<h1 class="hasAnchor">
-<a href="#bifurcating-cycle" class="anchor"></a>Bifurcating cycle</h1>
+<div class="section level2">
+<h2 id="bifurcating-cycle">Bifurcating cycle<a class="anchor" aria-label="anchor" href="#bifurcating-cycle"></a>
+</h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_bifurcating_cycle</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_bifurcating_cycle</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/bifurcating_cycle-1.png" width="1920"></p>
 </div>
-<div id="bifurcating-loop" class="section level1">
-<h1 class="hasAnchor">
-<a href="#bifurcating-loop" class="anchor"></a>Bifurcating loop</h1>
+<div class="section level2">
+<h2 id="bifurcating-loop">Bifurcating loop<a class="anchor" aria-label="anchor" href="#bifurcating-loop"></a>
+</h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_bifurcating_loop</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_bifurcating_loop</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/bifurcating_loop-1.png" width="1920"></p>
 </div>
-<div id="binary-tree" class="section level1">
-<h1 class="hasAnchor">
-<a href="#binary-tree" class="anchor"></a>Binary tree</h1>
+<div class="section level2">
+<h2 id="binary-tree">Binary tree<a class="anchor" aria-label="anchor" href="#binary-tree"></a>
+</h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_binary_tree</a></span><span class="op">(</span>
-  num_modifications <span class="op">=</span> <span class="fl">2</span>
-<span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_binary_tree</a></span><span class="op">(</span></span>
+<span>  num_modifications <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/binary_tree-1.png" width="1920"></p>
 </div>
-<div id="branching" class="section level1">
-<h1 class="hasAnchor">
-<a href="#branching" class="anchor"></a>Branching</h1>
+<div class="section level2">
+<h2 id="branching">Branching<a class="anchor" aria-label="anchor" href="#branching"></a>
+</h2>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_branching</a></span><span class="op">(</span>
-  num_modifications <span class="op">=</span> <span class="fl">2</span>,
-  min_degree <span class="op">=</span> <span class="fl">3</span>,
-  max_degree <span class="op">=</span> <span class="fl">3</span>
-<span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in .generate_cells_predict_state(model): Simulation does not contain all</span>
-<span class="co">#&gt; gold standard edges. This simulation likely suffers from bad kinetics; choose a</span>
-<span class="co">#&gt; different seed and rerun.</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span>
-<span class="co">#&gt;   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_branching</a></span><span class="op">(</span></span>
+<span>  num_modifications <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  min_degree <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  max_degree <span class="op">=</span> <span class="fl">3</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in .generate_cells_predict_state(model): Simulation does not contain all</span></span>
+<span><span class="co">#&gt; gold standard edges. This simulation likely suffers from bad kinetics; choose a</span></span>
+<span><span class="co">#&gt; different seed and rerun.</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span></span>
+<span><span class="co">#&gt;   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/branching-1.png" width="1920"></p>
 </div>
-<div id="consecutive-bifurcating" class="section level1">
-<h1 class="hasAnchor">
-<a href="#consecutive-bifurcating" class="anchor"></a>Consecutive bifurcating</h1>
+<div class="section level2">
+<h2 id="consecutive-bifurcating">Consecutive bifurcating<a class="anchor" aria-label="anchor" href="#consecutive-bifurcating"></a>
+</h2>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_consecutive_bifurcating</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in .generate_cells_predict_state(model): Simulation does not contain all</span>
-<span class="co">#&gt; gold standard edges. This simulation likely suffers from bad kinetics; choose a</span>
-<span class="co">#&gt; different seed and rerun.</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span>
-<span class="co">#&gt;   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_consecutive_bifurcating</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in .generate_cells_predict_state(model): Simulation does not contain all</span></span>
+<span><span class="co">#&gt; gold standard edges. This simulation likely suffers from bad kinetics; choose a</span></span>
+<span><span class="co">#&gt; different seed and rerun.</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span></span>
+<span><span class="co">#&gt;   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/consecutive_bifurcating-1.png" width="1920"></p>
 </div>
-<div id="trifurcating" class="section level1">
-<h1 class="hasAnchor">
-<a href="#trifurcating" class="anchor"></a>Trifurcating</h1>
+<div class="section level2">
+<h2 id="trifurcating">Trifurcating<a class="anchor" aria-label="anchor" href="#trifurcating"></a>
+</h2>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">9</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_trifurcating</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">9</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_trifurcating</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/trifurcating-1.png" width="1920"></p>
 </div>
-<div id="converging" class="section level1">
-<h1 class="hasAnchor">
-<a href="#converging" class="anchor"></a>Converging</h1>
+<div class="section level2">
+<h2 id="converging">Converging<a class="anchor" aria-label="anchor" href="#converging"></a>
+</h2>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_converging</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_converging</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/converging-1.png" width="1920"></p>
 </div>
-<div id="cycle" class="section level1">
-<h1 class="hasAnchor">
-<a href="#cycle" class="anchor"></a>Cycle</h1>
+<div class="section level2">
+<h2 id="cycle">Cycle<a class="anchor" aria-label="anchor" href="#cycle"></a>
+</h2>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_cycle</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_cycle</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/cycle-1.png" width="1920"></p>
 </div>
-<div id="disconnected" class="section level1">
-<h1 class="hasAnchor">
-<a href="#disconnected" class="anchor"></a>Disconnected</h1>
+<div class="section level2">
+<h2 id="disconnected">Disconnected<a class="anchor" aria-label="anchor" href="#disconnected"></a>
+</h2>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_disconnected</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in .generate_cells_predict_state(model): Simulation does not contain all</span>
-<span class="co">#&gt; gold standard edges. This simulation likely suffers from bad kinetics; choose a</span>
-<span class="co">#&gt; different seed and rerun.</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span>
-<span class="co">#&gt;   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span>
-<span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_disconnected</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>census_interval <span class="op">=</span> <span class="fl">10</span>, ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in .generate_cells_predict_state(model): Simulation does not contain all</span></span>
+<span><span class="co">#&gt; gold standard edges. This simulation likely suffers from bad kinetics; choose a</span></span>
+<span><span class="co">#&gt; different seed and rerun.</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span></span>
+<span><span class="co">#&gt;   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="co">#&gt; Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">#&gt;   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/disconnected-1.png" width="1920"></p>
 </div>
-<div id="linear-simple" class="section level1">
-<h1 class="hasAnchor">
-<a href="#linear-simple" class="anchor"></a>Linear simple</h1>
+<div class="section level2">
+<h2 id="linear-simple">Linear simple<a class="anchor" aria-label="anchor" href="#linear-simple"></a>
+</h2>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">13</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_linear_simple</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">13</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_linear_simple</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/linear_simple-1.png" width="1920"></p>
 </div>
-<div id="cycle-simple" class="section level1">
-<h1 class="hasAnchor">
-<a href="#cycle-simple" class="anchor"></a>Cycle simple</h1>
+<div class="section level2">
+<h2 id="cycle-simple">Cycle simple<a class="anchor" aria-label="anchor" href="#cycle-simple"></a>
+</h2>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_cycle_simple</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_cells <span class="op">=</span> <span class="fl">500</span>,
-  num_tfs <span class="op">=</span> <span class="fl">100</span>,
-  num_targets <span class="op">=</span> <span class="fl">0</span>,
-  num_hks <span class="op">=</span> <span class="fl">0</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-<span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">out</span><span class="op">$</span><span class="va">plot</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_cycle_simple</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_cells <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">init</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="showcase_backbones_files/figure-html/cycle_simple-1.png" width="1920"></p>
 </div>
   </div>
@@ -480,11 +477,13 @@ rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown:
 
 
       <footer><div class="copyright">
-  <p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
+  <p></p>
+<p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -492,6 +491,8 @@ rmarkdown::render("vignettes/showcase_backbones.Rmd", output_format = rmarkdown:
 
   
 
+
+  
 
   </body>
 </html>

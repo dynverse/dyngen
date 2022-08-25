@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +72,8 @@
       <a href="../../articles/showcase_backbones.html">Showcase different backbones</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Advanced</li>
+    </li>
+<li class="dropdown-header">Advanced</li>
     <li>
       <a href="../../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
     </li>
@@ -106,7 +103,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/dynverse/dyngen/">
+  <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -121,13 +118,13 @@
 
       
 
-      </header><script src="constructing_backbone_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="constructing_backbone_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: Constructing a custom backbone</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/vignettes/advanced_topics/constructing_backbone.Rmd"><code>vignettes/advanced_topics/constructing_backbone.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/HEAD/vignettes/advanced_topics/constructing_backbone.Rmd" class="external-link"><code>vignettes/advanced_topics/constructing_backbone.Rmd</code></a></small>
       <div class="hidden name"><code>constructing_backbone.Rmd</code></div>
 
     </div>
@@ -138,72 +135,70 @@
 rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdown::github_document())
 -->
 <p>You may want to construct your own custom backbone as opposed to those predefined in dyngen in order to obtain a desired effect. You can do so in one of two ways.</p>
-<div id="backbone-lego" class="section level2">
-<h2 class="hasAnchor">
-<a href="#backbone-lego" class="anchor"></a>Backbone lego</h2>
+<div class="section level2">
+<h2 id="backbone-lego">Backbone lego<a class="anchor" aria-label="anchor" href="#backbone-lego"></a>
+</h2>
 <p>You can use the <code>bblego</code> functions in order to create custom backbones using so-called ‘backbone lego blocks’. Please note that <code>bblego</code> only allows you to create tree-shaped backbones (so no cycles), but in 90% of cases will be exactly what you need and in the remaining 10% of cases these functions will still get you 80% of where you need to be.</p>
 <p>Here is an example of a bifurcating trajectory.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego</a></span><span class="op">(</span>
-  <span class="fu"><a href="../../reference/bblego.html">bblego_start</a></span><span class="op">(</span><span class="st">"A"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,
-  <span class="fu"><a href="../../reference/bblego.html">bblego_linear</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,
-  <span class="fu"><a href="../../reference/bblego.html">bblego_branching</a></span><span class="op">(</span><span class="st">"B"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"simple"</span><span class="op">)</span>,
-  <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"C"</span>, type <span class="op">=</span> <span class="st">"doublerep2"</span>, num_modules <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,
-  <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"D"</span>, type <span class="op">=</span> <span class="st">"doublerep1"</span>, num_modules <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="va">config</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">500</span>,
-    num_hks <span class="op">=</span> <span class="fl">500</span>,
-    verbose <span class="op">=</span> <span class="cn">FALSE</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../../reference/bblego.html">bblego_start</a></span><span class="op">(</span><span class="st">"A"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../../reference/bblego.html">bblego_linear</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../../reference/bblego.html">bblego_branching</a></span><span class="op">(</span><span class="st">"B"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"simple"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"C"</span>, type <span class="op">=</span> <span class="st">"doublerep2"</span>, num_modules <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"D"</span>, type <span class="op">=</span> <span class="st">"doublerep1"</span>, num_modules <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
-<span class="co"># for pkgdown can otherwise take a very long time</span>
-<span class="va">config</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">50</span>,
-    num_hks <span class="op">=</span> <span class="fl">50</span>,
-    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
-    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,
-      census_interval <span class="op">=</span> <span class="fl">1</span>,
-      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
-    <span class="op">)</span>,
-    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span></span>
+<span><span class="co"># for pkgdown can otherwise take a very long time</span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,</span>
+<span>      census_interval <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.
-##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</code></pre>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bblego2-1.png" width="1536"></p>
 <p>Check the following predefined backbones for some examples.</p>
 <ul>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L3-L11">backbone_bifurcating</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L195-L273">backbone_branching</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L420-L427">backbone_linear</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L3-L11" class="external-link">backbone_bifurcating</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L195-L273" class="external-link">backbone_branching</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L420-L427" class="external-link">backbone_linear</a></li>
 </ul>
 </div>
-<div id="manually-constructing-backbone-data-frames" class="section level2">
-<h2 class="hasAnchor">
-<a href="#manually-constructing-backbone-data-frames" class="anchor"></a>Manually constructing backbone data frames</h2>
+<div class="section level2">
+<h2 id="manually-constructing-backbone-data-frames">Manually constructing backbone data frames<a class="anchor" aria-label="anchor" href="#manually-constructing-backbone-data-frames"></a>
+</h2>
 <p>To get the most control over how a dyngen simulation is performed, you can construct a backbone manually (see <code><a href="../../reference/backbone.html">?backbone</a></code> for the full spec). This is the only way to create some of the more specific backbone shapes such as disconnected, cyclic and converging.</p>
 <p>This is an example of what data structures a backbone consists of.</p>
-<div id="module-info" class="section level3">
-<h3 class="hasAnchor">
-<a href="#module-info" class="anchor"></a>Module info</h3>
+<div class="section level3">
+<h3 id="module-info">Module info<a class="anchor" aria-label="anchor" href="#module-info"></a>
+</h3>
 <p>A tibble containing meta information on the modules themselves. A module is a group of genes which, to some extent, shows the same expression behaviour. Several modules are connected together such that one or more genes from one module will regulate the expression of another module. By creating chains of modules, a dynamic behaviour in gene regulation can be created.</p>
 <ul>
 <li>module_id (character): the name of the module</li>
@@ -211,27 +206,27 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>burn (logical): whether or not outgoing edges of this module will be active during the burn in phase</li>
 <li>independence (numeric): the independence factor between regulators of this module, must be between [0, 1]</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">module_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
-  <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,
-  <span class="st">"A1"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
-  <span class="st">"A2"</span>, <span class="fl">0</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
-  <span class="st">"A3"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
-  <span class="st">"B1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"B2"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
-  <span class="st">"C1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"C2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"C3"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"D1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"D2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"D3"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,
-  <span class="st">"D4"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-  <span class="st">"D5"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>
-<span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">module_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>  <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,</span>
+<span>  <span class="st">"A1"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"A2"</span>, <span class="fl">0</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"A3"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"B1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"B2"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"C1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"C2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"C3"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"D1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"D2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"D3"</span>, <span class="fl">1</span>, <span class="cn">TRUE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"D4"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>  <span class="st">"D5"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="module-network" class="section level3">
-<h3 class="hasAnchor">
-<a href="#module-network" class="anchor"></a>Module network</h3>
+<div class="section level3">
+<h3 id="module-network">Module network<a class="anchor" aria-label="anchor" href="#module-network"></a>
+</h3>
 <p>A tibble describing which modules regulate which other modules.</p>
 <ul>
 <li>from (character): the regulating module</li>
@@ -240,36 +235,36 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>strength (numeric): the strength of the interaction</li>
 <li>hill (numeric): hill coefficient, larger than 1 for positive cooperativity, between 0 and 1 for negative cooperativity</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">module_network</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
-  <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,
-  <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"A2"</span>, <span class="st">"B1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"B1"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"B1"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"C1"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"C1"</span>, <span class="st">"D1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">100</span>, <span class="fl">2</span>,
-  <span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"C2"</span>, <span class="st">"C3"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"C2"</span>, <span class="st">"A2"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"C2"</span>, <span class="st">"B1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"C3"</span>, <span class="st">"A1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"C3"</span>, <span class="st">"C1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"C3"</span>, <span class="st">"D1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"D1"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"D1"</span>, <span class="st">"C1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">100</span>, <span class="fl">2</span>,
-  <span class="st">"D1"</span>, <span class="st">"D2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"D1"</span>, <span class="st">"D3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,
-  <span class="st">"D2"</span>, <span class="st">"D4"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"D4"</span>, <span class="st">"D5"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-  <span class="st">"D3"</span>, <span class="st">"D5"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>
-<span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">module_network</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>  <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,</span>
+<span>  <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"A2"</span>, <span class="st">"B1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"B1"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"B1"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C1"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C1"</span>, <span class="st">"D1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">100</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C2"</span>, <span class="st">"C3"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C2"</span>, <span class="st">"A2"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C2"</span>, <span class="st">"B1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C3"</span>, <span class="st">"A1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C3"</span>, <span class="st">"C1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"C3"</span>, <span class="st">"D1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D1"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D1"</span>, <span class="st">"C1"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">100</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D1"</span>, <span class="st">"D2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D1"</span>, <span class="st">"D3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D2"</span>, <span class="st">"D4"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D4"</span>, <span class="st">"D5"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>  <span class="st">"D3"</span>, <span class="st">"D5"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">10</span>, <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="expression-patterns" class="section level3">
-<h3 class="hasAnchor">
-<a href="#expression-patterns" class="anchor"></a>Expression patterns</h3>
+<div class="section level3">
+<h3 id="expression-patterns">Expression patterns<a class="anchor" aria-label="anchor" href="#expression-patterns"></a>
+</h3>
 <p>A tibble describing the expected expression pattern changes when a cell is simulated by dyngen. Each row represents one transition between two cell states.</p>
 <ul>
 <li>from (character): name of a cell state</li>
@@ -279,200 +274,202 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 <li>burn (logical): Whether these cell states are part of the burn in phase. Cells will not get sampled from these cell states.</li>
 <li>time (numeric): The duration of an transition.</li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">expression_patterns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
-  <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,
-  <span class="st">"sBurn"</span>, <span class="st">"sA"</span>, <span class="st">"+A1,+A2,+A3,+B2,+D3"</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="fl">60</span>,
-  <span class="st">"sA"</span>, <span class="st">"sB"</span>, <span class="st">"+B1"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">60</span>,
-  <span class="st">"sB"</span>, <span class="st">"sC"</span>, <span class="st">"+C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">80</span>,
-  <span class="st">"sB"</span>, <span class="st">"sD"</span>, <span class="st">"+D1,+D2,+D4,+D5"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">120</span>,
-  <span class="st">"sC"</span>, <span class="st">"sA"</span>, <span class="st">"+A1,+A2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">60</span>
-<span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">expression_patterns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>  <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,</span>
+<span>  <span class="st">"sBurn"</span>, <span class="st">"sA"</span>, <span class="st">"+A1,+A2,+A3,+B2,+D3"</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="fl">60</span>,</span>
+<span>  <span class="st">"sA"</span>, <span class="st">"sB"</span>, <span class="st">"+B1"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">60</span>,</span>
+<span>  <span class="st">"sB"</span>, <span class="st">"sC"</span>, <span class="st">"+C1,+C2|-A2,-B1,+C3|-C1,-D1,-D2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">80</span>,</span>
+<span>  <span class="st">"sB"</span>, <span class="st">"sD"</span>, <span class="st">"+D1,+D2,+D4,+D5"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">120</span>,</span>
+<span>  <span class="st">"sC"</span>, <span class="st">"sA"</span>, <span class="st">"+A1,+A2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">60</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="visualising-the-backbone" class="section level3">
-<h3 class="hasAnchor">
-<a href="#visualising-the-backbone" class="anchor"></a>Visualising the backbone</h3>
+<div class="section level3">
+<h3 id="visualising-the-backbone">Visualising the backbone<a class="anchor" aria-label="anchor" href="#visualising-the-backbone"></a>
+</h3>
 <p>By wrapping these data structures as a backbone object, we can now visualise the topology of the backbone. Drawing the backbone module network by hand on a piece of paper can help you understand how the gene regulatory network works.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/backbone.html">backbone</a></span><span class="op">(</span>
-  module_info <span class="op">=</span> <span class="va">module_info</span>,
-  module_network <span class="op">=</span> <span class="va">module_network</span>,
-  expression_patterns <span class="op">=</span> <span class="va">expression_patterns</span>
-<span class="op">)</span>
-
-<span class="va">config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-  num_targets <span class="op">=</span> <span class="fl">500</span>,
-  num_hks <span class="op">=</span> <span class="fl">500</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-    experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,
-    total_time <span class="op">=</span> <span class="fl">600</span>
-  <span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/backbone.html">backbone</a></span><span class="op">(</span></span>
+<span>  module_info <span class="op">=</span> <span class="va">module_info</span>,</span>
+<span>  module_network <span class="op">=</span> <span class="va">module_network</span>,</span>
+<span>  expression_patterns <span class="op">=</span> <span class="va">expression_patterns</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>    experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
+<span>    total_time <span class="op">=</span> <span class="fl">600</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifurcatingloop_print-1.png" width="768"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifurcatingloop_print-2.png" width="768"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
-<span class="co"># for pkgdown can otherwise take a very long time</span>
-<span class="va">config</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">50</span>,
-    num_hks <span class="op">=</span> <span class="fl">50</span>,
-    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
-    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,
-      census_interval <span class="op">=</span> <span class="fl">2</span>,
-      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,
-      total_time <span class="op">=</span> <span class="fl">600</span>
-    <span class="op">)</span>,
-    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>
-  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span></span>
+<span><span class="co"># for pkgdown can otherwise take a very long time</span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,</span>
+<span>      census_interval <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
+<span>      total_time <span class="op">=</span> <span class="fl">600</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
-<div id="simulation" class="section level3">
-<h3 class="hasAnchor">
-<a href="#simulation" class="anchor"></a>Simulation</h3>
+<div class="section level3">
+<h3 id="simulation">Simulation<a class="anchor" aria-label="anchor" href="#simulation"></a>
+</h3>
 <p>This allows you to simulate the following dataset.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifurcatingloop_plot-1.png" width="1536"></p>
 </div>
-<div id="more-information" class="section level3">
-<h3 class="hasAnchor">
-<a href="#more-information" class="anchor"></a>More information</h3>
+<div class="section level3">
+<h3 id="more-information">More information<a class="anchor" aria-label="anchor" href="#more-information"></a>
+</h3>
 <p>dyngen has a lot of predefined backbones. The following predefined backbones construct the backbone manually (as opposed to using bblego).</p>
 <ul>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L16-L61">backbone_bifurcating_converging</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L66-L127">backbone_bifurcating_cycle</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L132-L186">backbone_bifurcating_loop</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L278-L282">backbone_binary_tree</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L287-L289">backbone_consecutive_bifurcating</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L299-L349">backbone_converging</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L353-L384">backbone_cycle</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L388-L416">backbone_cycle_simple</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L468-L572">backbone_disconnected</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L432-L457">backbone_linear_simple</a></li>
-<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L293-L295">backbone_trifurcating</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L16-L61" class="external-link">backbone_bifurcating_converging</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L66-L127" class="external-link">backbone_bifurcating_cycle</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L132-L186" class="external-link">backbone_bifurcating_loop</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L278-L282" class="external-link">backbone_binary_tree</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L287-L289" class="external-link">backbone_consecutive_bifurcating</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L299-L349" class="external-link">backbone_converging</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L353-L384" class="external-link">backbone_cycle</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L388-L416" class="external-link">backbone_cycle_simple</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L468-L572" class="external-link">backbone_disconnected</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L432-L457" class="external-link">backbone_linear_simple</a></li>
+<li><a href="https://github.com/dynverse/dyngen/blob/master/R/0d_backbones.R#L293-L295" class="external-link">backbone_trifurcating</a></li>
 </ul>
 </div>
 </div>
-<div id="combination-of-bblego-and-manual" class="section level2">
-<h2 class="hasAnchor">
-<a href="#combination-of-bblego-and-manual" class="anchor"></a>Combination of bblego and manual</h2>
+<div class="section level2">
+<h2 id="combination-of-bblego-and-manual">Combination of bblego and manual<a class="anchor" aria-label="anchor" href="#combination-of-bblego-and-manual"></a>
+</h2>
 <p>You can also use parts of the ‘bblego’ framework to construct a backbone manually. That’s because the bblego functions simply generate the three data frames (<code>module_info</code>, <code>module_network</code> and <code>expression_patterns</code>) required to construct a backbone manually. For example:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">part0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_start</a></span><span class="op">(</span><span class="st">"A"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-<span class="va">part1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_linear</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
-<span class="va">part3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"C"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
-<span class="va">part4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"D"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
-
-<span class="va">part1</span></code></pre></div>
-<pre><code>## $module_info
-## # A tibble: 3 x 4
-##   module_id basal burn  independence
-##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;        &lt;dbl&gt;
-## 1 A1            0 FALSE            1
-## 2 A2            0 FALSE            1
-## 3 A3            0 FALSE            1
-## 
-## $module_network
-## # A tibble: 3 x 5
-##   from  to    effect strength  hill
-##   &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;    &lt;dbl&gt; &lt;dbl&gt;
-## 1 A1    A2         1        1     2
-## 2 A2    A3         1        1     2
-## 3 A3    B1         1        1     2
-## 
-## $expression_patterns
-## # A tibble: 1 x 6
-##   from  to    module_progression start burn   time
-##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;              &lt;lgl&gt; &lt;lgl&gt; &lt;dbl&gt;
-## 1 sA    sB    +A1,+A2,+A3        FALSE FALSE    90</code></pre>
+<code class="sourceCode R"><span><span class="va">part0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_start</a></span><span class="op">(</span><span class="st">"A"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">part1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_linear</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">part3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"C"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">part4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego_end</a></span><span class="op">(</span><span class="st">"D"</span>, type <span class="op">=</span> <span class="st">"simple"</span>, num_modules <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">part1</span></span></code></pre></div>
+<pre><code><span><span class="co">## $module_info</span></span>
+<span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
+<span><span class="co">##   module_id basal burn  independence</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> A1            0 FALSE            1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> A2            0 FALSE            1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> A3            0 FALSE            1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $module_network</span></span>
+<span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
+<span><span class="co">##   from  to    effect strength  hill</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> A1    A2         1        1     2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> A2    A3         1        1     2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> A3    B1         1        1     2</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $expression_patterns</span></span>
+<span><span class="co">## <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
+<span><span class="co">##   from  to    module_progression start burn   time</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> sA    sB    +A1,+A2,+A3        FALSE FALSE    90</span></span></code></pre>
 <p>You can combine these components with a custom bifurcation component which can switch back and forth between end states.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">part2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
-  module_info <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
-    <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,
-    <span class="st">"B1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-    <span class="st">"B2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,
-    <span class="st">"B3"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>
-  <span class="op">)</span>,
-  module_network <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
-    <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,
-    <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-    <span class="st">"B1"</span>, <span class="st">"B3"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-    <span class="st">"B2"</span>, <span class="st">"B3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">3</span>, <span class="fl">2</span>,
-    <span class="st">"B3"</span>, <span class="st">"B2"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">3</span>, <span class="fl">2</span>,
-    <span class="st">"B2"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,
-    <span class="st">"B3"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>
-  <span class="op">)</span>,
-  expression_patterns <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html">tribble</a></span><span class="op">(</span>
-    <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,
-    <span class="st">"sB"</span>, <span class="st">"sBmid"</span>, <span class="st">"+B1"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">40</span>,
-    <span class="st">"sBmid"</span>, <span class="st">"sC"</span>, <span class="st">"+B2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">40</span>,
-    <span class="st">"sBmid"</span>, <span class="st">"sD"</span>, <span class="st">"+B3"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">30</span>
-  <span class="op">)</span>
-<span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego</a></span><span class="op">(</span>
-  <span class="va">part0</span>,
-  <span class="va">part1</span>,
-  <span class="va">part2</span>,
-  <span class="va">part3</span>,
-  <span class="va">part4</span>
-<span class="op">)</span>
-
-<span class="va">config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-  backbone <span class="op">=</span> <span class="va">backbone</span>,
-  num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-  num_targets <span class="op">=</span> <span class="fl">500</span>,
-  num_hks <span class="op">=</span> <span class="fl">500</span>,
-  simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-    total_time <span class="op">=</span> <span class="fu"><a href="../../reference/simtime_from_backbone.html">simtime_from_backbone</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span>
-  <span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">part2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  module_info <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span><span class="va">module_id</span>, <span class="op">~</span><span class="va">basal</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">independence</span>,</span>
+<span>    <span class="st">"B1"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>    <span class="st">"B2"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span>,</span>
+<span>    <span class="st">"B3"</span>, <span class="fl">0</span>, <span class="cn">FALSE</span>, <span class="fl">1</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  module_network <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">effect</span>, <span class="op">~</span><span class="va">strength</span>, <span class="op">~</span><span class="va">hill</span>,</span>
+<span>    <span class="st">"B1"</span>, <span class="st">"B2"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>    <span class="st">"B1"</span>, <span class="st">"B3"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>    <span class="st">"B2"</span>, <span class="st">"B3"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">3</span>, <span class="fl">2</span>,</span>
+<span>    <span class="st">"B3"</span>, <span class="st">"B2"</span>, <span class="op">-</span><span class="fl">1L</span>, <span class="fl">3</span>, <span class="fl">2</span>,</span>
+<span>    <span class="st">"B2"</span>, <span class="st">"C1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
+<span>    <span class="st">"B3"</span>, <span class="st">"D1"</span>, <span class="fl">1L</span>, <span class="fl">1</span>, <span class="fl">2</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  expression_patterns <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span><span class="va">from</span>, <span class="op">~</span><span class="va">to</span>, <span class="op">~</span><span class="va">module_progression</span>, <span class="op">~</span><span class="va">start</span>, <span class="op">~</span><span class="va">burn</span>, <span class="op">~</span><span class="va">time</span>,</span>
+<span>    <span class="st">"sB"</span>, <span class="st">"sBmid"</span>, <span class="st">"+B1"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">40</span>,</span>
+<span>    <span class="st">"sBmid"</span>, <span class="st">"sC"</span>, <span class="st">"+B2"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">40</span>,</span>
+<span>    <span class="st">"sBmid"</span>, <span class="st">"sD"</span>, <span class="st">"+B3"</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="fl">30</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/bblego.html">bblego</a></span><span class="op">(</span></span>
+<span>  <span class="va">part0</span>,</span>
+<span>  <span class="va">part1</span>,</span>
+<span>  <span class="va">part2</span>,</span>
+<span>  <span class="va">part3</span>,</span>
+<span>  <span class="va">part4</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>  num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>  num_targets <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  num_hks <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>    total_time <span class="op">=</span> <span class="fu"><a href="../../reference/simtime_from_backbone.html">simtime_from_backbone</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_backbone-1.png" width="700"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_backbone-2.png" width="700"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
-<span class="co"># for pkgdown can otherwise take a very long time</span>
-<span class="va">config</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">50</span>,
-    num_hks <span class="op">=</span> <span class="fl">50</span>,
-    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
-    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,
-      census_interval <span class="op">=</span> <span class="fl">1</span>,
-      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,
-      total_time <span class="op">=</span> <span class="fu"><a href="../../reference/simtime_from_backbone.html">simtime_from_backbone</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span>
-    <span class="op">)</span>,
-    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span></span>
+<span><span class="co"># for pkgdown can otherwise take a very long time</span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">.01</span><span class="op">)</span>,</span>
+<span>      census_interval <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>      total_time <span class="op">=</span> <span class="fu"><a href="../../reference/simtime_from_backbone.html">simtime_from_backbone</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>Looking at the gene expression over time shows that a simulation can indeed switch between C3 and D3 expression.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_sim-1.png" width="1536"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">model</span>, simulation_i <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">model</span>, simulation_i <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="constructing_backbone_files/figure-html/bifur_sim-2.png" width="1536"></p>
 </div>
   </div>
@@ -488,11 +485,13 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 
 
       <footer><div class="copyright">
-  <p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
+  <p></p>
+<p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -500,6 +499,8 @@ rmarkdown::render("vignettes/constructing_backbone.Rmd", output_format = rmarkdo
 
   
 
+
+  
 
   </body>
 </html>

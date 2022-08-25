@@ -39,6 +39,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -51,23 +53,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -83,7 +79,8 @@
       <a href="articles/showcase_backbones.html">Showcase different backbones</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Advanced</li>
+    </li>
+<li class="dropdown-header">Advanced</li>
     <li>
       <a href="articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
     </li>
@@ -113,7 +110,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/dynverse/dyngen/">
+  <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -130,25 +127,26 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="dyngen-" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#dyngen-" class="anchor"></a>dyngen <img src="reference/figures/logo.png" align="right">
+<div class="section level1">
+<div class="page-header"><h1 id="dyngen-">dyngen <img src="reference/figures/logo.png" align="right"><a class="anchor" aria-label="anchor" href="#dyngen-"></a>
 </h1></div>
 <!-- badges: start -->
-
 <p>dyngen is a novel, multi-modal simulation engine for studying dynamic cellular processes at single-cell resolution. dyngen is more flexible than current single-cell simulation engines, and allows better method development and benchmarking, thereby stimulating development and testing of novel computational methods.</p>
-<p>dyngen is now published (CC-BY, <a href="https://doi.org/10.1038/s41467-021-24152-2">doi:10.1038/s41467-021-24152-2</a>). Run <code><a href="https://rdrr.io/r/utils/citation.html">citation("dyngen")</a></code> to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on <a href="https://github.com/dynverse/dyngen_manuscript">GitHub</a>.</p>
+<p>dyngen is now published (CC-BY, <a href="https://doi.org/10.1038/s41467-021-24152-2" class="external-link">doi:10.1038/s41467-021-24152-2</a>). Run <code>citation("dyngen")</code> to obtain the corresponding citation information. All source code for reproducing the results in this manuscript are available on <a href="https://github.com/dynverse/dyngen_manuscript" class="external-link">GitHub</a>.</p>
 <p><img src="reference/figures/overview.png" width="60%"></p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>dyngen should work straight out of the CRAN box by running <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages("dyngen")</a></code>. Having said that, you should definitely configure a few system variables for optimal speed. Check the <a href="https://dyngen.dynverse.org/articles/installation.html">installation guide</a> for more information!</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>dyngen should work straight out of the CRAN box by running <code>install.packages("dyngen")</code>. Having said that, you should definitely configure a few system variables for optimal speed. Check the <a href="https://dyngen.dynverse.org/articles/installation.html">installation guide</a> for more information!</p>
 </div>
-<div id="getting-started" class="section level2">
-<h2 class="hasAnchor">
-<a href="#getting-started" class="anchor"></a>Getting started</h2>
+<div class="section level2">
+<h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+</h2>
 <p>Check out <a href="https://dyngen.dynverse.org/articles/getting_started.html">this guide</a> on how to get started with dyngen. You can find more guides by clicking any of the links below:</p>
 <ul>
+<li><a href="https://dyngen.dynverse.org/articles/getting_started.html">Getting started</a></li>
+<li><a href="https://dyngen.dynverse.org/articles/installation.html">Installation instructions</a></li>
+<li><a href="https://dyngen.dynverse.org/articles/showcase_backbones.html">Showcase different backbones</a></li>
 <li><a href="https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a></li>
 <li><a href="https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html">Advanced: Constructing a custom backbone</a></li>
 <li><a href="https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html">Advanced: Running dyngen from a docker container</a></li>
@@ -156,15 +154,11 @@
 <li><a href="https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html">Advanced: Simulating batch effects</a></li>
 <li><a href="https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html">Advanced: Simulating a knockout experiment</a></li>
 <li><a href="https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html">Advanced: Tweaking parameters</a></li>
-<li><a href="https://dyngen.dynverse.org/articles/demo.html">Getting started</a></li>
-<li><a href="https://dyngen.dynverse.org/articles/getting_started.html">Getting started</a></li>
-<li><a href="https://dyngen.dynverse.org/articles/installation.html">Installation instructions</a></li>
-<li><a href="https://dyngen.dynverse.org/articles/showcase_backbones.html">Showcase different backbones</a></li>
 </ul>
 </div>
-<div id="latest-changes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#latest-changes" class="anchor"></a>Latest changes</h2>
+<div class="section level2">
+<h2 id="latest-changes">Latest changes<a class="anchor" aria-label="anchor" href="#latest-changes"></a>
+</h2>
 <p>A full list of changes is available on our <a href="https://dyngen.dynverse.org/news/index.html">changelog</a>.</p>
 </div>
 </div>
@@ -172,59 +166,62 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=dyngen">https://​cloud.r-project.org/​package=dyngen</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/dynverse/dyngen/">https://​github.com/​dynverse/​dyngen/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/dynverse/dyngen/issues">https://​github.com/​dynverse/​dyngen/​issues</a>
-</li>
-<li>Publication at <br><a href="https://doi.org/10.1038/s41467-021-24152-2">https://​doi.org/​10.1038/​s41467-021-24152-2</a>
-</li>
-</ul>
-</div>
-<div class="license">
-<h2>License</h2>
-<ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
-</ul>
-</div>
-<div class="citation">
-<h2>Citation</h2>
-<ul class="list-unstyled">
-<li><a href="authors.html">Citing dyngen</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Robrecht Cannoodt <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0003-3641-729X" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Wouter Saelens <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-7114-6248" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="https://cloud.r-project.org/package=dyngen" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/dynverse/dyngen/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/dynverse/dyngen/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://doi.org/10.1038/s41467-021-24152-2" class="external-link">Publication</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="license">
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=dyngen"><img src="https://www.r-pkg.org/badges/version/dyngen" alt="CRAN Status"></a></li>
-<li><a href="https://cran.r-project.org/package=dyngen"><img src="https://cranlogs.r-pkg.org/badges/dyngen" alt="CRAN Downloads"></a></li>
-<li><a href="https://doi.org/10.1038/s41467-021-24152-2"><img src="https://img.shields.io/badge/doi-10.1038%2Fs41467--021--24152--2-green" alt="DOI"></a></li>
-<li><a href="https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check"><img src="https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://codecov.io/gh/dynverse/dyngen?branch=master"><img src="https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg" alt="Coverage Status"></a></li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing dyngen</a></li>
+</ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Robrecht Cannoodt <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0003-3641-729X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Wouter Saelens <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-7114-6248" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://cran.r-project.org/package=dyngen" class="external-link"><img src="https://www.r-pkg.org/badges/version/dyngen" alt="CRAN Status"></a></li>
+<li><a href="https://cran.r-project.org/package=dyngen" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/dyngen" alt="CRAN Downloads"></a></li>
+<li><a href="https://doi.org/10.1038/s41467-021-24152-2" class="external-link"><img src="https://img.shields.io/badge/doi-10.1038%2Fs41467--021--24152--2-green" alt="DOI"></a></li>
+<li><a href="https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check" class="external-link"><img src="https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/dynverse/dyngen?branch=master" class="external-link"><img src="https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg" alt="Coverage Status"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
+  <p></p>
+<p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -232,6 +229,8 @@
 
   
 
+
+  
 
   </body>
 </html>

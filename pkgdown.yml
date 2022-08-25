@@ -1,18 +1,18 @@
-pandoc: 2.11.4
-pkgdown: 1.6.1
+pandoc: 2.7.3
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
-  advanced_topics/comparison_reference: comparison_reference.html
-  advanced_topics/constructing_backbone: constructing_backbone.html
-  advanced_topics/run_dyngen_from_docker: run_dyngen_from_docker.html
-  advanced_topics/scalability_and_runtime: scalability_and_runtime.html
-  advanced_topics/simulating_batch_effects: simulating_batch_effects.html
-  advanced_topics/simulating_knockouts: simulating_knockouts.html
-  advanced_topics/tweaking_parameters: tweaking_parameters.html
+  comparison_reference: advanced_topics/comparison_reference.html
+  constructing_backbone: advanced_topics/constructing_backbone.html
+  run_dyngen_from_docker: advanced_topics/run_dyngen_from_docker.html
+  scalability_and_runtime: advanced_topics/scalability_and_runtime.html
+  simulating_batch_effects: advanced_topics/simulating_batch_effects.html
+  simulating_knockouts: advanced_topics/simulating_knockouts.html
+  tweaking_parameters: advanced_topics/tweaking_parameters.html
   getting_started: getting_started.html
   installation: installation.html
   showcase_backbones: showcase_backbones.html
-last_built: 2021-06-30T03:32Z
+last_built: 2022-08-25T09:13Z
 urls:
   reference: https://dyngen.dynverse.org/reference
   article: https://dyngen.dynverse.org/articles

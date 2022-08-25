@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +72,8 @@
       <a href="../articles/showcase_backbones.html">Showcase different backbones</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Advanced</li>
+    </li>
+<li class="dropdown-header">Advanced</li>
     <li>
       <a href="../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
     </li>
@@ -106,7 +103,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/dynverse/dyngen/">
+  <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -121,13 +118,13 @@
 
       
 
-      </header><script src="installation_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="installation_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Installation instructions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/vignettes/installation.Rmd"><code>vignettes/installation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/HEAD/vignettes/installation.Rmd" class="external-link"><code>vignettes/installation.Rmd</code></a></small>
       <div class="hidden name"><code>installation.Rmd</code></div>
 
     </div>
@@ -137,47 +134,47 @@
 <!-- github markdown built using 
 rmarkdown::render("vignettes/installation.Rmd", output_format = rmarkdown::github_document())
 -->
-<div id="system-requirements" class="section level2">
-<h2 class="hasAnchor">
-<a href="#system-requirements" class="anchor"></a>System requirements</h2>
-<p>This package is supported for Linux, but should also work on Mac OS X and Windows. It has been tested with <a href="https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check">Github Actions</a> for R 3.5, 3.6 and 4.0 on the following systems Ubuntu, Windows Server and Mac OS X.</p>
+<div class="section level2">
+<h2 id="system-requirements">System requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
+</h2>
+<p>This package is supported for Linux, but should also work on Mac OS X and Windows. It has been tested with <a href="https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check" class="external-link">Github Actions</a> for R 3.5, 3.6 and 4.0 on the following systems Ubuntu, Windows Server and Mac OS X.</p>
 </div>
-<div id="step-1-installing-from-cran-or-github-required" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-1-installing-from-cran-or-github-required" class="anchor"></a>Step 1: Installing from CRAN or GitHub (Required)</h2>
+<div class="section level2">
+<h2 id="step-1-installing-from-cran-or-github-required">Step 1: Installing from CRAN or GitHub (Required)<a class="anchor" aria-label="anchor" href="#step-1-installing-from-cran-or-github-required"></a>
+</h2>
 <p>dyngen is available on CRAN, so you can install it with the following command.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"dyngen"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dyngen"</span><span class="op">)</span></span></code></pre></div>
 <p>If you would like to install the development version of dyngen from GitHub instead, run the following command. Use at your own risk!</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">"dynverse/dyngen@devel"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"dynverse/dyngen@devel"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="step-2-configure-host-system-recommended" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-2-configure-host-system-recommended" class="anchor"></a>Step 2: Configure host system (Recommended)</h2>
+<div class="section level2">
+<h2 id="step-2-configure-host-system-recommended">Step 2: Configure host system (Recommended)<a class="anchor" aria-label="anchor" href="#step-2-configure-host-system-recommended"></a>
+</h2>
 <p>It’s recommended to let dyngen know where it can cache downloaded files and how many cores the host system has. If you don’t perform these steps, running dyngen simulations will take a lot longer than it needs to.</p>
 <p>To do so, start editing your Rprofile by running the following commands:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"usethis"</span><span class="op">)</span>
-<span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html">edit_r_profile</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"usethis"</span><span class="op">)</span></span>
+<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_profile</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Inside your Rprofile, add the following lines:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>Ncpus <span class="op">=</span> <span class="fl">8L</span><span class="op">)</span> <span class="co"># change this to the number of cores in your system</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>dyngen_download_cache_dir <span class="op">=</span> <span class="fu">R_user_dir</span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>Ncpus <span class="op">=</span> <span class="fl">8L</span><span class="op">)</span> <span class="co"># change this to the number of cores in your system</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>dyngen_download_cache_dir <span class="op">=</span> <span class="fu">R_user_dir</span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>After saving and closing this file, restart your R sesstion.</p>
 </div>
-<div id="step-3-download-cacheable-files-optional" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-3-download-cacheable-files-optional" class="anchor"></a>Step 3: Download cacheable files (Optional)</h2>
+<div class="section level2">
+<h2 id="step-3-download-cacheable-files-optional">Step 3: Download cacheable files (Optional)<a class="anchor" aria-label="anchor" href="#step-3-download-cacheable-files-optional"></a>
+</h2>
 <p>dyngen will sometimes download files from GitHub and cache them for later use (if you executed step 2). After installation, you can already download these files so they will not be downloaded at a later stage.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">utils</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">tools</span><span class="op">)</span>
-
-<span class="va">zip</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".zip"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span><span class="op">(</span><span class="st">"https://github.com/dynverse/dyngen/archive/data_files.zip"</span>, <span class="va">zip</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/unzip.html">unzip</a></span><span class="op">(</span><span class="va">zip</span>, exdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">getOption</a></span><span class="op">(</span><span class="st">"dyngen_download_cache_dir"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">utils</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tools</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">zip</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".zip"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="st">"https://github.com/dynverse/dyngen/archive/data_files.zip"</span>, <span class="va">zip</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/unzip.html" class="external-link">unzip</a></span><span class="op">(</span><span class="va">zip</span>, exdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"dyngen_download_cache_dir"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
 
@@ -192,11 +189,13 @@ rmarkdown::render("vignettes/installation.Rmd", output_format = rmarkdown::githu
 
 
       <footer><div class="copyright">
-  <p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
+  <p></p>
+<p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -204,6 +203,8 @@ rmarkdown::render("vignettes/installation.Rmd", output_format = rmarkdown::githu
 
   
 
+
+  
 
   </body>
 </html>

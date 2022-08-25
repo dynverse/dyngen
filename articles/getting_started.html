@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +72,8 @@
       <a href="../articles/showcase_backbones.html">Showcase different backbones</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Advanced</li>
+    </li>
+<li class="dropdown-header">Advanced</li>
     <li>
       <a href="../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
     </li>
@@ -106,7 +103,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/dynverse/dyngen/">
+  <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -121,13 +118,13 @@
 
       
 
-      </header><script src="getting_started_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="getting_started_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting started</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/vignettes/getting_started.Rmd"><code>vignettes/getting_started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/HEAD/vignettes/getting_started.Rmd" class="external-link"><code>vignettes/getting_started.Rmd</code></a></small>
       <div class="hidden name"><code>getting_started.Rmd</code></div>
 
     </div>
@@ -138,227 +135,220 @@
 rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::github_document())
 -->
 <p>This vignette demonstrates the basics of running a dyngen simulation. If you haven’t done so already, first check out the installation instructions in the README.</p>
-<div id="step-1-define-backbone-and-other-parameters" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-1-define-backbone-and-other-parameters" class="anchor"></a>Step 1: Define backbone and other parameters</h2>
+<div class="section level3">
+<h3 id="step-1-define-backbone-and-other-parameters">Step 1: Define backbone and other parameters<a class="anchor" aria-label="anchor" href="#step-1-define-backbone-and-other-parameters"></a>
+</h3>
 <p>A dyngen simulation can be started by providing a backbone to the <code><a href="../reference/initialise_model.html">initialise_model()</a></code> function. The backbone of a <code>dyngen</code> model is what determines the overall dynamic process that a cell will undergo during a simulation. It consists of a set of gene modules, which regulate eachother in such a way that expression of certain genes change over time in a specific manner.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">backbone_bifurcating</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">config</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">500</span>,
-    num_hks <span class="op">=</span> <span class="fl">500</span>,
-    verbose <span class="op">=</span> <span class="cn">FALSE</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/backbone_models.html">backbone_bifurcating</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
-<span class="co"># for pkgdown can otherwise take a very long time</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">config</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_cells <span class="op">=</span> <span class="fl">1000</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">50</span>,
-    num_hks <span class="op">=</span> <span class="fl">50</span>,
-    verbose <span class="op">=</span> <span class="cn">FALSE</span>,
-    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>,
-    simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-      total_time <span class="op">=</span> <span class="fl">1000</span>,
-      census_interval <span class="op">=</span> <span class="fl">2</span>, 
-      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span><span class="op">/</span><span class="fl">3600</span><span class="op">)</span>,
-      experiment_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
-    <span class="op">)</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span></span>
+<span><span class="co"># for pkgdown can otherwise take a very long time</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_cells <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>,</span>
+<span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>      total_time <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>      census_interval <span class="op">=</span> <span class="fl">2</span>, </span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span><span class="op">/</span><span class="fl">3600</span><span class="op">)</span>,</span>
+<span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_backbone_statenet.html">plot_backbone_statenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/plotinit-1.png" width="960"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/plotinit-2.png" width="960"></p>
-<p>For backbones with all different sorts of topologies, check <code><a href="../reference/list_backbones.html">list_backbones()</a></code>:</p>
+<p>For backbones with all different sorts of topologies, check <code><a href="../reference/backbone_models.html">list_backbones()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/list_backbones.html">list_backbones</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>##  [1] "bifurcating"             "bifurcating_converging" 
-##  [3] "bifurcating_cycle"       "bifurcating_loop"       
-##  [5] "binary_tree"             "branching"              
-##  [7] "consecutive_bifurcating" "converging"             
-##  [9] "cycle"                   "cycle_simple"           
-## [11] "disconnected"            "linear"                 
-## [13] "linear_simple"           "trifurcating"</code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/backbone_models.html">list_backbones</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##  [1] "bifurcating"             "bifurcating_converging" </span></span>
+<span><span class="co">##  [3] "bifurcating_cycle"       "bifurcating_loop"       </span></span>
+<span><span class="co">##  [5] "binary_tree"             "branching"              </span></span>
+<span><span class="co">##  [7] "consecutive_bifurcating" "converging"             </span></span>
+<span><span class="co">##  [9] "cycle"                   "cycle_simple"           </span></span>
+<span><span class="co">## [11] "disconnected"            "linear"                 </span></span>
+<span><span class="co">## [13] "linear_simple"           "trifurcating"</span></span></code></pre>
 </div>
-<div id="step-2-generate-transcription-factors-tfs" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-2-generate-transcription-factors-tfs" class="anchor"></a>Step 2: Generate transcription factors (TFs)</h2>
+<div class="section level3">
+<h3 id="step-2-generate-transcription-factors-tfs">Step 2: Generate transcription factors (TFs)<a class="anchor" aria-label="anchor" href="#step-2-generate-transcription-factors-tfs"></a>
+</h3>
 <p>Each gene module consists of a set of transcription factors. These can be generated and visualised as follows.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_tf_network.html">generate_tf_network</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span>, show_targets <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_tf_network.html">generate_tf_network</a></span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span>, show_targets <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/tf_network-1.png" width="700"></p>
 </div>
-<div id="step-3-sample-target-genes-and-housekeeping-genes-hks" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-3-sample-target-genes-and-housekeeping-genes-hks" class="anchor"></a>Step 3: Sample target genes and housekeeping genes (HKs)</h2>
+<div class="section level3">
+<h3 id="step-3-sample-target-genes-and-housekeeping-genes-hks">Step 3: Sample target genes and housekeeping genes (HKs)<a class="anchor" aria-label="anchor" href="#step-3-sample-target-genes-and-housekeeping-genes-hks"></a>
+</h3>
 <p>Next, target genes and housekeeping genes are added to the network by sampling a gold standard gene regulatory network using the Page Rank algorithm. Target genes are regulated by TFs or other target genes, while HKs are only regulated by themselves.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_feature_network.html">generate_feature_network</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_feature_network.html">generate_feature_network</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/target_network-1.png" width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span>, show_hks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span>, show_hks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/target_network-2.png" width="700"></p>
 </div>
-<div id="step-4-generate-kinetics" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-4-generate-kinetics" class="anchor"></a>Step 4: Generate kinetics</h2>
+<div class="section level3">
+<h3 id="step-4-generate-kinetics">Step 4: Generate kinetics<a class="anchor" aria-label="anchor" href="#step-4-generate-kinetics"></a>
+</h3>
 <p>Note that the target network does not show the effect of some interactions, because these are generated along with other kinetics parameters of the SSA simulation.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_kinetics.html">generate_kinetics</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_kinetics.html">generate_kinetics</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/ssa-1.png" width="700"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span>, show_hks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_feature_network.html">plot_feature_network</a></span><span class="op">(</span><span class="va">model</span>, show_hks <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/ssa-2.png" width="700"></p>
 </div>
-<div id="step-5-simulate-gold-standard" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-5-simulate-gold-standard" class="anchor"></a>Step 5: Simulate gold standard</h2>
+<div class="section level3">
+<h3 id="step-5-simulate-gold-standard">Step 5: Simulate gold standard<a class="anchor" aria-label="anchor" href="#step-5-simulate-gold-standard"></a>
+</h3>
 <p>The gold standard is simulated by enabling certain parts of the module network and performing ODE simulations. The gold standard are visualised by performing a dimensionality reduction on the mRNA expression values.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_gold_standard.html">generate_gold_standard</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_gold_standard.html">generate_gold_standard</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_gold_simulations.html">plot_gold_simulations</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span> <span class="op">+</span> <span class="fu">scale_colour_brewer</span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gold_simulations.html">plot_gold_simulations</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_colour_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/gold_standard-1.png" width="700"></p>
 <p>The expression of the modules (average of TFs) can be visualised as follows.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_gold_expression.html">plot_gold_expression</a></span><span class="op">(</span><span class="va">model</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span> <span class="co"># mrna</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gold_expression.html">plot_gold_expression</a></span><span class="op">(</span><span class="va">model</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span> <span class="co"># mrna</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/gold_pt-1.png" width="960"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_gold_expression.html">plot_gold_expression</a></span><span class="op">(</span><span class="va">model</span>, label_changing <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># premrna, mrna, and protein</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gold_expression.html">plot_gold_expression</a></span><span class="op">(</span><span class="va">model</span>, label_changing <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># premrna, mrna, and protein</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/gold_pt-2.png" width="960"></p>
 </div>
-<div id="step-6-simulate-cells-" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-6-simulate-cells-" class="anchor"></a>Step 6: Simulate cells.</h2>
+<div class="section level3">
+<h3 id="step-6-simulate-cells-">Step 6: Simulate cells.<a class="anchor" aria-label="anchor" href="#step-6-simulate-cells-"></a>
+</h3>
 <p>Cells are simulated by running SSA simulations. The simulations are again using dimensionality reduction.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/simulations-1.png" width="700"></p>
 <p>The gold standard can be overlayed on top of the simulations.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_gold_simulations.html">plot_gold_simulations</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span> <span class="op">+</span> <span class="fu">scale_colour_brewer</span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gold_simulations.html">plot_gold_simulations</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_colour_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/overlay-1.png" width="700"></p>
 <p>We can check how each segment of a simulation is mapped to the gold standard.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> <span class="fu">scale_colour_brewer</span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_colour_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/compare-1.png" width="700"></p>
 <p>The expression of the modules (average of TFs) of a single simulation can be visualised as follows.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">model</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_simulation_expression.html">plot_simulation_expression</a></span><span class="op">(</span><span class="va">model</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, what <span class="op">=</span> <span class="st">"mol_mrna"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/expression_sim-1.png" width="700"></p>
 </div>
-<div id="step-7-experiment-emulation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-7-experiment-emulation" class="anchor"></a>Step 7: Experiment emulation</h2>
+<div class="section level3">
+<h3 id="step-7-experiment-emulation">Step 7: Experiment emulation<a class="anchor" aria-label="anchor" href="#step-7-experiment-emulation"></a>
+</h3>
 <p>Effects from performing a single-cell RNA-seq experiment can be emulated as follows.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="step-8-convert-to-a-dyno-object" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-8-convert-to-a-dyno-object" class="anchor"></a>Step 8: Convert to a dyno object</h2>
+<div class="section level3">
+<h3 id="step-8-convert-to-a-dyno-object">Step 8: Convert to a dyno object<a class="anchor" aria-label="anchor" href="#step-8-convert-to-a-dyno-object"></a>
+</h3>
 <p>Converting the dyngen to a dyno object allows you to visualise the dataset using the <code>dynplot</code> functions, or infer trajectories using <code>dynmethods</code>.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_dyno.html">as_dyno</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
-<pre><code>## Loading required namespace: dynwrap</code></pre>
-<div id="visualise-with-dynplot" class="section level3">
-<h3 class="hasAnchor">
-<a href="#visualise-with-dynplot" class="anchor"></a>Visualise with <code>dynplot</code>
-</h3>
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/convert.html">as_dyno</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Loading required namespace: dynwrap</span></span></code></pre>
+<div class="section level4">
+<h4 id="visualise-with-dynplot">Visualise with <code>dynplot</code><a class="anchor" aria-label="anchor" href="#visualise-with-dynplot"></a>
+</h4>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dynplot">dynplot</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
-<pre><code>## Coloring by milestone</code></pre>
-<pre><code>## Using milestone_percentages from trajectory</code></pre>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dynplot" class="external-link">dynplot</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html" class="external-link">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Coloring by milestone</span></span></code></pre>
+<pre><code><span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="getting_started_files/figure-html/dynplot-1.png" width="700"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_graph.html">plot_graph</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
-<pre><code>## Coloring by milestone
-## Using milestone_percentages from trajectory</code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_graph.html" class="external-link">plot_graph</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Coloring by milestone</span></span>
+<span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="getting_started_files/figure-html/dynplot-2.png" width="700"></p>
 </div>
-<div id="save-output-to-file" class="section level3">
-<h3 class="hasAnchor">
-<a href="#save-output-to-file" class="anchor"></a>Save output to file</h3>
+<div class="section level4">
+<h4 id="save-output-to-file">Save output to file<a class="anchor" aria-label="anchor" href="#save-output-to-file"></a>
+</h4>
 <p>You can save the output of the model and/or dataset to a file as follows.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">write_rds</span><span class="op">(</span><span class="va">model</span>, <span class="st">"model.rds"</span>, compress <span class="op">=</span> <span class="st">"gz"</span><span class="op">)</span>
-<span class="fu">write_rds</span><span class="op">(</span><span class="va">dataset</span>, <span class="st">"dataset.rds"</span>, compress <span class="op">=</span> <span class="st">"gz"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_rds.html" class="external-link">write_rds</a></span><span class="op">(</span><span class="va">model</span>, <span class="st">"model.rds"</span>, compress <span class="op">=</span> <span class="st">"gz"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_rds.html" class="external-link">write_rds</a></span><span class="op">(</span><span class="va">dataset</span>, <span class="st">"dataset.rds"</span>, compress <span class="op">=</span> <span class="st">"gz"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-<div id="step-8-alternative-convert-to-an-anndatasceseurat-object" class="section level2">
-<h2 class="hasAnchor">
-<a href="#step-8-alternative-convert-to-an-anndatasceseurat-object" class="anchor"></a>Step 8 alternative: Convert to an anndata/SCE/Seurat object</h2>
-<p>dyngen 1.0.0 allows converting the output to an <code>anndata</code>, <code>SCE</code> or <code>Seurat</code> object as well. Check out the <a href="https://cran.r-project.org/package=anndata">anndata documentation</a> on how to install anndata for R.</p>
+<div class="section level3">
+<h3 id="step-8-alternative-convert-to-an-anndatasceseurat-object">Step 8 alternative: Convert to an anndata/SCE/Seurat object<a class="anchor" aria-label="anchor" href="#step-8-alternative-convert-to-an-anndatasceseurat-object"></a>
+</h3>
+<p>dyngen 1.0.0 allows converting the output to an <code>anndata</code>, <code>SCE</code> or <code>Seurat</code> object as well. Check out the <a href="https://cran.r-project.org/package=anndata" class="external-link">anndata documentation</a> on how to install anndata for R.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://anndata.dynverse.org">anndata</a></span><span class="op">)</span>
-<span class="va">ad</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_dyno.html">as_anndata</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="va">ad</span><span class="op">$</span><span class="fu">write_h5ad</span><span class="op">(</span><span class="st">"dataset.h5ad"</span><span class="op">)</span>
-
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">SingleCellExperiment</span><span class="op">)</span>
-<span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_dyno.html">as_sce</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="fu">write_rds</span><span class="op">(</span><span class="va">sce</span>, <span class="st">"dataset_sce.rds"</span><span class="op">)</span>
-
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat">Seurat</a></span><span class="op">)</span>
-<span class="va">seurat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_dyno.html">as_seurat</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="fu">write_rds</span><span class="op">(</span><span class="va">seurat</span>, <span class="st">"dataset_seurat.rds"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://anndata.dynverse.org" class="external-link">anndata</a></span><span class="op">)</span></span>
+<span><span class="va">ad</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/convert.html">as_anndata</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="va">ad</span><span class="op">$</span><span class="fu">write_h5ad</span><span class="op">(</span><span class="st">"dataset.h5ad"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SingleCellExperiment</span><span class="op">)</span></span>
+<span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/convert.html">as_sce</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_rds.html" class="external-link">write_rds</a></span><span class="op">(</span><span class="va">sce</span>, <span class="st">"dataset_sce.rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span></span>
+<span><span class="va">seurat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/convert.html">as_seurat</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_rds.html" class="external-link">write_rds</a></span><span class="op">(</span><span class="va">seurat</span>, <span class="st">"dataset_seurat.rds"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="one-shot-function" class="section level1">
-<h1 class="hasAnchor">
-<a href="#one-shot-function" class="anchor"></a>One-shot function</h1>
+<div class="section level2">
+<h2 id="one-shot-function">One-shot function<a class="anchor" aria-label="anchor" href="#one-shot-function"></a>
+</h2>
 <p><code>dyngen</code> also provides a one-shot function for running all of the steps all at once and producing plots.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span>
-  <span class="va">config</span>,
-  format <span class="op">=</span> <span class="st">"dyno"</span>,
-  make_plots <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span></span>
+<span>  <span class="va">config</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"dyno"</span>,</span>
+<span>  make_plots <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va">out</span><span class="op">$</span><span class="va">dataset</span>
-<span class="va">model</span> <span class="op">&lt;-</span> <span class="va">out</span><span class="op">$</span><span class="va">model</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="va">out</span><span class="op">$</span><span class="va">dataset</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">out</span><span class="op">$</span><span class="va">model</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/oneshot_run-1.png" width="1920"></p>
 <p><code>dataset</code> and <code>model</code> can be used in much the same way as before.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno">dyno</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## Loading required package: babelwhale</code></pre>
-<pre><code>## 
-## Attaching package: 'babelwhale'</code></pre>
-<pre><code>## The following object is masked from 'package:readr':
-## 
-##     read_file</code></pre>
-<pre><code>## Loading required package: dynfeature</code></pre>
-<pre><code>## Loading required package: dynguidelines</code></pre>
-<pre><code>## Loading required package: dynmethods</code></pre>
-<pre><code>## Loading required package: dynwrap</code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
-<pre><code>## Coloring by milestone</code></pre>
-<pre><code>## Using milestone_percentages from trajectory</code></pre>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno" class="external-link">dyno</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Loading required package: dynfeature</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynguidelines</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynmethods</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynwrap</span></span></code></pre>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html" class="external-link">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Coloring by milestone</span></span></code></pre>
+<pre><code><span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="getting_started_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_graph.html">plot_graph</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
-<pre><code>## Coloring by milestone
-## Using milestone_percentages from trajectory</code></pre>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_graph.html" class="external-link">plot_graph</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Coloring by milestone</span></span>
+<span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="getting_started_files/figure-html/unnamed-chunk-1-2.png" width="700"></p>
 </div>
   </div>
@@ -374,11 +364,13 @@ rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::gi
 
 
       <footer><div class="copyright">
-  <p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
+  <p></p>
+<p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -386,6 +378,8 @@ rmarkdown::render("vignettes/getting_started.Rmd", output_format = rmarkdown::gi
 
   
 
+
+  
 
   </body>
 </html>

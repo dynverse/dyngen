@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +72,8 @@
       <a href="../../articles/showcase_backbones.html">Showcase different backbones</a>
     </li>
     <li class="divider">
-    <li class="dropdown-header">Advanced</li>
+    </li>
+<li class="dropdown-header">Advanced</li>
     <li>
       <a href="../../articles/advanced_topics/comparison_reference.html">Advanced: Comparison to reference dataset</a>
     </li>
@@ -106,7 +103,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/dynverse/dyngen/">
+  <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -121,13 +118,13 @@
 
       
 
-      </header><script src="simulating_knockouts_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="simulating_knockouts_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: Simulating a knockout experiment</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/vignettes/advanced_topics/simulating_knockouts.Rmd"><code>vignettes/advanced_topics/simulating_knockouts.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/HEAD/vignettes/advanced_topics/simulating_knockouts.Rmd" class="external-link"><code>vignettes/advanced_topics/simulating_knockouts.Rmd</code></a></small>
       <div class="hidden name"><code>simulating_knockouts.Rmd</code></div>
 
     </div>
@@ -138,73 +135,73 @@
 rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdown::github_document())
 -->
 <p>dyngen supports simulating knockout (or knockdown) experiments. In this experiment, dyngen is run twice (similar to the vignette on simulating batch effects), once for the wild type (WT), and once for the knockout (KO).</p>
-<div id="initialising-the-experiment" class="section level2">
-<h2 class="hasAnchor">
-<a href="#initialising-the-experiment" class="anchor"></a>Initialising the experiment</h2>
+<div class="section level2">
+<h2 id="initialising-the-experiment">Initialising the experiment<a class="anchor" aria-label="anchor" href="#initialising-the-experiment"></a>
+</h2>
 <p>First, create the ‘common’ part of the dyngen simulation as follows. This will ensure that the gene regulatory network-part of the simulation is exactly the same.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/list_backbones.html">backbone_bifurcating</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">config</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_cells <span class="op">=</span> <span class="fl">1000</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">250</span>,
-    num_hks <span class="op">=</span> <span class="fl">250</span>,
-    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-      census_interval <span class="op">=</span> <span class="fl">10</span>, 
-      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span>,
-      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
-    <span class="op">)</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/backbone_models.html">backbone_bifurcating</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_cells <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">250</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">250</span>,</span>
+<span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>      census_interval <span class="op">=</span> <span class="fl">10</span>, </span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span>,</span>
+<span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span>
-<span class="co"># for pkgdown can otherwise take a very long time</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-
-<span class="va">config</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span>
-    backbone <span class="op">=</span> <span class="va">backbone</span>,
-    num_cells <span class="op">=</span> <span class="fl">1000</span>,
-    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,
-    num_targets <span class="op">=</span> <span class="fl">50</span>,
-    num_hks <span class="op">=</span> <span class="fl">50</span>,
-    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html">interactive</a></span><span class="op">(</span><span class="op">)</span>,
-    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>,
-    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span>
-      census_interval <span class="op">=</span> <span class="fl">5</span>, 
-      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span><span class="op">/</span><span class="fl">3600</span><span class="op">)</span>,
-      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
-    <span class="op">)</span>
-  <span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># the simulation is being sped up because rendering all vignettes with one core</span></span>
+<span><span class="co"># for pkgdown can otherwise take a very long time</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">config</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../../reference/initialise_model.html">initialise_model</a></span><span class="op">(</span></span>
+<span>    backbone <span class="op">=</span> <span class="va">backbone</span>,</span>
+<span>    num_cells <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>    num_tfs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">backbone</span><span class="op">$</span><span class="va">module_info</span><span class="op">)</span>,</span>
+<span>    num_targets <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    num_hks <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>    verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>,</span>
+<span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
+<span>      census_interval <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span><span class="op">/</span><span class="fl">3600</span><span class="op">)</span>,</span>
+<span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model_common</span> <span class="op">&lt;-</span>
-  <span class="va">config</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="../../reference/generate_tf_network.html">generate_tf_network</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="../../reference/generate_feature_network.html">generate_feature_network</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="../../reference/generate_kinetics.html">generate_kinetics</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="../../reference/generate_gold_standard.html">generate_gold_standard</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_common</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">config</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../../reference/generate_tf_network.html">generate_tf_network</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../../reference/generate_feature_network.html">generate_feature_network</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../../reference/generate_kinetics.html">generate_kinetics</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../../reference/generate_gold_standard.html">generate_gold_standard</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="simulate-wild-type" class="section level2">
-<h2 class="hasAnchor">
-<a href="#simulate-wild-type" class="anchor"></a>Simulate wild type</h2>
+<div class="section level2">
+<h2 id="simulate-wild-type">Simulate wild type<a class="anchor" aria-label="anchor" href="#simulate-wild-type"></a>
+</h2>
 <p>Simulating the wild type is easy, as it is the standard dyngen way of simulating cells.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model_wt</span> <span class="op">&lt;-</span> <span class="va">model_common</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="../../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_wt</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_wt</span> <span class="op">&lt;-</span> <span class="va">model_common</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_wt</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/wildtype-1.png" width="768"></p>
 </div>
-<div id="simulate-knockout" class="section level2">
-<h2 class="hasAnchor">
-<a href="#simulate-knockout" class="anchor"></a>Simulate knockout</h2>
+<div class="section level2">
+<h2 id="simulate-knockout">Simulate knockout<a class="anchor" aria-label="anchor" href="#simulate-knockout"></a>
+</h2>
 <p>To simulate a gene knockout, the experiment type of the simulation is changed from wild type (see first code block) to knockdown. The <code><a href="../../reference/generate_cells.html">simulation_type_knockdown()</a></code> function is actually designed to perform single-cell knockdowns of 1 to 5 random genes, but this behaviour can be overridden by setting the following parameters:</p>
 <ul>
 <li>
@@ -216,76 +213,70 @@ rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdow
 </ul>
 <p>In this case, looking at the module network of the bifurcation model it is possible to see that the B3 gene module is important for diversification of cells towards one particular cell lineage (to verify, one can draw out <code>model_common$module_network</code> on paper).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">model_common</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_backbone_modulenet.html">plot_backbone_modulenet</a></span><span class="op">(</span><span class="va">model_common</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/visnet-1.png" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">b3_genes</span> <span class="op">&lt;-</span> <span class="va">model_common</span><span class="op">$</span><span class="va">feature_info</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">module_id</span> <span class="op">==</span> <span class="st">"B3"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span><span class="op">(</span><span class="va">feature_id</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">b3_genes</span> <span class="op">&lt;-</span> <span class="va">model_common</span><span class="op">$</span><span class="va">feature_info</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">module_id</span> <span class="op">==</span> <span class="st">"B3"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">feature_id</span><span class="op">)</span></span></code></pre></div>
 <p>By knocking out the gene "", one of the two branches will be inhibited.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model_ko</span> <span class="op">&lt;-</span> <span class="va">model_common</span>
-<span class="va">model_ko</span><span class="op">$</span><span class="va">simulation_params</span><span class="op">$</span><span class="va">experiment_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_knockdown</a></span><span class="op">(</span>
-  num_simulations <span class="op">=</span> <span class="fl">100L</span>,
-  timepoint <span class="op">=</span> <span class="fl">0</span>, 
-  genes <span class="op">=</span> <span class="va">b3_genes</span>,
-  num_genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b3_genes</span><span class="op">)</span>,
-  multiplier <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model_ko</span> <span class="op">&lt;-</span> <span class="va">model_common</span></span>
+<span><span class="va">model_ko</span><span class="op">$</span><span class="va">simulation_params</span><span class="op">$</span><span class="va">experiment_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_knockdown</a></span><span class="op">(</span></span>
+<span>  num_simulations <span class="op">=</span> <span class="fl">100L</span>,</span>
+<span>  timepoint <span class="op">=</span> <span class="fl">0</span>, </span>
+<span>  genes <span class="op">=</span> <span class="va">b3_genes</span>,</span>
+<span>  num_genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">b3_genes</span><span class="op">)</span>,</span>
+<span>  multiplier <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Running the simulation will generate a warning stating that some of the gold standard edges were not covered by any of the simulations, but that’s to be expected since we knocked it out. We can see that indeed no simulation managed to enter the second branch (with end state D).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model_ko</span> <span class="op">&lt;-</span> <span class="va">model_ko</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="../../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in .generate_cells_predict_state(model): Simulation does not contain all
-## gold standard edges. This simulation likely suffers from bad kinetics; choose a
-## different seed and rerun.</code></pre>
+<code class="sourceCode R"><span><span class="va">model_ko</span> <span class="op">&lt;-</span> <span class="va">model_ko</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in .generate_cells_predict_state(model): Simulation does not contain all</span></span>
+<span><span class="co">## gold standard edges. This simulation likely suffers from bad kinetics; choose a</span></span>
+<span><span class="co">## different seed and rerun.</span></span></code></pre>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_ko</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_ko</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/kosim-1.png" width="768"></p>
 </div>
-<div id="combine-outputs-and-visualise" class="section level2">
-<h2 class="hasAnchor">
-<a href="#combine-outputs-and-visualise" class="anchor"></a>Combine outputs and visualise</h2>
+<div class="section level2">
+<h2 id="combine-outputs-and-visualise">Combine outputs and visualise<a class="anchor" aria-label="anchor" href="#combine-outputs-and-visualise"></a>
+</h2>
 <p>We can combine both simulations into one simulation and visualise the output.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model_comb</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="../../reference/combine_models.html">combine_models</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>WT <span class="op">=</span> <span class="va">model_wt</span>, KO <span class="op">=</span> <span class="va">model_ko</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="../../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.
-##   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</code></pre>
-<pre><code>## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.
-##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</code></pre>
+<code class="sourceCode R"><span><span class="va">model_comb</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../../reference/combine_models.html">combine_models</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>WT <span class="op">=</span> <span class="va">model_wt</span>, KO <span class="op">=</span> <span class="va">model_ko</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.</span></span>
+<span><span class="co">##   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
+<span><span class="co">##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span></code></pre>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/combine-1.png" width="768"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_comb</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_comb</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_knockouts_files/figure-html/combine-2.png" width="768"></p>
 <p>Visualise the dataset using dyno.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno">dyno</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## Loading required package: babelwhale</code></pre>
-<pre><code>## 
-## Attaching package: 'babelwhale'</code></pre>
-<pre><code>## The following object is masked from 'package:readr':
-## 
-##     read_file</code></pre>
-<pre><code>## Loading required package: dynfeature</code></pre>
-<pre><code>## Loading required package: dynguidelines</code></pre>
-<pre><code>## Loading required package: dynmethods</code></pre>
-<pre><code>## Loading required package: dynplot</code></pre>
-<pre><code>## Loading required package: dynwrap</code></pre>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/as_dyno.html">as_dyno</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span>
-<span class="fu">plot_dimred</span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></code></pre></div>
-<pre><code>## Coloring by milestone</code></pre>
-<pre><code>## Using milestone_percentages from trajectory</code></pre>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno" class="external-link">dyno</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Loading required package: dynfeature</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynguidelines</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynmethods</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynplot</span></span></code></pre>
+<pre><code><span><span class="co">## Loading required package: dynwrap</span></span></code></pre>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/convert.html">as_dyno</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html" class="external-link">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Coloring by milestone</span></span></code></pre>
+<pre><code><span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="simulating_knockouts_files/figure-html/dyno-1.png" width="960"></p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">plot_heatmap</span><span class="op">(</span><span class="va">dataset</span>, features_oi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></code></pre></div>
-<pre><code>## No features of interest provided, selecting the top 50 features automatically</code></pre>
-<pre><code>## Using dynfeature for selecting the top 50 features</code></pre>
-<pre><code>## root cell or milestone not provided, trying first outgoing milestone_id</code></pre>
-<pre><code>## Using 'WT_sA' as root</code></pre>
-<pre><code>## Coloring by milestone</code></pre>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_heatmap.html" class="external-link">plot_heatmap</a></span><span class="op">(</span><span class="va">dataset</span>, features_oi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## No features of interest provided, selecting the top 50 features automatically</span></span></code></pre>
+<pre><code><span><span class="co">## Using dynfeature for selecting the top 50 features</span></span></code></pre>
+<pre><code><span><span class="co">## root cell or milestone not provided, trying first outgoing milestone_id</span></span></code></pre>
+<pre><code><span><span class="co">## Using 'WT_sA' as root</span></span></code></pre>
+<pre><code><span><span class="co">## Coloring by milestone</span></span></code></pre>
 <p><img src="simulating_knockouts_files/figure-html/dyno-2.png" width="960"></p>
 </div>
   </div>
@@ -301,11 +292,13 @@ rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdow
 
 
       <footer><div class="copyright">
-  <p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
+  <p></p>
+<p>Developed by Robrecht Cannoodt, Wouter Saelens.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -313,6 +306,8 @@ rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdow
 
   
 
+
+  
 
   </body>
 </html>
