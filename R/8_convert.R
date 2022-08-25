@@ -282,7 +282,7 @@ as_seurat <- function(
   rownames(counts_protein) <- rownames(feat_metadata)
   
   # construct seurat object and add assays
-  seurat_obj <- Seurat::CreateSeuratObject(assay_obj, meta.data = cell_metadata)
+  seurat_obj <- suppressWarnings(Seurat::CreateSeuratObject(assay_obj, meta.data = cell_metadata))
   seurat_obj[["spliced"]] <- Seurat::CreateAssayObject(counts_mrna)
   seurat_obj[["unspliced"]] <- Seurat::CreateAssayObject(counts_premrna)
   seurat_obj[["protein"]] <- Seurat::CreateAssayObject(counts_protein)
