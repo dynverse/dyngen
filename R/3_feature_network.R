@@ -309,7 +309,7 @@ feature_network_default <- function(
     igraph::graph_from_data_frame(vertices = colnames(realnet))
   
   hk_names <- gr %>% 
-    igraph::bfs(sample.int(ncol(realnet), 1), neimode = "all") %>% 
+    igraph::bfs(sample.int(ncol(realnet), 1), mode = "all") %>% 
     `[[`("order") %>% 
     `[`(seq_len(num_hks)) %>% 
     names()
