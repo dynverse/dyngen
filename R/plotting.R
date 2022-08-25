@@ -69,7 +69,7 @@ plot_backbone_statenet <- function(model, detailed = FALSE) {
   arrow <- grid::arrow(type = "closed", length = grid::unit(3, "mm"))
   
   ggraph(gr, layout = "igraph", algorithm = "kk") +
-    geom_edge_fan(
+    geom_edge_fan_workaround(edges, 
       aes(
         label = .data$module_progression,
         start_cap = circle(.data$from_cap, "mm"),
@@ -123,10 +123,10 @@ plot_backbone_modulenet <- function(model) {
   arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
   
   ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
-    geom_edge_loop(aes(width = strength, strength = str, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
-    geom_edge_loop(aes(width = strength, strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(width = strength, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(width = strength, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_loop_workaround(edges, aes(width = strength, strength = str, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop_workaround(edges, aes(width = strength, strength = str, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan_workaround(edges, aes(width = strength, filter = effect >= 0), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan_workaround(edges, aes(width = strength, filter = effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
     geom_node_circle(aes(r = r, colour = name), fill = "white") +
     geom_node_text(aes(label = name)) +
     theme_graph(base_family = 'Helvetica') +
@@ -231,12 +231,12 @@ plot_feature_network <- function(
   arrow_down <- grid::arrow(type = "closed", angle = 89, length = grid::unit(3, "mm"))
   
   ggraph(gr, layout = "manual", x = layout$x, y = layout$y) +
-    geom_edge_loop(aes(strength = str, filter = !is.na(effect) & effect >= 0 & from == to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
-    geom_edge_loop(aes(strength = str, filter = !is.na(effect) & effect < 0 & from == to), arrow = arrow_down, start_cap = cap, end_cap = cap) +
-    geom_edge_loop(aes(strength = str, filter = is.na(effect))) +
-    geom_edge_fan(aes(filter = !is.na(effect) & effect >= 0 & from != to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(filter = !is.na(effect) & effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
-    geom_edge_fan(aes(filter = is.na(effect))) +
+    geom_edge_loop_workaround(edges, aes(strength = str, filter = !is.na(effect) & effect >= 0 & from == to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_loop_workaround(edges, aes(strength = str, filter = !is.na(effect) & effect < 0 & from == to), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_loop_workaround(edges, aes(strength = str, filter = is.na(effect))) +
+    geom_edge_fan_workaround(edges, aes(filter = !is.na(effect) & effect >= 0 & from != to), arrow = arrow_up, start_cap = cap, end_cap = cap) +
+    geom_edge_fan_workaround(edges, aes(filter = !is.na(effect) & effect < 0), arrow = arrow_down, start_cap = cap, end_cap = cap) +
+    geom_edge_fan_workaround(edges, aes(filter = is.na(effect))) +
     geom_node_point(aes(colour = color_by, size = as.character(is_tf))) +
     theme_graph(base_family = "Helvetica") +
     scale_colour_manual(values = color_legend) +

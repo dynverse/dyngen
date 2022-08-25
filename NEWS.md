@@ -1,3 +1,7 @@
+# dyngen 1.0.4
+
+* BUG FIX `plot_feature_network()`: Added workaround for thomasp85/ggforce#273.
+
 # dyngen 1.0.3
 
 * BUG FIX `generate_experiment()`: Return timepoint groups for `experiment_synchronised()`.

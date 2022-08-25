@@ -1,8 +1,6 @@
-# dyngen 1.0.3
+# dyngen 1.0.4
 
-* BUG FIX `generate_experiment()`: Return timepoint groups for `experiment_synchronised()`.
-
-* BUG FIX unit tests: loosen generate partitions constraints.
+* BUG FIX `plot_feature_network()`: Added workaround for thomasp85/ggforce#273.
 
 ## Test environments
 * local Fedora install (R release)
