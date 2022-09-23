@@ -180,7 +180,8 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <span>    verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span>make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## as(&lt;dgeMatrix&gt;, "dgCMatrix") is deprecated since Matrix 1.5-0; do as(., "CsparseMatrix") instead</span></span></code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="scalability_and_runtime_files/figure-html/example-1.png" width="1920"></p>
 <p>We tweaked some of the parameters by running this particular backbone once with <code>num_cells = 100</code> and <code>num_features = 100</code> and verifying that the new parameters still yield the desired outcome. The parameters we tweaked are:</p>
@@ -196,7 +197,7 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <h2 id="timing-experiments">Timing experiments<a class="anchor" aria-label="anchor" href="#timing-experiments"></a>
 </h2>
 <p>The simulations are run once with a large <code>num_features</code> and <code>num_cells</code>, a few times with varying <code>num_cells</code> and then once more with varying <code>num_features</code>. Every run is repeated three times in order to get a bit more stable time measurements. Since some of the simulations can take over 10 minutes, the timings results of the simulations are cached in the ‘scalability_and_runtime_runs’ folder.`</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">settings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>num_cells <span class="op">=</span> <span class="fl">10000</span>, num_features <span class="op">=</span> <span class="fl">10000</span>, rep <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co">#, rep = seq_len(3)),</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/expand.html" class="external-link">crossing</a></span><span class="op">(</span></span>
@@ -267,7 +268,7 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <h2 id="simulate-a-large-dataset-10k-10k">Simulate a large dataset (10k × 10k)<a class="anchor" aria-label="anchor" href="#simulate-a-large-dataset-10k-10k"></a>
 </h2>
 <p>Below is shown the timings of each of the steps in simulating a dyngen dataset containing 10’000 genes and 10’000 features. The total simulation time required is 1147 seconds, most of which is spent performing the simulations itself.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timings0</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">timings_gr</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">num_cells</span> <span class="op">==</span> <span class="fl">10000</span>, <span class="va">num_features</span> <span class="op">==</span> <span class="fl">10000</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -286,7 +287,7 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <h2 id="increasing-the-number-of-cells">Increasing the number of cells<a class="anchor" aria-label="anchor" href="#increasing-the-number-of-cells"></a>
 </h2>
 <p>By increasing the number of cells from 1000 to 10’000 whilst keeping the number of features fixed, we can get an idea of how the simulation time scales w.r.t. the number of cells.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timings1</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">timings_gr</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">num_features</span> <span class="op">==</span> <span class="fl">100</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -300,7 +301,7 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Number of cells"</span>, y <span class="op">=</span> <span class="st">"Average time (s)"</span>, fill <span class="op">=</span> <span class="st">"dyngen step"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="scalability_and_runtime_files/figure-html/figure1-1.png" width="960"></p>
 <p>It seems the execution time scales linearly w.r.t. the number of cells. This makes sense, because as the number of cells are increased, so do we increase the number of simulations made (which is not necessarily mandatory). Since the simulations are independent of each other and take up the most time, the execution time will scale linearly.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">timings_sum</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">num_features</span> <span class="op">==</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">num_cells</span>, <span class="va">time_elapsed</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -314,7 +315,7 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <h2 id="increasing-the-number-of-features">Increasing the number of features<a class="anchor" aria-label="anchor" href="#increasing-the-number-of-features"></a>
 </h2>
 <p>By increasing the number of features from 1000 to 10’000 whilst keeping the number of cells fixed, we can get an idea of how the simulation time scales w.r.t. the number of features</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timings2</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">timings_gr</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">num_cells</span> <span class="op">==</span> <span class="fl">100</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -328,7 +329,7 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Number of features"</span>, y <span class="op">=</span> <span class="st">"Average time (s)"</span>, fill <span class="op">=</span> <span class="st">"dyngen step"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="scalability_and_runtime_files/figure-html/figure2-1.png" width="960"></p>
 <p>It seems the execution time also scales linearly w.r.t. the number of features. As more genes are added to the underlying gene regulatory network, the density of the graph doesn’t change, so it makes sense that the execution time also scales linearly w.r.t. the number of features.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">timings_sum</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">num_cells</span> <span class="op">==</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">num_features</span>, <span class="va">time_elapsed</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -343,11 +344,11 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 </h2>
 <p>These timings were measured using 30 (out of 32) threads using a AMD Ryzen 9 5950X clocked at 3.4GHz.</p>
 <p>Session info:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.2.1 (2022-06-23)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
-<span><span class="co">## Running under: Ubuntu 20.04.4 LTS</span></span>
+<span><span class="co">## Running under: Ubuntu 20.04.5 LTS</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Matrix products: default</span></span>
 <span><span class="co">## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0</span></span>
@@ -363,8 +364,8 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
-<span><span class="co">##  [1] dyngen_1.0.4    forcats_0.5.2   stringr_1.4.1   dplyr_1.0.9    </span></span>
-<span><span class="co">##  [5] purrr_0.3.4     readr_2.1.2     tidyr_1.2.0     tibble_3.1.8   </span></span>
+<span><span class="co">##  [1] dyngen_1.0.4    forcats_0.5.2   stringr_1.4.1   dplyr_1.0.10   </span></span>
+<span><span class="co">##  [5] purrr_0.3.4     readr_2.1.2     tidyr_1.2.1     tibble_3.1.8   </span></span>
 <span><span class="co">##  [9] ggplot2_3.3.6   tidyverse_1.3.2</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
@@ -373,33 +374,33 @@ rmarkdown::render("vignettes/scalability_and_runtime.Rmd", output_format = rmark
 <span><span class="co">##  [7] tools_4.2.1         backports_1.4.1     bslib_0.4.0        </span></span>
 <span><span class="co">## [10] irlba_2.3.5         utf8_1.2.2          R6_2.5.1           </span></span>
 <span><span class="co">## [13] DBI_1.1.3           colorspace_2.0-3    withr_2.5.0        </span></span>
-<span><span class="co">## [16] gridExtra_2.3       tidyselect_1.1.2    proxyC_0.3.1       </span></span>
+<span><span class="co">## [16] gridExtra_2.3       tidyselect_1.1.2    proxyC_0.3.2       </span></span>
 <span><span class="co">## [19] curl_4.3.2          compiler_4.2.1      textshaping_0.3.6  </span></span>
-<span><span class="co">## [22] cli_3.3.0           rvest_1.0.3         RcppXPtrUtils_0.1.2</span></span>
-<span><span class="co">## [25] xml2_1.3.3          desc_1.4.1          labeling_0.4.2     </span></span>
+<span><span class="co">## [22] cli_3.4.0           rvest_1.0.3         RcppXPtrUtils_0.1.2</span></span>
+<span><span class="co">## [25] xml2_1.3.3          desc_1.4.2          labeling_0.4.2     </span></span>
 <span><span class="co">## [28] sass_0.4.2          scales_1.2.1        pbapply_1.5-0      </span></span>
 <span><span class="co">## [31] pkgdown_2.0.6       systemfonts_1.0.4   digest_0.6.29      </span></span>
 <span><span class="co">## [34] rmarkdown_2.16      pkgconfig_2.0.3     htmltools_0.5.3    </span></span>
 <span><span class="co">## [37] highr_0.9           dbplyr_2.2.1        fastmap_1.1.0      </span></span>
-<span><span class="co">## [40] rlang_1.0.4         readxl_1.4.1        jquerylib_0.1.4    </span></span>
+<span><span class="co">## [40] rlang_1.0.5         readxl_1.4.1        jquerylib_0.1.4    </span></span>
 <span><span class="co">## [43] generics_0.1.3      farver_2.1.1        jsonlite_1.8.0     </span></span>
 <span><span class="co">## [46] googlesheets4_1.0.1 magrittr_2.0.3      GillespieSSA2_0.2.8</span></span>
-<span><span class="co">## [49] patchwork_1.1.2     Matrix_1.4-1        Rcpp_1.0.9         </span></span>
+<span><span class="co">## [49] patchwork_1.1.2     Matrix_1.5-1        Rcpp_1.0.9         </span></span>
 <span><span class="co">## [52] munsell_0.5.0       fansi_1.0.3         viridis_0.6.2      </span></span>
-<span><span class="co">## [55] lifecycle_1.0.1     stringi_1.7.8       yaml_2.3.5         </span></span>
+<span><span class="co">## [55] lifecycle_1.0.2     stringi_1.7.8       yaml_2.3.5         </span></span>
 <span><span class="co">## [58] ggraph_2.0.6        MASS_7.3-58.1       grid_4.2.1         </span></span>
 <span><span class="co">## [61] parallel_4.2.1      ggrepel_0.9.1       crayon_1.5.1       </span></span>
 <span><span class="co">## [64] lattice_0.20-45     graphlayouts_0.8.1  haven_2.5.1        </span></span>
 <span><span class="co">## [67] hms_1.1.2           knitr_1.40          pillar_1.8.1       </span></span>
-<span><span class="co">## [70] igraph_1.3.4        codetools_0.2-18    reprex_2.0.2       </span></span>
+<span><span class="co">## [70] igraph_1.3.5        codetools_0.2-18    reprex_2.0.2       </span></span>
 <span><span class="co">## [73] glue_1.6.2          evaluate_0.16       remotes_2.4.2      </span></span>
 <span><span class="co">## [76] RcppParallel_5.1.5  modelr_0.1.9        vctrs_0.4.1        </span></span>
-<span><span class="co">## [79] tzdb_0.3.0          tweenr_2.0.1        cellranger_1.1.0   </span></span>
-<span><span class="co">## [82] gtable_0.3.0        polyclip_1.10-0     assertthat_0.2.1   </span></span>
-<span><span class="co">## [85] cachem_1.0.6        lmds_0.1.0          xfun_0.32          </span></span>
-<span><span class="co">## [88] ggforce_0.3.4       broom_1.0.0         tidygraph_1.2.2    </span></span>
+<span><span class="co">## [79] tzdb_0.3.0          tweenr_2.0.2        cellranger_1.1.0   </span></span>
+<span><span class="co">## [82] gtable_0.3.1        polyclip_1.10-0     assertthat_0.2.1   </span></span>
+<span><span class="co">## [85] cachem_1.0.6        lmds_0.1.0          xfun_0.33          </span></span>
+<span><span class="co">## [88] ggforce_0.3.4       broom_1.0.1         tidygraph_1.2.2    </span></span>
 <span><span class="co">## [91] viridisLite_0.4.1   ragg_1.2.2          googledrive_2.0.0  </span></span>
-<span><span class="co">## [94] gargle_1.2.0        memoise_2.0.1       ellipsis_0.3.2</span></span></code></pre>
+<span><span class="co">## [94] gargle_1.2.1        memoise_2.0.1       ellipsis_0.3.2</span></span></code></pre>
 </div>
   </div>
 
