@@ -2,8 +2,6 @@
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.
 
-* MINOR CHANGE `plot_feature_network()`: Removed workaround for thomasp85/ggforce#273.
-
 * BUG FIX: An update to the dependency package GillespieSSA2 was published to
   attempt to resolve an issue with a malloc free which caused dyngen to be removed
   from CRAN.
@@ -17,9 +15,9 @@
 
 ## R CMD check results
 
-── R CMD check results ─────────────────────────────────────── dyngen 1.0.3 ────
-Duration: 3m 34.7s
+── R CMD check results ─────────────────────────────────────── dyngen 1.0.5 ────
+Duration: 4m 44.6s
 
-0 errors ✓ | 0 warnings ✓ | 0 notes ✓
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
 R CMD check succeeded
