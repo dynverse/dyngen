@@ -24,7 +24,7 @@ In addition, the user is expected to run generate_experiment() on the combined m
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.5</span>
       </span>
     </div>
 
@@ -125,6 +125,7 @@ different and should be duplicated and prefixed.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"example_model"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model_ab</span> <span class="op">&lt;-</span> <span class="fu">combine_models</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"left"</span> <span class="op">=</span> <span class="va">example_model</span>, <span class="st">"right"</span> <span class="op">=</span> <span class="va">example_model</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>x or y has vectors with zero standard deviation; consider setting use_nan = TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># show a dimensionality reduction</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model_ab</span><span class="op">)</span></span></span>
