@@ -265,14 +265,12 @@ rmarkdown::render("vignettes/simulating_knockouts.Rmd", output_format = rmarkdow
 <pre><code><span><span class="co">## Loading required package: dynplot</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: dynwrap</span></span></code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/convert.html">as_dyno</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## as(&lt;dgeMatrix&gt;, "dgCMatrix") is deprecated since Matrix 1.5-0; do as(., "CsparseMatrix") instead</span></span></code></pre>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html" class="external-link">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/convert.html">as_dyno</a></span><span class="op">(</span><span class="va">model_comb</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html" class="external-link">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Coloring by milestone</span></span></code></pre>
 <pre><code><span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="simulating_knockouts_files/figure-html/dyno-1.png" width="960"></p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_heatmap.html" class="external-link">plot_heatmap</a></span><span class="op">(</span><span class="va">dataset</span>, features_oi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## No features of interest provided, selecting the top 50 features automatically</span></span></code></pre>
 <pre><code><span><span class="co">## Using dynfeature for selecting the top 50 features</span></span></code></pre>
