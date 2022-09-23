@@ -1,6 +1,12 @@
-# dyngen 1.0.4
+# dyngen 1.0.5
 
-* BUG FIX `plot_feature_network()`: Added workaround for thomasp85/ggforce#273.
+* MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.
+
+* MINOR CHANGE `plot_feature_network()`: Removed workaround for thomasp85/ggforce#273.
+
+* BUG FIX: An update to the dependency package GillespieSSA2 was published to
+  attempt to resolve an issue with a malloc free which caused dyngen to be removed
+  from CRAN.
 
 ## Test environments
 * local Fedora install (R release)

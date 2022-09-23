@@ -10,7 +10,7 @@ Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org
 [![DOI](https://img.shields.io/badge/doi-10.1038%2Fs41467--021--24152--2-green)](https://doi.org/10.1038/s41467-021-24152-2)
 [![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
 [![Coverage
-Status](https://codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dynverse/dyngen?branch=master)
+Status](https://app.codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dynverse/dyngen?branch=master)
 <!-- badges: end -->
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic

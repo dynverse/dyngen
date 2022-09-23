@@ -1,6 +1,6 @@
 # dyngen 1.0.5
 
-* MINOR CHANGE: Implement matrix coercion thanks to 1.5-0.
+* MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.
 
 * MINOR CHANGE `plot_feature_network()`: Removed workaround for thomasp85/ggforce#273.
 
