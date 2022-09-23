@@ -503,12 +503,12 @@ kinetics_noise_simple <- function(mean = 1, sd = .005) {
     start <- seq(1, nrow(sim_counts), by = 10000)
     stop <- pmin(start + 9999, nrow(sim_counts))
     best_matches <- pmap(lst(start, stop), function(start, stop) {
-      dis <- suppressWarnings(dynutils::calculate_distance(gs_counts, sim_counts[start:stop, , drop = FALSE], method = model$distance_metric))
+      dis <- dynutils::calculate_distance(gs_counts, sim_counts[start:stop, , drop = FALSE], method = model$distance_metric, use_nan = TRUE)
       best_match <- apply(dis, 2, which.min)
     })
     best_match <- unlist(best_matches)
   } else {
-    dis <- suppressWarnings(dynutils::calculate_distance(gs_counts, sim_counts, method = model$distance_metric))
+    dis <- dynutils::calculate_distance(gs_counts, sim_counts, method = model$distance_metric, use_nan = TRUE)
     best_match <- apply(dis, 2, which.min)
   }
   

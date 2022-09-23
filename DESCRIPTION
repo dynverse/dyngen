@@ -28,7 +28,7 @@ Depends:
 Imports:
     assertthat,
     dplyr,
-    dynutils (>= 1.0.4),
+    dynutils (>= 1.0.10),
     ggplot2,
     ggraph (>= 2.0),
     ggrepel,

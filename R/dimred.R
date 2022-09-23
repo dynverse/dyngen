@@ -85,11 +85,12 @@ calculate_dimred <- function(
   }
   
   # calculate distances to lndmarks
-  dist_2lm <- as.matrix(suppressWarnings(dynutils::calculate_distance(
+  dist_2lm <- as.matrix(dynutils::calculate_distance(
     x = counts[landmark_ix, , drop = FALSE], 
     y = counts, 
-    method = model$distance_metric
-  )))
+    method = model$distance_metric,
+    use_nan = TRUE
+  ))
   
   # # calculate distances between landmarks
   # dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
