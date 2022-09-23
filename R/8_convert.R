@@ -35,7 +35,7 @@ as_dyno <- function(
     counts_spliced = model$experiment$counts_mrna,
     counts_unspliced = model$experiment$counts_premrna,
     counts_protein = model$experiment$counts_protein,
-    expression = as(log2(counts + 1), "dgCMatrix"),
+    expression = as(log2(counts + 1), "CsparseMatrix"),
     cell_info = model$experiment$cell_info %>% select(-.data$from, -.data$to, -.data$time),
     feature_info = model$experiment$feature_info
   ) %>% 
@@ -121,7 +121,7 @@ as_anndata <- function(
       counts_spliced = model$experiment$counts_mrna,
       counts_unspliced = model$experiment$counts_premrna,
       counts_protein = model$experiment$counts_protein,
-      logcounts = as(log2(counts + 1), "dgCMatrix")
+      logcounts = as(log2(counts + 1), "CsparseMatrix")
     ),
     obs = model$experiment$cell_info %>%
       select(-.data$from, -.data$to, -.data$time) %>% 
@@ -186,7 +186,7 @@ as_sce <- function(
   sce_args <- list(
     assays = list(
       counts = t(counts),
-      logcounts = t(as(log2(counts + 1), "dgCMatrix")),
+      logcounts = t(as(log2(counts + 1), "CsparseMatrix")),
       counts_spliced = t(model$experiment$counts_mrna),
       counts_unspliced = t(model$experiment$counts_premrna),
       counts_protein = t(model$experiment$counts_protein)
@@ -272,7 +272,7 @@ as_seurat <- function(
   rownames(counts) <- rownames(feat_metadata)
   assay_obj <- Seurat::CreateAssayObject(counts = counts) %>% 
     Seurat::AddMetaData(feat_metadata)
-  # logcounts = t(as(log2(counts + 1), "dgCMatrix")),
+  # logcounts = t(as(log2(counts + 1), "CsparseMatrix")),
   
   counts_mrna <- t(model$experiment$counts_mrna)
   rownames(counts_mrna) <- rownames(feat_metadata)
@@ -374,7 +374,7 @@ as_list <- function(
     counts_spliced = model$experiment$counts_mrna,
     counts_unspliced = model$experiment$counts_premrna,
     counts_protein = model$experiment$counts_protein,
-    expression = as(log2(counts + 1), "dgCMatrix"),
+    expression = as(log2(counts + 1), "CsparseMatrix"),
     cell_info = model$experiment$cell_info %>% select(-.data$from, -.data$to, -.data$time),
     feature_info = model$experiment$feature_info,
     milestone_ids = unique(c(model$gold_standard$network$from, model$gold_standard$network$to)),
