@@ -4,7 +4,10 @@
   model
 }
 #' Return the timings of each of the dyngen steps
+#' 
 #' @param model A dyngen object
+#' 
+#' @return A data frame with columns `"group"`, `"task"`, `"time_elabsed"`.
 #' 
 #' @export
 #' 

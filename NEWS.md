@@ -6,6 +6,8 @@
 
 * DOCUMENTATION: Extend usage of `wrap_dataset()`.
 
+* DOCUMENTATION: Document outputs of `combine_models()` and `get_timings()`.
+
 # dyngen 1.0.4
 
 * BUG FIX `plot_feature_network()`: Added workaround for thomasp85/ggforce#273.

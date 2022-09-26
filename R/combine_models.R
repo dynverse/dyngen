@@ -9,6 +9,8 @@
 #'   prefix the different cellular states in the combined model.
 #' @param duplicate_gold_standard Whether or not the gold standards of the models are 
 #'   different and should be duplicated and prefixed.
+#'   
+#' @return A combined dyngen model.
 #'
 #' @export
 #'

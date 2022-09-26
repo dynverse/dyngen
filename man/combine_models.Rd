@@ -13,6 +13,9 @@ prefix the different cellular states in the combined model.}
 \item{duplicate_gold_standard}{Whether or not the gold standards of the models are
 different and should be duplicated and prefixed.}
 }
+\value{
+A combined dyngen model.
+}
 \description{
 Assume the given models have the exact same feature ids and ran up until the \code{generate_cells()} step.
 In addition, the user is expected to run \code{generate_experiment()} on the combined models.
