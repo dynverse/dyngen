@@ -64,6 +64,11 @@ calculate_dimred <- function(
     gs_xcounts
   )
   
+  # force copy
+  # not doing this causes the matrix to be gc'ed and results in an error downstream
+  # that is, "Error in x$.self$finalize() : attempt to apply non-function"
+  counts <- counts + 0
+  
   # log2 transformation
   counts@x <- log2(counts@x + 1)
   
@@ -91,6 +96,8 @@ calculate_dimred <- function(
     method = model$distance_metric,
     use_nan = TRUE
   ))
+  # set nan values to 0
+  dist_2lm[is.nan(dist_2lm)] <- 0
   
   # # calculate distances between landmarks
   # dist_lm <- dist_2lm[, landmark_ix, drop = FALSE]
