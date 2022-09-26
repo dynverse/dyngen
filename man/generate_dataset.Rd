@@ -63,15 +63,11 @@ model <- initialise_model(
 )
 }
 \donttest{
+# generate dataset and output as a list format
+# please note other output formats exist: "dyno", "sce", "seurat", "anndata"
 out <- generate_dataset(model, format = "list")
-  
+
 model <- out$model
 dataset <- out$dataset
-
-# can also generate other dataset formats:
-# out <- generate_dataset(model, format = "dyno")
-# out <- generate_dataset(model, format = "sce")
-# out <- generate_dataset(model, format = "seurat")
-# out <- generate_dataset(model, format = "anndata")
 }
 }

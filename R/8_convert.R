@@ -14,7 +14,14 @@
 #' 
 #' @examples
 #' data("example_model")
-#' dataset <- wrap_dataset(example_model)
+#' dataset <- wrap_dataset(example_model, format = "list")
+#' \donttest{
+#' dataset <- wrap_dataset(example_model, format = "dyno")
+#' dataset <- wrap_dataset(example_model, format = "sce")
+#' dataset <- wrap_dataset(example_model, format = "seurat")
+#' dataset <- wrap_dataset(example_model, format = "anndata")
+#' dataset <- wrap_dataset(example_model, format = "none")
+#' }
 as_dyno <- function(
   model,
   store_dimred = !is.null(model$simulations$dimred),

@@ -2,6 +2,10 @@
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.
 
+* DOCUMENTATION: Remove comments from `generate_dataset()`.
+
+* DOCUMENTATION: Extend usage of `wrap_dataset()`.
+
 # dyngen 1.0.4
 
 * BUG FIX `plot_feature_network()`: Added workaround for thomasp85/ggforce#273.
