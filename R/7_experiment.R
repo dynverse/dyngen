@@ -37,7 +37,7 @@
 #'     experiment = experiment_synchronised()
 #'   )
 #' 
-#' \dontrun{
+#' \donttest{
 #' data("example_model")
 #' model <- example_model %>% generate_experiment() 
 #' 
