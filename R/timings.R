@@ -7,7 +7,7 @@
 #' 
 #' @param model A dyngen object
 #' 
-#' @return A data frame with columns `"group"`, `"task"`, `"time_elabsed"`.
+#' @return A data frame with columns `"group"`, `"task"`, `"time_elapsed"`.
 #' 
 #' @export
 #' 
