@@ -194,29 +194,13 @@ rmarkdown::render("vignettes/simulating_batch_effects.Rmd", output_format = rmar
 <span>  <span class="fu"><a href="../../reference/generate_kinetics.html">generate_kinetics</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../../reference/generate_gold_standard.html">generate_gold_standard</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span>
-<span></span>
-<span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span>
-<span></span>
-<span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span></code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_b</span> <span class="op">&lt;-</span> <span class="va">model_common</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../../reference/generate_kinetics.html">generate_kinetics</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../../reference/generate_gold_standard.html">generate_gold_standard</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../../reference/generate_cells.html">generate_cells</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span>
-<span></span>
-<span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span>
-<span></span>
-<span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span></code></pre>
 <p>The differences if kinetics parameters can be visualised as follows.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_a</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="fu">dyngen</span><span class="fu">:::</span><span class="fu">.kinetics_extract_parameters_as_df</span><span class="op">(</span><span class="va">model_a</span><span class="op">$</span><span class="va">feature_info</span>, <span class="va">model_a</span><span class="op">$</span><span class="va">feature_network</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">id</span>, group <span class="op">=</span> <span class="va">param</span>, model_a <span class="op">=</span> <span class="va">value</span><span class="op">)</span></span>
@@ -238,36 +222,34 @@ rmarkdown::render("vignettes/simulating_batch_effects.Rmd", output_format = rmar
 <h2 id="combine-outputs-and-visualise">Combine outputs and visualise<a class="anchor" aria-label="anchor" href="#combine-outputs-and-visualise"></a>
 </h2>
 <p>Finally, combine the simulations as follows.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_ab</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="../../reference/combine_models.html">combine_models</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>left <span class="op">=</span> <span class="va">model_a</span>, right <span class="op">=</span> <span class="va">model_b</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="../../reference/generate_experiment.html">generate_experiment</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: x or y has vectors with zero standard deviation; consider setting</span></span>
-<span><span class="co">## use_nan = TRUE</span></span></code></pre>
 <pre><code><span><span class="co">## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.</span></span>
 <span><span class="co">##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).</span></span></code></pre>
 <p>Show a dimensionality reduction.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_simulations.html">plot_simulations</a></span><span class="op">(</span><span class="va">model_ab</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_batch_effects_files/figure-html/plot-1.png" width="960"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/plot_gold_mappings.html">plot_gold_mappings</a></span><span class="op">(</span><span class="va">model_ab</span>, do_facet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulating_batch_effects_files/figure-html/plot-2.png" width="960"></p>
 <p>Visualise the dataset using dyno.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dynverse/dyno" class="external-link">dyno</a></span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Loading required package: dynfeature</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: dynguidelines</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: dynmethods</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: dynplot</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: dynwrap</span></span></code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/convert.html">as_dyno</a></span><span class="op">(</span><span class="va">model_ab</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_dimred.html" class="external-link">plot_dimred</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Coloring by milestone</span></span></code></pre>
 <pre><code><span><span class="co">## Using milestone_percentages from trajectory</span></span></code></pre>
 <p><img src="simulating_batch_effects_files/figure-html/dyno-1.png" width="960"></p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dynplot/man/plot_heatmap.html" class="external-link">plot_heatmap</a></span><span class="op">(</span><span class="va">dataset</span>, features_oi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## No features of interest provided, selecting the top 50 features automatically</span></span></code></pre>
 <pre><code><span><span class="co">## Using dynfeature for selecting the top 50 features</span></span></code></pre>
