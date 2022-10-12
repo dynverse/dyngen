@@ -93,8 +93,7 @@ calculate_dimred <- function(
   dist_2lm <- as.matrix(dynutils::calculate_distance(
     x = counts[landmark_ix, , drop = FALSE], 
     y = counts, 
-    method = model$distance_metric,
-    use_nan = TRUE
+    method = model$distance_metric
   ))
   # set nan values to 0
   dist_2lm[is.nan(dist_2lm)] <- 0
