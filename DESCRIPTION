@@ -35,7 +35,7 @@ Imports:
     GillespieSSA2 (>= 0.2.6),
     grDevices,
     grid,
-    igraph,
+    igraph (>= 1.3.0),
     lmds,
     Matrix,
     methods,
