@@ -1,3 +1,7 @@
+# dyngen 1.0.6
+
+* BUG FIX `simulation_type_knockdown()`: Allow easier knocking down of multiple genes.
+
 # dyngen 1.0.5
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.
