@@ -617,7 +617,7 @@ simulation_type_knockdown <- function(
       (is.list(genes) && length(genes) == num_simulations) ||
         is.character(genes) || is.factor(genes)
     )
-    if (!is.list(genes)) genes <- as.list(rep(genes, num_simulations))
+    if (!is.list(genes)) genes <- as.list(rep(list(genes), num_simulations))
     
     tibble(
       type = "knockdown",
