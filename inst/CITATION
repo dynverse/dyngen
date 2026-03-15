@@ -1,5 +1,5 @@
-citEntry(
-  entry    = "Article",
+bibentry(
+  bibtype  = "Article",
   author   = c(
     person("Robrecht", "Cannoodt"),
     person("Wouter", "Saelens"),

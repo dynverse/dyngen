@@ -2,7 +2,7 @@ Type: Package
 Package: dyngen
 Title: A Multi-Modal Simulator for Spearheading Single-Cell
     Omics Analyses
-Version: 1.0.5
+Version: 1.0.6
 Authors@R: 
     c(person(given = "Robrecht",
              family = "Cannoodt",
@@ -27,7 +27,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     assertthat,
-    dplyr,
+    dplyr (>= 1.1.0),
     dynutils (>= 1.0.10),
     ggplot2,
     ggraph (>= 2.0),

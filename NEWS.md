@@ -1,3 +1,12 @@
+# dyngen 1.0.6
+
+* BUG FIX `get_timings()`: Use `reframe()` instead of `summarise()` to fix
+  compatibility with dplyr >= 1.1.0.
+
+* DOCUMENTATION: Fix unescaped braces in `generate_kinetics()` Rd file.
+
+* CITATION: Replace deprecated `citEntry()` with `bibentry()`.
+
 # dyngen 1.0.5
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.

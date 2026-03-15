@@ -33,7 +33,7 @@
 #'   
 #' `sampler_interactions()` mutates the `feature_network` data frame by adding the following columns.
 #'  * `effect`: the effect of the interaction; upregulating = +1, downregulating = -1.
-#'    By default, sampled from {-1, 1} with probabilities {.25, .75}.
+#'    By default, sampled from \{-1, 1\} with probabilities \{.25, .75\}.
 #'  * `strength`: the strength of the interaction. Default distribution: 10^U(0, 2).
 #'  * `hill`: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
 #' 
