@@ -31,7 +31,6 @@ Imports:
     dynutils (>= 1.0.10),
     ggplot2,
     ggraph (>= 2.0),
-    ggrepel,
     GillespieSSA2 (>= 0.2.6),
     grDevices,
     grid,
@@ -51,6 +50,7 @@ Imports:
     viridis
 Suggests:
     anndata,
+    ggrepel,
     covr,
     dynwrap (>= 1.2.0),
     R.rsp,

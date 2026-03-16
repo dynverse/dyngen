@@ -444,7 +444,6 @@ plot_gold_expression <- function(
 #' 
 #' @return A ggplot2 object.
 #' 
-#' @importFrom ggrepel geom_text_repel
 #' @importFrom stats approx
 #' 
 #' @export
@@ -508,11 +507,22 @@ plot_simulation_expression <- function(
       ungroup() %>% 
       filter(value > 0)
     g <- g +
-      geom_point(data = df_labels) +
-      ggrepel::geom_text_repel(
-        aes(label = paste0(module_id, "_", type)), 
+      geom_point(data = df_labels)
+    if (requireNamespace("ggrepel", quietly = TRUE)) {
+      g <- g + ggrepel::geom_text_repel(
+        aes(label = paste0(module_id, "_", type)),
         df_labels
       )
+    } else {
+      warning("Install the 'ggrepel' package for non-overlapping labels.")
+      g <- g + geom_text(
+        aes(label = paste0(module_id, "_", type)),
+        df_labels,
+        hjust = 1,
+        vjust = 0,
+        nudge_y = .15
+      )
+    }
   }
   
   if (facet == "simulation") {
