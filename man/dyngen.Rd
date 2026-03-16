@@ -2,6 +2,7 @@
 % Please edit documentation in R/package.R
 \docType{package}
 \name{dyngen}
+\alias{dyngen-package}
 \alias{dyngen}
 \title{dyngen: A multi-modal simulator for spearheading single-cell omics analyses}
 \description{
@@ -179,6 +180,24 @@ dataset <- wrap_dataset(model, format = "dyno")
 
 # library(dynplot)
 # plot_dimred(dataset)
+}
+
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://dyngen.dynverse.org}
+  \item \url{https://github.com/dynverse/dyngen}
+  \item Report bugs at \url{https://github.com/dynverse/dyngen/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Robrecht Cannoodt \email{rcannood@gmail.com} (\href{https://orcid.org/0000-0003-3641-729X}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item Wouter Saelens \email{wouter.saelens@gmail.com} (\href{https://orcid.org/0000-0002-7114-6248}{ORCID})
 }
 
 }
