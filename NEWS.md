@@ -3,9 +3,16 @@
 * BUG FIX `get_timings()`: Use `reframe()` instead of `summarise()` to fix
   compatibility with dplyr >= 1.1.0.
 
+* MINOR CHANGE `plot_simulation_expression()`: Move `ggrepel` from `Imports`
+  to `Suggests`, falling back to `geom_text()` when `ggrepel` is not installed.
+  This fixes installation on older R versions where `ggrepel >= 1.0.0`
+  requires R >= 4.5.0.
+
 * DOCUMENTATION: Fix unescaped braces in `generate_kinetics()` Rd file.
 
 * CITATION: Replace deprecated `citEntry()` with `bibentry()`.
+
+* INFRASTRUCTURE: Update GitHub Actions workflows.
 
 # dyngen 1.0.5
 
