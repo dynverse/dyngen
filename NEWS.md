@@ -1,3 +1,49 @@
+# dyngen 1.1.0
+
+* BREAKING CHANGE: Minimum R version bumped to 4.1.0. This enables use of the
+  native pipe operator (`|>`) and lambda functions (`\(x) ...`) throughout.
+
+* BUG FIX `get_timings()`: Use `reframe()` instead of `summarise()` to fix
+  compatibility with dplyr >= 1.1.0.
+
+* BUG FIX `bblego_linear()`: Fix broken pipe chain in `doublerep2` type that
+  caused `backbone_bifurcating()` examples to fail.
+
+* MINOR CHANGE `plot_simulation_expression()`: Move `ggrepel` from `Imports`
+  to `Suggests`, falling back to `geom_text()` when `ggrepel` is not installed.
+  This fixes installation on older R versions where `ggrepel >= 1.0.0`
+  requires R >= 4.5.0.
+
+* MINOR CHANGE: Replace `magrittr::%>%` with the native pipe `|>` throughout
+  the package.
+
+* MINOR CHANGE: Replace deprecated `dplyr::do()` with `reframe()` or
+  `group_modify()` throughout the package.
+
+* MINOR CHANGE: Replace deprecated `tidyr::gather()` and `dplyr::one_of()`
+  with `tidyr::pivot_longer()` and `tidyselect::any_of()` respectively.
+
+* MINOR CHANGE: Replace deprecated `ggplot2::aes_string()` with `aes()`
+  throughout plotting functions.
+
+* MINOR CHANGE: Replace deprecated `size` aesthetic with `linewidth` for line
+  geoms, and use `scale_linewidth_manual()` accordingly.
+
+* MINOR CHANGE: Remove internal ggforce `geom_edge_loop` workaround that is
+  no longer needed since ggforce >= 0.5.0.
+
+* MINOR CHANGE: Use `.data$` pronoun in data-masking contexts and bare names
+  in tidyselect contexts, replacing the now-deprecated `.data$` usage in
+  `select()` and `pull()` calls.
+
+* DOCUMENTATION: Fix unescaped braces in `generate_kinetics()` Rd file.
+
+* CITATION: Replace deprecated `citEntry()` with `bibentry()`.
+
+* INFRASTRUCTURE: Update GitHub Actions workflows.
+
+* INFRASTRUCTURE: Add `tidyselect` to `Imports`.
+
 # dyngen 1.0.5
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.

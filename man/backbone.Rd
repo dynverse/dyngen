@@ -65,7 +65,7 @@ backbone <- backbone(
     ~from, ~to,  ~effect, ~strength, ~hill,
     "M1",  "M2", 1L,      1,         2,
     "M2",  "M3", 1L,      1,         2
-  ), 
+  ),
   expression_patterns = tribble(
     ~from, ~to,  ~module_progression, ~start, ~burn, ~time,
     "s0",  "s1", "+M1",               TRUE,   TRUE,  30,

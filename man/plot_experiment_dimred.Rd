@@ -4,7 +4,7 @@
 \alias{plot_experiment_dimred}
 \title{Plot a dimensionality reduction of the final dataset}
 \usage{
-plot_experiment_dimred(model, mapping = aes_string("comp_1", "comp_2"))
+plot_experiment_dimred(model, mapping = aes(.data$comp_1, .data$comp_2))
 }
 \arguments{
 \item{model}{A dyngen intermediary model for which the simulations have been run with \code{\link[=generate_experiment]{generate_experiment()}}.}

@@ -1,4 +1,3 @@
-
 modnet_edge <- function(from, to, effect = 1L, strength = 1, hill = 2) {
   max_len <- max(length(from), length(to))
   assert_that(
@@ -16,10 +15,12 @@ modnet_edge <- function(from, to, effect = 1L, strength = 1, hill = 2) {
   )
 }
 modnet_chain <- function(mids, effect = 1L, strength = 1, hill = 2) {
-  if (length(mids) == 1) return(NULL)
+  if (length(mids) == 1) {
+    return(NULL)
+  }
   modnet_edge(
-    from = mids %>% head(-1),
-    to = mids %>% tail(-1),
+    from = mids |> head(-1),
+    to = mids |> tail(-1),
     effect = effect,
     strength = strength,
     hill = hill
@@ -48,11 +49,11 @@ modnet_pairwise <- function(from, to = from, self = FALSE, effect = 1L, strength
   df <- crossing(
     fromi = seq_along(from),
     toi = seq_along(to)
-  ) 
+  )
   if (!self) {
-    df <- df %>% filter(fromi != toi)
+    df <- df |> filter(fromi != toi)
   }
-  df %>% 
+  df |>
     transmute(
       from = from[fromi],
       to = to[toi],

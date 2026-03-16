@@ -31,7 +31,7 @@ of the simulations.
 \code{\link[=gold_standard_default]{gold_standard_default()}} is used to configure parameters pertaining this process.
 }
 \examples{
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     gold_standard = gold_standard_default(tau = .01, census_interval = 1)
@@ -39,8 +39,8 @@ model <-
 
 \donttest{
 data("example_model")
-model <- example_model \%>\% generate_gold_standard()
-  
+model <- example_model |> generate_gold_standard()
+
 plot_gold_simulations(model)
 plot_gold_mappings(model)
 plot_gold_expression(model)

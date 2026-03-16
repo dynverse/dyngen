@@ -87,7 +87,7 @@ of the simulations.
 }
 \examples{
 library(dplyr)
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     simulation = simulation_default(
@@ -100,8 +100,8 @@ model <-
   )
 \donttest{
 data("example_model")
-model <- example_model \%>\% generate_cells()
-  
+model <- example_model |> generate_cells()
+
 plot_simulations(model)
 plot_gold_mappings(model)
 plot_simulation_expression(model)

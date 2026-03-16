@@ -1,7 +1,7 @@
 context("combine_models")
 
 # backbone <- backbone_linear()
-# 
+#
 # model_common <- initialise_model(
 #   backbone = backbone,
 #   num_cells = 10,
@@ -21,33 +21,33 @@ context("combine_models")
 #     compute_rna_velocity = TRUE
 #   ),
 #   verbose = FALSE
-# ) %>% 
-#   generate_tf_network() %>% 
+# ) %>%
+#   generate_tf_network() %>%
 #   generate_feature_network()
-# 
-# model_a <- 
-#   model_common %>% 
-#   generate_kinetics() %>% 
-#   generate_gold_standard() %>% 
+#
+# model_a <-
+#   model_common %>%
+#   generate_kinetics() %>%
+#   generate_gold_standard() %>%
 #   generate_cells()
 
 test_that("combine before experiment", {
   # reuse example_model for the sake of time
   model_a <- example_model
   model_a$experiment <- NULL
-  
+
   model_aa <-
-    combine_models(list(left = model_a, right = model_a)) %>% 
+    combine_models(list(left = model_a, right = model_a)) %>%
     generate_experiment()
-  
+
   expect_is(model_aa$simulations$meta, "data.frame")
   expect_true(any(grepl("left_", model_aa$simulations$meta$from)))
   expect_true(any(grepl("right_", model_aa$simulations$meta$from)))
-  
+
   expect_is(model_aa$experiment$cell_info, "data.frame")
   expect_true(any(grepl("left_", model_aa$experiment$cell_info$from)))
   expect_true(any(grepl("right_", model_aa$experiment$cell_info$from)))
-  
+
   expect_is(model_aa$simulations$dimred, "matrix")
   expect_is(model_aa$experiment$cellwise_grn, "Matrix")
   expect_is(model_aa$experiment$rna_velocity, "Matrix")
@@ -60,19 +60,17 @@ test_that("combine after experiment", {
   model_b$simulation_params$compute_rna_velocity <- FALSE
   model_b$experiment$cellwise_grn <- NULL
   model_b$experiment$rna_velocity <- NULL
-  
+
   model_bb <- combine_models(list(left = model_b, right = model_b))
-  
+
   expect_is(model_bb$simulations$meta, "data.frame")
   expect_true(any(grepl("left_", model_bb$simulations$meta$from)))
   expect_true(any(grepl("right_", model_bb$simulations$meta$from)))
-  
+
   expect_is(model_bb$experiment$cell_info, "data.frame")
   expect_true(any(grepl("left_", model_bb$experiment$cell_info$from)))
   expect_true(any(grepl("right_", model_bb$experiment$cell_info$from)))
-  
+
   expect_null(model_bb$experiment$cellwise_grn)
   expect_null(model_bb$experiment$rna_velocity)
 })
-
-

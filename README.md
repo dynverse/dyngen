@@ -8,9 +8,9 @@ Status](https://www.r-pkg.org/badges/version/dyngen)](https://cran.r-project.org
 [![CRAN
 Downloads](https://cranlogs.r-pkg.org/badges/dyngen)](https://cran.r-project.org/package=dyngen)
 [![DOI](https://img.shields.io/badge/doi-10.1038%2Fs41467--021--24152--2-green)](https://doi.org/10.1038/s41467-021-24152-2)
-[![R-CMD-check](https://github.com/dynverse/dyngen/workflows/R-CMD-check/badge.svg)](https://github.com/dynverse/dyngen/actions?query=workflow%3AR-CMD-check)
-[![Coverage
-Status](https://app.codecov.io/gh/dynverse/dyngen/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dynverse/dyngen?branch=master)
+[![R-CMD-check](https://github.com/dynverse/dyngen/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dynverse/dyngen/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/dynverse/dyngen/graph/badge.svg)](https://app.codecov.io/gh/dynverse/dyngen)
 <!-- badges: end -->
 
 dyngen is a novel, multi-modal simulation engine for studying dynamic
@@ -26,7 +26,7 @@ information. All source code for reproducing the results in this
 manuscript are available on
 [GitHub](https://github.com/dynverse/dyngen_manuscript).
 
-<img src="man/figures/overview.png" width="60%" />
+<img src="man/figures/overview.png" alt="" width="60%" />
 
 ## Installation
 
@@ -44,26 +44,26 @@ guide](https://dyngen.dynverse.org/articles/getting_started.html) on how
 to get started with dyngen. You can find more guides by clicking any of
 the links below:
 
--   [Getting
-    started](https://dyngen.dynverse.org/articles/getting_started.html)
--   [Installation
-    instructions](https://dyngen.dynverse.org/articles/installation.html)
--   [Showcase different
-    backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
--   [Advanced: Comparison to reference
-    dataset](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)
--   [Advanced: Constructing a custom
-    backbone](https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html)
--   [Advanced: Running dyngen from a docker
-    container](https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html)
--   [Advanced: On scalability and
-    runtime](https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html)
--   [Advanced: Simulating batch
-    effects](https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html)
--   [Advanced: Simulating a knockout
-    experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
--   [Advanced: Tweaking
-    parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
+- [Getting
+  started](https://dyngen.dynverse.org/articles/getting_started.html)
+- [Installation
+  instructions](https://dyngen.dynverse.org/articles/installation.html)
+- [Showcase different
+  backbones](https://dyngen.dynverse.org/articles/showcase_backbones.html)
+- [Advanced: Comparison to reference
+  dataset](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)
+- [Advanced: Constructing a custom
+  backbone](https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html)
+- [Advanced: Running dyngen from a docker
+  container](https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html)
+- [Advanced: On scalability and
+  runtime](https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html)
+- [Advanced: Simulating batch
+  effects](https://dyngen.dynverse.org/articles/advanced_topics/simulating_batch_effects.html)
+- [Advanced: Simulating a knockout
+  experiment](https://dyngen.dynverse.org/articles/advanced_topics/simulating_knockouts.html)
+- [Advanced: Tweaking
+  parameters](https://dyngen.dynverse.org/articles/advanced_topics/tweaking_parameters.html)
 
 ## Latest changes
 

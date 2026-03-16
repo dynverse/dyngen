@@ -8,7 +8,7 @@ plot_gold_mappings(
   model,
   selected_simulations = NULL,
   do_facet = TRUE,
-  mapping = aes_string("comp_1", "comp_2")
+  mapping = aes(.data$comp_1, .data$comp_2)
 )
 }
 \arguments{

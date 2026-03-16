@@ -23,21 +23,21 @@ num_cells <- 5
 
 test_that("experiment_synchronised divides cells up correctly", {
   params <- experiment_synchronised()
-  
+
   ix <- .generate_experiment_synchronised(
     network = network,
     sim_meta = sim_meta,
     params = params,
     num_cells = num_cells
   )
-  
+
   expect_equal(length(ix), num_cells)
 })
 
 
 test_that("experiment_snapshot divides cells up correctly", {
   params <- experiment_snapshot()
-  
+
   expect_warning({
     ix <- .generate_experiment_snapshot(
       network = network,
@@ -46,6 +46,6 @@ test_that("experiment_snapshot divides cells up correctly", {
       num_cells = num_cells
     )
   })
-  
+
   expect_equal(length(ix), num_cells)
 })

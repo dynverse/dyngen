@@ -62,7 +62,7 @@ See Supplementary Figure 7B from the dyngen paper for an illustration of how the
 \examples{
 names(list_experiment_samplers())
 
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     experiment = experiment_synchronised()
@@ -70,7 +70,7 @@ model <-
 
 \donttest{
 data("example_model")
-model <- example_model \%>\% generate_experiment() 
+model <- example_model |> generate_experiment()
 
 plot_experiment_dimred(model)
 }

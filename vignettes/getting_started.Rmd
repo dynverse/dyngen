@@ -30,7 +30,7 @@ library(dyngen)
 set.seed(1)
 
 backbone <- backbone_bifurcating()
-config <- 
+config <-
   initialise_model(
     backbone = backbone,
     num_tfs = nrow(backbone$module_info),
@@ -57,8 +57,8 @@ config <-
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
       total_time = 1000,
-      census_interval = 2, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 2,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
   )

@@ -51,10 +51,10 @@ backbone_linear()
 backbone_linear_simple()
 
 backbone_disconnected(
-  left_backbone = list_backbones() \%>\% keep(., names(.) != "disconnected") \%>\%
-    sample(1) \%>\% first(),
-  right_backbone = list_backbones() \%>\% keep(., names(.) != "disconnected") \%>\%
-    sample(1) \%>\% first(),
+  left_backbone = first(sample((function(bb) keep(bb, names(bb) !=
+    "disconnected"))(list_backbones()), 1)),
+  right_backbone = first(sample((function(bb) keep(bb, names(bb) !=
+    "disconnected"))(list_backbones()), 1)),
   num_common_modules = 10
 )
 }

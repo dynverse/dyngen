@@ -9,6 +9,3 @@ GillespieSSA2::ssa_exact
 #' @importFrom GillespieSSA2 ode_em
 #' @export
 GillespieSSA2::ode_em
-
-#' @export
-purrr::`%>%`

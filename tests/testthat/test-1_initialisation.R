@@ -49,10 +49,10 @@ test_that("Testing normal use case of initialisation", {
     download_cache_dir = "test_dir",
     num_cores = 2
   )
-  
+
   simulation_params$burn_time <- 12
   simulation_params$total_time <- 24
-  
+
   expect_equal(model$backbone, backbone)
   expect_equal(model$numbers, list(num_cells = 100, num_tfs = 10, num_targets = 50, num_hks = 40, num_features = 100, num_modules = 2))
   expect_equal(model$distance_metric, "euclidean")

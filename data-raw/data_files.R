@@ -1,6 +1,5 @@
 library(tidyverse)
 
-
 output_dir <- tempfile()
 dir.create(output_dir)
 
@@ -15,13 +14,13 @@ tmp_dir <- tempfile()
 unzip(tmp_zip, exdir = tmp_dir)
 on.exit(unlink(tmp_dir, recursive = TRUE, force = TRUE))
 
-metadf <- 
+metadf <-
   list.files(
-    paste0(tmp_dir, "/Network_compendium/Tissue-specific_regulatory_networks_FANTOM5-v1/32_high-level_networks"), 
+    paste0(tmp_dir, "/Network_compendium/Tissue-specific_regulatory_networks_FANTOM5-v1/32_high-level_networks"),
     full.names = TRUE,
     pattern = "txt.gz"
-  ) %>% 
-  tibble(file = .) %>% 
+  ) %>%
+  tibble(file = .) %>%
   mutate(
     name = file %>% str_replace("^.*/", "") %>% str_replace("\\.txt\\.gz$", "") %>% paste0("regulatorycircuits_", .),
     url = paste0("https://github.com/dynverse/dyngen/raw/data_files/", name, ".rds")
@@ -33,14 +32,14 @@ pbapply::pblapply(
   function(i) {
     file <- metadf$file[[i]]
     name <- metadf$name[[i]]
-    
-    df <- 
-      read_tsv(file, col_names = c("regulator", "target", "weight"), col_types = c("regulator" = "c", "target" = "c", "weight" = "d")) %>% 
-      arrange(desc(weight)) %>% 
+
+    df <-
+      read_tsv(file, col_names = c("regulator", "target", "weight"), col_types = c("regulator" = "c", "target" = "c", "weight" = "d")) %>%
+      arrange(desc(weight)) %>%
       slice(seq_len(250000))
-    
+
     genes <- unique(c(df$regulator, df$target))
-    
+
     m <- Matrix::sparseMatrix(
       i = match(df$regulator, genes),
       j = match(df$target, genes),
@@ -50,7 +49,7 @@ pbapply::pblapply(
         genes
       )
     )
-    
+
     write_rds(m, paste0(output_dir, "/", name, ".rds"), compress = "xz")
   }
 )
@@ -80,7 +79,7 @@ files <-
   map_df(function(l) {
     as_tibble(t(unlist(l)))
   }) %>%
-  filter(grepl("^real/", filename)) %>% 
+  filter(grepl("^real/", filename)) %>%
   mutate(
     name = filename %>% str_replace_all("\\.rds$", "") %>% str_replace_all("/", "_") %>% paste0("zenodo_", deposit_id, "_", .),
     url = paste0("https://github.com/dynverse/dyngen/raw/data_files/", name, ".rds"),
@@ -94,16 +93,16 @@ pbapply::pblapply(
   function(i) {
     tmp <- tempfile()
     on.exit(file.remove(tmp))
-    
+
     # download file
     download.file(files$links.download[[i]], tmp, quiet = TRUE)
-    
+
     # read counts
     counts <- read_rds(tmp)$counts %>% Matrix::Matrix(sparse = TRUE)
-    
+
     # write data
     write_rds(counts, files$local_out[[i]], compress = "xz")
-    
+
     invisible()
   }
 )
@@ -122,31 +121,30 @@ if (!file.exists(new_file$local_out)) {
   cbmc_counts <- Matrix::Matrix(as.matrix(cbmc.rna), sparse = TRUE) %>% Matrix::t()
   cells_expressed <- Matrix::colMeans(cbmc_counts > 0)
   cbmc_counts <- cbmc_counts[, cells_expressed > .05]
-  
+
   write_rds(cbmc_counts, new_file$local_out, compress = "xz")
 }
 files <- bind_rows(files, new_file)
-
 
 
 # perform checks and filtering
 # files %>% dynutils::extract_row_to_list(1) %>% list2env(.GlobalEnv)
 realcounts <- pmap_df(files, function(name, url, local_out, ...) {
   cou <- readr::read_rds(local_out)
-  
+
   library_size <- Matrix::rowSums(cou)
-  
+
   cpm <- sweep(cou, 1, 1e6 / library_size, "*")
-  
+
   num_cells <- nrow(cou)
   num_features <- ncol(cou)
-  
+
   dropout_rate <- mean(as.matrix(cou) == 0)
   average_log2_cpm <- apply(cpm, 2, mean)
   variance_log2_cpm <- apply(cpm, 2, var)
-  
+
   tibble(
-    name, 
+    name,
     url,
     num_cells,
     num_features,
@@ -157,9 +155,12 @@ realcounts <- pmap_df(files, function(name, url, local_out, ...) {
   )
 })
 
-ggplot(realcounts) + 
-  geom_point(aes(num_cells, median_library_size, alpha = num_cells > 300 & median_library_size > 1000, colour = dropout_rate)) + 
-  scale_y_log10() + scale_x_log10() + viridis::scale_color_viridis() + theme_bw()
+ggplot(realcounts) +
+  geom_point(aes(num_cells, median_library_size, alpha = num_cells > 300 & median_library_size > 1000, colour = dropout_rate)) +
+  scale_y_log10() +
+  scale_x_log10() +
+  viridis::scale_color_viridis() +
+  theme_bw()
 
 qc_pass_names <- c(
   "zenodo_1443566_real_gold_cellbench-SC1_luyitian",
@@ -183,12 +184,12 @@ qc_pass_names <- c(
 )
 realcounts <- realcounts %>% mutate(qc_pass = name %in% qc_pass_names)
 
-# ggplot(realcounts %>% mutate(qc_pass = row_number() %in% c(3, 4, 5, 6, 8, 24, 29, 30, 31, 34, 35, 51, 52, 56, 57, 60, 66, 72, 108, 110, 111))) + 
-#   geom_point(aes(num_cells, median_library_size, alpha = qc_pass, colour = dropout_rate)) + 
+# ggplot(realcounts %>% mutate(qc_pass = row_number() %in% c(3, 4, 5, 6, 8, 24, 29, 30, 31, 34, 35, 51, 52, 56, 57, 60, 66, 72, 108, 110, 111))) +
+#   geom_point(aes(num_cells, median_library_size, alpha = qc_pass, colour = dropout_rate)) +
 #   scale_y_log10() + scale_x_log10() + viridis::scale_color_viridis() + theme_bw()
-# 
-# ggplot(realcounts %>% mutate(qc_pass = row_number() %in% c(3, 4, 5, 6, 8, 24, 29, 30, 31, 34, 35, 51, 52, 56, 57, 60, 66, 72, 108, 110, 111))) + 
-#   geom_point(aes(median_average_log2_cpm, median_variance_log2_cpm, alpha = qc_pass, colour = dropout_rate)) + 
+#
+# ggplot(realcounts %>% mutate(qc_pass = row_number() %in% c(3, 4, 5, 6, 8, 24, 29, 30, 31, 34, 35, 51, 52, 56, 57, 60, 66, 72, 108, 110, 111))) +
+#   geom_point(aes(median_average_log2_cpm, median_variance_log2_cpm, alpha = qc_pass, colour = dropout_rate)) +
 #   scale_y_log10() + scale_x_log10() + viridis::scale_color_viridis() + theme_bw()
 
 usethis::use_data(realcounts, compress = "xz", overwrite = TRUE)
@@ -200,7 +201,7 @@ usethis::use_data(realcounts, compress = "xz", overwrite = TRUE)
 # download data from Schwannhäusser et al., 2011, doi.org/10.1038/nature10098
 tmpfile <- tempfile()
 download.file("https://static-content.springer.com/esm/art%3A10.1038%2Fnature10098/MediaObjects/41586_2011_BFnature10098_MOESM304_ESM.xls", tmpfile)
-tab <- readxl::read_excel(tmpfile) %>% 
+tab <- readxl::read_excel(tmpfile) %>%
   transmute(
     protein_ids = `Protein IDs`,
     protein_names = `Protein Names`,
@@ -232,12 +233,11 @@ tab_imp <- mice::complete(out)
 write_rds(tab_imp, paste0(output_dir, "/schwannhausser2011_imputed.rds"), compress = "xz")
 
 
-
 #################################################
 ##    COMMIT DATA TO SEPARATE BRANCH    ##
 #################################################
 system(paste0(
-  "pushd ", output_dir, "\n", 
+  "pushd ", output_dir, "\n",
   "git init\n",
   "git checkout --orphan data_files\n",
   "git add *.rds\n",

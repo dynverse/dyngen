@@ -35,7 +35,7 @@ config <-
     num_targets = 250,
     num_hks = 250,
     simulation_params = simulation_default(
-      census_interval = 10, 
+      census_interval = 10,
       ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 100)
     )
@@ -57,7 +57,7 @@ config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
+      census_interval = 5,
       ssa_algorithm = ssa_etl(tau = .01),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
@@ -92,19 +92,19 @@ model_b <- model_common %>%
 
 The differences if kinetics parameters can be visualised as follows.
 ```{r compare_kinetics}
-params_a <- 
-  dyngen:::.kinetics_extract_parameters_as_df(model_a$feature_info, model_a$feature_network) %>% 
+params_a <-
+  dyngen:::.kinetics_extract_parameters_as_df(model_a$feature_info, model_a$feature_network) %>%
   select(id, group = param, model_a = value)
 
-params_b <- 
-  dyngen:::.kinetics_extract_parameters_as_df(model_b$feature_info, model_b$feature_network) %>% 
+params_b <-
+  dyngen:::.kinetics_extract_parameters_as_df(model_b$feature_info, model_b$feature_network) %>%
   select(id, group = param, model_b = value)
 
 params_ab <-
   inner_join(params_a, params_b, by = c("id", "group"))
 
-ggplot(params_ab) + 
-  geom_point(aes(model_a, model_b, colour = group)) + 
+ggplot(params_ab) +
+  geom_point(aes(model_a, model_b, colour = group)) +
   facet_wrap(~group, scales = "free") +
   theme_bw()
 ```
@@ -113,7 +113,7 @@ ggplot(params_ab) +
 Finally, combine the simulations as follows.
 ```{r combine}
 model_ab <-
-  combine_models(list(left = model_a, right = model_b)) %>% 
+  combine_models(list(left = model_a, right = model_b)) %>%
   generate_experiment()
 ```
 

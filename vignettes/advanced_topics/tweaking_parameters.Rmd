@@ -37,7 +37,7 @@ num_tfs <- nrow(backbone$module_info)
 num_targets <- round((num_features - num_tfs) / 2)
 num_hks <- num_features - num_targets - num_tfs
 
-run1_config <- 
+run1_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -63,8 +63,8 @@ run1_config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 5,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
   )
@@ -87,7 +87,7 @@ We tweaked some of the parameters by running this particular backbone once with 
 The `tau` parameter changes the size of the time steps made by dyngen during the simulation. Setting `tau` too large might cause certain production and degradation of molecules to fluctuate strangely.
 
 ```{r run2, fig.width = 10, fig.height = 6}
-run2_config <- 
+run2_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -116,7 +116,7 @@ run2_config <-
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     gold_standard_params = gold_standard_default(tau = 1),
     simulation_params = simulation_default(
-      census_interval = 5, 
+      census_interval = 5,
       ssa_algorithm = ssa_etl(tau = 5),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
@@ -149,7 +149,7 @@ During a simulation of length `total_time`, dyngen will draw a census every with
 Controlling the ratio `num_simulations * floor(total_time / census_interval) / num_cells` can be performed by tweaking the `census_interval`.
 
 ```{r run3, fig.width = 10, fig.height = 6}
-run3_config <- 
+run3_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -180,13 +180,13 @@ Be aware that the Garbage In, Garbage Out applies -- low quality reference datas
 
 ```{r run4, fig.width = 10, fig.height = 6}
 reference_dataset <- Matrix::rsparsematrix(
-  nrow = 1000, 
-  ncol = 1000, 
-  density = .01, 
+  nrow = 1000,
+  ncol = 1000,
+  density = .01,
   rand.x = function(n) rbinom(n, 20, .1)
 ) %>% Matrix::drop0()
 
-run4_config <- 
+run4_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -216,8 +216,8 @@ run4_config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 5,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     ),
     experiment_params = experiment_snapshot(
@@ -242,7 +242,9 @@ dat <- bind_rows(
   tibble(source = "reference", library_size = library_size_reference),
   tibble(source = "dyngen", library_size = library_size_dyngen)
 )
-ggplot(dat) + geom_density(aes(library_size, colour = source)) + theme_bw()
+ggplot(dat) +
+  geom_density(aes(library_size, colour = source)) +
+  theme_bw()
 ```
 
 

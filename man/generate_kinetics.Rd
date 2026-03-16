@@ -54,13 +54,13 @@ whether transcription can occur if only one of the regulators is bound (1).
 \code{sampler_interactions()} mutates the \code{feature_network} data frame by adding the following columns.
 \itemize{
 \item \code{effect}: the effect of the interaction; upregulating = +1, downregulating = -1.
-By default, sampled from {-1, 1} with probabilities {.25, .75}.
+By default, sampled from \{-1, 1\} with probabilities \{.25, .75\}.
 \item \code{strength}: the strength of the interaction. Default distribution: 10^U(0, 2).
 \item \code{hill}: the hill coefficient. Default distribution: N(2, 2) with a minimum of 1 and a maximum of 10.
 }
 }
 \examples{
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     kinetics_params = kinetics_default()
@@ -68,7 +68,7 @@ model <-
 
 \donttest{
 data("example_model")
-model <- example_model \%>\%
+model <- example_model |>
   generate_kinetics()
 }
 }
