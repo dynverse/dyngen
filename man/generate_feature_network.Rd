@@ -36,16 +36,16 @@ by the previously generated TFs, and also a separate network of housekeeping gen
 \code{\link[=feature_network_default]{feature_network_default()}} is used to configure parameters pertaining this process.
 }
 \examples{
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     feature_network = feature_network_default(damping = 0.1)
   )
-  
+
 \donttest{
 data("example_model")
-model <- example_model \%>\%
-  generate_tf_network() \%>\% 
+model <- example_model |>
+  generate_tf_network() |>
   generate_feature_network()
 
 plot_feature_network(model)

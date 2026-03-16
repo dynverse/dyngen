@@ -2,7 +2,7 @@ Type: Package
 Package: dyngen
 Title: A Multi-Modal Simulator for Spearheading Single-Cell
     Omics Analyses
-Version: 1.0.6
+Version: 1.1.0
 Authors@R: 
     c(person(given = "Robrecht",
              family = "Cannoodt",
@@ -24,7 +24,7 @@ License: MIT + file LICENSE
 URL: https://dyngen.dynverse.org, https://github.com/dynverse/dyngen
 BugReports: https://github.com/dynverse/dyngen/issues
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Imports:
     assertthat,
     dplyr (>= 1.1.0),
@@ -46,6 +46,7 @@ Imports:
     tibble,
     tidygraph,
     tidyr,
+    tidyselect,
     utils,
     viridis
 Suggests:

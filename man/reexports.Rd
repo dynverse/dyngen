@@ -6,7 +6,6 @@
 \alias{ssa_etl}
 \alias{ssa_exact}
 \alias{ode_em}
-\alias{\%>\%}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -15,7 +14,5 @@ below to see their documentation.
 
 \describe{
   \item{GillespieSSA2}{\code{\link[GillespieSSA2]{ode_em}}, \code{\link[GillespieSSA2]{ssa_etl}}, \code{\link[GillespieSSA2]{ssa_exact}}}
-
-  \item{purrr}{\code{\link[purrr:pipe]{\%>\%}}}
 }}
 

@@ -7,7 +7,7 @@
 plot_gold_simulations(
   model,
   detailed = FALSE,
-  mapping = aes_string("comp_1", "comp_2"),
+  mapping = aes(.data$comp_1, .data$comp_2),
   highlight = 0
 )
 }

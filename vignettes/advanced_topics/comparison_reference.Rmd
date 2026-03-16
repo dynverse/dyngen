@@ -164,7 +164,9 @@ set.seed(1)
 
 data("realcounts", package = "dyngen")
 name_realcounts <- "zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca"
-url_realcounts <- realcounts %>% filter(name == name_realcounts) %>% pull(url)
+url_realcounts <- realcounts %>%
+  filter(name == name_realcounts) %>%
+  pull(url)
 realcount <- dyngen:::.download_cacheable_file(url_realcounts, getOption("dyngen_download_cache_dir"), verbose = FALSE)
 ```
 
@@ -214,8 +216,8 @@ config <-
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
       total_time = 1000,
-      census_interval = 2, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 2,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     ),
     experiment_params = experiment_snapshot(
@@ -242,8 +244,8 @@ datasets <- list(
 
 ddsList <- lapply(datasets, function(ds) {
   DESeq2::DESeqDataSetFromMatrix(
-    countData = round(as.matrix(ds)), 
-    colData = data.frame(sample = seq_len(ncol(ds))), 
+    countData = round(as.matrix(ds)),
+    colData = data.frame(sample = seq_len(ncol(ds))),
     design = ~1
   )
 })
@@ -260,8 +262,8 @@ library(countsimQC)
 nDatasets <- length(ddsList)
 colRow <- c(2, 1)
 panelSize <- 4
-thm <- 
-  theme_bw() + 
+thm <-
+  theme_bw() +
   theme(
     axis.text = element_text(size = 15),
     axis.title = element_text(size = 14),
@@ -301,8 +303,8 @@ featureDF <- map2_df(obj, names(obj), function(x, dataset_name) {
     Common = sqrt(x$dge$common.dispersion),
     Trend = sqrt(x$dge$trended.dispersion),
     AveLogCPM = x$dge$AveLogCPM,
-    AveLogCPMDisp = x$dge$AveLogCPMDisp, 
-    average_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, mean), 
+    AveLogCPMDisp = x$dge$AveLogCPMDisp,
+    average_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, mean),
     variance_log2_cpm = apply(edgeR::cpm(x$dge, prior.count = 2, log = TRUE), 1, var),
     Fraczero = rowMeans(x$dge$counts == 0),
     dispGeneEst = rd$dispGeneEst,
@@ -337,19 +339,23 @@ each data set.
 Number of samples (columns)
 
 ```{r nSamples, fig.width = 10, fig.height = 7}
-ggplot(datasetDF, aes(x = dataset, y = nSamples, fill = dataset)) + 
-  geom_bar(stat = "identity", alpha = 0.5) + 
-  xlab("") + ylab("Number of samples (columns)") + 
-  thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+ggplot(datasetDF, aes(x = dataset, y = nSamples, fill = dataset)) +
+  geom_bar(stat = "identity", alpha = 0.5) +
+  xlab("") +
+  ylab("Number of samples (columns)") +
+  thm +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
 Number of features (rows)
 
 ```{r nVariables, fig.width = 10, fig.height = 7}
-ggplot(datasetDF, aes(x = dataset, y = nVars, fill = dataset)) + 
-  geom_bar(stat = "identity", alpha = 0.5) + 
-  xlab("") + ylab("Number of features (rows)") + 
-  thm + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+ggplot(datasetDF, aes(x = dataset, y = nVars, fill = dataset)) +
+  geom_bar(stat = "identity", alpha = 0.5) +
+  xlab("") +
+  ylab("Number of features (rows)") +
+  thm +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
 ## Dispersion/BCV plots {.tabset .tabset-pills}
@@ -372,14 +378,17 @@ estimates. For further information about the dispersion estimation in `edgeR`,
 see @Chen2014Dispersion.
 
 ```{r BCVedgeR, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureDF %>% dplyr::arrange(AveLogCPMDisp), 
-       aes(x = AveLogCPMDisp, y = Tagwise)) + 
-  geom_point(size = 0.25, alpha = 0.5) + 
-  facet_wrap(~dataset, nrow = colRow[2]) + 
-  geom_line(aes(y = Trend), color = "blue", size = 1.5) + 
+ggplot(
+  featureDF %>% dplyr::arrange(AveLogCPMDisp),
+  aes(x = AveLogCPMDisp, y = Tagwise)
+) +
+  geom_point(size = 0.25, alpha = 0.5) +
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  geom_line(aes(y = Trend), color = "blue", size = 1.5) +
   geom_line(aes(y = Common), color = "red", size = 1.5) +
-  geom_text(data = datasetDF, aes(label = prior_df)) + 
-  xlab("Average log CPM") + ylab("Biological coefficient of variation") + 
+  geom_text(data = datasetDF, aes(label = prior_df)) +
+  xlab("Average log CPM") +
+  ylab("Biological coefficient of variation") +
   thm
 ```
 
@@ -392,13 +401,18 @@ estimates.For further information about the dispersion estimation in `DESeq2`,
 see @Love2014DESeq2.
 
 ```{r dispersionDESeq2, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureDF %>% dplyr::arrange(baseMeanDisp), 
-       aes(x = baseMeanDisp, y = dispGeneEst)) + 
-  geom_point(size = 0.25, alpha = 0.5) + 
-  facet_wrap(~dataset, nrow = colRow[2]) + scale_x_log10() + scale_y_log10() +  
-  geom_point(aes(y = dispFinal), color = "lightblue", shape = 21) + 
-  geom_line(aes(y = dispFit), color = "red", size = 1.5) + 
-  xlab("Base mean") + ylab("Dispersion") + 
+ggplot(
+  featureDF %>% dplyr::arrange(baseMeanDisp),
+  aes(x = baseMeanDisp, y = dispGeneEst)
+) +
+  geom_point(size = 0.25, alpha = 0.5) +
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  scale_x_log10() +
+  scale_y_log10() +
+  geom_point(aes(y = dispFinal), color = "lightblue", shape = 21) +
+  geom_line(aes(y = dispFit), color = "red", size = 1.5) +
+  xlab("Base mean") +
+  ylab("Dispersion") +
   thm
 ```
 
@@ -414,10 +428,11 @@ calculated using the `cpm` function from
 [@Robinson2010edgeR], with a prior count of 2.
 
 ```{r meanVarSepScatter, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureDF, aes(x = average_log2_cpm, y = variance_log2_cpm)) + 
-  geom_point(size = 0.75, alpha = 0.5) + 
-  facet_wrap(~dataset, nrow = colRow[2]) + 
-  xlab("Mean of log2(CPM)") + ylab("Variance of log2(CPM)") + 
+ggplot(featureDF, aes(x = average_log2_cpm, y = variance_log2_cpm)) +
+  geom_point(size = 0.75, alpha = 0.5) +
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Mean of log2(CPM)") +
+  ylab("Variance of log2(CPM)") +
   thm
 ```
 
@@ -427,9 +442,11 @@ This plot shows a histogram of the total read count per sample,
 i.e., the column sums of the respective data matrices.
 
 ```{r libsizeSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(sampleDF, aes(x = Libsize)) + geom_histogram(bins = 30) + 
+ggplot(sampleDF, aes(x = Libsize)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Library size") + thm
+  xlab("Library size") +
+  thm
 ```
 
 ## TMM normalization factors {.tabset .tabset-pills}
@@ -441,9 +458,11 @@ calculated by
 [@Robinson2010edgeR].
 
 ```{r tmmSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(sampleDF, aes(x = TMM)) + geom_histogram(bins = 30) + 
+ggplot(sampleDF, aes(x = TMM)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("TMM normalization factor") + thm
+  xlab("TMM normalization factor") +
+  thm
 ```
 
 ## Effective library sizes {.tabset .tabset-pills}
@@ -453,9 +472,11 @@ the total count per sample multiplied by the corresponding TMM normalization
 factor.
 
 ```{r effLibsizeSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(sampleDF, aes(x = EffLibsize)) + geom_histogram(bins = 30) + 
+ggplot(sampleDF, aes(x = EffLibsize)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Effective library size") + thm
+  xlab("Effective library size") +
+  thm
 ```
 
 ## Expression distributions (average log CPM) {.tabset .tabset-pills}
@@ -464,9 +485,11 @@ This plot shows the distribution of average abundance values for
 the features. The abundances are log CPM values calculated by `edgeR`.
 
 ```{r logCPMSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureDF, aes(x = AveLogCPM)) + geom_histogram(bins = 30) + 
+ggplot(featureDF, aes(x = AveLogCPM)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Average log CPM") + thm
+  xlab("Average log CPM") +
+  thm
 ```
 
 ## Fraction zeros per sample {.tabset .tabset-pills}
@@ -475,9 +498,11 @@ This plot shows the distribution of the fraction of zeros observed per sample
 (column) in the count matrices.
 
 ```{r fraczeroSampleSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(sampleDF, aes(x = Fraczero)) + geom_histogram(bins = 30) + 
+ggplot(sampleDF, aes(x = Fraczero)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Fraction zeros per sample") + thm
+  xlab("Fraction zeros per sample") +
+  thm
 ```
 
 ## Fraction zeros per feature {.tabset .tabset-pills}
@@ -486,9 +511,11 @@ This plot illustrates the distribution of the fraction of zeros observed per
 feature (row) in the count matrices.
 
 ```{r fraczeroFeatureSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureDF, aes(x = Fraczero)) + geom_histogram(bins = 30) + 
+ggplot(featureDF, aes(x = Fraczero)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Fraction zeros per feature") + thm
+  xlab("Fraction zeros per feature") +
+  thm
 ```
 
 ## Sample-sample correlations {.tabset .tabset-pills}
@@ -498,9 +525,11 @@ pairs of samples, calculated from the log(CPM) values obtained via the `cpm`
 function from `edgeR`, with a prior.count of 2. 
 
 ```{r sampleCorrSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(sampleCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) + 
+ggplot(sampleCorrDF, aes(x = Correlation)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Sample-sample correlation") + thm
+  xlab("Sample-sample correlation") +
+  thm
 ```
 
 ## Feature-feature correlations {.tabset .tabset-pills}
@@ -511,9 +540,11 @@ function from `edgeR`, with a prior.count of 2. Only non-constant features are
 considered.
 
 ```{r featureCorrSepHist, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureCorrDF, aes(x = Correlation)) + geom_histogram(bins = 30) + 
+ggplot(featureCorrDF, aes(x = Correlation)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~dataset, nrow = colRow[2]) +
-  xlab("Feature-feature correlation") + thm
+  xlab("Feature-feature correlation") +
+  thm
 ```
 
 ## Library size vs fraction zeros {.tabset .tabset-pills}
@@ -522,10 +553,12 @@ This scatter plot shows the association between the total count (column sums)
 and the fraction of zeros observed per sample.
 
 ```{r libsizeFraczeroSepScatter, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(sampleDF, aes(x = Libsize, y = Fraczero)) + 
-  geom_point(size = 1, alpha = 0.5) + 
-  facet_wrap(~dataset, nrow = colRow[2]) + 
-  xlab("Library size") + ylab("Fraction zeros") + thm
+ggplot(sampleDF, aes(x = Libsize, y = Fraczero)) +
+  geom_point(size = 1, alpha = 0.5) +
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Library size") +
+  ylab("Fraction zeros") +
+  thm
 ```
 
 ## Mean expression vs fraction zeros {.tabset .tabset-pills}
@@ -535,10 +568,12 @@ fraction of zeros observed per feature. The abundance is defined as the
 log(CPM) values as calculated by `edgeR`.
 
 ```{r logCPMFraczeroSepScatter, fig.width = panelSize * colRow[1], fig.height = panelSize * colRow[2]}
-ggplot(featureDF, aes(x = AveLogCPM, y = Fraczero)) + 
-  geom_point(size = 0.75, alpha = 0.5) + 
-  facet_wrap(~dataset, nrow = colRow[2]) + 
-  xlab("Average log CPM") + ylab("Fraction zeros") + thm
+ggplot(featureDF, aes(x = AveLogCPM, y = Fraczero)) +
+  geom_point(size = 0.75, alpha = 0.5) +
+  facet_wrap(~dataset, nrow = colRow[2]) +
+  xlab("Average log CPM") +
+  ylab("Fraction zeros") +
+  thm
 ```
 
 ## References

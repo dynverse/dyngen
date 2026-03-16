@@ -32,13 +32,13 @@ drive the dynamic process a cell undergoes.
 \code{\link[=tf_network_default]{tf_network_default()}} is used to configure parameters pertaining this process.
 }
 \examples{
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating()
   )
-model <- model \%>\%
-  generate_tf_network() 
-  
+model <- model |>
+  generate_tf_network()
+
 \donttest{
 plot_feature_network(model)
 }

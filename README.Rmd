@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.path = "man/figures/README_", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
+knitr::opts_chunk$set(fig.path = "man/figures/README_", warning = FALSE, message = FALSE, error = FALSE, echo = TRUE)
 
 library(tidyverse)
 submission_to_cran <- FALSE
@@ -42,13 +42,13 @@ vign <- list.files("vignettes", pattern = "*.Rmd", recursive = TRUE)
 walk(
   c(vign[!grepl("^advan", vign)], vign[grepl("^advan", vign)]),
   function(file) {
-    title <- 
-      read_lines(paste0("vignettes/", file)) %>% 
-      keep(~grepl("^title: ", .)) %>% 
+    title <-
+      read_lines(paste0("vignettes/", file)) %>%
+      keep(~ grepl("^title: ", .)) %>%
       gsub("title: \"(.*)\"", "\\1", .)
     vignette_name <- gsub("\\.Rmd", "", file)
     html_name <- gsub("\\.Rmd", ".html", file)
-    
+
     cat("* [", title, "](https://dyngen.dynverse.org/articles/", html_name, ")\n", sep = "")
   }
 )

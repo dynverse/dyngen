@@ -30,10 +30,10 @@ test_that("Testing normal use case of backbone creation", {
     module_network = module_network,
     expression_patterns = expression_patterns
   )
-  
+
   expect_is(backbone, "list")
   expect_named(backbone, c("module_info", "module_network", "expression_patterns"))
-  
+
   expect_is(backbone$module_info, "data.frame")
   expect_named(backbone$module_info, c("module_id", "basal", "burn", "independence", "color"))
   expect_equal(backbone$module_info$module_id, c("A", "B"))
@@ -41,14 +41,14 @@ test_that("Testing normal use case of backbone creation", {
   expect_equal(backbone$module_info$burn, c(TRUE, FALSE))
   expect_equal(backbone$module_info$independence, c(.4, .5))
   expect_is(backbone$module_info$color, "character")
-  
+
   expect_is(backbone$module_network, "data.frame")
   expect_equal(backbone$module_network$from, c("A", "A"))
   expect_equal(backbone$module_network$to, c("A", "B"))
   expect_equal(backbone$module_network$effect, c(-1L, 1L))
   expect_equal(backbone$module_network$strength, c(10, 1))
   expect_equal(backbone$module_network$hill, c(2, 3))
-  
+
   expect_is(backbone$expression_patterns, "data.frame")
   expect_equal(backbone$expression_patterns$from, c("burn", "start"))
   expect_equal(backbone$expression_patterns$to, c("start", "end"))
@@ -65,10 +65,10 @@ test_that("Testing normal use case of backbone creation", {
 #     module_network = module_network,
 #     expression_patterns = expression_patterns
 #   )
-#   
+#
 #   # expect_is(backbone, "list")
 #   # expect_named(backbone, c("module_info", "module_network", "expression_patterns"))
-#   # 
+#   #
 #   # expect_is(backbone$module_info, "data.frame")
 #   # expect_named(backbone$module_info, c("module_id", "basal", "burn", "independence", "color"))
 #   # expect_equal(backbone$module_info$module_id, c("A", "B"))
@@ -76,14 +76,14 @@ test_that("Testing normal use case of backbone creation", {
 #   # expect_equal(backbone$module_info$burn, c(TRUE, FALSE))
 #   # expect_equal(backbone$module_info$independence, c(.4, .5))
 #   # expect_is(backbone$module_info$color, "character")
-#   # 
+#   #
 #   # expect_is(backbone$module_network, "data.frame")
 #   # expect_equal(backbone$module_network$from, c("A", "A"))
 #   # expect_equal(backbone$module_network$to, c("A", "B"))
 #   # expect_equal(backbone$module_network$effect, c(-1L, 1L))
 #   # expect_equal(backbone$module_network$strength, c(10, 1))
 #   # expect_equal(backbone$module_network$hill, c(2, 3))
-#   # 
+#   #
 #   # expect_is(backbone$expression_patterns, "data.frame")
 #   # expect_equal(backbone$expression_patterns$from, c("burn", "start"))
 #   # expect_equal(backbone$expression_patterns$to, c("start", "end"))

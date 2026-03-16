@@ -60,7 +60,7 @@ By default, sampled from \{-1, 1\} with probabilities \{.25, .75\}.
 }
 }
 \examples{
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating(),
     kinetics_params = kinetics_default()
@@ -68,7 +68,7 @@ model <-
 
 \donttest{
 data("example_model")
-model <- example_model \%>\%
+model <- example_model |>
   generate_kinetics()
 }
 }

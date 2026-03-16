@@ -39,12 +39,12 @@ with \pkg{dyngen}. In order to have more control over how the dataset
 is generated, run each of the steps in this function separately.
 }
 \examples{
-model <- 
+model <-
   initialise_model(
     backbone = backbone_bifurcating()
   )
 \dontshow{
-# actually use a smaller example 
+# actually use a smaller example
 # to reduce execution time during
 # testing of the examples
 model <- initialise_model(

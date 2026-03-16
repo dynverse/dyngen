@@ -1,20 +1,14 @@
 .generate_partitions <- function(num_elements, num_groups, min_elements_per_group) {
-  # satisfy r cmd check
-  `.` <- NULL
-  
   assert_that(
-    min_elements_per_group >= 0, 
+    min_elements_per_group >= 0,
     num_groups * min_elements_per_group <= num_elements
   )
-  
-  sample(
-    seq(0, num_elements - num_groups * min_elements_per_group),
-    num_groups - 1,
-    replace = TRUE
-  ) %>% 
-    sort() %>% 
-    c(0, ., num_elements - num_groups * min_elements_per_group) %>% 
-    diff() %>% 
-    { . + min_elements_per_group} %>% 
+
+  free <- num_elements - num_groups * min_elements_per_group
+  sample(seq(0, free), num_groups - 1, replace = TRUE) |>
+    sort() |>
+    (\(x) c(0, x, free))() |>
+    diff() |>
+    (\(x) x + min_elements_per_group)() |>
     as.integer()
 }

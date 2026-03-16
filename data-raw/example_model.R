@@ -1,11 +1,12 @@
 library(tidyverse)
+library(dyngen)
 
 set.seed(1)
 
 backbone <- backbone_bifurcating()
 total_time <- simtime_from_backbone(backbone)
 
-out <- 
+out <-
   initialise_model(
     backbone = backbone,
     num_tfs = nrow(backbone$module_info),
@@ -21,18 +22,18 @@ out <-
       compute_cellwise_grn = TRUE,
       compute_rna_velocity = TRUE
     )
-  ) %>% 
+  ) %>%
   generate_dataset(format = "none")
 
 example_model <- out$model
 example_model$num_cores <- 1L
 example_model$download_cache_dir <- NULL
 
-map_df(
-  names(example_model),
-  function(nm) {
-    tibble(name = nm, size = (pryr::object_size(example_model[[nm]])))
-  }
-) %>% arrange(size)
+# map_df(
+#   names(example_model),
+#   function(nm) {
+#     tibble(name = nm, size = (pryr::object_size(example_model[[nm]])))
+#   }
+# ) %>% arrange(size)
 
 usethis::use_data(example_model, compress = "xz", overwrite = TRUE)

@@ -31,13 +31,13 @@ test_that("output contains the desired objects", {
   expected_names <- c(
     "cell_ids", "feature_ids", "counts", "counts_spliced", "counts_unspliced",
     "counts_protein", "expression", "cell_info", "feature_info", "milestone_ids",
-    "milestone_network", "progressions", "milestone_percentages", "dimred", 
+    "milestone_network", "progressions", "milestone_percentages", "dimred",
     "dimred_segment_points", "dimred_segment_progressions", "regulatory_network",
     "regulatory_network_sc", "regulators", "targets", "rna_velocity"
   )
   expect_true(all(expected_names %in% names(dataset)))
   expect_true(all(sapply(expected_names, function(nam) !is.null(dataset[[nam]]))))
-  
+
   # simple checks
   expect_is(dataset$counts, "Matrix")
   expect_equal(dataset$cell_ids, rownames(dataset$counts))
@@ -50,7 +50,7 @@ skip_on_cran()
 test_that("check plot", {
   expect_is(out$plot, "ggplot")
 })
-  
+
 
 test_that("test converting to SCE", {
   skip_if(!requireNamespace("SingleCellExperiment", quietly = TRUE))
@@ -66,25 +66,26 @@ test_that("test converting to Seurat", {
 
 test_that("test converting to anndata", {
   skip_if(!requireNamespace("anndata", quietly = TRUE))
-  
+
   # check if python anndata is installed
   py_anndata_available <-
-    tryCatch({
-      anndata::AnnData()
-      TRUE
-    }, error = function(e) {
-      FALSE
-    })
+    tryCatch(
+      {
+        anndata::AnnData()
+        TRUE
+      },
+      error = function(e) {
+        FALSE
+      }
+    )
   skip_if(!py_anndata_available)
-  
+
   ad <- as_anndata(out$model)
   expect_equal(dim(ad$X), dim(out$dataset$counts))
 })
-  
+
 test_that("test converting to dyno", {
   skip_if(!requireNamespace("dynwrap", quietly = TRUE))
   dataset <- as_dyno(out$model)
   expect_equal(dim(dataset$counts), dim(out$dataset$counts))
 })
-
-
