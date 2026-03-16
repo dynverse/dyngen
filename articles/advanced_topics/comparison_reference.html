@@ -6,20 +6,17 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Advanced: Comparison to reference dataset • dyngen</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- favicons --><link rel="icon" type="image/png" sizes="48x48" href="../../favicon-48x48.png">
+<link rel="icon" type="”image/svg+xml”" href="../../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../../favicon.ico">
+<link rel="manifest" href="../../site.webmanifest">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../../bootstrap-toc.css">
 <script src="../../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
 <script src="../../pkgdown.js"></script><meta property="og:title" content="Advanced: Comparison to reference dataset">
-<meta property="og:description" content="dyngen">
-<meta property="og:image" content="https://dyngen.dynverse.org/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -32,7 +29,7 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -46,7 +43,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -58,7 +55,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -105,7 +102,7 @@
 <li>
   <a href="https://github.com/dynverse/dyngen/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -116,15 +113,15 @@
 </div>
 <!--/.navbar -->
 
-      
 
-      </header><script src="comparison_reference_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced: Comparison to reference dataset</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/HEAD/vignettes/advanced_topics/comparison_reference.Rmd" class="external-link"><code>vignettes/advanced_topics/comparison_reference.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/vignettes/advanced_topics/comparison_reference.Rmd" class="external-link"><code>vignettes/advanced_topics/comparison_reference.Rmd</code></a></small>
       <div class="hidden name"><code>comparison_reference.Rmd</code></div>
 
     </div>
@@ -134,11 +131,17 @@
 <!-- github markdown built using 
 rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_format = rmarkdown::github_document(html_preview = FALSE))
 -->
-<p>In this vignette, we will take a look at characteristic features of dyngen versus the reference dataset it uses. To this end, we’ll be using <a href="https://www.bioconductor.org/packages/release/bioc/html/countsimQC.html" class="external-link"><code>countsimQC</code></a> <span class="citation">(Soneson and Robinson 2018)</span> to calculate key statistics of both datasets and create comparative visualisations.</p>
+<p>In this vignette, we will take a look at characteristic features of
+dyngen versus the reference dataset it uses. To this end, we’ll be using
+<a href="https://www.bioconductor.org/packages/release/bioc/html/countsimQC.html" class="external-link"><code>countsimQC</code></a>
+<span class="citation">(Soneson and Robinson 2018)</span> to calculate
+key statistics of both datasets and create comparative
+visualisations.</p>
 <div class="section level2">
 <h2 id="run-dyngen-simulation">Run dyngen simulation<a class="anchor" aria-label="anchor" href="#run-dyngen-simulation"></a>
 </h2>
-<p>We use an internal function from the dyngen package to download and cache one of the reference datasets.</p>
+<p>We use an internal function from the dyngen package to download and
+cache one of the reference datasets.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dyngen.dynverse.org">dyngen</a></span><span class="op">)</span></span>
@@ -147,9 +150,12 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"realcounts"</span>, package <span class="op">=</span> <span class="st">"dyngen"</span><span class="op">)</span></span>
 <span><span class="va">name_realcounts</span> <span class="op">&lt;-</span> <span class="st">"zenodo_1443566_real_silver_bone-marrow-mesenchyme-erythrocyte-differentiation_mca"</span></span>
-<span><span class="va">url_realcounts</span> <span class="op">&lt;-</span> <span class="va">realcounts</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">name</span> <span class="op">==</span> <span class="va">name_realcounts</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span></span>
+<span><span class="va">url_realcounts</span> <span class="op">&lt;-</span> <span class="va">realcounts</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">name</span> <span class="op">==</span> <span class="va">name_realcounts</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span></span>
 <span><span class="va">realcount</span> <span class="op">&lt;-</span> <span class="fu">dyngen</span><span class="fu">:::</span><span class="fu">.download_cacheable_file</span><span class="op">(</span><span class="va">url_realcounts</span>, <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"dyngen_download_cache_dir"</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>We run a simple dyngen dataset as follows, where the number of cells and genes are determined by the size of the reference dataset.</p>
+<p>We run a simple dyngen dataset as follows, where the number of cells
+and genes are determined by the size of the reference dataset.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/backbone_models.html">backbone_bifurcating_loop</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -192,8 +198,8 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span>    download_cache_dir <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"dyngen"</span>, <span class="st">"data"</span><span class="op">)</span>,</span>
 <span>    simulation_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_default</a></span><span class="op">(</span></span>
 <span>      total_time <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>      census_interval <span class="op">=</span> <span class="fl">2</span>, </span>
-<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GillespieSSA2/man/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span><span class="op">/</span><span class="fl">3600</span><span class="op">)</span>,</span>
+<span>      census_interval <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>      ssa_algorithm <span class="op">=</span> <span class="fu"><a href="https://rcannood.github.io/GillespieSSA2/reference/ssa_etl.html" class="external-link">ssa_etl</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="fl">300</span> <span class="op">/</span> <span class="fl">3600</span><span class="op">)</span>,</span>
 <span>      experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_cells.html">simulation_type_wild_type</a></span><span class="op">(</span>num_simulations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    experiment_params <span class="op">=</span> <span class="fu"><a href="../../reference/generate_experiment.html">experiment_snapshot</a></span><span class="op">(</span></span>
@@ -204,7 +210,7 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/generate_dataset.html">generate_dataset</a></span><span class="op">(</span><span class="va">config</span>, make_plots <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/dyngen_generate-1.png" width="1152"></p>
+<p><img src="comparison_reference_files/figure-html/dyngen_generate-1.png" class="r-plt" alt="" width="1152"></p>
 <p>Both datasets are stored in a list for easy usage by countsimQC.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">datasets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -214,8 +220,8 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span></span>
 <span><span class="va">ddsList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">datasets</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ds</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">DESeq2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html" class="external-link">DESeqDataSetFromMatrix</a></span><span class="op">(</span></span>
-<span>    countData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">ds</span><span class="op">)</span><span class="op">)</span>, </span>
-<span>    colData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">ds</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>    countData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">ds</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    colData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">ds</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    design <span class="op">=</span> <span class="op">~</span><span class="fl">1</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
@@ -223,7 +229,9 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <div class="section level2">
 <h2 id="run-countsimqc-computations">Run countsimQC computations<a class="anchor" aria-label="anchor" href="#run-countsimqc-computations"></a>
 </h2>
-<p>Below are some computations countsimQC makes. Normally these are not visible to the user, but for the sake of transparency these are included in the vignette.</p>
+<p>Below are some computations countsimQC makes. Normally these are not
+visible to the user, but for the sake of transparency these are included
+in the vignette.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/countsimQC" class="external-link">countsimQC</a></span><span class="op">)</span></span>
 <span></span>
@@ -231,8 +239,8 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span><span class="va">nDatasets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ddsList</span><span class="op">)</span></span>
 <span><span class="va">colRow</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">panelSize</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
-<span><span class="va">thm</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span><span class="va">thm</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
 <span>    axis.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span>
 <span>    axis.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span>,</span>
@@ -247,7 +255,7 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span><span class="va">featureCorrDF</span> <span class="op">&lt;-</span> <span class="fu">countsimQC</span><span class="fu">:::</span><span class="fu"><a href="https://rdrr.io/pkg/countsimQC/man/calculateFeatureCorrs.html" class="external-link">calculateFeatureCorrs</a></span><span class="op">(</span>ddsList <span class="op">=</span> <span class="va">obj</span>, maxNForCorr <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></code></pre></div>
 <p>Summarize sample characteristics</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sampleDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2_df</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dataset_name</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">sampleDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map2_df</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dataset_name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    dataset <span class="op">=</span> <span class="va">dataset_name</span>,</span>
 <span>    Libsize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span>,</span>
@@ -258,7 +266,7 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <p>Summarize feature characteristics</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">featureDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2_df</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dataset_name</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">featureDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map2_df</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dataset_name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">rd</span> <span class="op">&lt;-</span> <span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dds</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    dataset <span class="op">=</span> <span class="va">dataset_name</span>,</span>
@@ -266,8 +274,8 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span>    Common <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">common.dispersion</span><span class="op">)</span>,</span>
 <span>    Trend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">trended.dispersion</span><span class="op">)</span>,</span>
 <span>    AveLogCPM <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">AveLogCPM</span>,</span>
-<span>    AveLogCPMDisp <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">AveLogCPMDisp</span>, </span>
-<span>    average_log2_cpm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">edgeR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/cpm.html" class="external-link">cpm</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span>, prior.count <span class="op">=</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">1</span>, <span class="va">mean</span><span class="op">)</span>, </span>
+<span>    AveLogCPMDisp <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">AveLogCPMDisp</span>,</span>
+<span>    average_log2_cpm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">edgeR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/cpm.html" class="external-link">cpm</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span>, prior.count <span class="op">=</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">1</span>, <span class="va">mean</span><span class="op">)</span>,</span>
 <span>    variance_log2_cpm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">edgeR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/cpm.html" class="external-link">cpm</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span>, prior.count <span class="op">=</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">1</span>, <span class="va">var</span><span class="op">)</span>,</span>
 <span>    Fraczero <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">counts</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>    dispGeneEst <span class="op">=</span> <span class="va">rd</span><span class="op">$</span><span class="va">dispGeneEst</span>,</span>
@@ -279,7 +287,7 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <p>Summarize data set characteristics</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">datasetDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2_df</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dataset_name</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">datasetDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map2_df</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">dataset_name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    dataset <span class="op">=</span> <span class="va">dataset_name</span>,</span>
 <span>    prior_df <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"prior.df = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">dge</span><span class="op">$</span><span class="va">prior.df</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -291,192 +299,280 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="data-set-dimensions">Data set dimensions<a class="anchor" aria-label="anchor" href="#data-set-dimensions"></a>
+<h2 class="tabset tabset-pills" id="data-set-dimensions">Data set dimensions<a class="anchor" aria-label="anchor" href="#data-set-dimensions"></a>
 </h2>
-<p>These bar plots show the number of samples (columns) and features (rows) in each data set.</p>
+<p>These bar plots show the number of samples (columns) and features
+(rows) in each data set.</p>
 <p>Number of samples (columns)</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">datasetDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dataset</span>, y <span class="op">=</span> <span class="va">nSamples</span>, fill <span class="op">=</span> <span class="va">dataset</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"identity"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Number of samples (columns)"</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="va">thm</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, hjust <span class="op">=</span> <span class="fl">1</span>, vjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/nSamples-1.png" width="960"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">datasetDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dataset</span>, y <span class="op">=</span> <span class="va">nSamples</span>, fill <span class="op">=</span> <span class="va">dataset</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"identity"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Number of samples (columns)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, hjust <span class="op">=</span> <span class="fl">1</span>, vjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/nSamples-1.png" class="r-plt" alt="" width="960"></p>
 <p>Number of features (rows)</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">datasetDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dataset</span>, y <span class="op">=</span> <span class="va">nVars</span>, fill <span class="op">=</span> <span class="va">dataset</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"identity"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Number of features (rows)"</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="va">thm</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, hjust <span class="op">=</span> <span class="fl">1</span>, vjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/nVariables-1.png" width="960"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">datasetDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dataset</span>, y <span class="op">=</span> <span class="va">nVars</span>, fill <span class="op">=</span> <span class="va">dataset</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"identity"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Number of features (rows)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span>, hjust <span class="op">=</span> <span class="fl">1</span>, vjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/nVariables-1.png" class="r-plt" alt="" width="960"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="dispersionbcv-plots">Dispersion/BCV plots<a class="anchor" aria-label="anchor" href="#dispersionbcv-plots"></a>
+<h2 class="tabset tabset-pills" id="dispersionbcv-plots">Dispersion/BCV plots<a class="anchor" aria-label="anchor" href="#dispersionbcv-plots"></a>
 </h2>
-<p>Disperson/BCV plots show the association between the average abundance and the dispersion or “biological coefficient of variation” (sqrt(dispersion)), as calculated by <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html" class="external-link"><code>edgeR</code></a> <span class="citation">(Robinson, McCarthy, and Smyth 2010)</span> and <a href="http://bioconductor.org/packages/release/bioc/html/DESeq2.html" class="external-link"><code>DESeq2</code></a> <span class="citation">(Love, Huber, and Anders 2014)</span>. In the <code>edgeR</code> plot, the estimate of the prior degrees of freedom is indicated.</p>
+<p>Disperson/BCV plots show the association between the average
+abundance and the dispersion or “biological coefficient of variation”
+(sqrt(dispersion)), as calculated by <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html" class="external-link"><code>edgeR</code></a>
+<span class="citation">(Robinson, McCarthy, and Smyth 2010)</span> and
+<a href="http://bioconductor.org/packages/release/bioc/html/DESeq2.html" class="external-link"><code>DESeq2</code></a>
+<span class="citation">(Love, Huber, and Anders 2014)</span>. In the
+<code>edgeR</code> plot, the estimate of the prior degrees of freedom is
+indicated.</p>
 <div class="section level3">
 <h3 id="edger">edgeR<a class="anchor" aria-label="anchor" href="#edger"></a>
 </h3>
-<p>The black dots represent the tagwise dispersion estimates, the red line the common dispersion and the blue curve represents the trended dispersion estimates. For further information about the dispersion estimation in <code>edgeR</code>, see <span class="citation">Chen, Lun, and Smyth (2014)</span>.</p>
+<p>The black dots represent the tagwise dispersion estimates, the red
+line the common dispersion and the blue curve represents the trended
+dispersion estimates. For further information about the dispersion
+estimation in <code>edgeR</code>, see <span class="citation">Chen, Lun,
+and Smyth (2014)</span>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">AveLogCPMDisp</span><span class="op">)</span>, </span>
-<span>       <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">AveLogCPMDisp</span>, y <span class="op">=</span> <span class="va">Tagwise</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.25</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">Trend</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"blue"</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
+<span>  <span class="va">featureDF</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">AveLogCPMDisp</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">AveLogCPMDisp</span>, y <span class="op">=</span> <span class="va">Tagwise</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.25</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">Trend</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"blue"</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">Common</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datasetDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">prior_df</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Average log CPM"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Biological coefficient of variation"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">datasetDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">prior_df</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Average log CPM"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Biological coefficient of variation"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/BCVedgeR-1.png" width="768"></p>
+<p><img src="comparison_reference_files/figure-html/BCVedgeR-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="deseq2">DESeq2<a class="anchor" aria-label="anchor" href="#deseq2"></a>
 </h3>
-<p>The black dots are the gene-wise dispersion estimates, the red curve the fitted mean-dispersion relationship and the blue circles represent the final dispersion estimates.For further information about the dispersion estimation in <code>DESeq2</code>, see <span class="citation">Love, Huber, and Anders (2014)</span>.</p>
+<p>The black dots are the gene-wise dispersion estimates, the red curve
+the fitted mean-dispersion relationship and the blue circles represent
+the final dispersion estimates.For further information about the
+dispersion estimation in <code>DESeq2</code>, see <span class="citation">Love, Huber, and Anders (2014)</span>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">baseMeanDisp</span><span class="op">)</span>, </span>
-<span>       <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">baseMeanDisp</span>, y <span class="op">=</span> <span class="va">dispGeneEst</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.25</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>  </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dispFinal</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"lightblue"</span>, shape <span class="op">=</span> <span class="fl">21</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dispFit</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Base mean"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Dispersion"</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
+<span>  <span class="va">featureDF</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">baseMeanDisp</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">baseMeanDisp</span>, y <span class="op">=</span> <span class="va">dispGeneEst</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.25</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dispFinal</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"lightblue"</span>, shape <span class="op">=</span> <span class="fl">21</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dispFit</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Base mean"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Dispersion"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/dispersionDESeq2-1.png" width="768"></p>
+<p><img src="comparison_reference_files/figure-html/dispersionDESeq2-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="mean-variance-plots">Mean-variance plots<a class="anchor" aria-label="anchor" href="#mean-variance-plots"></a>
+<h2 class="tabset tabset-pills" id="mean-variance-plots">Mean-variance plots<a class="anchor" aria-label="anchor" href="#mean-variance-plots"></a>
 </h2>
-<p>This scatter plot shows the relation between the empirical mean and variance of the features. The difference between these mean-variance plots and the mean-dispersion plots above is that the plots in this section do not take the information about the experimental design and sample grouping into account, but simply display the mean and variance of log2(CPM) estimates across all samples, calculated using the <code>cpm</code> function from <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html" class="external-link"><code>edgeR</code></a> <span class="citation">(Robinson, McCarthy, and Smyth 2010)</span>, with a prior count of 2.</p>
+<p>This scatter plot shows the relation between the empirical mean and
+variance of the features. The difference between these mean-variance
+plots and the mean-dispersion plots above is that the plots in this
+section do not take the information about the experimental design and
+sample grouping into account, but simply display the mean and variance
+of log2(CPM) estimates across all samples, calculated using the
+<code>cpm</code> function from <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html" class="external-link"><code>edgeR</code></a>
+<span class="citation">(Robinson, McCarthy, and Smyth 2010)</span>, with
+a prior count of 2.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">average_log2_cpm</span>, y <span class="op">=</span> <span class="va">variance_log2_cpm</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.75</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Mean of log2(CPM)"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Variance of log2(CPM)"</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">average_log2_cpm</span>, y <span class="op">=</span> <span class="va">variance_log2_cpm</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.75</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Mean of log2(CPM)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Variance of log2(CPM)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/meanVarSepScatter-1.png" width="768"></p>
+<p><img src="comparison_reference_files/figure-html/meanVarSepScatter-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="library-sizes">Library sizes<a class="anchor" aria-label="anchor" href="#library-sizes"></a>
+<h2 class="tabset tabset-pills" id="library-sizes">Library sizes<a class="anchor" aria-label="anchor" href="#library-sizes"></a>
 </h2>
-<p>This plot shows a histogram of the total read count per sample, i.e., the column sums of the respective data matrices.</p>
+<p>This plot shows a histogram of the total read count per sample, i.e.,
+the column sums of the respective data matrices.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Libsize</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Libsize</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Library size"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/libsizeSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Library size"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/libsizeSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="tmm-normalization-factors">TMM normalization factors<a class="anchor" aria-label="anchor" href="#tmm-normalization-factors"></a>
+<h2 class="tabset tabset-pills" id="tmm-normalization-factors">TMM normalization factors<a class="anchor" aria-label="anchor" href="#tmm-normalization-factors"></a>
 </h2>
-<p>This plot shows a histogram of the TMM normalization factors <span class="citation">(Robinson and Oshlack 2010)</span>, intended to adjust for differences in RNA composition, as calculated by <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html" class="external-link"><code>edgeR</code></a> <span class="citation">(Robinson, McCarthy, and Smyth 2010)</span>.</p>
+<p>This plot shows a histogram of the TMM normalization factors <span class="citation">(Robinson and Oshlack 2010)</span>, intended to adjust
+for differences in RNA composition, as calculated by <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html" class="external-link"><code>edgeR</code></a>
+<span class="citation">(Robinson, McCarthy, and Smyth 2010)</span>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TMM</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TMM</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"TMM normalization factor"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/tmmSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"TMM normalization factor"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/tmmSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="effective-library-sizes">Effective library sizes<a class="anchor" aria-label="anchor" href="#effective-library-sizes"></a>
+<h2 class="tabset tabset-pills" id="effective-library-sizes">Effective library sizes<a class="anchor" aria-label="anchor" href="#effective-library-sizes"></a>
 </h2>
-<p>This plot shows a histogram of the “effective library sizes”, defined as the total count per sample multiplied by the corresponding TMM normalization factor.</p>
+<p>This plot shows a histogram of the “effective library sizes”, defined
+as the total count per sample multiplied by the corresponding TMM
+normalization factor.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">EffLibsize</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">EffLibsize</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Effective library size"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/effLibsizeSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Effective library size"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/effLibsizeSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="expression-distributions-average-log-cpm">Expression distributions (average log CPM)<a class="anchor" aria-label="anchor" href="#expression-distributions-average-log-cpm"></a>
+<h2 class="tabset tabset-pills" id="expression-distributions-average-log-cpm">Expression distributions (average log
+CPM)<a class="anchor" aria-label="anchor" href="#expression-distributions-average-log-cpm"></a>
 </h2>
-<p>This plot shows the distribution of average abundance values for the features. The abundances are log CPM values calculated by <code>edgeR</code>.</p>
+<p>This plot shows the distribution of average abundance values for the
+features. The abundances are log CPM values calculated by
+<code>edgeR</code>.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">AveLogCPM</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">AveLogCPM</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Average log CPM"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/logCPMSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Average log CPM"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/logCPMSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="fraction-zeros-per-sample">Fraction zeros per sample<a class="anchor" aria-label="anchor" href="#fraction-zeros-per-sample"></a>
+<h2 class="tabset tabset-pills" id="fraction-zeros-per-sample">Fraction zeros per sample<a class="anchor" aria-label="anchor" href="#fraction-zeros-per-sample"></a>
 </h2>
-<p>This plot shows the distribution of the fraction of zeros observed per sample (column) in the count matrices.</p>
+<p>This plot shows the distribution of the fraction of zeros observed
+per sample (column) in the count matrices.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Fraction zeros per sample"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/fraczeroSampleSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Fraction zeros per sample"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/fraczeroSampleSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="fraction-zeros-per-feature">Fraction zeros per feature<a class="anchor" aria-label="anchor" href="#fraction-zeros-per-feature"></a>
+<h2 class="tabset tabset-pills" id="fraction-zeros-per-feature">Fraction zeros per feature<a class="anchor" aria-label="anchor" href="#fraction-zeros-per-feature"></a>
 </h2>
-<p>This plot illustrates the distribution of the fraction of zeros observed per feature (row) in the count matrices.</p>
+<p>This plot illustrates the distribution of the fraction of zeros
+observed per feature (row) in the count matrices.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Fraction zeros per feature"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/fraczeroFeatureSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Fraction zeros per feature"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/fraczeroFeatureSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="sample-sample-correlations">Sample-sample correlations<a class="anchor" aria-label="anchor" href="#sample-sample-correlations"></a>
+<h2 class="tabset tabset-pills" id="sample-sample-correlations">Sample-sample correlations<a class="anchor" aria-label="anchor" href="#sample-sample-correlations"></a>
 </h2>
-<p>The plot below shows the distribution of Spearman correlation coefficients for pairs of samples, calculated from the log(CPM) values obtained via the <code>cpm</code> function from <code>edgeR</code>, with a prior.count of 2.</p>
+<p>The plot below shows the distribution of Spearman correlation
+coefficients for pairs of samples, calculated from the log(CPM) values
+obtained via the <code>cpm</code> function from <code>edgeR</code>, with
+a prior.count of 2.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleCorrDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Correlation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleCorrDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Correlation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Sample-sample correlation"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/sampleCorrSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Sample-sample correlation"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/sampleCorrSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="feature-feature-correlations">Feature-feature correlations<a class="anchor" aria-label="anchor" href="#feature-feature-correlations"></a>
+<h2 class="tabset tabset-pills" id="feature-feature-correlations">Feature-feature correlations<a class="anchor" aria-label="anchor" href="#feature-feature-correlations"></a>
 </h2>
-<p>This plot illustrates the distribution of Spearman correlation coefficients for pairs of features, calculated from the log(CPM) values obtained via the <code>cpm</code> function from <code>edgeR</code>, with a prior.count of 2. Only non-constant features are considered.</p>
+<p>This plot illustrates the distribution of Spearman correlation
+coefficients for pairs of features, calculated from the log(CPM) values
+obtained via the <code>cpm</code> function from <code>edgeR</code>, with
+a prior.count of 2. Only non-constant features are considered.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureCorrDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Correlation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureCorrDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Correlation</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Feature-feature correlation"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/featureCorrSepHist-1.png" width="768"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Feature-feature correlation"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/featureCorrSepHist-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="library-size-vs-fraction-zeros">Library size vs fraction zeros<a class="anchor" aria-label="anchor" href="#library-size-vs-fraction-zeros"></a>
+<h2 class="tabset tabset-pills" id="library-size-vs-fraction-zeros">Library size vs fraction zeros<a class="anchor" aria-label="anchor" href="#library-size-vs-fraction-zeros"></a>
 </h2>
-<p>This scatter plot shows the association between the total count (column sums) and the fraction of zeros observed per sample.</p>
+<p>This scatter plot shows the association between the total count
+(column sums) and the fraction of zeros observed per sample.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Libsize</span>, y <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Library size"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Fraction zeros"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/libsizeFraczeroSepScatter-1.png" width="768"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">sampleDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Libsize</span>, y <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Library size"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Fraction zeros"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/libsizeFraczeroSepScatter-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 tabset tabset-pills">
-<h2 id="mean-expression-vs-fraction-zeros">Mean expression vs fraction zeros<a class="anchor" aria-label="anchor" href="#mean-expression-vs-fraction-zeros"></a>
+<h2 class="tabset tabset-pills" id="mean-expression-vs-fraction-zeros">Mean expression vs fraction zeros<a class="anchor" aria-label="anchor" href="#mean-expression-vs-fraction-zeros"></a>
 </h2>
-<p>This scatter plot shows the association between the average abundance and the fraction of zeros observed per feature. The abundance is defined as the log(CPM) values as calculated by <code>edgeR</code>.</p>
+<p>This scatter plot shows the association between the average abundance
+and the fraction of zeros observed per feature. The abundance is defined
+as the log(CPM) values as calculated by <code>edgeR</code>.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">AveLogCPM</span>, y <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.75</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Average log CPM"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Fraction zeros"</span><span class="op">)</span> <span class="op">+</span> <span class="va">thm</span></span></code></pre></div>
-<p><img src="comparison_reference_files/figure-html/logCPMFraczeroSepScatter-1.png" width="768"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">featureDF</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">AveLogCPM</span>, y <span class="op">=</span> <span class="va">Fraczero</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.75</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">dataset</span>, nrow <span class="op">=</span> <span class="va">colRow</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Average log CPM"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Fraction zeros"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="va">thm</span></span></code></pre></div>
+<p><img src="comparison_reference_files/figure-html/logCPMFraczeroSepScatter-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2 unnumbered">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-Chen2014Dispersion">
-<p>Chen, Yunshun, Aaron TL Lun, and Gordon K Smyth. 2014. “Differential Expression Analysis of Complex RNA-Seq Experiments Using edgeR.” <em>In Statistical Analysis of Next Generation Sequence Data. Somnath Datta and Daniel S Nettleton (Eds), Springer, New York</em>. <a href="https://doi.org/10.1007/978-3-319-07212-8_3" class="external-link">https://doi.org/10.1007/978-3-319-07212-8_3</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-Chen2014Dispersion" class="csl-entry">
+Chen, Yunshun, Aaron TL Lun, and Gordon K Smyth. 2014.
+<span>“Differential Expression Analysis of Complex RNA-Seq Experiments
+Using edgeR.”</span> <em>In Statistical Analysis of Next Generation
+Sequence Data. Somnath Datta and Daniel S Nettleton (Eds), Springer, New
+York</em>. <a href="https://doi.org/10.1007/978-3-319-07212-8_3" class="external-link">https://doi.org/10.1007/978-3-319-07212-8_3</a>.
 </div>
-<div id="ref-Love2014DESeq2">
-<p>Love, Michael I, Wolfgang Huber, and Simon Anders. 2014. “Moderated Estimation of Fold Change and Dispersion for RNA-Seq Data with DESeq2.” <em>Genome Biology</em> 15: 550. <a href="https://doi.org/10.1186/s13059-014-0550-8" class="external-link">https://doi.org/10.1186/s13059-014-0550-8</a>.</p>
+<div id="ref-Love2014DESeq2" class="csl-entry">
+Love, Michael I, Wolfgang Huber, and Simon Anders. 2014.
+<span>“Moderated Estimation of Fold Change and Dispersion for RNA-Seq
+Data with DESeq2.”</span> <em>Genome Biology</em> 15: 550. <a href="https://doi.org/10.1186/s13059-014-0550-8" class="external-link">https://doi.org/10.1186/s13059-014-0550-8</a>.
 </div>
-<div id="ref-Robinson2010edgeR">
-<p>Robinson, Mark D, Davis J McCarthy, and Gordon K Smyth. 2010. “edgeR: A Bioconductor Package for Differential Expression Analysis of Digital Gene Expression Data.” <em>Bioinformatics</em> 26: 139–40. <a href="https://doi.org/10.1093/bioinformatics/btp616" class="external-link">https://doi.org/10.1093/bioinformatics/btp616</a>.</p>
+<div id="ref-Robinson2010edgeR" class="csl-entry">
+Robinson, Mark D, Davis J McCarthy, and Gordon K Smyth. 2010.
+<span>“edgeR: A Bioconductor Package for Differential Expression
+Analysis of Digital Gene Expression Data.”</span>
+<em>Bioinformatics</em> 26: 139–40. <a href="https://doi.org/10.1093/bioinformatics/btp616" class="external-link">https://doi.org/10.1093/bioinformatics/btp616</a>.
 </div>
-<div id="ref-Robinson2010TMM">
-<p>Robinson, Mark D, and Alicia Oshlack. 2010. “A Scaling Normalization Method for Differential Expression Analysis of RNA-Seq Data.” <em>Genome Biology</em> 11: R25. <a href="https://doi.org/10.1186/gb-2010-11-3-r25" class="external-link">https://doi.org/10.1186/gb-2010-11-3-r25</a>.</p>
+<div id="ref-Robinson2010TMM" class="csl-entry">
+Robinson, Mark D, and Alicia Oshlack. 2010. <span>“A Scaling
+Normalization Method for Differential Expression Analysis of RNA-Seq
+Data.”</span> <em>Genome Biology</em> 11: R25. <a href="https://doi.org/10.1186/gb-2010-11-3-r25" class="external-link">https://doi.org/10.1186/gb-2010-11-3-r25</a>.
 </div>
-<div id="ref-Soneson2018">
-<p>Soneson, CharlotteI, and Mark D Robinson. 2018. “Towards Unified Quality Verification of Synthetic Count Data with countsimQC.” <em>Bioinformatics</em> 34: 691–92. <a href="https://doi.org/10.1093/bioinformatics/btx631" class="external-link">https://doi.org/10.1093/bioinformatics/btx631</a>.</p>
+<div id="ref-Soneson2018" class="csl-entry">
+Soneson, CharlotteI, and Mark D Robinson. 2018. <span>“Towards Unified
+Quality Verification of Synthetic Count Data with countsimQC.”</span>
+<em>Bioinformatics</em> 34: 691–92. <a href="https://doi.org/10.1093/bioinformatics/btx631" class="external-link">https://doi.org/10.1093/bioinformatics/btx631</a>.
 </div>
 </div>
 </div>
@@ -484,9 +580,7 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -499,16 +593,16 @@ rmarkdown::render("vignettes/advanced_topics/comparison_reference.Rmd", output_f
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
