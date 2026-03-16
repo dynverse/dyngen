@@ -66,4 +66,4 @@ Encoding: UTF-8
 LazyData: TRUE
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Config/Needs/website: dynverse/dyno, bioc::countsimQC
+Config/Needs/website: dynverse/dyno, bioc::countsimQC, tidyverse
