@@ -9,7 +9,6 @@ editor_options:
 knitr::opts_chunk$set(fig.path = "man/figures/README_", warning = FALSE, message = FALSE, error = FALSE, echo = TRUE)
 
 library(tidyverse)
-submission_to_cran <- FALSE
 ```
 
 # dyngen <img src="man/figures/logo.png" align="right" />

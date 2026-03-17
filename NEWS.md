@@ -44,6 +44,8 @@
 
 * INFRASTRUCTURE: Add `tidyselect` to `Imports`.
 
+* DOCUMENTATION: Remove unused Docker vignette.
+
 # dyngen 1.0.5
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.

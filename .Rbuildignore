@@ -20,3 +20,4 @@
 ^vignettes/showcase_backbones
 ^cran-comments\.md$
 ^pkgdown$
+^CRAN-SUBMISSION$

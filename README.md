@@ -54,8 +54,6 @@ the links below:
   dataset](https://dyngen.dynverse.org/articles/advanced_topics/comparison_reference.html)
 - [Advanced: Constructing a custom
   backbone](https://dyngen.dynverse.org/articles/advanced_topics/constructing_backbone.html)
-- [Advanced: Running dyngen from a docker
-  container](https://dyngen.dynverse.org/articles/advanced_topics/run_dyngen_from_docker.html)
 - [Advanced: On scalability and
   runtime](https://dyngen.dynverse.org/articles/advanced_topics/scalability_and_runtime.html)
 - [Advanced: Simulating batch
