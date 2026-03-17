@@ -31,7 +31,7 @@ config <-
     num_targets = 250,
     num_hks = 250,
     simulation_params = simulation_default(
-      census_interval = 10, 
+      census_interval = 10,
       ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 100)
     )
@@ -53,7 +53,7 @@ config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
+      census_interval = 5,
       ssa_algorithm = ssa_etl(tau = .01),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
@@ -91,7 +91,7 @@ model_a <- model_common %>%
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=01s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~01s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
@@ -109,7 +109,7 @@ model_b <- model_common %>%
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=01s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~01s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
@@ -118,19 +118,19 @@ model_b <- model_common %>%
 The differences if kinetics parameters can be visualised as follows.
 
 ``` r
-params_a <- 
-  dyngen:::.kinetics_extract_parameters_as_df(model_a$feature_info, model_a$feature_network) %>% 
+params_a <-
+  dyngen:::.kinetics_extract_parameters_as_df(model_a$feature_info, model_a$feature_network) %>%
   select(id, group = param, model_a = value)
 
-params_b <- 
-  dyngen:::.kinetics_extract_parameters_as_df(model_b$feature_info, model_b$feature_network) %>% 
+params_b <-
+  dyngen:::.kinetics_extract_parameters_as_df(model_b$feature_info, model_b$feature_network) %>%
   select(id, group = param, model_b = value)
 
 params_ab <-
   inner_join(params_a, params_b, by = c("id", "group"))
 
-ggplot(params_ab) + 
-  geom_point(aes(model_a, model_b, colour = group)) + 
+ggplot(params_ab) +
+  geom_point(aes(model_a, model_b, colour = group)) +
   facet_wrap(~group, scales = "free") +
   theme_bw()
 ```
@@ -143,7 +143,7 @@ Finally, combine the simulations as follows.
 
 ``` r
 model_ab <-
-  combine_models(list(left = model_a, right = model_b)) %>% 
+  combine_models(list(left = model_a, right = model_b)) %>%
   generate_experiment()
 ```
 
@@ -151,6 +151,9 @@ model_ab <-
     ## Merging model 2/2 right
     ## Recomputing dimred
     ## Simulating experiment
+
+    ## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.
+    ##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).
 
 Show a dimensionality reduction.
 
@@ -206,6 +209,14 @@ plot_heatmap(dataset, features_oi = 50)
     ## Using 'left_sA' as root
 
     ## Coloring by milestone
+
+    ## Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+    ## ℹ Please use tidy evaluation idioms with `aes()`.
+    ## ℹ See also `vignette("ggplot2-in-packages")` for more information.
+    ## ℹ The deprecated feature was likely used in the dynplot package.
+    ##   Please report the issue at <https://github.com/dynverse/dynplot/issues>.
+    ## This warning is displayed once per session.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
 
 ![](simulating_batch_effects_files/figure-gfm/dyno-2.png)<!-- -->
 

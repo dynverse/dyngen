@@ -6,7 +6,7 @@ articles <- tibble(
   rmd_mtime = file.info(rmd)$mtime,
   md_mtime = file.info(md)$mtime,
   render = is.na(md_mtime) | rmd_mtime > md_mtime,
-  html_preview = !grepl("advanced_", rmd) && !grepl("showcase_backbones", rmd)
+  html_preview = !grepl("advanced_", rmd) & !grepl("showcase_backbones", rmd)
 )
 
 pwalk(articles %>% filter(render), function(rmd, md, html_preview, ...) {

@@ -32,7 +32,7 @@ config <-
     num_targets = 250,
     num_hks = 250,
     simulation_params = simulation_default(
-      census_interval = 10, 
+      census_interval = 10,
       ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 100)
     )
@@ -54,8 +54,8 @@ config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 5,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
   )
@@ -65,7 +65,7 @@ config <-
 model_common <-
   config %>%
   generate_tf_network() %>%
-  generate_feature_network() %>% 
+  generate_feature_network() %>%
   generate_kinetics() %>%
   generate_gold_standard()
 ```
@@ -77,7 +77,7 @@ model_common <-
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=01s, remaining~01s  |=============================                     | 57% elapsed=01s, remaining~01s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |========                                          | 14% elapsed=00s, remaining~01s  |===============                                   | 29% elapsed=00s, remaining~01s  |======================                            | 43% elapsed=00s, remaining~00s  |=============================                     | 57% elapsed=00s, remaining~00s  |====================================              | 71% elapsed=01s, remaining~00s  |===========================================       | 86% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
 
 ## Simulate wild type
 
@@ -108,11 +108,11 @@ changed from wild type (see first code block) to knockdown. The
 single-cell knockdowns of 1 to 5 random genes, but this behaviour can be
 overridden by setting the following parameters:
 
--   `genes`: list of gene ids to be knocked out,
--   `num_genes`: number of genes to be knocked out per cell (sampled
-    randomly),
--   `multiplier`: the fraction of transcription rate after KO (0 → no
-    transcription, 1 → no KO).
+- `genes`: list of gene ids to be knocked out,
+- `num_genes`: number of genes to be knocked out per cell (sampled
+  randomly),
+- `multiplier`: the fraction of transcription rate after KO (0 → no
+  transcription, 1 → no KO).
 
 In this case, looking at the module network of the bifurcation model it
 is possible to see that the B3 gene module is important for
@@ -126,16 +126,18 @@ plot_backbone_modulenet(model_common)
 ![](simulating_knockouts_files/figure-gfm/visnet-1.png)<!-- -->
 
 ``` r
-b3_genes <- model_common$feature_info %>% filter(module_id == "B3") %>% pull(feature_id)
+b3_genes <- model_common$feature_info %>%
+  filter(module_id == "B3") %>%
+  pull(feature_id)
 ```
 
-By knocking out the gene "", one of the two branches will be inhibited.
+By knocking out the gene ““, one of the two branches will be inhibited.
 
 ``` r
 model_ko <- model_common
 model_ko$simulation_params$experiment_params <- simulation_type_knockdown(
   num_simulations = 100L,
-  timepoint = 0, 
+  timepoint = 0,
   genes = b3_genes,
   num_genes = length(b3_genes),
   multiplier = 0
@@ -156,7 +158,9 @@ model_ko <- model_ko %>%
     ## Running 100 simulations
     ## Mapping simulations to gold standard
 
-    ## Warning in .generate_cells_predict_state(model): Simulation does not contain all gold standard edges. This simulation likely suffers from bad kinetics; choose a different seed and rerun.
+    ## Warning in .generate_cells_predict_state(model): Simulation does not contain
+    ## all gold standard edges. This simulation likely suffers from bad kinetics;
+    ## choose a different seed and rerun.
 
     ## Performing dimred
 
@@ -173,7 +177,7 @@ output.
 
 ``` r
 model_comb <-
-  combine_models(list(WT = model_wt, KO = model_ko)) %>% 
+  combine_models(list(WT = model_wt, KO = model_ko)) %>%
   generate_experiment()
 ```
 
@@ -181,6 +185,12 @@ model_comb <-
     ## Merging model 2/2 KO
     ## Recomputing dimred
     ## Simulating experiment
+
+    ## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : Certain backbone segments are not covered by any of the simulations. If this is intentional, please ignore this warning.
+    ##   Otherwise, increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).
+
+    ## Warning in params$fun(network = network, sim_meta = sim_meta, params = model$experiment_params, : One of the branches did not obtain enough simulation steps.
+    ##   Increase the number of simulations (see `?simulation_default`) or decreasing the census interval (see `?simulation_default`).
 
 ``` r
 plot_simulations(model_comb)

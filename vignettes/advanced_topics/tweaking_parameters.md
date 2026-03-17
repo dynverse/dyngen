@@ -32,7 +32,7 @@ num_tfs <- nrow(backbone$module_info)
 num_targets <- round((num_features - num_tfs) / 2)
 num_hks <- num_features - num_targets - num_tfs
 
-run1_config <- 
+run1_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -58,8 +58,8 @@ run1_config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 5,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
   )
@@ -76,13 +76,13 @@ run1 <- generate_dataset(run1_config, make_plots = TRUE)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
     ## Performing dimred
     ## Simulating experiment
-    ## Wrapping dataset
+    ## Wrapping dataset as list
     ## Making plots
 
 ``` r
@@ -96,19 +96,19 @@ once with `num_cells = 100` and `num_features = 100` and verifying that
 the new parameters still yield the desired outcome. The parameters we
 tweaked are:
 
--   On average, 10 cells are sampled per simulation
-    (e.g. `num_simulations = 100` and `num_cells = 1000`). You could
-    increase this ratio to get a better cell count yield from a given
-    set of simulations, but cells from the same simulation that are
-    temporally close will have highly correlated expression profiles.
--   Increased time steps `tau`. This will make the Gillespie algorithm
-    slighty faster but might result in unexpected artifacts in the
-    simulated data.
--   `census_interval` increased from 4 to 10. This will cause dyngen to
-    store an expression profile only every 10 time units. Since the
-    total simulation time is xxx, each simulation will result in yyy
-    data points. Note that on average only 10 data points are sampled
-    per simulation.
+- On average, 10 cells are sampled per simulation
+  (e.g. `num_simulations = 100` and `num_cells = 1000`). You could
+  increase this ratio to get a better cell count yield from a given set
+  of simulations, but cells from the same simulation that are temporally
+  close will have highly correlated expression profiles.
+- Increased time steps `tau`. This will make the Gillespie algorithm
+  slighty faster but might result in unexpected artifacts in the
+  simulated data.
+- `census_interval` increased from 4 to 10. This will cause dyngen to
+  store an expression profile only every 10 time units. Since the total
+  simulation time is xxx, each simulation will result in yyy data
+  points. Note that on average only 10 data points are sampled per
+  simulation.
 
 ## Increasing time step `tau`
 
@@ -117,7 +117,7 @@ during the simulation. Setting `tau` too large might cause certain
 production and degradation of molecules to fluctuate strangely.
 
 ``` r
-run2_config <- 
+run2_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -146,7 +146,7 @@ run2_config <-
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     gold_standard_params = gold_standard_default(tau = 1),
     simulation_params = simulation_default(
-      census_interval = 5, 
+      census_interval = 5,
       ssa_algorithm = ssa_etl(tau = 5),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
@@ -170,7 +170,7 @@ run2 <- generate_dataset(run2_config, make_plots = TRUE)
     ## Mapping simulations to gold standard
     ## Performing dimred
     ## Simulating experiment
-    ## Wrapping dataset
+    ## Wrapping dataset as list
     ## Making plots
 
 ``` r
@@ -223,7 +223,7 @@ Controlling the ratio
 be performed by tweaking the `census_interval`.
 
 ``` r
-run3_config <- 
+run3_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -264,13 +264,13 @@ created.
 
 ``` r
 reference_dataset <- Matrix::rsparsematrix(
-  nrow = 1000, 
-  ncol = 1000, 
-  density = .01, 
+  nrow = 1000,
+  ncol = 1000,
+  density = .01,
   rand.x = function(n) rbinom(n, 20, .1)
 ) %>% Matrix::drop0()
 
-run4_config <- 
+run4_config <-
   initialise_model(
     backbone = backbone,
     num_tfs = num_tfs,
@@ -299,8 +299,8 @@ run4_config <-
     verbose = interactive(),
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
-      census_interval = 5, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 5,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     ),
     experiment_params = experiment_snapshot(
@@ -320,13 +320,13 @@ run4 <- generate_dataset(run4_config, make_plots = TRUE)
     ## Generating gold standard mod changes
     ## Precompiling reactions for gold standard
     ## Running gold simulations
-    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=01s, remaining~01s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
+    ##   |                                                  | 0 % elapsed=00s     |=============                                     | 25% elapsed=00s, remaining~01s  |=========================                         | 50% elapsed=00s, remaining~00s  |======================================            | 75% elapsed=01s, remaining~00s  |==================================================| 100% elapsed=01s, remaining~00s
     ## Precompiling reactions for simulations
     ## Running 10 simulations
     ## Mapping simulations to gold standard
     ## Performing dimred
     ## Simulating experiment
-    ## Wrapping dataset
+    ## Wrapping dataset as list
     ## Making plots
 
 ``` r
@@ -348,7 +348,9 @@ dat <- bind_rows(
   tibble(source = "reference", library_size = library_size_reference),
   tibble(source = "dyngen", library_size = library_size_dyngen)
 )
-ggplot(dat) + geom_density(aes(library_size, colour = source)) + theme_bw()
+ggplot(dat) +
+  geom_density(aes(library_size, colour = source)) +
+  theme_bw()
 ```
 
 ![](tweaking_parameters_files/figure-gfm/run4_analysis-1.png)<!-- -->

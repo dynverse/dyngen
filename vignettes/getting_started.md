@@ -25,7 +25,7 @@ library(dyngen)
 set.seed(1)
 
 backbone <- backbone_bifurcating()
-config <- 
+config <-
   initialise_model(
     backbone = backbone,
     num_tfs = nrow(backbone$module_info),
@@ -51,8 +51,8 @@ config <-
     download_cache_dir = tools::R_user_dir("dyngen", "data"),
     simulation_params = simulation_default(
       total_time = 1000,
-      census_interval = 2, 
-      ssa_algorithm = ssa_etl(tau = 300/3600),
+      census_interval = 2,
+      ssa_algorithm = ssa_etl(tau = 300 / 3600),
       experiment_params = simulation_type_wild_type(num_simulations = 10)
     )
   )
@@ -77,8 +77,13 @@ For backbones with all different sorts of topologies, check
 names(list_backbones())
 ```
 
-    ##  [1] "bifurcating"             "bifurcating_converging"  "bifurcating_cycle"       "bifurcating_loop"        "binary_tree"             "branching"               "consecutive_bifurcating" "converging"             
-    ##  [9] "cycle"                   "cycle_simple"            "disconnected"            "linear"                  "linear_simple"           "trifurcating"
+    ##  [1] "bifurcating"             "bifurcating_converging" 
+    ##  [3] "bifurcating_cycle"       "bifurcating_loop"       
+    ##  [5] "binary_tree"             "branching"              
+    ##  [7] "consecutive_bifurcating" "converging"             
+    ##  [9] "cycle"                   "cycle_simple"           
+    ## [11] "disconnected"            "linear"                 
+    ## [13] "linear_simple"           "trifurcating"
 
 ## Step 2: Generate transcription factors (TFs)
 
@@ -297,17 +302,7 @@ print(out$plot)
 
 ``` r
 library(dyno)
-```
 
-    ## Loading required package: dynfeature
-
-    ## Loading required package: dynguidelines
-
-    ## Loading required package: dynmethods
-
-    ## Loading required package: dynwrap
-
-``` r
 plot_dimred(dataset)
 ```
 
