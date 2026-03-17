@@ -11,7 +11,7 @@ articles:
   advanced_topics/simulating_batch_effects: advanced_topics/simulating_batch_effects.html
   advanced_topics/simulating_knockouts: advanced_topics/simulating_knockouts.html
   advanced_topics/tweaking_parameters: advanced_topics/tweaking_parameters.html
-last_built: 2026-03-17T08:02Z
+last_built: 2026-03-17T08:59Z
 urls:
   reference: https://dyngen.dynverse.org/reference
   article: https://dyngen.dynverse.org/articles
