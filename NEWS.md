@@ -46,6 +46,10 @@
 
 * DOCUMENTATION: Remove unused Docker vignette.
 
+* MINOR CHANGE `as_anndata()`: Replace the `anndata` R package (Python-based) with
+  `anndataR` (Bioconductor) for constructing AnnData objects. This removes the
+  Python dependency from the `anndata` output format.
+
 # dyngen 1.0.5
 
 * MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.

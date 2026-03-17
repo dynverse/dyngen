@@ -1,23 +1,22 @@
-# dyngen 1.0.5
+# dyngen 1.1.0
 
-* MINOR CHANGE: Refactor matrix coercion thanks to Matrix 1.5-0.
+* BREAKING CHANGE: Minimum R version bumped to 4.1.0.
 
-* BUG FIX: An update to the dependency package GillespieSSA2 was published to
-  attempt to resolve an issue with a malloc free which caused dyngen to be removed
-  from CRAN.
+* MINOR CHANGE `as_anndata()`: Replace the `anndata` R package (Python-based)
+  with `anndataR` (Bioconductor), removing the Python dependency from the
+  `anndata` output format.
 
-## Test environments
-* local Fedora install (R release)
-* ubuntu 20.04 (with Github Actions; R release, devel)
-* Mac OS X (with Github Actions; R release)
-* Windows (with Github Actions; R release)
-* win-builder (oldrelease, release, devel)
+* MINOR CHANGE `plot_simulation_expression()`: Move `ggrepel` from `Imports`
+  to `Suggests`.
+
+* MINOR CHANGE: Replace `magrittr::%>%` with the native pipe `|>`, deprecated
+  dplyr/tidyr verbs with their modern equivalents, and deprecated ggplot2 APIs
+  with current ones throughout the package.
+
+* BUG FIX `get_timings()`: Compatibility with dplyr >= 1.1.0.
+
+* BUG FIX `bblego_linear()`: Fix broken pipe chain in `doublerep2` type.
 
 ## R CMD check results
 
-── R CMD check results ─────────────────────────────────────── dyngen 1.0.5 ────
-Duration: 4m 44.6s
-
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
-
-R CMD check succeeded
