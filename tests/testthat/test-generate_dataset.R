@@ -65,20 +65,7 @@ test_that("test converting to Seurat", {
 })
 
 test_that("test converting to anndata", {
-  skip_if(!requireNamespace("anndata", quietly = TRUE))
-
-  # check if python anndata is installed
-  py_anndata_available <-
-    tryCatch(
-      {
-        anndata::AnnData()
-        TRUE
-      },
-      error = function(e) {
-        FALSE
-      }
-    )
-  skip_if(!py_anndata_available)
+  skip_if(!requireNamespace("anndataR", quietly = TRUE))
 
   ad <- as_anndata(out$model)
   expect_equal(dim(ad$X), dim(out$dataset$counts))

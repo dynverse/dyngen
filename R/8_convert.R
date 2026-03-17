@@ -113,7 +113,7 @@ as_anndata <- function(
   store_cellwise_grn = !is.null(model$experiment$cellwise_grn),
   store_rna_velocity = !is.null(model$experiment$rna_velocity)
 ) {
-  requireNamespace("anndata")
+  requireNamespace("anndataR")
 
   assert_that(
     !is.null(model$experiment),
@@ -168,7 +168,7 @@ as_anndata <- function(
     ad_args$layers$rna_velocity <- model$experiment$rna_velocity
   }
 
-  do.call(anndata::AnnData, ad_args)
+  do.call(anndataR::AnnData, ad_args)
 }
 
 #' @rdname convert
@@ -445,7 +445,7 @@ conversion_funs <- list(
 )
 
 #' @rdname convert
-#' @param format Which output format to use, must be one of 'dyno' (requires `dynwrap`), 'sce' (requires `SingleCellExperiment`), 'seurat' (requires `Seurat`), 'anndata' (requires `anndata`), 'list' or 'none'.
+#' @param format Which output format to use, must be one of 'dyno' (requires `dynwrap`), 'sce' (requires `SingleCellExperiment`), 'seurat' (requires `Seurat`), 'anndata' (requires `anndataR`), 'list' or 'none'.
 #' @export
 wrap_dataset <- function(
   model,

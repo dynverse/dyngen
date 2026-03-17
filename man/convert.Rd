@@ -61,7 +61,7 @@ wrap_dataset(
 
 \item{store_rna_velocity}{WHether or not to store the log propensity ratios.}
 
-\item{format}{Which output format to use, must be one of 'dyno' (requires \code{dynwrap}), 'sce' (requires \code{SingleCellExperiment}), 'seurat' (requires \code{Seurat}), 'anndata' (requires \code{anndata}), 'list' or 'none'.}
+\item{format}{Which output format to use, must be one of 'dyno' (requires \code{dynwrap}), 'sce' (requires \code{SingleCellExperiment}), 'seurat' (requires \code{Seurat}), 'anndata' (requires \code{anndataR}), 'list' or 'none'.}
 }
 \value{
 A dataset object.
