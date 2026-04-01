@@ -73,10 +73,14 @@ For use with other packages compatible with dyno, anndata, SingleCellExperiment,
 data("example_model")
 dataset <- wrap_dataset(example_model, format = "list")
 \donttest{
-dataset <- wrap_dataset(example_model, format = "dyno")
-dataset <- wrap_dataset(example_model, format = "sce")
-dataset <- wrap_dataset(example_model, format = "seurat")
-dataset <- wrap_dataset(example_model, format = "anndata")
+if (requireNamespace("dynwrap", quietly = TRUE))
+  dataset <- wrap_dataset(example_model, format = "dyno")
+if (requireNamespace("SingleCellExperiment", quietly = TRUE))
+  dataset <- wrap_dataset(example_model, format = "sce")
+if (requireNamespace("Seurat", quietly = TRUE))
+  dataset <- wrap_dataset(example_model, format = "seurat")
+if (requireNamespace("anndataR", quietly = TRUE))
+  dataset <- wrap_dataset(example_model, format = "anndata")
 dataset <- wrap_dataset(example_model, format = "none")
 }
 }

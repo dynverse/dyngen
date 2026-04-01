@@ -1,3 +1,7 @@
+# dyngen 1.1.1
+
+* BUG FIX `wrap_dataset()`: Guard examples (`anndata`, `sce`, `seurat`, `dyno`) with `requireNamespace()` checks so CRAN tests do not fail when optional packages are unavailable.
+
 # dyngen 1.1.0
 
 * BREAKING CHANGE: Minimum R version bumped to 4.1.0. This enables use of the
