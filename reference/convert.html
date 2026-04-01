@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Convert simulation output to different formats.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/1.1.0/R/8_convert.R" class="external-link"><code>R/8_convert.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/dynverse/dyngen/blob/master/R/8_convert.R" class="external-link"><code>R/8_convert.R</code></a></small>
     <div class="hidden name"><code>convert.Rd</code></div>
     </div>
 
@@ -173,14 +173,14 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"example_model"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"list"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"dyno"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: dynwrap</span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"sce"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: SingleCellExperiment</span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"seurat"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: Seurat</span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"anndata"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: anndataR</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dynwrap"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"dyno"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"SingleCellExperiment"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"sce"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"Seurat"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"seurat"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"anndataR"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"anndata"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">wrap_dataset</span><span class="op">(</span><span class="va">example_model</span>, format <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>

@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dyngen</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -86,11 +86,15 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/dynverse/dyngen/blob/1.1.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dynverse/dyngen/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.1.0" id="dyngen-110">dyngen 1.1.0<a class="anchor" aria-label="anchor" href="#dyngen-110"></a></h2>
+<h2 class="page-header" data-toc-text="1.1.1" id="dyngen-111">dyngen 1.1.1<a class="anchor" aria-label="anchor" href="#dyngen-111"></a></h2>
+<ul><li>BUG FIX <code><a href="../reference/convert.html">wrap_dataset()</a></code>: Guard examples (<code>anndata</code>, <code>sce</code>, <code>seurat</code>, <code>dyno</code>) with <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace()</a></code> checks so CRAN tests do not fail when optional packages are unavailable.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.1.0" id="dyngen-110">dyngen 1.1.0<small>2026-03-17</small><a class="anchor" aria-label="anchor" href="#dyngen-110"></a></h2>
 <ul><li><p>BREAKING CHANGE: Minimum R version bumped to 4.1.0. This enables use of the native pipe operator (<code>|&gt;</code>) and lambda functions (<code>\(x) ...</code>) throughout.</p></li>
 <li><p>BUG FIX <code><a href="../reference/get_timings.html">get_timings()</a></code>: Use <code><a href="https://dplyr.tidyverse.org/reference/reframe.html" class="external-link">reframe()</a></code> instead of <code><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise()</a></code> to fix compatibility with dplyr &gt;= 1.1.0.</p></li>
 <li><p>BUG FIX <code><a href="../reference/bblego.html">bblego_linear()</a></code>: Fix broken pipe chain in <code>doublerep2</code> type that caused <code><a href="../reference/backbone_models.html">backbone_bifurcating()</a></code> examples to fail.</p></li>
